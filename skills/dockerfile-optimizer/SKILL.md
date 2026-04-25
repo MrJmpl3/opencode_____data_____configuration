@@ -1,11 +1,17 @@
 ---
 name: dockerfile-optimizer
-description: Optimizes Dockerfiles for smaller images, faster builds, better caching, and security hardening using multi-stage builds and best practices. Use when users request "optimize Dockerfile", "reduce Docker image size", "Docker best practices", or "containerize application".
+description: "Use when optimizing Dockerfiles for smaller images, faster builds, better caching, and security hardening."
 ---
 
 # Dockerfile Optimizer
 
 Build optimized, secure, and cache-efficient Docker images following production best practices.
+
+## Scope Note
+
+- Keep this skill focused on Dockerfile structure, caching, image size, and runtime hardening.
+- For Compose stack design, use `docker-orchestration`.
+- For production Compose hardening, use `docker-production`.
 
 ## Core Workflow
 
@@ -307,7 +313,8 @@ coverage
 
 # Docker
 Dockerfile*
-docker-compose*
+compose*.yml
+compose*.yaml
 .docker
 
 # Documentation
@@ -379,7 +386,7 @@ USER appuser
 ### Read-Only Filesystem
 
 ```dockerfile
-# In docker-compose.yml or docker run
+# In compose.yaml or docker run
 services:
   app:
     read_only: true
@@ -400,7 +407,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 ### Minimal Capabilities
 
 ```yaml
-# docker-compose.yml
+# compose.yaml
 services:
   app:
     cap_drop:
@@ -449,94 +456,6 @@ ENV APP_VERSION=$APP_VERSION
 
 # Don't include secrets in Dockerfile
 # Use docker run --env-file or secrets management
-```
-
-## Docker Compose for Development
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development  # Multi-stage target
-    volumes:
-      - .:/app
-      - /app/node_modules  # Anonymous volume for node_modules
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-    command: npm run dev
-
-  app-prod:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-```
-
-## CI/CD Integration
-
-### GitHub Actions Build
-
-```yaml
-# .github/workflows/docker.yml
-name: Docker Build
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ghcr.io/${{ github.repository }}:${{ github.sha }}
-          format: 'table'
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
 ```
 
 ## Common Optimizations

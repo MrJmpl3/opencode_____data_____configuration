@@ -1,11 +1,13 @@
 ---
-name: devops-docker-best-practices
-description: "Use when reviewing Docker configurations for production readiness, applying security hardening, optimizing image sizes, managing secrets, implementing health checks, or evaluating 2025 Docker features (Engine 28, Compose v2.40, BuildKit)."
+name: docker-best-practices
+description: "Use when auditing Dockerfiles and Compose files with a checklist-style review for security, image hygiene, and production readiness."
 ---
 
 # Docker Best Practices
 
-## Follow this workflow
+## Review workflow
+
+This skill is review-first: it identifies gaps and recommends fixes without redesigning the stack.
 
 - Audit Dockerfile layer order: least-changed → most-changed.
 - Replace `latest` tags with pinned versions everywhere.
@@ -29,7 +31,7 @@ docker run --rm myapp:1.0.0 --help
 docker compose config
 ```
 
-## Image best practices
+## Image audit
 
 ### Base image hierarchy (2025)
 
@@ -88,10 +90,10 @@ coverage/
 dist/
 .vscode/
 .idea/
-docker-compose.override.yml
+compose.override.yaml
 ```
 
-## Runtime security
+## Runtime audit
 
 ```bash
 docker run \
@@ -136,7 +138,7 @@ services:
       - .env.production   # gitignored
 ```
 
-## Production patterns
+## Production audit
 
 ### Image tagging strategy
 
@@ -231,10 +233,10 @@ CMD php-fpm              # Wrong: /bin/sh PID 1, php-fpm PID 2+
 
 ## Read this reference when needed
 
-- `.agents/skills/devops-docker-best-practices/references/security-hardening.md` — runtime security, capability management, AppArmor/SELinux, Enhanced Container Isolation (ECI)
-- `.agents/skills/devops-docker-best-practices/references/build-runtime-performance.md` — BuildKit cache mounts, image size reduction, build performance tuning
-- `.agents/skills/devops-docker-best-practices/references/docker-2025-features.md` — Docker Engine 28, Desktop 4.47, Compose v2.40 breaking changes and new features, BuildKit 2025
+- `.agents/skills/docker-best-practices/references/security-hardening.md` — runtime security, capability management, AppArmor/SELinux, Enhanced Container Isolation (ECI)
+- `.agents/skills/docker-best-practices/references/build-runtime-performance.md` — BuildKit cache mounts, image size reduction, build performance tuning
+- `.agents/skills/docker-best-practices/references/docker-2025-features.md` — Docker Engine 28, Desktop 4.47, Compose v2.40 breaking changes and new features, BuildKit 2025
 
 ## Consult related skills
 
-- `devops-docker-guide` — core Docker concepts, Dockerfile fundamentals, Compose basics, debugging
+- `docker-guide` — core Docker concepts, Dockerfile fundamentals, Compose basics, debugging
