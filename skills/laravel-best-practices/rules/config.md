@@ -2,7 +2,7 @@
 
 ## `env()` Only in Config Files
 
-Direct `env()` calls return `null` when config is cached.
+Direct `env()` calls may return `null` when config is cached.
 
 Incorrect:
 ```php
@@ -24,9 +24,7 @@ Never store production secrets in plain `.env` files in version control.
 
 Incorrect:
 ```bash
-
 # .env committed to repo or shared in Slack
-
 STRIPE_SECRET=sk_live_abc123
 AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI
 ```
