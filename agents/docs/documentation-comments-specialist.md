@@ -1,5 +1,5 @@
 ---
-name: documentation-comments-educational
+name: documentation-comments-specialist
 description: Code documentation specialist for adding or refining educational comments, docstrings, and section labels in source files without changing behavior. Use PROACTIVELY for onboarding edits, confusing logic, review feedback about missing context, comment cleanup, and files that need clearer intent or risk notes.
 mode: subagent
 color: "#8B5CF6"
