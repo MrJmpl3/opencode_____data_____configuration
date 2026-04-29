@@ -1,11 +1,13 @@
 ---
-name: sql-optimization-patterns
-description: Master SQL query optimization, indexing strategies, and EXPLAIN analysis to dramatically improve database performance and eliminate slow queries. Use when debugging slow queries, designing database schemas, or optimizing application performance.
+name: postgresql-optimization-patterns
+description: PostgreSQL query optimization, indexing strategies, and EXPLAIN analysis to dramatically improve database performance and eliminate slow queries. Use when debugging slow PostgreSQL queries, designing schemas, or optimizing application performance.
 ---
 
-# SQL Optimization Patterns
+# PostgreSQL Optimization Patterns
 
-Transform slow database queries into lightning-fast operations through systematic optimization, proper indexing, and query plan analysis.
+This skill is PostgreSQL-focused. Use the MySQL skills for MySQL-specific tuning.
+
+Transform slow PostgreSQL database queries into faster operations through systematic optimization, proper indexing, and query plan analysis.
 
 ## When to Use This Skill
 
@@ -412,14 +414,9 @@ WHERE created_at BETWEEN '2024-02-01' AND '2024-02-28';
 -- Only scans orders_2024_q1 partition
 ```
 
-### Query Hints and Optimization
+### PostgreSQL Planner Controls
 
 ```sql
--- Force index usage (MySQL)
-SELECT * FROM users
-USE INDEX (idx_users_email)
-WHERE email = 'user@example.com';
-
 -- Parallel query (PostgreSQL)
 SET max_parallel_workers_per_gather = 4;
 SELECT * FROM large_table WHERE condition;

@@ -10,7 +10,7 @@ description: MySQL development best practices for schema design, query optimizat
 - Design schemas with appropriate storage engines (InnoDB for most use cases)
 - Optimize queries using EXPLAIN and proper indexing
 - Use proper data types to minimize storage and improve performance
-- Implement connection pooling and query caching appropriately
+- Implement connection pooling and application-level caching appropriately; do not rely on MySQL query cache in 8.0+
 - Follow MySQL-specific security hardening practices
 
 ## Schema Design
@@ -22,33 +22,39 @@ description: MySQL development best practices for schema design, query optimizat
 - Use MEMORY engine for temporary tables with high-speed requirements
 
 ```sql
+CREATE TABLE order_statuses (
+    status_id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+    status_name VARCHAR(32) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE orders (
-    order_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT UNSIGNED NOT NULL,
+    order_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    customer_id BIGINT UNSIGNED NOT NULL,
     order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(12, 2) NOT NULL,
-    status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled')
-        NOT NULL DEFAULT 'pending',
+    status_id TINYINT UNSIGNED NOT NULL,
     INDEX idx_customer (customer_id),
-    INDEX idx_date_status (order_date, status),
+    INDEX idx_date_status (order_date, status_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    FOREIGN KEY (status_id) REFERENCES order_statuses(status_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ### Data Types
 
 - Use smallest data type that fits your needs
-- Prefer INT UNSIGNED over BIGINT when possible
+- Prefer BIGINT UNSIGNED for primary keys unless you have a measured upper bound
 - Use DECIMAL for financial calculations, not FLOAT/DOUBLE
-- Use ENUM for fixed sets of values
+- Prefer lookup tables over ENUM; use ENUM only when the set is truly static and tiny
 - Use VARCHAR for variable-length strings, CHAR for fixed-length
-- Always use utf8mb4 charset for full Unicode support
+- Prefer DATETIME over TIMESTAMP unless you specifically want automatic timezone conversion and the 2038 limit is acceptable
+- Always use utf8mb4 charset with a modern collation such as utf8mb4_0900_ai_ci
 
 ```sql
 -- Appropriate data type selection
 CREATE TABLE products (
-    product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    product_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     sku VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -56,34 +62,36 @@ CREATE TABLE products (
     quantity SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     weight DECIMAL(8, 3),
     is_active TINYINT(1) NOT NULL DEFAULT 1,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uk_sku (sku)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 ```
 
 ### Primary Keys
 
-- Use AUTO_INCREMENT integer primary keys for InnoDB tables
-- Consider UUIDs stored as BINARY(16) for distributed systems
+- Prefer BIGINT UNSIGNED AUTO_INCREMENT primary keys for InnoDB tables
+- Keep UUIDs in a secondary unique BINARY(16) column when external identifiers are required
 - Avoid composite primary keys when possible
 
 ```sql
 -- UUID storage optimization
 CREATE TABLE distributed_events (
-    event_id BINARY(16) PRIMARY KEY,
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    public_id BINARY(16) NOT NULL,
     event_type VARCHAR(50) NOT NULL,
     payload JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_public_id (public_id)
 );
 
 -- Insert with UUID
-INSERT INTO distributed_events (event_id, event_type, payload)
+INSERT INTO distributed_events (public_id, event_type, payload)
 VALUES (UUID_TO_BIN(UUID()), 'user_signup', '{"user_id": 123}');
 
 -- Query with UUID
 SELECT * FROM distributed_events
-WHERE event_id = UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000');
+WHERE public_id = UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000');
 ```
 
 ## Indexing Strategies
@@ -200,12 +208,12 @@ SELECT * FROM products WHERE MATCH(name) AGAINST('phone');
 
 ```sql
 CREATE TABLE events (
-    event_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    event_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     event_type VARCHAR(50) NOT NULL,
     payload JSON NOT NULL,
     -- Generated column for indexing
-    user_id INT UNSIGNED AS (payload->>'$.user_id') STORED,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id BIGINT UNSIGNED AS (CAST(payload->>'$.user_id' AS UNSIGNED)) STORED,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_user_id (user_id)
 );
 
@@ -250,7 +258,7 @@ SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 ```sql
 -- Check replication status
-SHOW SLAVE STATUS\G
+SHOW REPLICA STATUS\G
 
 -- Check replication lag
 SELECT TIMESTAMPDIFF(SECOND,
@@ -324,7 +332,7 @@ ORDER BY data_length DESC;
 
 [mysqld]
 # InnoDB settings
-innodb_buffer_pool_size = 70%_of_RAM
+innodb_buffer_pool_size = 4G  # example; size this to roughly 70% of RAM on dedicated hosts
 innodb_log_file_size = 256M
 innodb_flush_log_at_trx_commit = 1
 innodb_flush_method = O_DIRECT
@@ -334,8 +342,7 @@ max_connections = 500
 wait_timeout = 300
 interactive_timeout = 300
 
-# Query cache (disabled in MySQL 8.0+)
-query_cache_type = 0
+# Query cache was removed in MySQL 8.0; do not rely on it.
 
 # Slow query log
 slow_query_log = 1
