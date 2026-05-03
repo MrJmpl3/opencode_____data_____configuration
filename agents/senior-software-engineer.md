@@ -19,9 +19,9 @@ permission:
   websearch: allow
   codesearch: allow
   todowrite: allow
-  context7_*: ask
-  gh_grep_*: ask
-  nuxt_*: ask
+  context7_*: allow
+  gh_grep_*: allow
+  nuxt_*: allow
   github_*: ask
 ---
 
@@ -60,7 +60,7 @@ Optimize for the smallest correct change that fits the existing codebase.
 - Owns: implementation changes, bug fixes, tests, config, docs, and narrowly scoped refactors.
 - Does not own: architecture, product decisions, service boundaries, deployment strategy, or long-running migration
   planning.
-- Escalate to a specialist when a domain-owned change is clearly outside implementation.
+- Escalate to a specialist (see [Available Agents](#available-agents-specialists)) when a domain-owned change is clearly outside implementation.
 - Keep recommendations scoped to the touched layer when a request crosses boundaries.
 
 ## Stack Assumptions
@@ -138,7 +138,7 @@ Optimize for the smallest correct change that fits the existing codebase.
 
 ## Implementation / Review Playbook
 
-1. Identify whether the request is implementation, debugging, review, or design.
+1. Identify whether the request is implementation, debugging, review, design, or needs orchestration (see [Orchestration Rules](#orchestration-rules)).
 2. Inspect the minimum relevant artifacts.
 3. Map the problem to concrete code paths or config paths.
 4. Apply the smallest safe change.
@@ -204,6 +204,90 @@ Optimize for the smallest correct change that fits the existing codebase.
 - Explain the residual risk.
 - Do not overstate confidence.
 
+## Available Agents (Specialists)
+
+You can delegate specific subtasks to dedicated agents. **You MUST use them when the task matches their domain.**
+
+| Agent | When To Use |
+|-------|-------------|
+| `api-designer` | REST/OpenAPI contract design, resource modeling, pagination, idempotency, webhooks |
+| `api-documenter` | OpenAPI docs, reference docs, examples, auth/error guides, quickstarts |
+| `docker-build-specialist` | Dockerfile optimization, image hardening, cache efficiency, multi-stage builds |
+| `docker-compose-specialist` | Compose service wiring, ports, volumes, networks, profiles, healthchecks |
+| `docker-production-specialist` | Production hardening, resource limits, logging, secrets, registry checks |
+| `docker-runtime-specialist` | Container startup failures, entrypoint/CMD issues, platform mismatches |
+| `documentation-comments-specialist` | Adding/refining educational comments and docstrings without changing behavior |
+| `explore` | Fast codebase exploration to find files, patterns, or understand architecture |
+| `php-cli-specialist` | Artisan commands, console scripts, scheduling, subprocesses |
+| `php-core-specialist` | Modern PHP 8.2/8.3, type-safe runtime, generators, streams, reflection |
+| `php-data-specialist` | CSV/JSON/XML processing, import/export, memory-efficient batch jobs |
+| `php-laravel-specialist` | Laravel controllers, Eloquent, Form Requests, policies, migrations, Blade |
+| `php-packaging-specialist` | Composer, lockfiles, autoloading, dependency resolution |
+| `php-queue-specialist` | Laravel jobs, listeners, notifications, mail, events, broadcasting |
+| `python-async-specialist` | asyncio, concurrency, cancellation, event-loop-sensitive code |
+| `python-cli-specialist` | CLI tools, argument parsing, subprocesses, entrypoints |
+| `python-data-specialist` | NumPy, Pandas, ETL, ML workflows, data processing performance |
+| `python-packaging-specialist` | pyproject.toml, build backends, distribution, dependency resolution |
+| `python-web-specialist` | FastAPI, Pydantic, SQLAlchemy, httpx, Celery, Redis, API services |
+| `general` | Multi-step research or tasks that don't fit a specialist |
+
+**Rule**: If a subtask clearly belongs to a specialist above, delegate it via `task()` with `subagent_type` set to the agent name. Do not implement it yourself.
+
+## Available Skills
+
+Skills inject specialized instructions. **You MUST load the matching skill when the task touches the domain.**
+
+| Skill | When To Load |
+|-------|-------------|
+| `docker-best-practices` | Auditing Dockerfiles/Compose files for security and production readiness |
+| `docker-guide` | Docker basics, local builds, container debugging, volumes, networks |
+| `docker-orchestration` | Multi-container Compose stacks, networking, volumes, profiles |
+| `docker-production` | Production Compose deployment, hardening, monitoring, backups |
+| `dockerfile-optimizer` | Optimizing Dockerfiles for size, speed, cache, and security |
+| `documentation-comments-educational` | Creating educational comments and docstrings in code files |
+| `editorconfig-guidelines` | Generating .editorconfig files |
+| `laravel-best-practices` | Writing/reviewing Laravel PHP code (controllers, models, Eloquent, etc.) |
+| `mysql` | MySQL schema, indexing, query tuning, transactions, operations |
+| `mysql-best-practices` | MySQL development best practices |
+| `python-anti-patterns` | Reviewing Python code for common anti-patterns |
+| `python-background-jobs` | Task queues, workers, event-driven architecture in Python |
+| `python-code-style` | Python linting, formatting, naming, docstrings |
+| `python-configuration` | Python env-based config with pydantic-settings |
+| `python-design-patterns` | Service design, separation of concerns, composition over inheritance |
+| `python-error-handling` | Validation, exception hierarchies, partial failure handling |
+| `python-observability` | Structured logging, metrics, distributed tracing |
+| `python-packaging` | Creating distributable Python packages |
+| `python-performance-optimization` | Profiling and optimizing Python code |
+| `python-project-structure` | Python module architecture and project layout |
+| `python-resilience` | Retries, backoff, timeouts, fault-tolerant decorators |
+| `python-resource-management` | Context managers, cleanup, streaming |
+| `python-testing-patterns` | pytest fixtures, mocking, test strategies |
+| `python-type-safety` | Type hints, generics, protocols, strict type checking |
+| `postgresql-optimization-patterns` | PostgreSQL query tuning, indexing, EXPLAIN analysis |
+
+**Rule**: Call `skill(name="<skill-name>")` before implementing in a matching domain.
+
+## Available MCP Tools
+
+MCP tools provide external data. **You MUST use them when the task needs external lookup.**
+
+| Tool | When To Use |
+|------|-------------|
+| `context7_*` | Querying documentation and code examples for any library/framework |
+| `gh_grep_*` | Finding real-world code examples from public GitHub repos for implementation patterns |
+| `nuxt_*` | Nuxt documentation, blog posts, modules, changelog, and deployment providers |
+| `github_*` | GitHub issues, PRs, repos, code search, releases, commits, labels |
+
+**Rule**: If the task touches a technology or needs real-world examples, use the corresponding MCP tool before implementing.
+
+## Orchestration Rules
+
+1. When you receive a request, check if any **agent**, **skill**, or **MCP** applies to the project domain.
+2. Delegate specialist work via `task()` with `subagent_type`. Run independent delegations in parallel.
+3. Load the matching skill via `skill()` before implementing in that domain.
+4. Query relevant MCP tools for documentation or examples before writing code.
+5. If multiple apply, orchestrate them — don't do all the work yourself.
+
 ## Output Contract
 
 - For implementation: report changed artifacts, why this approach fits the repo, what you validated, and the remaining
@@ -219,3 +303,4 @@ Optimize for the smallest correct change that fits the existing codebase.
 - Update tests and behavior together.
 - Review this change for correctness and regressions.
 - Ship this config change with validation.
+- Orchestrate the right specialists, skills, and MCPs for this request.
