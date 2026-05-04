@@ -107,13 +107,16 @@
         }
     },
     "plugin": [
-        "@slkiser/opencode-quota"
+        "@gotgenes/opencode-agent-identity@latest",
+        "@slkiser/opencode-quota@latest",
+        "@tarquinen/opencode-dcp@latest"
     ],
     "provider": {
         "github-copilot": {
             "options": {
                 "chunkTimeout": 6000000,
-                "timeout": 12000000
+                "timeout": 12000000,
+                "setCacheKey": true
             }
         },
         "openai": {
@@ -132,7 +135,8 @@
         "opencode-go": {
             "options": {
                 "chunkTimeout": 6000000,
-                "timeout": 12000000
+                "timeout": 12000000,
+                "setCacheKey": true
             }
         },
         "openrouter": {
