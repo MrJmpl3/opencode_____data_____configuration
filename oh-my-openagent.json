@@ -1,115 +1,198 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
-
-  "model_fallback": true,
-  "hashline_edit": true,
-
-  "background_task": {
-    "defaultConcurrency": 5,
-    "providerConcurrency": {
-      "opencode-go": 5,
-      "github-copilot": 3,
-      "openai": 3,
-      "opencode": 10
+  "agents": {
+    "atlas": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/minimax/minimax-m2.7"
+      ],
+      "model": "opencode-go/minimax-m2.7",
+      "variant": "medium"
+    },
+    "explore": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/minimax/minimax-m2.7"
+      ],
+      "model": "opencode-go/minimax-m2.7",
+      "variant": "low"
+    },
+    "librarian": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/minimax/minimax-m2.7"
+      ],
+      "model": "opencode-go/minimax-m2.7",
+      "variant": "low"
+    },
+    "metis": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-pro",
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/kimi/kimi-k2.6"
+      ],
+      "model": "opencode-go/kimi-k2.6",
+      "variant": "high"
+    },
+    "momus": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/deepseek/deepseek-v4-pro"
+      ],
+      "model": "opencode-go/deepseek-v4-pro",
+      "prompt_append": "Focus on code quality, edge cases, and test coverage.",
+      "variant": "high"
+    },
+    "multimodal-looker": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/kimi/kimi-k2.6"
+      ],
+      "model": "opencode-go/kimi-k2.6",
+      "variant": "medium"
+    },
+    "oracle": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-pro",
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/kimi/kimi-k2.6"
+      ],
+      "model": "opencode-go/kimi-k2.6",
+      "variant": "high"
+    },
+    "prometheus": {
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/kimi/kimi-k2.6"
+      ],
+      "model": "opencode-go/kimi-k2.6",
+      "prompt_append": "Always interview first. Validate scope before planning.",
+      "variant": "high"
+    },
+    "sisyphus": {
+      "fallback_models": [
+        "opencode-go/minimax-m2.7",
+        "openrouter/deepseek/deepseek-v4-flash"
+      ],
+      "model": "opencode-go/deepseek-v4-flash",
+      "prompt_append": "Delegate implementation to deep/unspecified-high agents. Parallelize exploration via explore/librarian.",
+      "ultrawork": {
+        "model": "opencode-go/kimi-k2.6",
+        "variant": "max"
+      },
+      "variant": "max"
+    },
+    "sisyphus-junior": {
+      "fallback_models": ["openrouter/deepseek/deepseek-v4-flash"],
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "medium"
     }
   },
-
+  "background_task": {
+    "defaultConcurrency": 5,
+    "modelConcurrency": {
+      "opencode-go/deepseek-v4-flash": 10,
+      "opencode-go/deepseek-v4-pro": 2,
+      "opencode-go/kimi-k2.6": 3,
+      "opencode-go/minimax-m2.7": 8,
+      "openrouter/deepseek/deepseek-v4-flash": 5,
+      "openrouter/deepseek/deepseek-v4-pro": 2,
+      "openrouter/kimi/kimi-k2.6": 2,
+      "openrouter/minimax/minimax-m2.7": 5
+    },
+    "providerConcurrency": {
+      "opencode-go": 8,
+      "openrouter": 5
+    }
+  },
+  "categories": {
+    "artistry": {
+      "description": "Soluciones creativas no convencionales, enfoques alternativos",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/kimi/kimi-k2.6"
+      ],
+      "model": "opencode-go/kimi-k2.6",
+      "variant": "high"
+    },
+    "deep": {
+      "description": "Resolucion autonoma: investiga a fondo antes de actuar",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/deepseek/deepseek-v4-pro"
+      ],
+      "model": "opencode-go/deepseek-v4-pro",
+      "variant": "high"
+    },
+    "quick": {
+      "description": "Tareas triviales: typo, un archivo, cambio simple",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/minimax/minimax-m2.7"
+      ],
+      "model": "opencode-go/minimax-m2.7",
+      "variant": "low"
+    },
+    "ultrabrain": {
+      "description": "Razonamiento logico profundo, algoritmos, arquitectura",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/deepseek/deepseek-v4-pro"
+      ],
+      "model": "opencode-go/deepseek-v4-pro",
+      "variant": "max"
+    },
+    "unspecified-high": {
+      "description": "Tareas generales de alto esfuerzo o complejidad",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/deepseek/deepseek-v4-pro"
+      ],
+      "model": "opencode-go/deepseek-v4-pro",
+      "variant": "high"
+    },
+    "unspecified-low": {
+      "description": "Tareas generales de esfuerzo bajo a moderado",
+      "fallback_models": ["openrouter/deepseek/deepseek-v4-flash"],
+      "model": "opencode-go/deepseek-v4-flash",
+      "variant": "high"
+    },
+    "visual-engineering": {
+      "description": "Frontend, UI/UX, diseno, animacion, CSS/styling",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/kimi/kimi-k2.6"
+      ],
+      "model": "opencode-go/kimi-k2.6",
+      "variant": "medium"
+    },
+    "writing": {
+      "description": "Documentacion, prosa, escritura tecnica",
+      "fallback_models": [
+        "opencode-go/deepseek-v4-flash",
+        "openrouter/minimax/minimax-m2.7"
+      ],
+      "model": "opencode-go/minimax-m2.7",
+      "variant": "medium"
+    }
+  },
   "experimental": {
     "aggressive_truncation": true,
     "task_system": true
   },
-
-  "agents": {
-    "sisyphus": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high",
-      "ultrawork": {
-        "model": "opencode-go/deepseek-v4-flash",
-        "variant": "max"
-      },
-      "prompt_append": "Delegate heavily to hephaestus for implementation. Parallelize exploration."
-    },
-    "oracle": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "max",
-      "thinking": {
-        "type": "enabled"
-      }
-    },
-    "librarian": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "medium"
-    },
-    "explore": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "low"
-    },
-    "multimodal-looker": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "medium"
-    },
-    "prometheus": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high",
-      "prompt_append": "Always interview first. Validate scope before planning."
-    },
-    "metis": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high"
-    },
-    "momus": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high",
-      "prompt_append": "Focus on code quality, edge cases, and test coverage."
-    },
-    "atlas": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "medium"
-    },
-    "sisyphus-junior": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "low"
-    },
-    "hephaestus": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high",
-      "description": "Complex implementation, deep refactors and architectural-level cross-cutting changes",
-      "prompt_append": "Explora a fondo antes de implementar. Cambios pequeños y verificables."
-    }
+  "hashline_edit": true,
+  "model_capabilities": {
+    "auto_refresh_on_start": true,
+    "enabled": true
   },
-
-  "categories": {
-    "visual-engineering": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "medium"
-    },
-    "ultrabrain": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "max"
-    },
-    "deep": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high"
-    },
-    "quick": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "low"
-    },
-    "unspecified-low": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "low"
-    },
-    "unspecified-high": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high"
-    },
-    "writing": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "medium"
-    },
-    "artistry": {
-      "model": "opencode-go/deepseek-v4-flash",
-      "variant": "high"
-    }
+  "runtime_fallback": {
+    "cooldown_seconds": 30,
+    "enabled": true,
+    "notify_on_fallback": true,
+    "timeout_seconds": 15
+  },
+  "sisyphus_agent": {
+    "planner_enabled": true,
+    "replace_plan": true
   }
 }
