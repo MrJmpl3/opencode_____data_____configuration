@@ -26,9 +26,12 @@ Steps:
    - refine existing comments instead of stacking duplicates
    - use native comment syntax for the file type
    - add section labels only when they improve navigation
+   - use `# --- header (max ~60 chars) ---` as section label format
+   - avoid ASCII art decorations (`====`, `****`, `----`, `____`)
    - add a brief file summary near the top for files longer than 30 lines of code
    - use `[!]` only for real behavioral risks
    - keep comment clusters short and low-noise
+   - write bodies as natural prose, focusing on why over mechanics
 8) Edit only the smallest useful scope. Do not rewrite whole files just to add comments.
 9) Re-read every edited file and verify the comments are consistent, concise, technically correct, and syntax-safe.
 10) Return a short summary of the edited files, the sections commented or refined, and any intentionally skipped files if the target was a directory.

@@ -36,19 +36,20 @@ This skill turns code files into learning resources by adding comments that expl
 ## Commenting Style
 
 - Write comments as a coherent explanation that reads top to bottom.
-- Start each comment block with the concept being explained.
+- Start each comment block or section with a `# --- header (max ~60 chars) ---` that signals the topic.
 - Follow with how it works and why it was written this way.
 - Optionally end with a consequence, edge case, or tiny example.
 - Keep simple sections brief and non-obvious sections more detailed.
 - Reinforce a concept only when it improves comprehension.
 - Use a professional, instructional tone that stays concise.
+- Avoid decorative ASCII borders (`====`, `****`, `----`, `____`) — they add visual noise without information.
 - Use blank comment lines only when they improve readability.
 - Keep comment clusters short; avoid more than 3 consecutive comment lines before code.
 - Keep the total number of educational comment lines under 400; for very large files, cap at 300.
 
 ## Structural Guidance
 
-- Add section labels for major logical groups when they improve navigation.
+- Label major logical groups with `# --- short header (max ~60 chars) ---` when they improve navigation.
 - Keep section labels short, uniform, and purely navigational.
 - For files longer than 30 lines of code, add a brief file summary near the top after any encoding declaration or shebang.
 - Add a compact metadata header near the top only when the user asks for traceability or the file is being documented as part of a larger review.
