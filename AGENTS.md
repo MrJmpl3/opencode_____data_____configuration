@@ -1,49 +1,66 @@
 # AGENTS.md
 
-OpenCode configuration workspace at `~/.config/opencode`. Short, verified facts only.
+OpenCode workspace at `~/.config/opencode`. High-signal facts for agents.
 
-## What's here
+## Config files
 
-- **`opencode.jsonc`** — authoritative config. MCPs enabled: `context7`, `gh_grep`, `github`, `nuxt`. Bash/read permissions defined inline. Plugins: `@gotgenes/opencode-agent-identity`, `@slkiser/opencode-quota`, `@tarquinen/opencode-dcp`, `oh-my-openagent`.
-- **`oh-my-openagent.json`** — all agent definitions (sisyphus, oracle, librarian, explore, multimodal-looker, prometheus, metis, momus, atlas, sisyphus-junior, hephaestus), categories (visual-engineering, ultrabrain, deep, quick, unspecified-low/high, writing, artistry), model configs, and experimental flags. This is where agents are actually defined (NOT a `agents/` directory — that does not exist).
-- **`commands/`** — workflow commands: `commit-staged.md`, `comment-educational.md`.
-- **`skills/`** — 26 user-installed skills (docker suite, Python suite, laravel-best-practices, mysql, postgresql-optimization-patterns, editorconfig-guidelines, documentation-comments-educational).
-- **`.temp/.agents/skills/`** — 132 draft/experimental skills (oh-my-openagent catalog). Not user-installed; ignore unless explicitly needed.
-- **`dcp.jsonc`** — context compression limits: 70%–90%.
-- **`tui.json`** — theme set to `opencode`.
-- **`package.json`** — single dependency `@opencode-ai/plugin@1.4.7`.
-- **`node_modules/`** — gitignored.
+| File | Purpose |
+|------|---------|
+| `opencode.json` | MCPs (context7, gh_grep, github, nuxt), LSP config, provider timeouts, plugin load |
+| `oh-my-opencode-slim.json` | Agent definitions across 4 presets: `opencode-free`, `opencode-go`, `github-copilot`, `openrouter` |
+| `tui.json` | Theme `opencode`, loads `oh-my-opencode-slim` + local `plugins-tui/my-quota-tui` |
 
-## Gotchas
+- Default preset: `opencode-free` (all agents use `opencode/deepseek-v4-flash-free` variant `max`).
+- `opencode.json` `plugin` field loads `oh-my-opencode-slim` — agents are defined there.
+- `small_model`: `github-copilot/gpt-5-mini`.
 
-- **`package.json` is gitignored**. The `.gitignore` excludes it, `bun.lock`, and itself. Changes to `package.json` won't show in git status.
-- **No `agents/` directory.** The old `AGENTS.md` claimed it existed — it doesn't. Agents are `oh-my-openagent.json`.
-- **No `AGENT_TEMPLATE.md`.** Referenced in old `AGENTS.md` but never existed on disk.
-- **No CI, no pre-commit hooks** (all `.sample`). Single `main` branch.
-- **`.temp/` files are tracked in git.** These are experimental skill drafts, not temporary.
-- **Permissions in `opencode.jsonc`:** `git push *` = ask, `rm *` = ask, `*.env` reads = deny. All other bash and read = allow.
+## LSP (from `opencode.json`)
 
-## Working with agents
+- **oxlint** via `pnpm exec oxlint` for `.js/.jsx/.mjs/.cjs/.ts/.tsx/.mts/.cts`.
+- **typescript-language-server** with `NODE_OPTIONS=--max-old-space-size=8192`.
 
-- Agents live in `oh-my-openagent.json`, not in separate files. Edit that file to change agent models, variants, or prompts.
-- The sisyphus agent uses `opencode-go/deepseek-v4-flash` with `ultrawork` variant `max`.
-- Oracle uses `thinking: enabled` — allow extra latency for deep reasoning.
-- Hephaestus (prompt_append: "Explora a fondo antes de implementar. Cambios pequeños y verificables.") is the heavy implementer; delegate implementation to it.
-- Commands (`/commit-staged`, `/comment-educational`) live in `commands/` as Markdown files.
+## Git state
 
-## Working with skills
+- Single `main` branch, no remote configured, no CI, no hooks.
+- Everything tracked: config, skills, plugins, commands.
+- `package.json`, `bun.lock`, `.gitignore`, `node_modules/`, `tasks/` are gitignored.
+- `package.json` changes will NOT appear in `git status`.
 
-- User-installed skills are in `skills/` — 26 curated directories. These override built-in defaults.
-- Draft skills are in `.temp/.agents/skills/` — not installed, not referenced by config. Treat as a catalog, not active tools.
-- Every skill has `SKILL.md` with frontmatter (name, description) and optional `rules/`, `references/`, `assets/` subdirectories.
+## Permissions
 
-## Commit convention (from /commit-staged)
+- `git push *` = ask
+- `rm *` = ask
+- `*.env` reads = deny
+- Everything else = allow
+
+## Plugins
+
+- **Server plugin** `plugins/my-quota.js` — registers `/quota` slash command showing quotas from OpenCode Go, GitHub Copilot, and OpenRouter.
+- **Shared lib** `plugins/lib/quota-providers.js` — data-fetching logic shared between server and TUI plugins.
+- **TUI plugin** `plugins-tui/my-quota-tui/` — renders quota in TUI reactively (event-driven, no polling).
+
+## Commands
+
+- **`/commit-staged`** — `commands/commit-staged.md`. Commits staged files with `<emoji> <type>(<scope>): <description>`. Description in Spanish, lowercase, max 100 chars. Real Unicode emoji (never `:shortcode:`).
+- **`/comment-educational`** — `commands/comment-educational.md`. Adds educational comments via the `documentation-comments-educational` skill.
+
+## Skills
+
+151 installed skills in `skills/`. Each has `SKILL.md` with frontmatter (name, description) and optional `rules/`, `references/`, `assets/` subdirectories.
+
+## Environment
+
+- Python 3.14.0 (`.python-version`)
+- Node deps: `@opencode-ai/plugin@1.14.48`, `@opentui/core@0.2.8`, `@opentui/solid@0.2.8`
+- `bun.lock` present (Bun lockfile alongside npm `package-lock.json`)
+
+## Commit convention
 
 Format: `<emoji> <type>(<scope>): <description>`
 
-- Real Unicode emoji (never `:shortcode:`).
-- Description in Spanish, lowercase, max 100 chars.
-- Scope: smallest meaningful scope from staged files.
+- Real Unicode emoji (never `:shortcode:`)
+- Description in Spanish, lowercase, max 100 chars
+- Scope: smallest meaningful scope from staged files
 
 Examples:
 ```
