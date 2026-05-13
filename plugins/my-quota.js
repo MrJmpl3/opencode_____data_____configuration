@@ -239,6 +239,76 @@ async function fetchCopilotQuota() {
   };
 }
 
+// ─── OpenRouter ───────────────────────────────────────
+
+function readOpenRouterKey() {
+  const key = process.env.OPENROUTER_API_KEY?.trim();
+  if (key) return key;
+
+  // Fallback: leer ~/.config/opencode/openrouter-auth.json
+  try {
+    const path = join(require("os").homedir(), ".config", "opencode", "openrouter-auth.json");
+    if (existsSync(path)) {
+      const raw = JSON.parse(readFileSync(path, "utf-8"));
+      for (const k of ["apiKey", "api_key", "token", "openrouterApiKey"]) {
+        if (raw[k] && typeof raw[k] === "string") return raw[k].trim();
+      }
+    }
+  } catch {}
+  return null;
+}
+
+async function fetchOpenRouterQuota() {
+  const key = readOpenRouterKey();
+  if (!key) return null;
+
+  const res = await fetchWithTimeout(
+    "https://openrouter.ai/api/v1/credits",
+    {
+      headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
+    },
+    FETCH_TIMEOUT_MS,
+  );
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    return { error: `OpenRouter API HTTP ${res.status}: ${text.slice(0, 120)}` };
+  }
+
+  const body = await res.json();
+  const d = body?.data ?? body;
+
+  const totalCredits = typeof d.total_credits === "number" && Number.isFinite(d.total_credits) ? d.total_credits : null;
+  const totalUsage = typeof d.total_usage === "number" && Number.isFinite(d.total_usage) ? d.total_usage : null;
+
+  if (totalCredits !== null && totalCredits > 0) {
+    const remaining = Math.max(0, totalCredits - (totalUsage ?? 0));
+    const used = totalCredits - remaining;
+    return {
+      used,
+      total: totalCredits,
+      remaining,
+      pctRemaining: Math.round((remaining / totalCredits) * 100),
+      unit: "credits",
+    };
+  }
+
+  if (totalUsage !== null) {
+    return { usage: totalUsage, unit: "credits", total: null };
+  }
+
+  return { error: "OpenRouter API no devolvio datos de credito esperados" };
+}
+
+function formatOpenrouterSection(data) {
+  const header = "── OpenRouter " + "─".repeat(25);
+  if (data === null) return `${header}\n  Credits      ✗ no configurado`;
+  if (data.error) return `${header}\n  Credits      ✗ ${data.error}`;
+  if (data.total !== null) {
+    return `${header}\n  Credits      $${data.remaining.toFixed(2)}`;
+  }
+  return `${header}\n  Credits      $${data.usage.toFixed(4)} used (no limit)`;
+}
+
 // ─── Formateo ────────────────────────────────────────────
 
 const BAR_W = 14;
@@ -293,7 +363,6 @@ function formatCopilotSection(data) {
 // ─── Plugin ────────────────────────────────────────────────
 
 export const MyQuota = async ({ client }) => {
-  console.error("[my-quota] Plugin cargado");
 
   return {
     config: async (cfg) => {
@@ -322,6 +391,10 @@ export const MyQuota = async ({ client }) => {
       // ── GitHub Copilot ──
       const copilotData = await fetchCopilotQuota();
       sections.push(formatCopilotSection(copilotData));
+
+      // ── OpenRouter ──
+      const orData = await fetchOpenRouterQuota();
+      sections.push(formatOpenrouterSection(orData));
 
       const outputText = sections.join("\n\n");
 
