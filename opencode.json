@@ -1,5 +1,13 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "explore": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
+    }
+  },
   "autoupdate": true,
   "lsp": {
     "oxlint": {
@@ -56,118 +64,33 @@
       "url": "https://nuxt.com/mcp"
     }
   },
-  "plugin": [
-    "@slkiser/opencode-quota@latest",
-    "@tarquinen/opencode-dcp@latest",
-    "oh-my-openagent@latest"
-  ],
+  "plugin": ["oh-my-opencode-slim"],
   "provider": {
     "github-copilot": {
       "options": {
-        "setCacheKey": true
-      }
-    },
-    "litellm-local": {
-      "models": {
-        "go-deepseek-v4-flash": {
-          "name": "OpenCode Go - DeepSeek V4 Flash",
-          "variants": {
-            "high": {
-              "reasoningEffort": "high"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            },
-            "max": {
-              "reasoningEffort": "max"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            }
-          }
-        },
-        "go-deepseek-v4-pro": {
-          "name": "OpenCode Go - DeepSeek V4 Pro",
-          "variants": {
-            "high": {
-              "reasoningEffort": "high"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            },
-            "max": {
-              "reasoningEffort": "max"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            }
-          }
-        },
-        "go-kimi-k2.6": {
-          "name": "OpenCode Go - Kimi K2.6"
-        },
-        "or-deepseek-v4-flash": {
-          "name": "OpenRouter - DeepSeek V4 Flash",
-          "variants": {
-            "high": {
-              "reasoningEffort": "high"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            },
-            "max": {
-              "reasoningEffort": "max"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            }
-          }
-        },
-        "or-deepseek-v4-pro": {
-          "name": "OpenRouter - DeepSeek V4 Pro",
-          "variants": {
-            "high": {
-              "reasoningEffort": "high"
-            },
-            "low": {
-              "reasoningEffort": "low"
-            },
-            "max": {
-              "reasoningEffort": "max"
-            },
-            "medium": {
-              "reasoningEffort": "medium"
-            }
-          }
-        },
-        "or-kimi-k2.6": {
-          "name": "OpenRouter - Kimi K2.6"
-        }
-      },
-      "name": "LiteLLM Gateway Local",
-      "npm": "@ai-sdk/openai-compatible",
-      "options": {
-        "baseURL": "http://localhost:40007/v1",
-        "setCacheKey": true
-      }
-    },
-    "openai": {
-      "options": {
+        "chunkTimeout": 6000000,
+        "timeout": 12000000,
         "setCacheKey": true
       }
     },
     "opencode": {
       "options": {
+        "chunkTimeout": 6000000,
+        "timeout": 12000000,
         "setCacheKey": true
       }
     },
     "opencode-go": {
       "options": {
+        "chunkTimeout": 6000000,
+        "timeout": 12000000,
         "setCacheKey": true
       }
     },
     "openrouter": {
       "options": {
+        "chunkTimeout": 6000000,
+        "timeout": 12000000,
         "setCacheKey": true
       }
     }

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "disabled_agents": [],
+  "preset": "opencode-free",
+  "presets": {
+    "github-copilot": {
+      "council": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "designer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "explorer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "fixer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "librarian": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "observer": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "oracle": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      },
+      "orchestrator": {
+        "model": "github-copilot/gpt-5.4-mini",
+        "variant": "xhigh"
+      }
+    },
+    "opencode-free": {
+      "council": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "designer": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "explorer": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "fixer": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "librarian": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "observer": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "oracle": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      },
+      "orchestrator": {
+        "model": "opencode/deepseek-v4-flash-free",
+        "variant": "max"
+      }
+    },
+    "opencode-go": {
+      "council": {
+        "model": "opencode-go/deepseek-v4-pro",
+        "variant": "max"
+      },
+      "designer": {
+        "model": "opencode-go/kimi-k2.6",
+        "variant": "medium"
+      },
+      "explorer": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "variant": "high"
+      },
+      "fixer": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "variant": "high"
+      },
+      "librarian": {
+        "model": "opencode-go/deepseek-v4-flash",
+        "variant": "high"
+      },
+      "observer": {
+        "model": "opencode-go/kimi-k2.6",
+        "variant": "medium"
+      },
+      "oracle": {
+        "model": "opencode-go/deepseek-v4-pro",
+        "variant": "max"
+      },
+      "orchestrator": {
+        "model": "opencode-go/deepseek-v4-pro",
+        "variant": "high"
+      }
+    },
+    "openrouter": {
+      "council": {
+        "model": "openrouter/deepseek-v4-pro",
+        "variant": "max"
+      },
+      "designer": {
+        "model": "openrouter/kimi-k2.6",
+        "variant": "medium"
+      },
+      "explorer": {
+        "model": "openrouter/deepseek-v4-flash",
+        "variant": "high"
+      },
+      "fixer": {
+        "model": "openrouter/deepseek-v4-flash",
+        "variant": "high"
+      },
+      "librarian": {
+        "model": "openrouter/deepseek-v4-flash",
+        "variant": "high"
+      },
+      "observer": {
+        "model": "openrouter/kimi-k2.6",
+        "variant": "medium"
+      },
+      "oracle": {
+        "model": "openrouter/deepseek-v4-pro",
+        "variant": "max"
+      },
+      "orchestrator": {
+        "model": "openrouter/deepseek-v4-pro",
+        "variant": "high"
+      }
+    }
+  }
+}
