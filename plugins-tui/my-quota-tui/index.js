@@ -213,9 +213,12 @@ const plugin = {
 
   tui: async (api) => {
     let lines = [];
+    let refreshQueued = false;
+    let refreshTimer = null;
 
     async function refresh() {
       try {
+        refreshQueued = false;
         const items = [];
 
         // OpenCode Go
@@ -250,9 +253,35 @@ const plugin = {
       api.renderer.requestRender();
     }
 
+    // Debounced refresh: if called multiple times within 500ms, only runs once
+    function queueRefresh() {
+      if (refreshQueued) return;
+      refreshQueued = true;
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null;
+        refresh().catch(() => {});
+      }, 500);
+    }
+
+    // Refresh on events: LLM response, session changes, etc.
+    const unsubscribers = [
+      api.event.on("message.updated", () => queueRefresh()),
+      api.event.on("session.updated", () => queueRefresh()),
+      api.event.on("message.removed", () => queueRefresh()),
+      api.event.on("tui.session.select", () => queueRefresh()),
+    ];
+    api.lifecycle.onDispose(() => {
+      for (const unsub of unsubscribers) unsub();
+      clearTimeout(refreshTimer);
+    });
+
+    // Initial load
     await refresh();
-    const timer = setInterval(refresh, 60_000);
-    api.lifecycle.onDispose(() => clearInterval(timer));
+
+    // Fallback refresh every 120s in case events don't fire
+    const fallbackTimer = setInterval(() => queueRefresh(), 120_000);
+    api.lifecycle.onDispose(() => clearInterval(fallbackTimer));
 
     api.slots.register({
       order: 250,
