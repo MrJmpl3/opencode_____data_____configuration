@@ -61,8 +61,6 @@
   },
   "plugin": [
     "oh-my-openagent@latest",
-    "./plugins/context-cache/index.mjs",
-    "./plugins/quota/index.mjs",
     "opencode-snip@latest",
     "@ramtinj95/opencode-tokenscope@latest"
   ],
