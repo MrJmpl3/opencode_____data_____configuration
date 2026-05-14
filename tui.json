@@ -1,7 +1,8 @@
 {
   "$schema": "https://opencode.ai/tui.json",
   "plugin": [
-    "/home/mrjmpl3/.config/opencode/plugins-tui/quota"
+    "/home/mrjmpl3/.config/opencode/plugins-tui/quota",
+    "opencode-quotes-plugin"
   ],
   "theme": "opencode"
 }

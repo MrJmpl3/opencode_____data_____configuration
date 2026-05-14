@@ -65,12 +65,16 @@ const plugin = {
 
   tui: async (api) => {
     let lines = [];
-    let refreshQueued = false;
-    let refreshTimer = null;
+    let inFlightVersion = 0;
+    const pendingTimers = new Set();
+    const REFRESH_DELAYS_MS = [150, 600];
+    let disposed = false;
+    let fallbackTimer = null;
 
     async function refresh() {
+      if (disposed) return;
+      const currentVersion = ++inFlightVersion;
       try {
-        refreshQueued = false;
         const items = [];
 
         // ── OpenCode Go ──
@@ -101,44 +105,53 @@ const plugin = {
           items.push("OpenRouter");
           items.push(`  Credits  ${or.text}`);
         }
-
+        if (currentVersion !== inFlightVersion) return;
         lines = items;
       } catch (e) {
+        if (disposed || currentVersion !== inFlightVersion) return;
         lines = [`Error: ${e?.message ?? e}`];
       }
 
       api.renderer.requestRender();
     }
-
-    // Debounced refresh: coalesces rapid events into a single call
-    function queueRefresh() {
-      if (refreshQueued) return;
-      refreshQueued = true;
-      clearTimeout(refreshTimer);
-      refreshTimer = setTimeout(() => {
-        refreshTimer = null;
-        refresh().catch(() => {});
-      }, 500);
+    // --- refresh strategy ---
+    // We refresh in two waves:
+    // 1) fast retries for UI/session transitions
+    // 2) a delayed retry for LLM completion, which can lag behind streaming events
+    function scheduleRefresh(extraDelays = []) {
+      for (const delay of [...REFRESH_DELAYS_MS, ...extraDelays]) {
+        const timer = setTimeout(() => {
+          if (disposed) return;
+          pendingTimers.delete(timer);
+          refresh();
+        }, delay);
+        pendingTimers.add(timer);
+      }
     }
-
-    // Refresh on LLM response / session changes
+    // --- event subscriptions ---
+    // `session.idle` is the strongest “the model stopped writing” signal we have.
+    // `message.*` stays as a fallback because different flows emit different events.
     const unsubscribers = [
-      api.event.on("message.updated", () => queueRefresh()),
-      api.event.on("session.updated", () => queueRefresh()),
-      api.event.on("message.removed", () => queueRefresh()),
-      api.event.on("tui.session.select", () => queueRefresh()),
+      api.event.on("message.part.updated", () => scheduleRefresh([5000])),
+      api.event.on("message.updated", () => scheduleRefresh([5000])),
+      api.event.on("session.updated", () => scheduleRefresh()),
+      api.event.on("session.status", () => scheduleRefresh()),
+      api.event.on("session.idle", () => scheduleRefresh([5000])),
+      api.event.on("message.removed", () => scheduleRefresh()),
+      api.event.on("tui.session.select", () => scheduleRefresh()),
     ];
     api.lifecycle.onDispose(() => {
+      disposed = true;
       for (const unsub of unsubscribers) unsub();
-      clearTimeout(refreshTimer);
+      for (const timer of pendingTimers) clearTimeout(timer);
+      pendingTimers.clear();
+      if (fallbackTimer) clearInterval(fallbackTimer);
     });
 
     // Initial data load
     await refresh();
 
-    // Fallback: refresh every 2min in case events are silent
-    const fallbackTimer = setInterval(() => queueRefresh(), 120_000);
-    api.lifecycle.onDispose(() => clearInterval(fallbackTimer));
+    fallbackTimer = setInterval(() => refresh(), 120_000);
 
     api.slots.register({
       order: 250,

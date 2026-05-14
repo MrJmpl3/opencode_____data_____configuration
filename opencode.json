@@ -1,6 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 16000
+  },
   "lsp": {
     "oxlint": {
       "command": [
@@ -64,13 +69,15 @@
     "opencode-snip@latest",
     "@ramtinj95/opencode-tokenscope@latest"
   ],
-  "compaction": {
-    "auto": true,
-    "prune": true,
-    "reserved": 16000
-  },
   "provider": {
     "github-copilot": {
+      "options": {
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "timeout": 600000
+      }
+    },
+    "nvidia": {
       "options": {
         "chunkTimeout": 60000,
         "setCacheKey": true,

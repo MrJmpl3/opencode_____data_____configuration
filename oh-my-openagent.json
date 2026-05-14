@@ -1,128 +1,162 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
   "agents": {
-    "sisyphus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "ultrawork": {
-        "model": "openrouter/deepseek/deepseek-v4-flash",
-        "variant": "max"
-      },
-      "prompt_append": "Prioritize code quality and thoroughness. Always verify output before finalizing. Delegate implementation to deep/unspecified-high agents. Parallelize exploration via explore/librarian. Always consult prometheus and atlas for planning when task is complex."
-    },
-    "hephaestus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "prompt_append": "You are the primary implementation agent. Own the codebase. Explore thoroughly, then implement. Prefer small, testable changes. Use LSP and AST-grep aggressively for precision. Lean on structured step-by-step reasoning and checklist-driven execution.",
-      "permission": { "edit": "allow", "bash": { "git": "allow", "test": "allow" } }
-    },
-    "prometheus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Always interview first to fully understand requirements. Question assumptions. Validate scope and identify risks before planning. Build exhaustive plans with milestones, risks, and contingencies. Break down complex tasks into atomic, verifiable steps. Use deep & quick agents heavily in parallel for research."
-    },
-    "oracle": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Analyze problems from multiple angles. Consider trade-offs, edge cases, and long-term maintainability. Provide concrete reasoning with evidence, not abstract advice."
-    },
-    "librarian": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Prioritize official documentation and authoritative sources. Return complete code examples when relevant. Verify API signatures match the library version."
-    },
-    "explore": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Search exhaustively across the entire codebase. Return file paths with relevant context snippets. If the first search yields few results, try alternative search terms and patterns."
-    },
-    "multimodal-looker": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Describe visual content in meticulous detail. Identify UI elements, layouts, colors, text, and spatial relationships. Be precise about positions and dimensions."
-    },
-    "metis": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Critically evaluate plans for gaps, risks, and missing edge cases. Identify hidden assumptions and validate them. Suggest concrete, actionable improvements. Be thorough."
-    },
-    "momus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "permission": { "edit": "deny" },
-      "prompt_append": "Focus on code quality, edge cases, and test coverage. Be ruthless but constructive. Identify bugs, security issues, and design flaws before they reach production. Challenge all assumptions."
-    },
     "atlas": {
       "model": "openrouter/deepseek/deepseek-v4-flash",
       "prompt_append": "Maintain continuity across sessions. Preserve key decisions, file changes, and unresolved issues. Re-establish context before proceeding."
     },
+    "explore": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Search exhaustively across the entire codebase. Return file paths with relevant context snippets. If the first search yields few results, try alternative search terms and patterns."
+    },
+    "hephaestus": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "bash": {
+          "git": "allow",
+          "test": "allow"
+        },
+        "edit": "allow"
+      },
+      "prompt_append": "You are the primary implementation agent. Own the codebase. Explore thoroughly, then implement. Prefer small, testable changes. Use LSP and AST-grep aggressively for precision. Lean on structured step-by-step reasoning and checklist-driven execution.",
+      "variant": "max"
+    },
+    "librarian": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Prioritize official documentation and authoritative sources. Return complete code examples when relevant. Verify API signatures match the library version."
+    },
+    "metis": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Critically evaluate plans for gaps, risks, and missing edge cases. Identify hidden assumptions and validate them. Suggest concrete, actionable improvements. Be thorough."
+    },
+    "momus": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Focus on code quality, edge cases, and test coverage. Be ruthless but constructive. Identify bugs, security issues, and design flaws before they reach production. Challenge all assumptions."
+    },
+    "multimodal-looker": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Describe visual content in meticulous detail. Identify UI elements, layouts, colors, text, and spatial relationships. Be precise about positions and dimensions."
+    },
+    "oracle": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Analyze problems from multiple angles. Consider trade-offs, edge cases, and long-term maintainability. Provide concrete reasoning with evidence, not abstract advice.",
+      "variant": "max"
+    },
+    "prometheus": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny"
+      },
+      "prompt_append": "Always interview first to fully understand requirements. Question assumptions. Validate scope and identify risks before planning. Build exhaustive plans with milestones, risks, and contingencies. Break down complex tasks into atomic, verifiable steps. Use deep & quick agents heavily in parallel for research.",
+      "variant": "max"
+    },
+    "sisyphus": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Prioritize code quality and thoroughness. Always verify output before finalizing. Delegate implementation to deep/unspecified-high agents. Parallelize exploration via explore/librarian. Always consult prometheus and atlas for planning when task is complex.",
+      "ultrawork": {
+        "model": "openrouter/deepseek/deepseek-v4-flash",
+        "variant": "max"
+      },
+      "variant": "max"
+    },
     "sisyphus-junior": {
       "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "prompt_append": "Follow instructions precisely without making assumptions beyond what is specified. Deliver complete, production-ready code. Verify your changes before finalizing."
-    }
-  },
-  "categories": {
-    "quick": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "description": "Trivial tasks: typos, single file edits, simple changes",
-      "prompt_append": "Make minimal, safe changes. Verify the change compiles and works correctly. Do not refactor or modify unrelated code."
-    },
-    "unspecified-low": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "description": "General low-to-moderate effort tasks",
-      "prompt_append": "Handle straightforward tasks efficiently. Deliver clean, working code without unnecessary complexity."
-    },
-    "unspecified-high": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "description": "General high-effort or complex tasks",
-      "prompt_append": "Handle complex tasks with thorough analysis. Break down the problem, evaluate options, and implement the best solution with attention to edge cases."
-    },
-    "visual-engineering": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "description": "Frontend, UI/UX, design, animation, CSS/styling",
-      "prompt_append": "Create polished, responsive, accessible UI. Follow established design patterns. Ensure consistent spacing, typography, and color usage."
-    },
-    "deep": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "description": "Autonomous problem-solving: thorough research before action",
-      "prompt_append": "Research thoroughly before implementing. Explore multiple approaches and justify your technical choices. Test against edge cases before finalizing."
-    },
-    "ultrabrain": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "description": "Deep logical reasoning, algorithms, and architecture",
-      "prompt_append": "Apply rigorous logical reasoning. Formally evaluate multiple solutions and trade-offs. Be explicit about assumptions and constraints."
-    },
-    "writing": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "description": "Documentation, prose, and technical writing",
-      "prompt_append": "Write clear, concise, well-structured documentation. Use active voice. Include practical examples. Focus on the reader's understanding."
-    },
-    "artistry": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "description": "Unconventional creative solutions and alternative approaches",
-      "prompt_append": "Explore unconventional and creative approaches. Challenge conventional wisdom. Propose innovative solutions that balance creativity with practicality."
+      "prompt_append": "Follow instructions precisely without making assumptions beyond what is specified. Deliver complete, production-ready code. Verify your changes before finalizing.",
+      "variant": "max"
     }
   },
   "background_task": {
     "defaultConcurrency": 5,
-    "staleTimeoutMs": 120000,
+    "modelConcurrency": {
+      "openrouter/deepseek/deepseek-v4-flash": 10
+    },
     "providerConcurrency": {
       "openrouter": 15
     },
-    "modelConcurrency": {
-      "openrouter/deepseek/deepseek-v4-flash": 10
+    "staleTimeoutMs": 120000
+  },
+  "categories": {
+    "artistry": {
+      "description": "Unconventional creative solutions and alternative approaches",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Explore unconventional and creative approaches. Challenge conventional wisdom. Propose innovative solutions that balance creativity with practicality.",
+      "variant": "max"
+    },
+    "deep": {
+      "description": "Autonomous problem-solving: thorough research before action",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Research thoroughly before implementing. Explore multiple approaches and justify your technical choices. Test against edge cases before finalizing.",
+      "variant": "max"
+    },
+    "quick": {
+      "description": "Trivial tasks: typos, single file edits, simple changes",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Make minimal, safe changes. Verify the change compiles and works correctly. Do not refactor or modify unrelated code."
+    },
+    "ultrabrain": {
+      "description": "Deep logical reasoning, algorithms, and architecture",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Apply rigorous logical reasoning. Formally evaluate multiple solutions and trade-offs. Be explicit about assumptions and constraints.",
+      "variant": "max"
+    },
+    "unspecified-high": {
+      "description": "General high-effort or complex tasks",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Handle complex tasks with thorough analysis. Break down the problem, evaluate options, and implement the best solution with attention to edge cases.",
+      "variant": "max"
+    },
+    "unspecified-low": {
+      "description": "General low-to-moderate effort tasks",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Handle straightforward tasks efficiently. Deliver clean, working code without unnecessary complexity."
+    },
+    "visual-engineering": {
+      "description": "Frontend, UI/UX, design, animation, CSS/styling",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Create polished, responsive, accessible UI. Follow established design patterns. Ensure consistent spacing, typography, and color usage.",
+      "variant": "max"
+    },
+    "writing": {
+      "description": "Documentation, prose, and technical writing",
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "prompt_append": "Write clear, concise, well-structured documentation. Use active voice. Include practical examples. Focus on the reader's understanding."
     }
   },
-  "sisyphus_agent": {
-    "planner_enabled": true,
-    "replace_plan": true
+  "comment_checker": {
+    "custom_prompt": "Evaluate comments against this standard:\n# --- Section header (max ~60 chars) ---\n# Natural prose body. Explain WHY, not WHAT.\n# No ASCII art (====, ****, ----, ____).\n# [!] only for real behavioral risks.\n\nRules:\n1. Explain the 'why', not just the 'what'\n2. Use section headers max 60 chars\n3. No decorative ASCII art\n4. [!] for real risks only\n5. Max 3 consecutive comment lines before code\n6. Coherent top-to-bottom narrative\n\nComments to evaluate: {{comments}}"
+  },
+  "experimental": {
+    "aggressive_truncation": true,
+    "task_system": true
+  },
+  "hashline_edit": true,
+  "model_capabilities": {
+    "auto_refresh_on_start": true,
+    "enabled": true
+  },
+  "runtime_fallback": {
+    "cooldown_seconds": 30,
+    "enabled": true,
+    "notify_on_fallback": true,
+    "timeout_seconds": 30
   },
   "sisyphus": {
     "tasks": {
@@ -130,22 +164,8 @@
       "storage_path": ".sisyphus/tasks"
     }
   },
-  "comment_checker": {
-    "custom_prompt": "Evaluate comments against this standard:\n# --- Section header (max ~60 chars) ---\n# Natural prose body. Explain WHY, not WHAT.\n# No ASCII art (====, ****, ----, ____).\n# [!] only for real behavioral risks.\n\nRules:\n1. Explain the 'why', not just the 'what'\n2. Use section headers max 60 chars\n3. No decorative ASCII art\n4. [!] for real risks only\n5. Max 3 consecutive comment lines before code\n6. Coherent top-to-bottom narrative\n\nComments to evaluate: {{comments}}"
-  },
-  "runtime_fallback": {
-    "enabled": true,
-    "cooldown_seconds": 30,
-    "timeout_seconds": 30,
-    "notify_on_fallback": true
-  },
-  "model_capabilities": {
-    "enabled": true,
-    "auto_refresh_on_start": true
-  },
-  "hashline_edit": true,
-  "experimental": {
-    "aggressive_truncation": true,
-    "task_system": true
+  "sisyphus_agent": {
+    "planner_enabled": true,
+    "replace_plan": true
   }
 }
