@@ -204,7 +204,7 @@ const plugin: TuiPluginModule & { id: string } = {
     }, 1000);
 
     slots.register({
-      order: 250,
+      order: 180,
       slots: {
         sidebar_content() {
           return (
