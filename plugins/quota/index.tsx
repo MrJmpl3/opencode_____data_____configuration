@@ -54,7 +54,7 @@ const plugin: TuiPluginModule & { id: string } = {
     function scheduleNextPoll() {
       if (pollTimeout) clearTimeout(pollTimeout);
       pollTarget = Date.now() + 120_000;
-      setTimeout(() => {
+      pollTimeout = setTimeout(() => {
         refresh("poll");
         scheduleNextPoll();
       }, 120_000);
@@ -198,6 +198,8 @@ const plugin: TuiPluginModule & { id: string } = {
       if (pollTarget > 0) {
         const sec = Math.max(0, Math.floor((pollTarget - Date.now()) / 1000));
         setCountdownText(`⏳ ${sec}s`);
+      } else {
+        setCountdownText("");
       }
     }, 1000);
 
