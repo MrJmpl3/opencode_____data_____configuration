@@ -499,7 +499,6 @@ If "no" to any, it's not a sustainable advantage.
 - Major strategy reassessment
 - Market trends analysis
 
-
 ## Quick Start
 
 To analyze competitive landscape:

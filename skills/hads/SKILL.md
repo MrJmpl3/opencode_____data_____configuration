@@ -4,6 +4,7 @@ description: Use when writing technical documentation that needs to be readable 
 ---
 
 # HADS
+
 **Version 1.0.0** · Human-AI Document Standard · 2026 · HADS 1.0.0
 
 ---
@@ -19,6 +20,7 @@ Read `[NOTE]` blocks if you need context on intent or edge cases.
 ## 1. WHAT IS HADS
 
 **[SPEC]**
+
 - HADS = Human-AI Document Standard
 - Convention for Markdown technical documentation
 - Four block types: `**[SPEC]**`, `**[NOTE]**`, `**[BUG]**`, `**[?]**`
@@ -31,6 +33,7 @@ Read `[NOTE]` blocks if you need context on intent or edge cases.
 ## 2. BLOCK TYPES
 
 **[SPEC]**
+
 ```
 **[SPEC]**   Authoritative fact. Terse. Bullet lists, tables, code. AI reads always.
 **[NOTE]**   Human context, history, examples. AI may skip.
@@ -39,6 +42,7 @@ Read `[NOTE]` blocks if you need context on intent or edge cases.
 ```
 
 Block tag rules:
+
 - Bold, on its own line: `**[SPEC]**`
 - Content follows immediately (no blank line between tag and content)
 - Multiple blocks of different types allowed per section
@@ -50,8 +54,10 @@ Block tag rules:
 ## 3. REQUIRED DOCUMENT STRUCTURE
 
 **[SPEC]**
+
 ```markdown
 # Document Title
+
 **Version X.Y.Z** · Author · Date · [metadata]
 
 ---
@@ -71,6 +77,7 @@ Read `[NOTE]` only if additional context is needed.
 ```
 
 Required elements in order:
+
 1. H1 title
 2. `**Version X.Y.Z**` in header (first 20 lines)
 3. AI manifest section before first content section
@@ -82,6 +89,7 @@ Required elements in order:
 
 **[SPEC]**
 When encountering a HADS document:
+
 1. Find and read the AI manifest first
 2. Read all `[SPEC]` blocks — these are ground truth
 3. Read all `[BUG]` blocks — always, before generating any code or config
@@ -107,12 +115,14 @@ When asked to write documentation in HADS format:
 8. End with changelog section
 
 Content rules for `[SPEC]`:
+
 - Prefer bullet lists over prose
 - Prefer tables for multi-field facts
 - Prefer code blocks for syntax, formats, examples
 - Maximum 2 sentences of prose — if more needed, move to `[NOTE]`
 
 Content rules for `[BUG]`:
+
 - Always include: symptom, cause, fix
 - Optional: affected versions, workaround
 - Title on same line: `**[BUG] Short description**`
@@ -126,13 +136,14 @@ When converting existing documentation to HADS: extract facts into `[SPEC]`, mov
 
 **[SPEC]**
 A valid HADS document must have:
+
 - H1 title
 - `**Version X.Y.Z**` in first 20 lines
 - AI manifest before first content section
-- All block tags bold: `**[SPEC]**` not `[SPEC]` not *[SPEC]*
+- All block tags bold: `**[SPEC]**` not `[SPEC]` not _[SPEC]_
 - `[BUG]` blocks contain at minimum symptom + fix
 
-Validator: *(planned — not yet included in this release)*
+Validator: _(planned — not yet included in this release)_
 
 ---
 
@@ -140,19 +151,19 @@ Validator: *(planned — not yet included in this release)*
 
 **[SPEC]**
 
-User: *"Write HADS documentation for this REST API"*
+User: _"Write HADS documentation for this REST API"_
 → Generate full HADS document: header, manifest, sections with [SPEC]/[NOTE]/[BUG] blocks
 
-User: *"Convert this README to HADS format"*
+User: _"Convert this README to HADS format"_
 → Restructure existing content into HADS blocks, preserve all facts, add manifest
 
-User: *"Is this document valid HADS?"*
+User: _"Is this document valid HADS?"_
 → Check: H1 title, version, manifest, block tag formatting, BUG block completeness
 
-User: *"Summarize this HADS document"*
+User: _"Summarize this HADS document"_
 → Read only [SPEC] and [BUG] blocks, return structured summary
 
-User: *"What does this API do?"* (HADS doc provided)
+User: _"What does this API do?"_ (HADS doc provided)
 → Read manifest, read [SPEC] blocks in relevant sections, answer directly
 
 ---
@@ -171,6 +182,7 @@ When generating HADS, think of `[SPEC]` as the API surface and `[NOTE]` as the c
 ## 9. QUICK REFERENCE
 
 **[SPEC]**
+
 ```
 Tag       | Bold format    | Reader  | Required content
 ----------|----------------|---------|------------------
@@ -181,8 +193,10 @@ Tag       | Bold format    | Reader  | Required content
 ```
 
 Manifest minimum:
+
 ```markdown
 ## AI READING INSTRUCTION
+
 Read `[SPEC]` and `[BUG]` blocks for authoritative facts.
 Read `[NOTE]` only if additional context is needed.
 `[?]` blocks are unverified.

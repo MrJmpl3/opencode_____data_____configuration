@@ -339,7 +339,6 @@ secret-scan:
   allow_failure: false
 ```
 
-
 ## Related Skills
 
 - `github-actions-templates` - For GitHub Actions integration

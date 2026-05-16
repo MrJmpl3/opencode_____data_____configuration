@@ -36,8 +36,7 @@
 ### Missing Form Labels
 
 ```html
-<label for="email">Email address</label>
-<input id="email" type="email" />
+<label for="email">Email address</label> <input id="email" type="email" />
 ```
 
 ### Insufficient Color Contrast
@@ -83,7 +82,9 @@ class AccessibleDropdown extends HTMLElement {
 ### Live Region Announcements
 
 ```tsx
-<div role="status" aria-live="polite">3 items added to cart</div>
+<div role="status" aria-live="polite">
+  3 items added to cart
+</div>
 ```
 
 ## Testing Tools

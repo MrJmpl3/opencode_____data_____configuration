@@ -459,7 +459,6 @@ Compare key metrics to similar companies at similar stage.
 **Investor Feedback:**
 Share model with advisors or investors for feedback on assumptions.
 
-
 ## Quick Start
 
 To create a startup financial model:

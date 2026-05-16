@@ -320,7 +320,6 @@ jobs:
             }
 ```
 
-
 ## Related Skills
 
 - `gitlab-ci-patterns` - For GitLab CI workflows

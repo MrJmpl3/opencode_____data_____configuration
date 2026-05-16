@@ -127,25 +127,25 @@ metadata:
   name: success-rate
 spec:
   metrics:
-  - name: success-rate
-    interval: 60s
-    successCondition: "result[0] >= 0.95"
-    failureCondition: "result[0] < 0.90"
-    inconclusiveLimit: 3
-    provider:
-      prometheus:
-        address: http://prometheus:9090
-        query: |
-          sum(rate(http_requests_total{status!~"5..",job="my-app"}[2m]))
-          / sum(rate(http_requests_total{job="my-app"}[2m]))
+    - name: success-rate
+      interval: 60s
+      successCondition: "result[0] >= 0.95"
+      failureCondition: "result[0] < 0.90"
+      inconclusiveLimit: 3
+      provider:
+        prometheus:
+          address: http://prometheus:9090
+          query: |
+            sum(rate(http_requests_total{status!~"5..",job="my-app"}[2m]))
+            / sum(rate(http_requests_total{job="my-app"}[2m]))
 ```
 
 ## Deployment Strategies
 
 ### Decision Table
 
-| Strategy     | Downtime | Rollback Speed | Cost Impact     | Best For                        |
-|-------------|----------|----------------|-----------------|----------------------------------|
+| Strategy     | Downtime | Rollback Speed | Cost Impact     | Best For                         |
+| ------------ | -------- | -------------- | --------------- | -------------------------------- |
 | Rolling      | None     | ~minutes       | None            | Most stateless services          |
 | Blue-Green   | None     | Instant        | 2x infra (temp) | High-risk or database migrations |
 | Canary       | None     | Instant        | Minimal         | High-traffic, metric-driven      |
@@ -164,8 +164,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 2         # at most 12 pods during rollout
-      maxUnavailable: 1   # at least 9 pods always serving
+      maxSurge: 2 # at most 12 pods during rollout
+      maxUnavailable: 1 # at least 9 pods always serving
 ```
 
 Characteristics: gradual rollout, zero downtime, easy rollback, best for most applications.
@@ -282,7 +282,7 @@ jobs:
   deploy-production:
     needs: integration-test
     environment:
-      name: production        # blocks here until required reviewers approve
+      name: production # blocks here until required reviewers approve
     runs-on: ubuntu-latest
     steps:
       - name: Canary deployment
@@ -399,12 +399,12 @@ For advanced rollback strategies including database migration rollbacks and Argo
 
 ### Key DORA Metrics to Track
 
-| Metric                    | Target (Elite) | How to Measure                           |
-|--------------------------|----------------|------------------------------------------|
-| Deployment Frequency      | Multiple/day   | Pipeline run count per day               |
-| Lead Time for Changes     | < 1 hour       | Commit timestamp → production deploy     |
-| Change Failure Rate       | < 5%           | Failed deploys / total deploys           |
-| Mean Time to Recovery     | < 1 hour       | Incident open → service restored         |
+| Metric                | Target (Elite) | How to Measure                       |
+| --------------------- | -------------- | ------------------------------------ |
+| Deployment Frequency  | Multiple/day   | Pipeline run count per day           |
+| Lead Time for Changes | < 1 hour       | Commit timestamp → production deploy |
+| Change Failure Rate   | < 5%           | Failed deploys / total deploys       |
+| Mean Time to Recovery | < 1 hour       | Incident open → service restored     |
 
 ### Post-Deployment Metric Verification
 
@@ -450,14 +450,14 @@ Argo Rollouts requires a valid `AnalysisTemplate` to auto-promote. If the Promet
 ```yaml
 spec:
   metrics:
-  - name: error-rate
-    failureCondition: "result[0] > 0.05"
-    inconclusiveLimit: 2   # fail after 2 inconclusive results, not hang indefinitely
-    provider:
-      prometheus:
-        query: |
-          sum(rate(http_requests_total{status=~"5.."}[2m]))
-          / sum(rate(http_requests_total[2m]))
+    - name: error-rate
+      failureCondition: "result[0] > 0.05"
+      inconclusiveLimit: 2 # fail after 2 inconclusive results, not hang indefinitely
+      provider:
+        prometheus:
+          query: |
+            sum(rate(http_requests_total{status=~"5.."}[2m]))
+            / sum(rate(http_requests_total[2m]))
 ```
 
 ### Staging deploy succeeds but production job never starts

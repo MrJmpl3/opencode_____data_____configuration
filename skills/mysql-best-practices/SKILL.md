@@ -155,7 +155,7 @@ GROUP BY c.customer_id;
 
 ### Query Best Practices
 
-- Avoid SELECT * in production code
+- Avoid SELECT \* in production code
 - Use LIMIT for pagination
 - Prefer JOINs over subqueries when possible
 - Use prepared statements for repeated queries

@@ -33,11 +33,11 @@ Design cloud-agnostic architectures and make informed decisions about service se
 
 ### Storage Services
 
-| AWS     | Azure           | GCP             | OCI            | Use Case       |
-| ------- | --------------- | --------------- | -------------- | -------------- |
-| S3      | Blob Storage    | Cloud Storage   | Object Storage | Object storage |
-| EBS     | Managed Disks   | Persistent Disk | Block Volumes  | Block storage  |
-| EFS     | Azure Files     | Filestore       | File Storage   | File storage   |
+| AWS     | Azure           | GCP             | OCI             | Use Case       |
+| ------- | --------------- | --------------- | --------------- | -------------- |
+| S3      | Blob Storage    | Cloud Storage   | Object Storage  | Object storage |
+| EBS     | Managed Disks   | Persistent Disk | Block Volumes   | Block storage  |
+| EFS     | Azure Files     | Filestore       | File Storage    | File storage   |
 | Glacier | Archive Storage | Archive Storage | Archive Storage | Cold storage   |
 
 ### Database Services
@@ -170,7 +170,6 @@ AWS / Azure / GCP / OCI
 8. **Document cloud-specific configurations**
 9. **Test disaster recovery** procedures
 10. **Train teams** on multiple clouds
-
 
 ## Related Skills
 

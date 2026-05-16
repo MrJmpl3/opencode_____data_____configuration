@@ -24,7 +24,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # for OIDC auth to cloud providers
+  id-token: write # for OIDC auth to cloud providers
 
 jobs:
   build:
@@ -257,13 +257,13 @@ trigger:
       - main
 
 variables:
-  imageRepository: 'myapp'
-  containerRegistry: 'myregistry.azurecr.io'
-  tag: '$(Build.BuildId)'
+  imageRepository: "myapp"
+  containerRegistry: "myregistry.azurecr.io"
+  tag: "$(Build.BuildId)"
 
 stages:
   - stage: Build
-    displayName: 'Build & Test'
+    displayName: "Build & Test"
     jobs:
       - job: BuildAndTest
         pool:
@@ -288,7 +288,7 @@ stages:
             displayName: Run tests
 
   - stage: Staging
-    displayName: 'Deploy to Staging'
+    displayName: "Deploy to Staging"
     dependsOn: Build
     jobs:
       - deployment: DeployStaging
@@ -306,7 +306,7 @@ stages:
                     containers: $(containerRegistry)/$(imageRepository):$(tag)
 
   - stage: Production
-    displayName: 'Deploy to Production'
+    displayName: "Deploy to Production"
     dependsOn: Staging
     jobs:
       - deployment: DeployProduction
@@ -322,8 +322,8 @@ stages:
               steps:
                 - task: ManualValidation@0
                   inputs:
-                    notifyUsers: 'release-managers@example.com'
-                    instructions: 'Verify staging metrics. Approve to start canary.'
+                    notifyUsers: "release-managers@example.com"
+                    instructions: "Verify staging metrics. Approve to start canary."
                     onTimeout: reject
             deploy:
               steps:

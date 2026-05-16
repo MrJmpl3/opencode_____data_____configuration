@@ -380,7 +380,7 @@ psql -c "VACUUM FULL large_table;"
 # If emergency, delete old data or expand disk
 ```
 
-```
+````
 
 ## Best Practices
 
@@ -411,7 +411,7 @@ kubectl get pods -n payments
 # Prerequisites: kubectl configured, kubeconfig points to correct cluster
 # If this fails: run `aws eks update-kubeconfig --name prod-cluster --region us-east-1`
 # Expected output: pods in Running state
-```
+````
 
 ### On-call engineer panics and skips steps out of order
 
@@ -419,6 +419,7 @@ Add a numbered checklist at the top of the runbook that mirrors the section numb
 
 ```markdown
 ## Quick Checklist
+
 - [ ] 1. Declare incident severity and open war room
 - [ ] 2. Check service health (Section 4.1)
 - [ ] 3. Check recent deployments (Section 4.1)
@@ -433,10 +434,11 @@ Runbooks rot because they're updated manually. Include a "Last Verified" date an
 
 ```markdown
 ## Runbook Metadata
-| Field | Value |
-|---|---|
-| Last verified | 2024-11-15 |
-| Owner | @platform-team |
+
+| Field          | Value                 |
+| -------------- | --------------------- |
+| Last verified  | 2024-11-15            |
+| Owner          | @platform-team        |
 | Review cadence | After every SEV1/SEV2 |
 ```
 

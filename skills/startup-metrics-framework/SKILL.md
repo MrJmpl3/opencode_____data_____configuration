@@ -534,7 +534,6 @@ Burn: $180K/mo | Runway: 18 months
 - Growth rate or trend
 - Context (target, benchmark)
 
-
 ## Quick Start
 
 To implement startup metrics framework:

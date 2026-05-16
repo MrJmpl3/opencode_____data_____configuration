@@ -414,7 +414,6 @@ TAM = Total Target Companies × Average Deal Size × Deals per Year
 - Consider competitive intensity
 - Factor in switching costs and barriers
 
-
 ## Quick Start
 
 To perform market sizing analysis:

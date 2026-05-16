@@ -19,6 +19,7 @@ docker run \
 ```
 
 In Compose:
+
 ```yaml
 services:
   app:
@@ -38,14 +39,14 @@ services:
 
 Common capabilities and when to add them:
 
-| Capability | Needed for |
-|---|---|
-| `NET_BIND_SERVICE` | Binding ports < 1024 |
-| `CHOWN` | `chown` calls at runtime |
-| `DAC_OVERRIDE` | Reading files regardless of permissions |
-| `SETUID` / `SETGID` | su, sudo, setuid programs |
-| `SYS_PTRACE` | Debuggers (development only) |
-| `SYS_ADMIN` | mount, cgroups (avoid in production) |
+| Capability          | Needed for                              |
+| ------------------- | --------------------------------------- |
+| `NET_BIND_SERVICE`  | Binding ports < 1024                    |
+| `CHOWN`             | `chown` calls at runtime                |
+| `DAC_OVERRIDE`      | Reading files regardless of permissions |
+| `SETUID` / `SETGID` | su, sudo, setuid programs               |
+| `SYS_PTRACE`        | Debuggers (development only)            |
+| `SYS_ADMIN`         | mount, cgroups (avoid in production)    |
 
 Default capabilities added by Docker (all dropped with `--cap-drop ALL`): AUDIT_WRITE, CHOWN, DAC_OVERRIDE, FOWNER, FSETID, KILL, MKNOD, NET_BIND_SERVICE, NET_RAW, SETFCAP, SETGID, SETPCAP, SETUID, SYS_CHROOT.
 
@@ -94,6 +95,7 @@ sudo systemctl restart docker
 ECI adds an extra security layer restricting Docker socket access and container escape vectors.
 
 **Enable:**
+
 ```bash
 # Docker Desktop GUI: Settings > Security > Enhanced Container Isolation
 # Or via CLI:
@@ -101,17 +103,20 @@ docker desktop settings set enhancedContainerIsolation=true
 ```
 
 **Use for:**
+
 - Multi-tenant development environments
 - Security-critical applications
 - Compliance requirements (PCI-DSS, HIPAA)
 - Zero-trust architectures
 
 **Caveats:**
+
 - May break containers that mount Docker socket (`/var/run/docker.sock`)
 - Test existing containers before enabling in team environments
 - Requires Docker Desktop 4.38+ (Windows WSL2, macOS, Linux Desktop)
 
 **Troubleshoot ECI:**
+
 ```bash
 # Identify socket dependencies
 docker inspect CONTAINER | grep -i socket
@@ -140,6 +145,7 @@ grype myapp:latest
 ```
 
 **Integrate in CI/CD:**
+
 ```yaml
 # GitHub Actions
 - name: Scan image for vulnerabilities
@@ -147,8 +153,8 @@ grype myapp:latest
   with:
     image-ref: myapp:${{ github.sha }}
     format: sarif
-    exit-code: '1'
-    severity: 'CRITICAL,HIGH'
+    exit-code: "1"
+    severity: "CRITICAL,HIGH"
 ```
 
 ## Docker Content Trust (Image Signing)

@@ -10,6 +10,7 @@ Patterns for managing distributed transactions and long-running business process
 ## Inputs and Outputs
 
 **What you provide:**
+
 - Service boundaries and ownership (which service owns which step)
 - Transaction requirements (which steps must be atomic, which can be eventual)
 - Failure modes for each step (transient vs. permanent, retry policy)
@@ -17,6 +18,7 @@ Patterns for managing distributed transactions and long-running business process
 - Existing event/messaging infrastructure (Kafka, RabbitMQ, SQS, etc.)
 
 **What this skill produces:**
+
 - Saga definition with ordered steps, action commands, and compensation commands
 - Orchestrator or choreography implementation for your chosen pattern
 - Compensation logic for each participant service (idempotent, always-succeeds)
@@ -61,23 +63,23 @@ No central coordinator.    Central coordinator sends
 
 ### Saga Execution States
 
-| State            | Description                                       |
-| ---------------- | ------------------------------------------------- |
-| **Started**      | Saga initiated, first step dispatched             |
-| **Pending**      | Waiting for a step reply from a participant       |
-| **Compensating** | A step failed; rolling back completed steps       |
-| **Completed**    | All forward steps succeeded                       |
-| **Failed**       | Saga failed and all compensations have finished   |
+| State            | Description                                     |
+| ---------------- | ----------------------------------------------- |
+| **Started**      | Saga initiated, first step dispatched           |
+| **Pending**      | Waiting for a step reply from a participant     |
+| **Compensating** | A step failed; rolling back completed steps     |
+| **Completed**    | All forward steps succeeded                     |
+| **Failed**       | Saga failed and all compensations have finished |
 
 ### Compensation Rules
 
-| Situation                            | Handling                                              |
-| ------------------------------------ | ----------------------------------------------------- |
-| Step never started                   | No compensation needed (skip)                         |
-| Step completed successfully          | Run compensation command                              |
-| Step failed before completion        | No compensation needed; mark failed                   |
-| Compensation itself fails            | Retry with backoff → DLQ → manual intervention alert  |
-| Step result no longer exists         | Treat compensation as success (idempotency)           |
+| Situation                     | Handling                                             |
+| ----------------------------- | ---------------------------------------------------- |
+| Step never started            | No compensation needed (skip)                        |
+| Step completed successfully   | Run compensation command                             |
+| Step failed before completion | No compensation needed; mark failed                  |
+| Compensation itself fails     | Retry with backoff → DLQ → manual intervention alert |
+| Step result no longer exists  | Treat compensation as success (idempotency)          |
 
 ---
 

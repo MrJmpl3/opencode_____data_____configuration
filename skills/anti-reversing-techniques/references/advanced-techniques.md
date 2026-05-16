@@ -204,6 +204,7 @@ void decrypt_and_run(unsigned char *buf, size_t len, unsigned char key) {
 ```
 
 **Analysis Approach:**
+
 - Set memory write breakpoints on the code region to catch decryption
 - Use PIN or DynamoRIO to log executed instruction addresses
 - Dump memory after self-modification to capture the real code

@@ -2,12 +2,12 @@
 
 ## Private Connectivity Options
 
-| Provider | Service | Typical Use |
-| -------- | ------- | ----------- |
-| AWS | Direct Connect | Private connectivity into VPCs and Transit Gateway domains |
-| Azure | ExpressRoute | Dedicated enterprise connectivity into VNets and Microsoft services |
-| GCP | Cloud Interconnect | Dedicated or partner connectivity into VPCs |
-| OCI | FastConnect | Private connectivity into VCNs through DRG attachments |
+| Provider | Service            | Typical Use                                                         |
+| -------- | ------------------ | ------------------------------------------------------------------- |
+| AWS      | Direct Connect     | Private connectivity into VPCs and Transit Gateway domains          |
+| Azure    | ExpressRoute       | Dedicated enterprise connectivity into VNets and Microsoft services |
+| GCP      | Cloud Interconnect | Dedicated or partner connectivity into VPCs                         |
+| OCI      | FastConnect        | Private connectivity into VCNs through DRG attachments              |
 
 ## Design Guidance
 

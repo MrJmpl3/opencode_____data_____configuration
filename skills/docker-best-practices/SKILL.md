@@ -36,6 +36,7 @@ docker compose config
 ### Base image hierarchy (2025)
 
 Prefer in this order:
+
 1. **Chainguard / Wolfi** (`cgr.dev/chainguard/php:latest`) — zero-CVE goal, SBOM included
 2. **Alpine** (`php:8.2-fpm-alpine`) — ~7 MB, minimal attack surface
 3. **Distroless** (`gcr.io/distroless/base`) — no shell, ~2 MB runtime
@@ -135,7 +136,7 @@ secrets:
 services:
   app:
     env_file:
-      - .env.production   # gitignored
+      - .env.production # gitignored
 ```
 
 ## Production audit

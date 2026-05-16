@@ -48,7 +48,16 @@ services:
     ports:
       - "${DB_PORT:-3306}:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USERNAME}", "-p${DB_PASSWORD}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u${DB_USERNAME}",
+          "-p${DB_PASSWORD}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -101,7 +110,7 @@ services:
 
   db:
     networks:
-      - backend       # Not reachable from frontend
+      - backend # Not reachable from frontend
 
   redis:
     networks:
@@ -112,7 +121,7 @@ networks:
     driver: bridge
   backend:
     driver: bridge
-    internal: true    # No external internet access
+    internal: true # No external internet access
 ```
 
 ## Environment Variables Strategy
@@ -139,6 +148,7 @@ secrets:
 ```
 
 **File hierarchy:**
+
 - `.env` — local overrides (gitignored)
 - `.env.example` — committed template with placeholder values
 - `.env.testing` — test environment values
@@ -150,11 +160,11 @@ services:
   api:
     depends_on:
       database:
-        condition: service_healthy   # Wait for health check to pass
+        condition: service_healthy # Wait for health check to pass
       redis:
-        condition: service_started   # Just wait for container start
+        condition: service_started # Just wait for container start
       migration:
-        condition: service_completed_successfully  # Wait for one-shot job
+        condition: service_completed_successfully # Wait for one-shot job
 
   migration:
     image: myapp
@@ -208,10 +218,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 1G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
       restart_policy:
         condition: on-failure
@@ -232,6 +242,7 @@ services:
 ```
 
 Or globally in `/etc/docker/daemon.json`:
+
 ```json
 {
   "log-driver": "json-file",
@@ -286,9 +297,9 @@ services:
         - action: sync
           path: ./src
           target: /app/src
-          initial_sync: full     # Sync all files on start (2025 feature)
+          initial_sync: full # Sync all files on start (2025 feature)
         - action: rebuild
-          path: composer.json    # Rebuild image when deps change
+          path: composer.json # Rebuild image when deps change
 ```
 
 ```bash

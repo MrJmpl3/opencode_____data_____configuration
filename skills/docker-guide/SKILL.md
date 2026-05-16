@@ -32,17 +32,20 @@ docker compose down
 ## Core concepts
 
 **Images vs Containers:**
+
 - Image: read-only template with code, runtime, and dependencies.
 - Container: running instance of an image with a writable layer.
 - Registry: image storage (Docker Hub, GHCR, private registries).
 
 **Volumes:**
+
 ```bash
 docker run -v named_volume:/app/data image   # Named volume (persists)
 docker run -v $(pwd)/data:/app/data image    # Bind mount (host path)
 ```
 
 **Networks:**
+
 ```bash
 docker network create mynet
 docker run --network mynet --name db postgres
@@ -89,6 +92,7 @@ volumes:
 ```
 
 **Essential Compose commands:**
+
 ```bash
 docker compose up -d               # Start all services (detached)
 docker compose up --build          # Rebuild images before starting

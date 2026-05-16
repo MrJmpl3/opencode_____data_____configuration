@@ -28,6 +28,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 ```
 
 Enable BuildKit:
+
 ```bash
 export DOCKER_BUILDKIT=1
 # Or set in /etc/docker/daemon.json:
@@ -113,16 +114,17 @@ docker buildx bake --print
 
 ## Image Size Reduction
 
-| Technique | Typical saving |
-|---|---|
-| Alpine vs Debian base | 100→5 MB base |
-| Multi-stage build | 500→100 MB |
-| Remove build tools | 30-50% |
-| `--no-cache-dir` (pip) | 20-30% |
-| `--only=production` (npm) | 50-70% |
-| Combine RUN layers | 5-15% |
+| Technique                 | Typical saving |
+| ------------------------- | -------------- |
+| Alpine vs Debian base     | 100→5 MB base  |
+| Multi-stage build         | 500→100 MB     |
+| Remove build tools        | 30-50%         |
+| `--no-cache-dir` (pip)    | 20-30%         |
+| `--only=production` (npm) | 50-70%         |
+| Combine RUN layers        | 5-15%          |
 
 **Analyze image layers:**
+
 ```bash
 # Layer sizes
 docker history myapp:latest
@@ -140,14 +142,14 @@ docker run --rm -it \
 services:
   app:
     volumes:
-      - ./src:/app/src:delegated      # Host writes delayed (best for source code)
-      - ./build:/app/build:cached     # Container writes cached (build outputs)
+      - ./src:/app/src:delegated # Host writes delayed (best for source code)
+      - ./build:/app/build:cached # Container writes cached (build outputs)
 
   # Keep node_modules/vendor in named volume (much faster than bind mount)
   node:
     volumes:
       - ./src:/app/src:delegated
-      - node_modules:/app/node_modules   # Named volume, no bind mount overhead
+      - node_modules:/app/node_modules # Named volume, no bind mount overhead
 
 volumes:
   node_modules:
@@ -179,11 +181,11 @@ build:
   script:
     - docker buildx create --use
     - docker buildx build
-        --cache-from type=registry,ref=$CI_REGISTRY_IMAGE:cache
-        --cache-to type=registry,ref=$CI_REGISTRY_IMAGE:cache,mode=max
-        --push
-        -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-        .
+      --cache-from type=registry,ref=$CI_REGISTRY_IMAGE:cache
+      --cache-to type=registry,ref=$CI_REGISTRY_IMAGE:cache,mode=max
+      --push
+      -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+      .
 ```
 
 ## Slow Build Diagnosis

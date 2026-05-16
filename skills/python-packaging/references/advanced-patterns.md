@@ -51,7 +51,7 @@ company/
     └── routes.py
 ```
 
-**Do NOT include __init__.py in the namespace directory (company/):**
+**Do NOT include **init**.py in the namespace directory (company/):**
 
 ```toml
 # company-core/pyproject.toml

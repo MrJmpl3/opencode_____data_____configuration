@@ -249,7 +249,6 @@ oci network cpe list
 5. **Use dedicated private links** for high bandwidth
 6. **Implement caching** to reduce traffic
 
-
 ## Related Skills
 
 - `multi-cloud-architecture` - For architecture decisions

@@ -19,6 +19,7 @@ docker run --rm \
 ```
 
 **In Compose:**
+
 ```yaml
 services:
   app:
@@ -30,6 +31,7 @@ services:
 ```
 
 **Use cases:**
+
 - Read-only configuration distribution
 - Shared ML model weights across containers
 - Static asset serving without duplication
@@ -55,13 +57,13 @@ Available endpoints: `/v1.48/debug/vars`, `/v1.48/debug/pprof/`, `/v1.48/debug/p
 
 ### Engine 28 Component Versions
 
-| Component | Version |
-|---|---|
-| Docker Engine | 28.x |
-| Buildx | v0.26+ |
-| Compose | v2.40+ |
-| BuildKit | v0.25+ |
-| Go runtime | 1.24+ |
+| Component     | Version |
+| ------------- | ------- |
+| Docker Engine | 28.x    |
+| Buildx        | v0.26+  |
+| Compose       | v2.40+  |
+| BuildKit      | v0.25+  |
+| Go runtime    | 1.24+   |
 
 ### Security Fix: CVE-2025-54388
 
@@ -151,6 +153,7 @@ services:
 ### New Features
 
 **1. Develop watch with `initial_sync`**
+
 ```yaml
 services:
   app:
@@ -160,14 +163,15 @@ services:
         - action: sync
           path: ./src
           target: /app/src
-          initial_sync: full      # Sync ALL files on container start
+          initial_sync: full # Sync ALL files on container start
         - action: rebuild
-          path: composer.json     # Triggers image rebuild
+          path: composer.json # Triggers image rebuild
         - action: sync+restart
-          path: .env              # Sync then restart container
+          path: .env # Sync then restart container
 ```
 
 **2. Volume type: image**
+
 ```yaml
 services:
   app:
@@ -179,6 +183,7 @@ services:
 ```
 
 **3. Debug build configs**
+
 ```bash
 docker compose build --print > build-config.json
 docker compose config --no-env-resolution     # Raw config, no var substitution
@@ -240,15 +245,15 @@ FROM alpine:3.19@sha256:c5b1261d6d3e43071626931fc004f70149baeba2c8ec672bd4f27761
 
 ## Recommended Feature Adoption Timeline
 
-| Feature | Readiness | Action |
-|---|---|---|
-| Remove `version` field from Compose | Production ready | Apply now |
-| BuildKit cache mounts | Production ready | Apply now |
-| `COPY --exclude` | Production ready | Apply now |
-| Engine 28 upgrade | Production ready | Update via package manager |
-| Image type volumes | Stable | Evaluate for data distribution use cases |
-| Compose `develop watch` | Stable | Adopt for local dev workflows |
-| Compose Bridge (K8s) | Beta | Evaluate for K8s migration paths |
-| Docker AI / Model Runner | Beta | Use for local AI development |
-| Enhanced Container Isolation | Test thoroughly | Validate existing containers first |
-| Multi-node Kubernetes | Beta | Pre-production testing only |
+| Feature                             | Readiness        | Action                                   |
+| ----------------------------------- | ---------------- | ---------------------------------------- |
+| Remove `version` field from Compose | Production ready | Apply now                                |
+| BuildKit cache mounts               | Production ready | Apply now                                |
+| `COPY --exclude`                    | Production ready | Apply now                                |
+| Engine 28 upgrade                   | Production ready | Update via package manager               |
+| Image type volumes                  | Stable           | Evaluate for data distribution use cases |
+| Compose `develop watch`             | Stable           | Adopt for local dev workflows            |
+| Compose Bridge (K8s)                | Beta             | Evaluate for K8s migration paths         |
+| Docker AI / Model Runner            | Beta             | Use for local AI development             |
+| Enhanced Container Isolation        | Test thoroughly  | Validate existing containers first       |
+| Multi-node Kubernetes               | Beta             | Pre-production testing only              |

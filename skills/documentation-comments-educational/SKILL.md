@@ -1,6 +1,6 @@
 ---
 name: documentation-comments-educational
-description: 'Create educational comments in code files so they become effective learning resources. If no file is provided, request one and offer close matches.'
+description: "Create educational comments in code files so they become effective learning resources. If no file is provided, request one and offer close matches."
 ---
 
 # Educational Comments

@@ -326,7 +326,6 @@ rules:
 9. **Automate SLO reporting**
 10. **Use SLOs for prioritization**
 
-
 ## Related Skills
 
 - `prometheus-configuration` - For metric collection

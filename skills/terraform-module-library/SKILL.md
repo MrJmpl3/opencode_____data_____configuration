@@ -219,7 +219,6 @@ module "rds" {
 }
 ```
 
-
 ## Testing
 
 ```go

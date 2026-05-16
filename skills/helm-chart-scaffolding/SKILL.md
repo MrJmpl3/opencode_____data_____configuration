@@ -553,7 +553,6 @@ helm install my-app ./my-app --dry-run --debug
 kubectl get events --sort-by='.lastTimestamp'
 ```
 
-
 ## Related Skills
 
 - `k8s-manifest-generator` - For creating base Kubernetes manifests

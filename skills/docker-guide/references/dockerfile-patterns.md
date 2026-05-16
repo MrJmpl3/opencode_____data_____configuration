@@ -37,6 +37,7 @@ CMD ["php-fpm"]
 ```
 
 **Laravel-specific `.dockerignore`:**
+
 ```
 .git
 node_modules
@@ -152,6 +153,7 @@ RUN --mount=type=cache,target=/root/.composer/cache \
 ```
 
 Enable BuildKit:
+
 ```bash
 export DOCKER_BUILDKIT=1
 docker build -t myapp .

@@ -26,12 +26,12 @@ Build optimized, secure, and cache-efficient Docker images following production 
 
 ### Image Size Comparison
 
-| Base Image | Size | Use Case |
-|------------|------|----------|
-| `node:20` | ~1GB | Development only |
-| `node:20-slim` | ~200MB | General production |
-| `node:20-alpine` | ~130MB | Size-critical production |
-| `gcr.io/distroless/nodejs20` | ~120MB | Maximum security |
+| Base Image                   | Size   | Use Case                 |
+| ---------------------------- | ------ | ------------------------ |
+| `node:20`                    | ~1GB   | Development only         |
+| `node:20-slim`               | ~200MB | General production       |
+| `node:20-alpine`             | ~130MB | Size-critical production |
+| `gcr.io/distroless/nodejs20` | ~120MB | Maximum security         |
 
 ### Recommendations by Language
 
@@ -413,7 +413,7 @@ services:
     cap_drop:
       - ALL
     cap_add:
-      - NET_BIND_SERVICE  # Only if binding to port < 1024
+      - NET_BIND_SERVICE # Only if binding to port < 1024
     security_opt:
       - no-new-privileges:true
 ```

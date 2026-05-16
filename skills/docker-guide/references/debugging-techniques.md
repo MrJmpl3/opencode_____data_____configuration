@@ -113,6 +113,7 @@ docker port container_name
 ## Common Failure Scenarios
 
 ### Container exits immediately
+
 ```bash
 # Check logs immediately after crash
 docker logs container_name
@@ -128,6 +129,7 @@ docker run -it --entrypoint /bin/sh image_name
 ```
 
 ### Port already in use
+
 ```bash
 lsof -i :8080
 kill -9 <PID>
@@ -136,6 +138,7 @@ docker run -p 9090:8080 myapp
 ```
 
 ### Volume appears empty / bind mount wrong path
+
 ```bash
 docker inspect -f '{{.Mounts}}' container_name
 # Verify the Source path exists on the host
@@ -143,6 +146,7 @@ ls -la /path/on/host
 ```
 
 ### MySQL/PostgreSQL won't start
+
 ```bash
 docker logs db_container
 # Common causes:
@@ -155,6 +159,7 @@ docker run --rm -v db_data:/data alpine ls -la /data
 ```
 
 ### Cannot connect between containers
+
 ```bash
 # Check they share the same network
 docker inspect container1 | grep -A 20 "Networks"
@@ -168,6 +173,7 @@ docker exec container1 ping container2
 ```
 
 ### Build context too large / slow builds
+
 ```bash
 # Check context size
 du -sh .
@@ -197,6 +203,7 @@ EOF
 ```
 
 ### OOM (Out of Memory) killed containers
+
 ```bash
 # Identify OOM kill in logs
 docker inspect -f '{{.State.OOMKilled}}' container_name

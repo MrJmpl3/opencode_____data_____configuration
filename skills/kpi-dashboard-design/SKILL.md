@@ -444,10 +444,10 @@ END AS normalized_mrr
 The dashboard likely tracks system uptime (a lagging indicator) but not user-facing quality metrics. Add customer-perceived metrics alongside infrastructure metrics:
 
 | Infrastructure (green) | User-perceived (add these) |
-|---|---|
-| API uptime 99.9% | P95 page load time |
-| Error rate 0.1% | Task completion rate |
-| Queue depth normal | Support ticket volume |
+| ---------------------- | -------------------------- |
+| API uptime 99.9%       | P95 page load time         |
+| Error rate 0.1%        | Task completion rate       |
+| Queue depth normal     | Support ticket volume      |
 
 ### Retention cohort looks flat — no variation between cohorts
 

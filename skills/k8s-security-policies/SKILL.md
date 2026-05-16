@@ -340,7 +340,6 @@ kubectl auth can-i list pods --as system:serviceaccount:default:my-sa
 kubectl auth can-i '*' '*' --as system:serviceaccount:default:my-sa
 ```
 
-
 ## Related Skills
 
 - `k8s-manifest-generator` - For creating secure manifests
