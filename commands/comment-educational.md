@@ -12,14 +12,14 @@ Arguments:
 
 Steps:
 
-1) If `$ARGUMENTS` is empty, stop immediately and report:
+1. If `$ARGUMENTS` is empty, stop immediately and report:
    "Please provide a target file or directory path. Example: `/comment-educational path/to/file`"
-2) Resolve whether `$ARGUMENTS` points to a file, a directory, or a request.
-3) Load and follow the `documentation-comments-educational` skill before changing anything.
-4) If the target is a request, infer the most likely file or directory from repo context. If more than one target is plausible, ask one brief clarifying question.
-5) If the target is a file, read it completely. If it is a directory, inspect it and select only the smallest sensible subset of files that clearly benefit from educational comments.
-6) Skip generated files, vendored code, dependencies, build artifacts, lockfiles, binaries, and files that cannot be safely commented.
-7) Plan comments using the skill rules:
+2. Resolve whether `$ARGUMENTS` points to a file, a directory, or a request.
+3. Load and follow the `documentation-comments-educational` skill before changing anything.
+4. If the target is a request, infer the most likely file or directory from repo context. If more than one target is plausible, ask one brief clarifying question.
+5. If the target is a file, read it completely. If it is a directory, inspect it and select only the smallest sensible subset of files that clearly benefit from educational comments.
+6. Skip generated files, vendored code, dependencies, build artifacts, lockfiles, binaries, and files that cannot be safely commented.
+7. Plan comments using the skill rules:
    - preserve behavior, syntax, formatting, indentation, and line endings
    - explain intent, behavior, trade-offs, and risks
    - prefer why over obvious mechanics
@@ -32,9 +32,9 @@ Steps:
    - use `[!]` only for real behavioral risks
    - keep comment clusters short and low-noise
    - write bodies as natural prose, focusing on why over mechanics
-8) Edit only the smallest useful scope. Do not rewrite whole files just to add comments.
-9) Re-read every edited file and verify the comments are consistent, concise, technically correct, and syntax-safe.
-10) Return a short summary of the edited files, the sections commented or refined, and any intentionally skipped files if the target was a directory.
+8. Edit only the smallest useful scope. Do not rewrite whole files just to add comments.
+9. Re-read every edited file and verify the comments are consistent, concise, technically correct, and syntax-safe.
+10. Return a short summary of the edited files, the sections commented or refined, and any intentionally skipped files if the target was a directory.
 
 Constraints:
 
