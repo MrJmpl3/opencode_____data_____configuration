@@ -1,23 +1,19 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
-  "hashline_edit": true,
   "agents": {
-    "sisyphus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max"
+    "atlas": {
+      "model": "openrouter/deepseek/deepseek-v4-flash"
+    },
+    "explore": {
+      "model": "openrouter/deepseek/deepseek-v4-flash"
     },
     "hephaestus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max",
-      "allow_non_gpt_model": true
-    },
-    "sisyphus-junior": {
+      "allow_non_gpt_model": true,
       "model": "openrouter/deepseek/deepseek-v4-flash",
       "variant": "max"
     },
-    "prometheus": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max"
+    "librarian": {
+      "model": "openrouter/deepseek/deepseek-v4-flash"
     },
     "metis": {
       "model": "openrouter/deepseek/deepseek-v4-flash"
@@ -25,28 +21,38 @@
     "momus": {
       "model": "openrouter/deepseek/deepseek-v4-flash"
     },
+    "multimodal-looker": {
+      "model": "openrouter/deepseek/deepseek-v4-flash"
+    },
     "oracle": {
       "model": "openrouter/deepseek/deepseek-v4-flash",
       "variant": "max"
     },
-    "librarian": {
-      "model": "openrouter/deepseek/deepseek-v4-flash"
+    "prometheus": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "variant": "max"
     },
-    "explore": {
-      "model": "openrouter/deepseek/deepseek-v4-flash"
+    "sisyphus": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "variant": "max"
     },
-    "multimodal-looker": {
-      "model": "openrouter/deepseek/deepseek-v4-flash"
+    "sisyphus-junior": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "variant": "max"
+    }
+  },
+  "auto_update": true,
+  "background_task": {
+    "defaultConcurrency": 5,
+    "modelConcurrency": {
+      "openrouter/deepseek/deepseek-v4-flash": 10
     },
-    "atlas": {
-      "model": "openrouter/deepseek/deepseek-v4-flash"
+    "providerConcurrency": {
+      "openrouter": 15
     }
   },
   "categories": {
-    "visual-engineering": {
-      "model": "openrouter/deepseek/deepseek-v4-flash"
-    },
-    "ultrabrain": {
+    "artistry": {
       "model": "openrouter/deepseek/deepseek-v4-flash",
       "variant": "max"
     },
@@ -54,46 +60,40 @@
       "model": "openrouter/deepseek/deepseek-v4-flash",
       "variant": "max"
     },
-    "artistry": {
-      "model": "openrouter/deepseek/deepseek-v4-flash",
-      "variant": "max"
-    },
     "quick": {
       "model": "openrouter/deepseek/deepseek-v4-flash"
     },
-    "unspecified-low": {
-      "model": "openrouter/deepseek/deepseek-v4-flash"
+    "ultrabrain": {
+      "model": "openrouter/deepseek/deepseek-v4-flash",
+      "variant": "max"
     },
     "unspecified-high": {
       "model": "openrouter/deepseek/deepseek-v4-flash",
       "variant": "max"
     },
+    "unspecified-low": {
+      "model": "openrouter/deepseek/deepseek-v4-flash"
+    },
+    "visual-engineering": {
+      "model": "openrouter/deepseek/deepseek-v4-flash"
+    },
     "writing": {
       "model": "openrouter/deepseek/deepseek-v4-flash"
+    }
+  },
+  "hashline_edit": true,
+  "model_capabilities": {
+    "auto_refresh_on_start": true,
+    "enabled": true
+  },
+  "sisyphus": {
+    "tasks": {
+      "claude_code_compat": false,
+      "storage_path": ".sisyphus/tasks"
     }
   },
   "sisyphus_agent": {
     "planner_enabled": true,
     "replace_plan": true
-  },
-  "auto_update": true,
-  "background_task": {
-    "defaultConcurrency": 5,
-    "providerConcurrency": {
-      "openrouter": 15
-    },
-    "modelConcurrency": {
-      "openrouter/deepseek/deepseek-v4-flash": 10
-    }
-  },
-  "model_capabilities": {
-    "enabled": true,
-    "auto_refresh_on_start": true
-  },
-  "sisyphus": {
-    "tasks": {
-      "storage_path": ".sisyphus/tasks",
-      "claude_code_compat": false
-    }
   }
 }
