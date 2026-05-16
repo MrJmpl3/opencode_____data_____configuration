@@ -121,8 +121,10 @@ const plugin: TuiPluginModule & { id: string } = {
         setHasData(false);
         return;
       }
-
       const currentVersion = ++inFlightVersion;
+
+      // Keep currentSessionId in sync so applyModel binds correctly
+      currentSessionId = sid;
 
       // If model already resolved for this session, we're done
       if (modelLabel() && contextLimit() > 0 && resolvedSessionId === sid) {
@@ -182,18 +184,18 @@ const plugin: TuiPluginModule & { id: string } = {
       }
     }
 
-    // --- events ---
     const unsubModelSwitch = evt.on(
       "session.next.model.switched" as any,
       (event: any) => {
         const props = event.properties || event;
         const m = props.model;
+        const sid = props.sessionID || currentSessionId;
         if (m?.id && m?.providerID) {
+          currentSessionId = sid;
           applyModel(m.providerID, m.id);
-          refresh(currentSessionId).catch(() => {});
+          if (sid) refresh(sid).catch(() => {});
         }
-      },
-    );
+    });
 
     const unsubs: (() => void)[] = [unsubModelSwitch];
     function onRefresh(event: any) {
@@ -223,7 +225,7 @@ const plugin: TuiPluginModule & { id: string } = {
             currentSessionId = sid;
             refresh(sid);
           } else if (sid && !hasData()) {
-            refresh(sid);
+            refresh(sid).catch(() => {});
           }
           return (
             <View

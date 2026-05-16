@@ -26,26 +26,22 @@ export function createRefreshScheduler({
   // Set handles the edge case where a timer fires during clearTimeout.
 
   const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
-  // --- staggered base delays prevent thundering herd ---
-  // 150ms: fast first refresh for immediate feedback.
-  // 600ms: catches late state changes from concurrent events.
-
-  const REFRESH_DELAYS_MS = [150, 600];
+  const REFRESH_DELAY_MS = 300;
   let disposed = false;
-
-  // --- event-driven refresh reduces wasted requests ---
-  // Old polling queried on a fixed interval regardless of activity.
-  // Now refreshes only when relevant events fire, cutting unnecessary calls.
-
+  // --- polling fallback: refresh every 120s to catch stale data ---
+  const POLL_INTERVAL_MS = 120_000;
+  const pollTimer = setInterval(() => {
+    if (disposed) return;
+    onRefresh("poll");
+  }, POLL_INTERVAL_MS);
   function scheduleRefresh(extraDelays: number[] = [], source?: string) {
-    for (const delay of [...REFRESH_DELAYS_MS, ...extraDelays]) {
-      const timer = setTimeout(() => {
-        if (disposed) return;
-        pendingTimers.delete(timer);
-        onRefresh(source);
-      }, delay);
-      pendingTimers.add(timer);
-    }
+    const delay = REFRESH_DELAY_MS + (extraDelays[0] ?? 0);
+    const timer = setTimeout(() => {
+      if (disposed) return;
+      pendingTimers.delete(timer);
+      onRefresh(source);
+    }, delay);
+    pendingTimers.add(timer);
   }
 
   // --- bindEvents maps event names to refresh triggers ---
@@ -69,6 +65,7 @@ export function createRefreshScheduler({
 
   function dispose() {
     disposed = true;
+    clearInterval(pollTimer);
     for (const unsub of unsubscribers) unsub();
     pendingTimers.forEach((timer) => clearTimeout(timer));
   }

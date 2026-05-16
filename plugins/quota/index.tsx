@@ -46,6 +46,7 @@ const plugin: TuiPluginModule & { id: string } = {
     // Guards for preventing work after unmount:
     const { slots, event: evt, lifecycle } = api;
     const [lines, setLines] = createSignal<string[]>([]);
+    let currentSessionId = "";
     let inFlightVersion = 0;
     let disposed = false;
     // Stale-response guard: each refresh call gets a unique version.
@@ -92,14 +93,6 @@ const plugin: TuiPluginModule & { id: string } = {
             // null means the fetch is still running, show a spinner.
             items.push(`${tag} ⏳`);
           } else if (typeof r === "string") {
-            if (
-              r === "No config" ||
-              r === "No token configured" ||
-              r === "No API key configured"
-            )
-              continue;
-            // Config-not-found means the user hasn't set up that provider.
-            // Hide instead of showing an error in the sidebar.
             items.push(`${tag} ❌`);
             items.push(`  ${r}`);
           } else {
@@ -148,23 +141,26 @@ const plugin: TuiPluginModule & { id: string } = {
         // ── GitHub Copilot ──
         const cp = await fetchCopilotQuota();
         if (currentVersion !== inFlightVersion) return;
-        if (cp && !("error" in cp)) {
+        if (cp === null) {
+          results.delete("cp");
+        } else if (!("error" in cp)) {
           const reset = cp.resetSec
             ? ` · ${fmtDuration(cp.resetSec)} left`
             : "";
           results.set("cp", [`Monthly  ${cp.text}${reset}`]);
-        } else if (cp && "error" in cp) {
+        } else {
           results.set("cp", cp.error);
         }
         setLines(buildLines());
 
-        // --- Provider: OpenRouter (reads API key from env/config) ---
         // ── OpenRouter ──
         const or = await fetchOpenRouterQuota();
         if (currentVersion !== inFlightVersion) return;
-        if (or && !("error" in or)) {
+        if (or === null) {
+          results.delete("or");
+        } else if (!("error" in or)) {
           results.set("or", [`Credits  ${or.text}`]);
-        } else if (or && "error" in or) {
+        } else {
           results.set("or", or.error);
         }
         setLines(buildLines());
@@ -187,14 +183,18 @@ const plugin: TuiPluginModule & { id: string } = {
       disposed = true;
       scheduler.dispose();
     });
-    // Initial fetch on mount; subsequent refreshes are event-driven.
-
-    await refresh();
+    // Fire-and-forget initial fetch (don't block slot registration)
+    refresh().catch(() => {});
 
     slots.register({
       order: 180,
       slots: {
-        sidebar_content() {
+        sidebar_content(_ctx: any, slotInput: any) {
+          const sid = (slotInput as any)?.session_id ?? "";
+          if (sid && sid !== currentSessionId) {
+            currentSessionId = sid;
+            refresh(sid).catch(() => {});
+          }
           return <View getLines={lines} api={api} />;
         },
       },

@@ -171,7 +171,11 @@ const plugin: TuiPluginModule & { id: string } = {
       ...IMMEDIATE_REFRESH_EVENTS,
       ...COMPLETION_REFRESH_EVENTS,
     ]) {
-      unsubs.push(evt.on(eventName as any, () => refresh()));
+      unsubs.push(evt.on(eventName as any, (event: any) => {
+        const props = event.properties || event;
+        const sid = props.sessionID || currentSessionId;
+        if (sid) refresh(sid);
+      }));
     }
 
     lifecycle.onDispose(() => {
@@ -191,6 +195,8 @@ const plugin: TuiPluginModule & { id: string } = {
             clearTimeout(retryTimer);
             retryTimer = null;
             currentSessionId = sid;
+            refresh(sid);
+          } else if (sid && !hasData()) {
             refresh(sid);
           }
           return (
