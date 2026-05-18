@@ -22,7 +22,10 @@
       ]
     },
     "typescript": {
-      "command": ["typescript-language-server", "--stdio"],
+      "command": [
+        "typescript-language-server",
+        "--stdio"
+      ],
       "env": {
         "NODE_OPTIONS": "--max-old-space-size=8192"
       }
@@ -56,7 +59,9 @@
       "url": "https://nuxt.com/mcp"
     }
   },
-  "plugin": ["oh-my-openagent@latest"],
+  "plugin": [
+    "oh-my-openagent@latest"
+  ],
   "provider": {
     "github-copilot": {
       "options": {
@@ -72,25 +77,18 @@
         "timeout": 600000
       }
     },
+    "openai": {
+      "options": {
+        "chunkTimeout": 60000,
+        "setCacheKey": true,
+        "timeout": 600000
+      }
+    },
     "opencode": {
       "options": {
         "chunkTimeout": 60000,
         "setCacheKey": true,
         "timeout": 600000
-      },
-      "models": {
-        "qwen3.6-plus-free": {
-          "limit": {
-            "context": 1000000,
-            "output": 65536
-          }
-        },
-        "deepseek-v4-flash-free": {
-          "limit": {
-            "context": 1000000,
-            "output": 65536
-          }
-        }
       }
     },
     "opencode-go": {
