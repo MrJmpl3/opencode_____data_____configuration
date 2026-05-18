@@ -105,7 +105,7 @@ function bestGoCompactLine(provider: ProviderSpec, windows: {
 }): string[] {
   const best = windows.rolling ?? windows.weekly ?? windows.monthly;
   if (!best) return [provider.compactLabel, "No windows"];
-  return [provider.compactLabel, `${best.remaining.toFixed(0)}% · ${fmtDuration(best.resetInSec)}`];
+  return [`GO ${best.remaining.toFixed(0)}%`];
 }
 
 function bestOpenAICompactLine(
@@ -119,16 +119,26 @@ function bestOpenAICompactLine(
   },
 ): string[] {
   const parts: string[] = [];
-  if (data.planType) parts.push(data.planType);
-  const bestWindow = data.hourly ?? data.weekly ?? data.codeReview;
-  if (bestWindow) {
-    parts.push(`${Math.max(0, 100 - bestWindow.usedPct).toFixed(0)}%`);
-    const reset = fmtDuration(bestWindow.resetSec);
-    if (reset) parts.push(reset);
-  } else if (data.credits) {
+  if (data.hourly) {
+    parts.push(`5h ${Math.max(0, 100 - data.hourly.usedPct).toFixed(0)}%`);
+  }
+  if (data.weekly) {
+    parts.push(`wk ${Math.max(0, 100 - data.weekly.usedPct).toFixed(0)}%`);
+  }
+  if (parts.length === 0 && data.codeReview) {
+    parts.push(`rev ${Math.max(0, 100 - data.codeReview.usedPct).toFixed(0)}%`);
+  } else if (parts.length === 0 && data.credits) {
     parts.push(`credits ${data.credits}`);
   }
-  return [provider.compactLabel, parts.join(" · ") || "No windows"];
+  return [`OA ${parts.join(" · ") || "No windows"}`];
+}
+
+function bestCopilotCompactLine(data: { text: string }): string[] {
+  return [`CP ${data.text}`];
+}
+
+function bestOpenRouterCompactLine(data: { text: string }): string[] {
+  return [`OR ${data.text}`];
 }
 
 function View(props: { getLines: () => string[]; api: TuiPluginApi }) {
@@ -217,8 +227,7 @@ const plugin: TuiPluginModule & { id: string } = {
             }
           } else {
             if (compact) {
-              items.push(r[0] ?? provider.compactLabel);
-              if (r[1]) items.push(`  ${r[1]}`);
+              items.push(...r);
             } else {
               items.push(provider.label);
               for (const line of r) items.push(`  ${line}`);
@@ -279,7 +288,7 @@ const plugin: TuiPluginModule & { id: string } = {
               : "";
             results.set(
               "copilot",
-              compact ? ["Copilot", `Monthly ${cp.text}${reset}`] : [`Monthly  ${cp.text}${reset}`],
+              compact ? bestCopilotCompactLine({ text: cp.text }) : [`Monthly  ${cp.text}${reset}`],
             );
           } else {
             results.set("copilot", cp.error);
@@ -296,7 +305,7 @@ const plugin: TuiPluginModule & { id: string } = {
           } else if (!("error" in or)) {
             results.set(
               "openrouter",
-              compact ? ["OpenRouter", `Credits ${or.text}`] : [`Credits  ${or.text}`],
+              compact ? bestOpenRouterCompactLine({ text: or.text }) : [`Credits  ${or.text}`],
             );
           } else {
             results.set("openrouter", or.error);

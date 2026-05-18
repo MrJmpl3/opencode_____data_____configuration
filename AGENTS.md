@@ -1,67 +1,38 @@
 # AGENTS.md
 
-OpenCode workspace at `~/.config/opencode`. High-signal facts for agents.
+OpenCode workspace config repo at `~/.config/opencode`.
 
-## Config files
+## What this repo controls
 
-| File                   | Purpose                                                                                                   |
-| ---------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `opencode.json`        | MCPs (context7, gh_grep, github, nuxt), LSP config, provider timeouts, plugin load + context-cache plugin |
-| `oh-my-openagent.json` | Agent definitions across 4 presets: `opencode-free`, `opencode-go`, `github-copilot`, `openrouter`        |
-|                        | `tui.json`                                                                                                | Theme `opencode`, loads `oh-my-openagent` + local `./plugins/quota` |
+- `opencode.json` is the main runtime source of truth: it disables built-in `general` and `explore`, enables MCPs, configures LSPs, and loads the `oh-my-opencode-slim` plugin.
+- `oh-my-opencode-slim.json` defines the active agent preset. Current preset is `openai`; `oracle`/`orchestrator` use `openai/gpt-5.4`, the other local specialist roles use `openai/gpt-5.4-mini`.
+- `tui.json` controls sidebar plugins. The local plugins are `plugins/limits`, `plugins/quota`, and `plugins/cache`, all mounted via plugin tuples with `compact: true`.
 
-- `opencode.json` `plugin` field loads remote npm packages: `oh-my-openagent@latest`, `opencode-snip@latest`, `@ramtinj95/opencode-tokenscope@latest`
-- `small_model`: `opencode/deepseek-v4-flash-free` (same provider as default)
-- `plugins/quota/` — TUI sidebar plugin (TSX, event-driven + polling)
+## Repo boundaries that matter
 
-## LSP (from `opencode.json`)
+- `plugins/limits/index.tsx` shows current model + limits.
+- `plugins/cache/index.tsx` shows cache/token stats from session messages.
+- `plugins/quota/index.tsx` is the most stateful local plugin; it supports `compact` plus `visibleProviders` and fetches provider data via `providers.ts`.
+- `commands/*.md` are executable command specs. Right now `/commit-staged` and `/comment-educational` both pin `model: 'openai/gpt-5.4-mini'` in frontmatter.
+- `skills/` is tracked in git. Custom bundled skills currently include `clonedeps`, `codemap`, and `simplify` alongside many other local skills.
 
-- **oxlint** via `pnpm exec oxlint` for `.js/.jsx/.mjs/.cjs/.ts/.tsx/.mts/.cts`.
-- **typescript-language-server** with `NODE_OPTIONS=--max-old-space-size=8192`.
+## Verification commands actually useful here
 
-## Git state
+- There are no root npm scripts, no CI workflows, and no repo-local hooks. Do not guess `npm test`, `pnpm lint`, etc.
+- Focused TS/TSX verification is done ad hoc with explicit files, for example:
+  - `pnpm exec tsc --noEmit --module nodenext --moduleResolution nodenext --target es2022 --jsx preserve --skipLibCheck plugins/limits/index.tsx plugins/cache/index.tsx plugins/quota/index.tsx plugins/quota/providers.ts`
+- Validate `tui.json` or other JSON files with:
+  - `python -m json.tool tui.json`
+- `opencode.json` configures an `oxlint` LSP, but that does **not** guarantee a working manual `pnpm exec oxlint` command in this repo. Prefer TypeScript checks unless you verify `oxlint` is available first.
 
-- Single `main` branch, no remote configured, no CI, no hooks.
-- Everything tracked: config, skills, plugins, commands.
-- `package.json`, `bun.lock`, `.gitignore`, `node_modules/`, `tasks/` are gitignored.
-- `package.json` changes will NOT appear in `git status`.
+## Git / working tree gotchas
 
-## Permissions
+- `.gitignore` ignores `node_modules`, `package.json`, `.gitignore`, and `tasks/`.
+- Because `package.json` is gitignored, edits to it will not appear in `git status` unless you force-add them.
+- Check staged vs unstaged carefully before commits; this repo often carries local config churn.
 
-- `git push *` = ask
-- `rm *` = ask
-- `*.env` reads = deny
-- Everything else = allow
+## Local workflow conventions worth preserving
 
-## Plugins
-
-- **TUI plugin** `plugins/quota/` — renders quota in TUI sidebar (TSX, signals, smart poll + events). Data fetching via `providers.ts` (colocated).
-
-## Commands
-
-- **`/commit-staged`** — `commands/commit-staged.md`. Commits staged files with `<emoji> <type>(<scope>): <description>`. Description in Spanish, lowercase, max 100 chars. Real Unicode emoji (never `:shortcode:`).
-- **`/comment-educational`** — `commands/comment-educational.md`. Adds educational comments via the `documentation-comments-educational` skill.
-
-## Skills
-
-Installed skills in `skills/`. Each has `SKILL.md` with frontmatter (name, description) and optional `rules/`, `references/`, `assets/` subdirectories.
-
-## Environment
-
-- Node deps: `@opencode-ai/plugin@1.14.48`, `@opentui/core@0.2.8`, `@opentui/solid@0.2.8`
-
-## Commit convention
-
-Format: `<emoji> <type>(<scope>): <description>`
-
-- Real Unicode emoji (never `:shortcode:`)
-- Description in Spanish, lowercase, max 100 chars
-- Scope: smallest meaningful scope from staged files
-
-Examples:
-
-```
-✨ feat(factura): agregar validacion de montos negativos
-🐛 fix(tenant): corregir aislamiento de cache en jobs
-♻️ refactor(auth): extraer logica de tokens a servicio dedicado
-```
+- For commit messages, `/commit-staged` is the source of truth: `<emoji> <type>(<scope>): <description>` with a real Unicode emoji and a Spanish lowercase description.
+- For quota UI changes, keep new provider fetchers in `plugins/quota/providers.ts`; do not move polling/timer logic out of `plugins/quota/refresh-scheduler.ts`.
+- If you change sidebar presentation, preserve the plugin options already wired in `tui.json` (`compact` for all three local plugins, `visibleProviders` for quota).

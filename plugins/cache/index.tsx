@@ -38,11 +38,7 @@ function View(props: {
 }) {
   const theme = () => props.api.theme.current;
   const compactPrimaryLine = () => `hit ${pct(props.ratio())} · save ${fmt(props.read())}`;
-  const compactSecondaryLine = () => {
-    const parts = [`in ${fmt(props.input())}`, `out ${fmt(props.output())}`];
-    if (props.write() > 0) parts.push(`write ${fmt(props.write())}`);
-    return parts.join(" · ");
-  };
+  const compactSecondaryLine = () => `in ${fmt(props.input())} · out ${fmt(props.output())}`;
   return (
     <box gap={0}>
       <text fg={theme().text}>Cache</text>
