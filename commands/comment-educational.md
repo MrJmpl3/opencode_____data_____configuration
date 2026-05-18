@@ -1,5 +1,6 @@
 ---
 description: Add or refine educational comments in code files
+model: 'openai/gpt-5.4-mini'
 ---
 
 Objective: add or refine educational comments in the smallest safe scope using `documentation-comments-educational` as the source of truth.

@@ -51,65 +51,6 @@
           "*"
         ]
       }
-    },
-    "opencode-go": {
-      "council": {
-        "mcps": [],
-        "model": "opencode-go/deepseek-v4-pro",
-        "skills": [],
-        "variant": "high"
-      },
-      "designer": {
-        "mcps": [],
-        "model": "opencode-go/kimi-k2.6",
-        "skills": [
-          "agent-browser"
-        ],
-        "variant": "medium"
-      },
-      "explorer": {
-        "mcps": [],
-        "model": "opencode-go/minimax-m2.7",
-        "skills": []
-      },
-      "fixer": {
-        "mcps": [],
-        "model": "opencode-go/deepseek-v4-flash",
-        "skills": [],
-        "variant": "high"
-      },
-      "librarian": {
-        "mcps": [
-          "websearch",
-          "context7",
-          "grep_app"
-        ],
-        "model": "opencode-go/minimax-m2.7",
-        "skills": []
-      },
-      "observer": {
-        "mcps": [],
-        "model": "opencode-go/kimi-k2.6",
-        "skills": []
-      },
-      "oracle": {
-        "mcps": [],
-        "model": "opencode-go/deepseek-v4-pro",
-        "skills": [
-          "simplify"
-        ],
-        "variant": "max"
-      },
-      "orchestrator": {
-        "mcps": [
-          "*",
-          "!context7"
-        ],
-        "model": "opencode-go/glm-5.1",
-        "skills": [
-          "*"
-        ]
-      }
     }
   }
 }
