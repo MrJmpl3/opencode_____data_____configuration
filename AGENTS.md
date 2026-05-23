@@ -71,10 +71,11 @@ Formula interna:
 
 ## Hash-Anchored Editing
 
-- Si el runtime expone `edit`, prefiere `read` + `edit` para cambios normales.
+- Si el runtime expone `edit`, prefiere `read` + `edit` para cambios normales; si no, usa `read` + `apply_patch`.
 - Reutiliza exactamente los anchors `LINE#ID` devueltos por `read`.
-- Usa ediciones pequenas y del menor alcance posible.
+- Usa ediciones pequenas y del menor alcance posible; prefiere replace de una sola linea o varias ediciones simples antes que cambios amplios de rango.
 - Lee el archivo existente antes de editar.
+- No mezcles rename con edits en una sola operacion si el plugin lo separa por seguridad.
 - Usa `apply_patch` solo cuando `edit` no exista o el flujo hash-anclado no encaje bien.
 
 ## Cambios De Codigo
@@ -89,6 +90,9 @@ Formula interna:
 ## OpenCode
 
 - Cuando la tarea sea sobre OpenCode, revisa primero `opencode.jsonc`, `tui.jsonc`, `plugins/`, `plugins-tui/`, `agents/` y `skills/`.
+- En `plugins/`, usa `plugins/<nombre>.ts` como entrypoint estable; si un plugin necesita tests o typecheck aislado, permite un paquete interno en `plugins/<nombre>/` con `src/`, `test/`, `package.json` y `tsconfig.json`.
+- Si existe ese paquete interno, manten el shim raiz como reexport fino y ejecuta sus checks con `npm --prefix plugins/<nombre> ...` o scripts equivalentes desde la raiz.
+- En `plugins-tui/`, usa la carpeta del plugin como entrypoint estable y manten `index.tsx` en la raiz; si necesita checks aislados, permite `package.json`, `tsconfig.json` y `test/` dentro de esa misma carpeta.
 - En plugins TUI, separa UI, estado y parsing solo si eso reduce complejidad real.
 - No hardcodees valores sensibles si ya existe una variable de entorno o una convencion establecida.
 - En configuracion global, prioriza consistencia operativa sobre preferencias teoricas.
