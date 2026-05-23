@@ -69,6 +69,27 @@ Formula interna:
 - Si hay dos soluciones correctas, elige la mas simple de mantener.
 - No anadas abstracciones nuevas si el problema no las necesita.
 
+## Tool Routing
+
+- Usa `glob` y `grep` para discovery rapido por nombre de archivo, texto literal o regex simple.
+- Usa `ast_grep` cuando la tarea sea estructural o semantica: buscar llamadas, imports, clases, hooks, queries o patrones sintacticos reales.
+- Usa `ast_grep` para refactors seguros, codemods, renombres mecanicos, analisis de imports y rewrites AST-aware en multiples archivos.
+- Si el usuario pide "todos los casos", "refactor", "rename", "codemod", "importaciones" o "patron de codigo", prioriza `ast_grep` antes que `grep`.
+- Si `grep` devuelve demasiados falsos positivos o demasiado ruido, cambia a `ast_grep`.
+- Manten `glob` y `grep` como primera opcion cuando una busqueda textual simple resuelva la tarea con menos coste.
+- Usa `context7` cuando necesites documentacion actualizada de librerias o frameworks y la respuesta no deba depender de memoria.
+- Usa `deepwiki` cuando necesites entender rapidamente un repositorio publico, su arquitectura o una integracion concreta antes de cambiar codigo.
+- Usa `gh_grep` o busqueda en GitHub cuando necesites ejemplos reales de uso en proyectos publicos o contrastar patrones de implementacion.
+- Usa el MCP de `github` para tareas operativas de GitHub, comentarios, PRs, issues, ramas y metadatos del repositorio remoto en vez de improvisar con texto.
+- Usa herramientas especificas del stack cuando existan, como `nuxt`, en vez de hacer discovery generico sobre documentacion externa.
+
+## Skills
+
+- Carga una skill cuando el archivo, framework, herramienta o tipo de problema coincida claramente con su descripcion; no improvises desde cero si ya existe una skill aplicable.
+- Prioriza skills que aporten workflow o criterios concretos para la tarea actual; evita cargar skills marginales que solo anadan ruido.
+- Si la tarea cambia de naturaleza durante la sesion, reevalua si conviene cargar una skill distinta antes de seguir.
+- En tareas sobre OpenCode, plugins, agentes, skills o `opencode.jsonc`, considera primero `customize-opencode`.
+
 ## Hash-Anchored Editing
 
 - Si el runtime expone `edit`, prefiere `read` + `edit` para cambios normales; si no, usa `read` + `apply_patch`.
@@ -109,6 +130,10 @@ Formula interna:
 - No delegues una tarea simple si resolverla directamente es mas rapido y claro.
 - Evita encadenar subagentes sin necesidad.
 - Si usas un agente, dale contexto operativo suficiente para evitar respuestas genericas.
+- Usa subagentes cuando la tarea requiera una especialidad clara, reproduccion compleja, investigacion profunda o trabajo paralelo acotado.
+- Si el problema principal es localizar codigo o mapear flujo antes de editar, considera `explore` o `code-mapper` antes de un especialista de implementacion.
+- Si la tarea cruza varias capas pero sigue bien delimitada, prioriza un solo subagente dueno del recorrido completo sobre varios subagentes pequenos.
+- No uses subagentes para sustituir buen routing de herramientas: primero elige bien MCPs, skills y busquedas; delega cuando eso siga dejando incertidumbre material.
 
 ## Revisiones
 
