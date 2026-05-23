@@ -1,6 +1,111 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "bash-language-server": {
+      "command": [
+        "bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".zsh"
+      ]
+    },
+    "intelephense": {
+      "command": [
+        "intelephense",
+        "--stdio"
+      ],
+      "extensions": [
+        ".php",
+        ".phtml"
+      ]
+    },
+    "typescript-language-server": {
+      "command": [
+        "typescript-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs"
+      ]
+    },
+    "vue-language-server": {
+      "command": [
+        "vue-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".vue"
+      ]
+    },
+    "vscode-css-language-server": {
+      "command": [
+        "vscode-css-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".css",
+        ".scss",
+        ".less"
+      ]
+    },
+    "vscode-html-language-server": {
+      "command": [
+        "vscode-html-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".htm"
+      ]
+    },
+    "vscode-json-language-server": {
+      "command": [
+        "vscode-json-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".json",
+        ".jsonc"
+      ]
+    },
+    "vscode-markdown-language-server": {
+      "command": [
+        "vscode-markdown-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".md",
+        ".mdx"
+      ]
+    },
+    "yaml-language-server": {
+      "command": [
+        "yaml-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
+    }
+  },
   "mcp": {
+    "ast_grep": {
+      "enabled": true,
+      "type": "local",
+      "command": [
+        "ast-grep-mcp"
+      ],
+      "timeout": 30000
+    },
     "context7": {
       "enabled": true,
       "headers": {
