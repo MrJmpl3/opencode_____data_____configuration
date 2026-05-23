@@ -1,6 +1,5 @@
 ---
 description: Commit staged changes with conventional message
-model: "openai/gpt-5.4-mini"
 ---
 
 Objective: validate staged changes, run a quick diff check, generate a commit message and commit.
