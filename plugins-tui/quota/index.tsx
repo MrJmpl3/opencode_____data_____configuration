@@ -112,7 +112,7 @@ const formatPercentQuota = (
   remaining: number,
   displayMode: QuotaDisplayMode,
 ): string => {
-  if (displayMode === "used") return `${used.toFixed(0)}/100`;
+  if (displayMode === "used") return `${used.toFixed(0)}%`;
   return `${remaining.toFixed(0)}%`;
 };
 
