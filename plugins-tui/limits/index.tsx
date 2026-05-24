@@ -2,10 +2,6 @@
 import { createSignal, Show } from "solid-js";
 import type { TuiPluginModule, TuiPluginApi } from "@opencode-ai/plugin/tui";
 
-type LimitsPluginOptions = {
-  compact?: boolean;
-};
-
 // --- number formatting ---
 const fmt = (n: number): string => {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
@@ -56,19 +52,14 @@ const View = (props: {
   contextLimit: () => number;
   outputLimit: () => number;
   hasData: () => boolean;
-  compact: boolean;
   api: TuiPluginApi;
 }) => {
   const theme = () => props.api.theme.current;
   const limitLines = () => {
-    const lines: string[] = [];
-    if (props.contextLimit() > 0) {
-      lines.push(`Context ${fmt(props.contextLimit())}`);
-    }
-    if (props.outputLimit() > 0) {
-      lines.push(`Output ${fmt(props.outputLimit())}`);
-    }
-    return lines;
+    const parts: string[] = [];
+    if (props.contextLimit() > 0) parts.push(`Context ${fmt(props.contextLimit())}`);
+    if (props.outputLimit() > 0) parts.push(`Output ${fmt(props.outputLimit())}`);
+    return parts.length > 0 ? [parts.join(" · ")] : [];
   };
   return (
     <box gap={0}>
@@ -81,38 +72,24 @@ const View = (props: {
           </text>
         }
       >
-        <Show
-          when={props.compact}
-          fallback={
-            <>
-              <text fg={theme().textMuted} wrapMode="none">
-                Model
-              </text>
-              <text fg={theme().textMuted} wrapMode="none">
-                {detailLine(props.modelLabel())}
-              </text>
-              <Show when={limitLines().length > 0}>
-                <text fg={theme().textMuted} wrapMode="none">
-                  Limits
-                </text>
-                {limitLines().map((line) => (
-                  <text fg={theme().textMuted} wrapMode="none">
-                    {detailLine(line)}
-                  </text>
-                ))}
-              </Show>
-            </>
-          }
-        >
+        <>
           <text fg={theme().textMuted} wrapMode="none">
-            {props.modelLabel()}
+            Model
           </text>
-          {limitLines().map((line) => (
+          <text fg={theme().textMuted} wrapMode="none">
+            {detailLine(props.modelLabel())}
+          </text>
+          <Show when={limitLines().length > 0}>
             <text fg={theme().textMuted} wrapMode="none">
-              {line}
+              Limits
             </text>
-          ))}
-        </Show>
+            {limitLines().map((line) => (
+              <text fg={theme().textMuted} wrapMode="none">
+                {detailLine(line)}
+              </text>
+            ))}
+          </Show>
+        </>
       </Show>
     </box>
   );
@@ -123,10 +100,8 @@ const plugin: TuiPluginModule & { id: string } = {
   id: "limits",
 
   // --- tui() lifecycle ---
-  tui: async (api, options) => {
+  tui: async (api) => {
     const { slots, event: evt, lifecycle } = api;
-    const compact =
-      (options as LimitsPluginOptions | undefined)?.compact ?? true;
     const [modelLabel, setModelLabel] = createSignal("");
     const [contextLimit, setContextLimit] = createSignal(0);
     const [outputLimit, setOutputLimit] = createSignal(0);
@@ -271,7 +246,6 @@ const plugin: TuiPluginModule & { id: string } = {
               contextLimit={contextLimit}
               outputLimit={outputLimit}
               hasData={hasData}
-              compact={compact}
               api={api}
             />
           );

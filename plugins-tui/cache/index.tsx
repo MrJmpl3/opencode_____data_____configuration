@@ -2,10 +2,6 @@
 import { createSignal, Show } from "solid-js";
 import type { TuiPluginModule, TuiPluginApi } from "@opencode-ai/plugin/tui";
 
-type CachePluginOptions = {
-  compact?: boolean;
-};
-
 // Cache sidebar plugin for OpenCode TUI.
 // Shows hit ratio, tokens saved by reads, input/output totals,
 // and cache writes (when the provider reports them).
@@ -35,17 +31,13 @@ const View = (props: {
   write: () => number;
   input: () => number;
   output: () => number;
-  compact: boolean;
   api: TuiPluginApi;
 }) => {
   const theme = () => props.api.theme.current;
-  const compactPrimaryLine = () =>
+  const usageLine = () =>
     `Hit ${pct(props.ratio())} · Save ${fmt(props.read())}`;
   const trafficLines = () => {
-    const lines = [
-      `Input ${fmt(props.input())}`,
-      `Output ${fmt(props.output())}`,
-    ];
+    const lines = [`Input ${fmt(props.input())} · Output ${fmt(props.output())}`];
     if (props.write() > 0) lines.push(`Write ${fmt(props.write())}`);
     return lines;
   };
@@ -61,36 +53,22 @@ const View = (props: {
           </text>
         }
       >
-        <Show
-          when={props.compact}
-          fallback={
-            <>
-              <text fg={theme().textMuted} wrapMode="none">
-                Usage
-              </text>
-              <text fg={theme().textMuted} wrapMode="none">
-                {detailLine(compactPrimaryLine())}
-              </text>
-              <text fg={theme().textMuted} wrapMode="none">
-                Traffic
-              </text>
-              {trafficLines().map((line) => (
-                <text fg={theme().textMuted} wrapMode="none">
-                  {detailLine(line)}
-                </text>
-              ))}
-            </>
-          }
-        >
+        <>
           <text fg={theme().textMuted} wrapMode="none">
-            {compactPrimaryLine()}
+            Usage
+          </text>
+          <text fg={theme().textMuted} wrapMode="none">
+            {detailLine(usageLine())}
+          </text>
+          <text fg={theme().textMuted} wrapMode="none">
+            Traffic
           </text>
           {trafficLines().map((line) => (
             <text fg={theme().textMuted} wrapMode="none">
-              {line}
+              {detailLine(line)}
             </text>
           ))}
-        </Show>
+        </>
       </Show>
     </box>
   );
@@ -101,10 +79,8 @@ const plugin: TuiPluginModule & { id: string } = {
   id: "cache",
 
   // --- tui() lifecycle: signals, events, refresh ---
-  tui: async (api, options) => {
+  tui: async (api) => {
     const { slots, event: evt, lifecycle } = api;
-    const compact =
-      (options as CachePluginOptions | undefined)?.compact ?? true;
     const [hasData, setHasData] = createSignal(false);
     const [ratio, setRatio] = createSignal(0);
     const [read, setRead] = createSignal(0);
@@ -238,7 +214,6 @@ const plugin: TuiPluginModule & { id: string } = {
               write={write}
               input={inp}
               output={output}
-              compact={compact}
               api={api}
             />
           );

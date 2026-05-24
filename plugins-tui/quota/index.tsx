@@ -19,22 +19,20 @@ type QuotaProviderId = "go" | "copilot" | "openrouter" | "openai";
 type QuotaDisplayMode = "remaining" | "used";
 
 type QuotaPluginOptions = {
-  compact?: boolean;
   displayMode?: QuotaDisplayMode;
   visibleProviders?: readonly string[];
 };
 
 type ProviderSpec = {
   id: QuotaProviderId;
-  compactLabel: string;
   label: string;
 };
 
 const PROVIDER_SPECS: readonly ProviderSpec[] = [
-  { id: "go", compactLabel: "Go", label: "OpenCode Go" },
-  { id: "copilot", compactLabel: "Copilot", label: "GitHub Copilot" },
-  { id: "openrouter", compactLabel: "Router", label: "OpenRouter" },
-  { id: "openai", compactLabel: "OpenAI", label: "OpenAI" },
+  { id: "go", label: "OpenCode Go" },
+  { id: "copilot", label: "GitHub Copilot" },
+  { id: "openrouter", label: "OpenRouter" },
+  { id: "openai", label: "OpenAI" },
 ];
 
 const DEFAULT_VISIBLE_PROVIDERS: readonly QuotaProviderId[] = [
@@ -92,12 +90,6 @@ const getVisibleProviders = (options: unknown): readonly ProviderSpec[] => {
   }
 
   return PROVIDER_SPECS.filter((spec) => ids.has(spec.id));
-};
-
-const getCompactSetting = (options: unknown): boolean => {
-  if (!options || typeof options !== "object") return true;
-  const compact = (options as QuotaPluginOptions).compact;
-  return typeof compact === "boolean" ? compact : true;
 };
 
 const getDisplayModeSetting = (options: unknown): QuotaDisplayMode => {
@@ -159,80 +151,6 @@ const formatCreditQuota = (
   return `$${Math.max(0, value).toFixed(2)}/$${total.toFixed(2)}`;
 };
 
-const bestGoCompactLine = (
-  provider: ProviderSpec,
-  displayMode: QuotaDisplayMode,
-  windows: {
-    rolling: { used: number; remaining: number; resetInSec: number } | null;
-    weekly: { used: number; remaining: number; resetInSec: number } | null;
-    monthly: { used: number; remaining: number; resetInSec: number } | null;
-  },
-): string[] => {
-  const best = windows.rolling
-    ? { label: "5h", window: windows.rolling }
-    : windows.weekly
-      ? { label: "Week", window: windows.weekly }
-      : windows.monthly
-        ? { label: "Month", window: windows.monthly }
-        : null;
-  if (!best) return [`${provider.compactLabel}: no windows`];
-  return [
-    `${provider.compactLabel}: ${best.label} ${formatPercentQuota(best.window.used, best.window.remaining, displayMode)}`,
-  ];
-};
-
-const bestOpenAICompactLine = (
-  provider: ProviderSpec,
-  displayMode: QuotaDisplayMode,
-  data: {
-    planType?: string;
-    hourly?: { usedPct: number; resetSec: number };
-    weekly?: { usedPct: number; resetSec: number };
-    codeReview?: { usedPct: number; resetSec: number };
-    credits?: string;
-  },
-): string[] => {
-  if (data.hourly) {
-    const lines = [
-      `${provider.compactLabel}: 5h ${formatUsedPercentQuota(data.hourly.usedPct, displayMode)}`,
-    ];
-    if (data.weekly) {
-      lines.push(
-        `Week ${formatUsedPercentQuota(data.weekly.usedPct, displayMode)}`,
-      );
-    }
-    return lines;
-  }
-  if (data.weekly) {
-    return [
-      `${provider.compactLabel}: Week ${formatUsedPercentQuota(data.weekly.usedPct, displayMode)}`,
-    ];
-  }
-  if (data.codeReview) {
-    return [
-      `${provider.compactLabel}: Review ${formatUsedPercentQuota(data.codeReview.usedPct, displayMode)}`,
-    ];
-  }
-  if (data.credits) {
-    return [`${provider.compactLabel}: Credits ${data.credits}`];
-  }
-  return [`${provider.compactLabel}: no windows`];
-};
-
-const bestCopilotCompactLine = (
-  provider: ProviderSpec,
-  data: { text: string },
-): string[] => {
-  return [`${provider.compactLabel}: ${data.text}`];
-};
-
-const bestOpenRouterCompactLine = (
-  provider: ProviderSpec,
-  data: { text: string },
-): string[] => {
-  return [`${provider.compactLabel}: ${data.text}`];
-};
-
 const View = (props: { getLines: () => string[]; api: TuiPluginApi }) => {
   const theme = () => props.api.theme.current;
   return (
@@ -272,7 +190,6 @@ const plugin: TuiPluginModule & { id: string } = {
     // When a newer call finishes first, older results are discarded.
     const IMMEDIATE_REFRESH_EVENTS = ["tui.session.select"];
     const COMPLETION_REFRESH_EVENTS = ["session.idle"];
-    const compact = getCompactSetting(options);
     const displayMode = getDisplayModeSetting(options);
     const visibleProviders = getVisibleProviders(options);
     // Session select triggers immediate refresh.
@@ -310,26 +227,14 @@ const plugin: TuiPluginModule & { id: string } = {
           // undefined means this provider was never set: not configured, skip it.
           if (r === null) {
             // null means the fetch is still running, show a spinner.
-            if (compact) {
-              items.push(`${provider.compactLabel}: refreshing`);
-            } else {
-              items.push(provider.label);
-              items.push(detailLine("Refreshing…"));
-            }
+            items.push(provider.label);
+            items.push(detailLine("Refreshing…"));
           } else if (typeof r === "string") {
-            if (compact) {
-              items.push(`${provider.compactLabel}: ${r}`);
-            } else {
-              items.push(provider.label);
-              items.push(detailLine(`Unavailable · ${r}`));
-            }
+            items.push(provider.label);
+            items.push(detailLine(`Unavailable · ${r}`));
           } else {
-            if (compact) {
-              items.push(...r);
-            } else {
-              items.push(provider.label);
-              for (const line of r) items.push(detailLine(line));
-            }
+            items.push(provider.label);
+            for (const line of r) items.push(detailLine(line));
           }
           // string[] means data loaded successfully, display it.
         }
@@ -350,21 +255,17 @@ const plugin: TuiPluginModule & { id: string } = {
           // Stale check: discard if a newer refresh already finished.
           if ("data" in result) {
             const d = result.data;
-            const dataLines: string[] = compact
-              ? bestGoCompactLine(PROVIDER_SPECS[0], displayMode, d)
-              : [];
-            if (!compact) {
-              for (const [name, key] of [
-                ["5h window", "rolling"],
-                ["Weekly", "weekly"],
-                ["Monthly", "monthly"],
-              ] as const) {
-                const w = d[key];
-                if (w)
-                  dataLines.push(
-                    `${name} · ${formatPercentQuota(w.used, w.remaining, displayMode)} · ${fmtDuration(w.resetInSec)} left`,
-                  );
-              }
+            const dataLines: string[] = [];
+            for (const [name, key] of [
+              ["5h window", "rolling"],
+              ["Weekly", "weekly"],
+              ["Monthly", "monthly"],
+            ] as const) {
+              const w = d[key];
+              if (w)
+                dataLines.push(
+                  `${name} · ${formatPercentQuota(w.used, w.remaining, displayMode)} · ${fmtDuration(w.resetInSec)} left`,
+                );
             }
             results.set("go", dataLines.length ? dataLines : ["No windows"]);
           } else {
@@ -386,11 +287,7 @@ const plugin: TuiPluginModule & { id: string } = {
               : "";
             results.set(
               "copilot",
-              compact
-                ? bestCopilotCompactLine(PROVIDER_SPECS[1], {
-                    text: formatCountQuota(cp, displayMode),
-                  })
-                : [`Monthly · ${formatCountQuota(cp, displayMode)}${reset}`],
+              [`Monthly · ${formatCountQuota(cp, displayMode)}${reset}`],
             );
           } else {
             results.set("copilot", cp.error);
@@ -407,11 +304,7 @@ const plugin: TuiPluginModule & { id: string } = {
           } else if (!("error" in or)) {
             results.set(
               "openrouter",
-              compact
-                ? bestOpenRouterCompactLine(PROVIDER_SPECS[2], {
-                    text: formatCreditQuota(or, displayMode),
-                  })
-                : [`Credits · ${formatCreditQuota(or, displayMode)}`],
+              [`Credits · ${formatCreditQuota(or, displayMode)}`],
             );
           } else {
             results.set("openrouter", or.error);
@@ -426,25 +319,21 @@ const plugin: TuiPluginModule & { id: string } = {
           if (oa === null) {
             results.delete("openai");
           } else if (!("error" in oa)) {
-            const dataLines: string[] = compact
-              ? bestOpenAICompactLine(PROVIDER_SPECS[3], displayMode, oa)
-              : [];
-            if (!compact) {
-              const addWindow = (
-                label: string,
-                window: { usedPct: number; resetSec: number } | undefined,
-              ) => {
-                if (!window) return;
-                dataLines.push(
-                  `${label} · ${formatUsedPercentQuota(window.usedPct, displayMode)} · ${fmtDuration(window.resetSec)} left`,
-                );
-              };
+            const dataLines: string[] = [];
+            const addWindow = (
+              label: string,
+              window: { usedPct: number; resetSec: number } | undefined,
+            ) => {
+              if (!window) return;
+              dataLines.push(
+                `${label} · ${formatUsedPercentQuota(window.usedPct, displayMode)} · ${fmtDuration(window.resetSec)} left`,
+              );
+            };
 
-              addWindow("5h", oa.hourly);
-              addWindow("Weekly", oa.weekly);
-              addWindow("Code Review", oa.codeReview);
-              if (oa.credits) dataLines.push(`Credits · ${oa.credits}`);
-            }
+            addWindow("5h", oa.hourly);
+            addWindow("Weekly", oa.weekly);
+            addWindow("Code Review", oa.codeReview);
+            if (oa.credits) dataLines.push(`Credits · ${oa.credits}`);
 
             results.set(
               "openai",
