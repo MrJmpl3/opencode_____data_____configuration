@@ -64,32 +64,32 @@ export const USER_AGENT =
 // AbortController wrapper that bails after 10s. Without this, a hanging
 // fetch would block the TUI render loop entirely.
 
-export function fetchWithTimeout(
+export const fetchWithTimeout = (
   url: string,
   opts: RequestInit,
   ms: number = FETCH_TIMEOUT_MS,
-): Promise<Response> {
+): Promise<Response> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
   return fetch(url, { ...opts, signal: controller.signal }).finally(() =>
     clearTimeout(timer),
   );
-}
+};
 
 // ─── OS helpers ──────────────────────────────────────────
 
-function xdgDataHome(): string {
+const xdgDataHome = (): string => {
   return process.env.XDG_DATA_HOME || join(os.homedir(), ".local", "share");
-}
+};
 
-function authJsonPaths(): string[] {
+const authJsonPaths = (): string[] => {
   return [
     join(xdgDataHome(), "opencode", "auth.json"),
     join(os.homedir(), ".config", "opencode", "auth.json"),
   ];
-}
+};
 
-function readAuthJson(): Record<string, unknown> | null {
+const readAuthJson = (): Record<string, unknown> | null => {
   for (const path of authJsonPaths()) {
     if (!existsSync(path)) continue;
     try {
@@ -99,9 +99,9 @@ function readAuthJson(): Record<string, unknown> | null {
     }
   }
   return null;
-}
+};
 
-function readOauthAccessToken(keys: readonly string[]): string | null {
+const readOauthAccessToken = (keys: readonly string[]): string | null => {
   const auth = readAuthJson();
   if (!auth) return null;
   for (const key of keys) {
@@ -113,9 +113,9 @@ function readOauthAccessToken(keys: readonly string[]): string | null {
     if (typeof access === "string" && access.trim()) return access.trim();
   }
   return null;
-}
+};
 
-function readOauthAccountId(keys: readonly string[]): string | null {
+const readOauthAccountId = (keys: readonly string[]): string | null => {
   const auth = readAuthJson();
   if (!auth) return null;
   for (const key of keys) {
@@ -128,9 +128,9 @@ function readOauthAccountId(keys: readonly string[]): string | null {
       return accountId.trim();
   }
   return null;
-}
+};
 
-function parseJwtPayload(token: string): Record<string, unknown> | null {
+const parseJwtPayload = (token: string): Record<string, unknown> | null => {
   const parts = token.split(".");
   if (parts.length < 2) return null;
   try {
@@ -141,9 +141,9 @@ function parseJwtPayload(token: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
-}
+};
 
-function readOpenAIAccountId(token: string): string | null {
+const readOpenAIAccountId = (token: string): string | null => {
   const fromAuth = readOauthAccountId(["openai", "chatgpt", "codex"]);
   if (fromAuth) return fromAuth;
   const payload = parseJwtPayload(token);
@@ -153,7 +153,7 @@ function readOpenAIAccountId(token: string): string | null {
     return jwtAccountId.trim();
   }
   return null;
-}
+};
 
 // ═══════════════════════════════════════════════════════════
 // OpenCode Go
@@ -163,22 +163,22 @@ function readOpenAIAccountId(token: string): string | null {
 // OpenCode Go has no public API. We scrape the HTML dashboard and extract
 // usage windows from inlined $R[] JavaScript objects using regex.
 
-export function readGoConfig(): {
+export const readGoConfig = (): {
   workspaceId: string;
   authCookie: string;
-} | null {
+} | null => {
   const ws = process.env.OPENCODE_GO_WORKSPACE_ID?.trim();
   const auth = process.env.OPENCODE_GO_AUTH_COOKIE?.trim();
   if (ws && auth) return { workspaceId: ws, authCookie: auth };
   return null;
-}
+};
 
 const RE_NUM = String.raw`(-?\d+(?:\.\d+)?)`;
 
 // --- Regex orderings ---
 // The $R[] objects don't guarantee field order. We generate two patterns
 // (usagePercent first, resetInSec first) and try both when parsing.
-function windowRegexes(key: string): { pctFirst: RegExp; resetFirst: RegExp } {
+const windowRegexes = (key: string): { pctFirst: RegExp; resetFirst: RegExp } => {
   const pctFirst = new RegExp(
     String.raw`${key}:\$R\[\d+\]=\{[^}]*usagePercent:${RE_NUM}[^}]*resetInSec:${RE_NUM}[^}]*\}`,
   );
@@ -186,13 +186,13 @@ function windowRegexes(key: string): { pctFirst: RegExp; resetFirst: RegExp } {
     String.raw`${key}:\$R\[\d+\]=\{[^}]*resetInSec:${RE_NUM}[^}]*usagePercent:${RE_NUM}[^}]*\}`,
   );
   return { pctFirst, resetFirst };
-}
+};
 
 /**
  * Parse a usage window from the OpenCode Go dashboard HTML.
  * Handles both field orderings (usagePercent first or resetInSec first).
  */
-function parseGoWindow(html: string, key: string): GoWindow | null {
+const parseGoWindow = (html: string, key: string): GoWindow | null => {
   const { pctFirst, resetFirst } = windowRegexes(key);
 
   const tryMatch = (
@@ -215,12 +215,12 @@ function parseGoWindow(html: string, key: string): GoWindow | null {
   };
 
   return tryMatch(pctFirst, 1, 2) ?? tryMatch(resetFirst, 2, 1);
-}
+};
 
 /**
  * Fetch OpenCode Go dashboard and parse usage windows.
  */
-export async function fetchGoDashboard(
+export const fetchGoDashboard = async (
   workspaceId: string,
   authCookie: string,
 ): Promise<
@@ -232,7 +232,7 @@ export async function fetchGoDashboard(
       };
     }
   | { error: string }
-> {
+> => {
   const res = await fetchWithTimeout(DASHBOARD_URL(workspaceId), {
     headers: {
       "User-Agent": USER_AGENT,
@@ -252,7 +252,7 @@ export async function fetchGoDashboard(
     return { error: "No quota data found in OpenCode Go dashboard" };
   }
   return { data };
-}
+};
 
 // ═══════════════════════════════════════════════════════════
 // GitHub Copilot
@@ -267,59 +267,59 @@ export async function fetchGoDashboard(
 /**
  * Read Copilot OAuth token from OpenCode's auth.json.
  */
-export function readCopilotToken(): string | null {
+export const readCopilotToken = (): string | null => {
   return readOauthAccessToken([
     "github-copilot",
     "copilot",
     "copilot-chat",
     "github-copilot-chat",
   ]);
-}
+};
 
 /**
  * Navigate nested objects via path array.
  */
-function getNested(obj: unknown, path: readonly string[]): unknown {
+const getNested = (obj: unknown, path: readonly string[]): unknown => {
   let v: unknown = obj;
   for (const k of path) {
     if (v == null || typeof v !== "object") return undefined;
     v = (v as Record<string, unknown>)[k];
   }
   return v;
-}
+};
 
-function findNumber(
+const findNumber = (
   data: unknown,
   paths: readonly (readonly string[])[],
-): number | undefined {
+): number | undefined => {
   for (const p of paths) {
     const v = getNested(data, p);
     if (typeof v === "number" && Number.isFinite(v)) return v;
   }
   return undefined;
-}
+};
 
-function findBoolean(
+const findBoolean = (
   data: unknown,
   paths: readonly (readonly string[])[],
-): boolean | undefined {
+): boolean | undefined => {
   for (const p of paths) {
     const v = getNested(data, p);
     if (typeof v === "boolean") return v;
   }
   return undefined;
-}
+};
 
-function findString(
+const findString = (
   data: unknown,
   paths: readonly (readonly string[])[],
-): string | undefined {
+): string | undefined => {
   for (const p of paths) {
     const v = getNested(data, p);
     if (typeof v === "string") return v;
   }
   return undefined;
-}
+};
 
 // --- Path fallbacks ---
 // The Copilot API returns different response shapes depending on the API
@@ -412,9 +412,9 @@ const COPILOT_TIER_LIMITS: Record<string, number> = {
 /**
  * Fetch Copilot personal quota from /copilot_internal/user.
  */
-export async function fetchCopilotQuota(): Promise<
+export const fetchCopilotQuota = async (): Promise<
   CopilotResult | null | { error: string }
-> {
+> => {
   const token = readCopilotToken();
   if (!token) return null;
 
@@ -471,7 +471,7 @@ export async function fetchCopilotQuota(): Promise<
     resetTimeIso,
     resetSec,
   };
-}
+};
 
 // ═══════════════════════════════════════════════════════════
 // OpenRouter
@@ -485,7 +485,7 @@ export async function fetchCopilotQuota(): Promise<
 /**
  * Read OpenRouter API key from env or config file.
  */
-export function readOpenRouterKey(): string | null {
+export const readOpenRouterKey = (): string | null => {
   const key = process.env.OPENROUTER_API_KEY?.trim();
   if (key) return key;
 
@@ -512,14 +512,14 @@ export function readOpenRouterKey(): string | null {
     }
   } catch {}
   return null;
-}
+};
 
 /**
  * Fetch OpenRouter credit balance.
  */
-export async function fetchOpenRouterQuota(): Promise<
+export const fetchOpenRouterQuota = async (): Promise<
   OpenRouterResult | null | { error: string }
-> {
+> => {
   const key = readOpenRouterKey();
   if (!key) return null;
 
@@ -564,7 +564,7 @@ export async function fetchOpenRouterQuota(): Promise<
   }
 
   return { error: "OpenRouter did not return expected credit data" };
-}
+};
 
 // ═══════════════════════════════════════════════════════════
 // OpenAI
@@ -572,29 +572,29 @@ export async function fetchOpenRouterQuota(): Promise<
 
 const OPENAI_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
 
-export function readOpenAIToken(): string | null {
+export const readOpenAIToken = (): string | null => {
   return readOauthAccessToken(["openai", "chatgpt", "codex", "opencode"]);
-}
+};
 
-function readNumberField(
+const readNumberField = (
   data: Record<string, unknown>,
   key: string,
-): number | undefined {
+): number | undefined => {
   const value = data[key];
   return typeof value === "number" && Number.isFinite(value)
     ? value
     : undefined;
-}
+};
 
-function readStringField(
+const readStringField = (
   data: Record<string, unknown>,
   key: string,
-): string | undefined {
+): string | undefined => {
   const value = data[key];
   return typeof value === "string" && value.trim() ? value : undefined;
-}
+};
 
-function parseOpenAIWindow(value: unknown): OpenAIWindow | undefined {
+const parseOpenAIWindow = (value: unknown): OpenAIWindow | undefined => {
   if (!value || typeof value !== "object") return undefined;
   const record = value as Record<string, unknown>;
   const usedPct = readNumberField(record, "used_percent");
@@ -619,11 +619,11 @@ function parseOpenAIWindow(value: unknown): OpenAIWindow | undefined {
     usedPct: Math.max(0, Math.min(100, usedPct)),
     resetSec,
   };
-}
+};
 
-export async function fetchOpenAIQuota(): Promise<
+export const fetchOpenAIQuota = async (): Promise<
   OpenAIResult | null | { error: string }
-> {
+> => {
   const token = readOpenAIToken();
   if (!token) return null;
 
@@ -696,7 +696,7 @@ export async function fetchOpenAIQuota(): Promise<
   }
 
   return result;
-}
+};
 
 // ═══════════════════════════════════════════════════════════
 // Format helpers
@@ -713,15 +713,15 @@ const BAR_WIDTH = 14;
  * @param pct - Percentage to fill (0-100).
  * @param w - Width in characters.
  */
-export function progressBar(pct: number, w: number = BAR_WIDTH): string {
+export const progressBar = (pct: number, w: number = BAR_WIDTH): string => {
   const filled = Math.round((Math.min(pct, 100) / 100) * w);
   return "█".repeat(filled) + "░".repeat(w - filled);
-}
+};
 
 /**
  * Format seconds as human-readable duration.
  */
-export function fmtDuration(sec?: number): string {
+export const fmtDuration = (sec?: number): string => {
   if (!sec || sec <= 0) return "";
   const d = Math.floor(sec / 86400);
   const h = Math.floor((sec % 86400) / 3600);
@@ -729,16 +729,16 @@ export function fmtDuration(sec?: number): string {
   if (d > 0) return `${d}d ${h}h`;
   if (h > 0) return `${h}h ${m}m`;
   return `${m}m`;
-}
+};
 
 /**
  * Format an ISO date string as relative time remaining.
  */
-export function fmtDurationIso(iso: string): string {
+export const fmtDurationIso = (iso: string): string => {
   if (!iso) return "";
   const diff = Math.max(
     0,
     Math.floor((new Date(iso).getTime() - Date.now()) / 1000),
   );
   return fmtDuration(diff);
-}
+};

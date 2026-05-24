@@ -17,9 +17,9 @@ const fmt = (n: number): string => {
 const detailLine = (text: string): string => `  ${text}`;
 
 // --- extract model info from the last message that carries it ---
-function getModelFromMessages(
+const getModelFromMessages = (
   msgs: readonly any[],
-): { modelId: string; providerId: string } | null {
+): { modelId: string; providerId: string } | null => {
   for (let i = msgs.length - 1; i >= 0; i--) {
     const msg = msgs[i];
     if (msg.role === "user" && msg.model?.modelID && msg.model?.providerID)
@@ -28,14 +28,14 @@ function getModelFromMessages(
       return { modelId: msg.modelID, providerId: msg.providerID };
   }
   return null;
-}
+};
 
 // --- look up model definition in the provider registry ---
-function resolveModel(
+const resolveModel = (
   providerId: string,
   modelId: string,
   providers: readonly any[],
-): { name?: string; context?: number; output?: number } {
+): { name?: string; context?: number; output?: number } => {
   for (const p of providers) {
     if (p.id === providerId) {
       const m = p.models?.[modelId];
@@ -48,17 +48,17 @@ function resolveModel(
     }
   }
   return {};
-}
+};
 
 // --- View ---
-function View(props: {
+const View = (props: {
   modelLabel: () => string;
   contextLimit: () => number;
   outputLimit: () => number;
   hasData: () => boolean;
   compact: boolean;
   api: TuiPluginApi;
-}) {
+}) => {
   const theme = () => props.api.theme.current;
   const limitLines = () => {
     const lines: string[] = [];
@@ -116,7 +116,7 @@ function View(props: {
       </Show>
     </box>
   );
-}
+};
 
 // --- plugin definition ---
 const plugin: TuiPluginModule & { id: string } = {
@@ -140,17 +140,17 @@ const plugin: TuiPluginModule & { id: string } = {
     const REFRESH_EVENTS = ["tui.session.select", "session.idle"] as const;
 
     // --- apply a (providerId, modelId) pair ---
-    function applyModel(providerId: string, modelId: string) {
+    const applyModel = (providerId: string, modelId: string) => {
       const resolved = resolveModel(providerId, modelId, api.state.provider);
       setModelLabel(resolved.name || modelId);
       if (resolved.context) setContextLimit(resolved.context);
       if (resolved.output) setOutputLimit(resolved.output);
       setHasData(true);
       resolvedSessionId = currentSessionId;
-    }
+    };
 
     // --- refresh: discover model for current session ---
-    async function refresh(sessionId?: string) {
+    const refresh = async (sessionId?: string) => {
       if (disposed) return;
 
       const sid = sessionId || currentSessionId;
@@ -219,7 +219,7 @@ const plugin: TuiPluginModule & { id: string } = {
           if (!disposed) refresh(sid);
         }, 1500);
       }
-    }
+    };
 
     const unsubModelSwitch = evt.on(
       "session.next.model.switched" as any,
@@ -236,11 +236,11 @@ const plugin: TuiPluginModule & { id: string } = {
     );
 
     const unsubs: (() => void)[] = [unsubModelSwitch];
-    function onRefresh(event: any) {
+    const onRefresh = (event: any) => {
       const props = event.properties || event;
       const sid = props.sessionID || currentSessionId;
       if (sid) refresh(sid).catch(() => {});
-    }
+    };
     for (const eventName of REFRESH_EVENTS) {
       unsubs.push(evt.on(eventName as any, onRefresh));
     }
@@ -255,7 +255,7 @@ const plugin: TuiPluginModule & { id: string } = {
     slots.register({
       order: 120,
       slots: {
-        sidebar_content(_ctx: any, slotInput: any) {
+        sidebar_content: (_ctx: any, slotInput: any) => {
           const sid: string = slotInput?.session_id ?? "";
           if (sid && sid !== currentSessionId) {
             clearTimeout(retryTimer);

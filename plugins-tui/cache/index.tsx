@@ -28,7 +28,7 @@ const pct = (ratio: number): string =>
   Math.round(Math.max(0, Math.min(1, ratio)) * 100) + "%";
 
 // --- View: renders cache stats in the sidebar ---
-function View(props: {
+const View = (props: {
   hasData: () => boolean;
   ratio: () => number;
   read: () => number;
@@ -37,7 +37,7 @@ function View(props: {
   output: () => number;
   compact: boolean;
   api: TuiPluginApi;
-}) {
+}) => {
   const theme = () => props.api.theme.current;
   const compactPrimaryLine = () =>
     `Hit ${pct(props.ratio())} · Save ${fmt(props.read())}`;
@@ -94,7 +94,7 @@ function View(props: {
       </Show>
     </box>
   );
-}
+};
 
 // --- plugin definition ---
 const plugin: TuiPluginModule & { id: string } = {
@@ -120,7 +120,7 @@ const plugin: TuiPluginModule & { id: string } = {
     const COMPLETION_REFRESH_EVENTS = ["session.idle"];
 
     // --- refresh(): accumulate tokens across all messages ---
-    function refresh(sessionId?: string) {
+    const refresh = (sessionId?: string) => {
       if (disposed) return;
 
       const sid = sessionId || currentSessionId;
@@ -192,7 +192,7 @@ const plugin: TuiPluginModule & { id: string } = {
       setWrite(w);
       setInp(inpAcc);
       setOutput(outAcc);
-    }
+    };
 
     // --- subscribe to events that trigger refresh ---
     const unsubs: (() => void)[] = [];
@@ -220,7 +220,7 @@ const plugin: TuiPluginModule & { id: string } = {
     slots.register({
       order: 140,
       slots: {
-        sidebar_content(_ctx: any, slotInput: any) {
+        sidebar_content: (_ctx: any, slotInput: any) => {
           const sid: string = slotInput?.session_id ?? "";
           if (sid && sid !== currentSessionId) {
             clearTimeout(retryTimer);

@@ -45,7 +45,7 @@ const DEFAULT_VISIBLE_PROVIDERS: readonly QuotaProviderId[] = [
 
 const detailLine = (text: string): string => `  ${text}`;
 
-function normalizeProviderId(value: string): QuotaProviderId | undefined {
+const normalizeProviderId = (value: string): QuotaProviderId | undefined => {
   const normalized = value.trim().toLowerCase();
   switch (normalized) {
     case "go":
@@ -65,9 +65,9 @@ function normalizeProviderId(value: string): QuotaProviderId | undefined {
     default:
       return undefined;
   }
-}
+};
 
-function getVisibleProviders(options: unknown): readonly ProviderSpec[] {
+const getVisibleProviders = (options: unknown): readonly ProviderSpec[] => {
   const configured =
     options && typeof options === "object"
       ? (options as QuotaPluginOptions).visibleProviders
@@ -92,42 +92,42 @@ function getVisibleProviders(options: unknown): readonly ProviderSpec[] {
   }
 
   return PROVIDER_SPECS.filter((spec) => ids.has(spec.id));
-}
+};
 
-function getCompactSetting(options: unknown): boolean {
+const getCompactSetting = (options: unknown): boolean => {
   if (!options || typeof options !== "object") return true;
   const compact = (options as QuotaPluginOptions).compact;
   return typeof compact === "boolean" ? compact : true;
-}
+};
 
-function getDisplayModeSetting(options: unknown): QuotaDisplayMode {
+const getDisplayModeSetting = (options: unknown): QuotaDisplayMode => {
   if (!options || typeof options !== "object") return "remaining";
   return (options as QuotaPluginOptions).displayMode === "used"
     ? "used"
     : "remaining";
-}
+};
 
-function formatPercentQuota(
+const formatPercentQuota = (
   used: number,
   remaining: number,
   displayMode: QuotaDisplayMode,
-): string {
+): string => {
   if (displayMode === "used") return `${used.toFixed(0)}/100`;
   return `${remaining.toFixed(0)}%`;
-}
+};
 
-function formatUsedPercentQuota(
+const formatUsedPercentQuota = (
   usedPct: number,
   displayMode: QuotaDisplayMode,
-): string {
+): string => {
   const used = Math.max(0, Math.min(100, usedPct));
   return formatPercentQuota(used, Math.max(0, 100 - used), displayMode);
-}
+};
 
-function formatCountQuota(
+const formatCountQuota = (
   data: { text: string; used?: number; remaining?: number; total?: number },
   displayMode: QuotaDisplayMode,
-): string {
+): string => {
   const { used, remaining, total } = data;
   if (typeof total !== "number" || total <= 0) return data.text;
 
@@ -139,12 +139,12 @@ function formatCountQuota(
 
   if (typeof value !== "number" || !Number.isFinite(value)) return data.text;
   return `${Math.max(0, value).toFixed(0)}/${total.toFixed(0)}`;
-}
+};
 
-function formatCreditQuota(
+const formatCreditQuota = (
   data: { text: string; usage?: number; remaining?: number; total?: number },
   displayMode: QuotaDisplayMode,
-): string {
+): string => {
   const { usage, remaining, total } = data;
   if (typeof total !== "number" || total <= 0) return data.text;
 
@@ -157,9 +157,9 @@ function formatCreditQuota(
   if (typeof value !== "number" || !Number.isFinite(value)) return data.text;
   if (displayMode === "remaining") return data.text;
   return `$${Math.max(0, value).toFixed(2)}/$${total.toFixed(2)}`;
-}
+};
 
-function bestGoCompactLine(
+const bestGoCompactLine = (
   provider: ProviderSpec,
   displayMode: QuotaDisplayMode,
   windows: {
@@ -167,7 +167,7 @@ function bestGoCompactLine(
     weekly: { used: number; remaining: number; resetInSec: number } | null;
     monthly: { used: number; remaining: number; resetInSec: number } | null;
   },
-): string[] {
+): string[] => {
   const best = windows.rolling
     ? { label: "5h", window: windows.rolling }
     : windows.weekly
@@ -179,9 +179,9 @@ function bestGoCompactLine(
   return [
     `${provider.compactLabel}: ${best.label} ${formatPercentQuota(best.window.used, best.window.remaining, displayMode)}`,
   ];
-}
+};
 
-function bestOpenAICompactLine(
+const bestOpenAICompactLine = (
   provider: ProviderSpec,
   displayMode: QuotaDisplayMode,
   data: {
@@ -191,7 +191,7 @@ function bestOpenAICompactLine(
     codeReview?: { usedPct: number; resetSec: number };
     credits?: string;
   },
-): string[] {
+): string[] => {
   if (data.hourly) {
     const lines = [
       `${provider.compactLabel}: 5h ${formatUsedPercentQuota(data.hourly.usedPct, displayMode)}`,
@@ -217,23 +217,23 @@ function bestOpenAICompactLine(
     return [`${provider.compactLabel}: Credits ${data.credits}`];
   }
   return [`${provider.compactLabel}: no windows`];
-}
+};
 
-function bestCopilotCompactLine(
+const bestCopilotCompactLine = (
   provider: ProviderSpec,
   data: { text: string },
-): string[] {
+): string[] => {
   return [`${provider.compactLabel}: ${data.text}`];
-}
+};
 
-function bestOpenRouterCompactLine(
+const bestOpenRouterCompactLine = (
   provider: ProviderSpec,
   data: { text: string },
-): string[] {
+): string[] => {
   return [`${provider.compactLabel}: ${data.text}`];
-}
+};
 
-function View(props: { getLines: () => string[]; api: TuiPluginApi }) {
+const View = (props: { getLines: () => string[]; api: TuiPluginApi }) => {
   const theme = () => props.api.theme.current;
   return (
     <box gap={0}>
@@ -254,7 +254,7 @@ function View(props: { getLines: () => string[]; api: TuiPluginApi }) {
       </Show>
     </box>
   );
-}
+};
 
 // --- Plugin entry: signals, events, lifecycle ---
 const plugin: TuiPluginModule & { id: string } = {
@@ -280,7 +280,7 @@ const plugin: TuiPluginModule & { id: string } = {
 
     // --- refresh() fetches configured providers sequentially ---
     // Sequential (not parallel) avoids rate limits and keeps error handling simple.
-    async function refresh(source?: string) {
+    const refresh = async (source?: string) => {
       if (disposed) return;
       // Each call gets a unique version number.
       // If a newer call finishes first, this one's results are stale and get discarded.
@@ -302,7 +302,7 @@ const plugin: TuiPluginModule & { id: string } = {
       // Copilot and OpenRouter are always attempted.
 
       // --- buildLines() converts the results map to sidebar-ready text ---
-      function buildLines() {
+      const buildLines = () => {
         const items: string[] = [];
         for (const provider of visibleProviders) {
           const r = results.get(provider.id);
@@ -334,7 +334,7 @@ const plugin: TuiPluginModule & { id: string } = {
           // string[] means data loaded successfully, display it.
         }
         return items;
-      }
+      };
 
       setLines(buildLines());
       // Show loading state immediately, then update per-provider as results arrive.
@@ -462,7 +462,7 @@ const plugin: TuiPluginModule & { id: string } = {
       }
       // Network errors or unexpected failures.
       // Both guards checked again because await can resolve after dispose.
-    }
+    };
     // --- Event subscriptions: refresh on session select and idle ---
     const scheduler = createRefreshScheduler({
       subscribe: (eventName, handler) => evt.on(eventName as any, handler),
@@ -480,7 +480,7 @@ const plugin: TuiPluginModule & { id: string } = {
     slots.register({
       order: 180,
       slots: {
-        sidebar_content(_ctx: any, slotInput: any) {
+        sidebar_content: (_ctx: any, slotInput: any) => {
           const sid = (slotInput as any)?.session_id ?? "";
           if (sid && sid !== currentSessionId) {
             currentSessionId = sid;

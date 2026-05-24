@@ -15,12 +15,12 @@ export interface RefreshScheduler {
   dispose(): void;
 }
 
-export function createRefreshScheduler({
+export const createRefreshScheduler = ({
   subscribe,
   onRefresh,
   immediateEvents,
   completionEvents,
-}: RefreshSchedulerConfig): RefreshScheduler {
+}: RefreshSchedulerConfig): RefreshScheduler => {
   // --- pendingTimers as Set prevents double-clear ---
   // Each timer removes itself on fire. dispose() iterates survivors.
   // Set handles the edge case where a timer fires during clearTimeout.
@@ -34,7 +34,7 @@ export function createRefreshScheduler({
     if (disposed) return;
     onRefresh("poll");
   }, POLL_INTERVAL_MS);
-  function scheduleRefresh(extraDelays: number[] = [], source?: string) {
+  const scheduleRefresh = (extraDelays: number[] = [], source?: string) => {
     const delay = REFRESH_DELAY_MS + (extraDelays[0] ?? 0);
     const timer = setTimeout(() => {
       if (disposed) return;
@@ -42,17 +42,17 @@ export function createRefreshScheduler({
       onRefresh(source);
     }, delay);
     pendingTimers.add(timer);
-  }
+  };
 
   // --- bindEvents maps event names to refresh triggers ---
   // completionEvents get +250ms extra delay so the LLM finishes settling
   // before fetching updated quota. Prevents reading stale intermediate state.
 
-  function bindEvents(eventNames: string[], extraDelays: number[] = []) {
+  const bindEvents = (eventNames: string[], extraDelays: number[] = []) => {
     return eventNames.map((eventName) =>
       subscribe(eventName, () => scheduleRefresh(extraDelays, eventName)),
     );
-  }
+  };
 
   const unsubscribers = [
     ...bindEvents(immediateEvents),
@@ -63,15 +63,15 @@ export function createRefreshScheduler({
   // unsubscribers tear down event bindings, pendingTimers.forEach clears
   // any timers that haven't fired yet. Triple-lock cleanup.
 
-  function dispose() {
+  const dispose = () => {
     disposed = true;
     clearInterval(pollTimer);
     for (const unsub of unsubscribers) unsub();
     pendingTimers.forEach((timer) => clearTimeout(timer));
-  }
+  };
 
   return {
     scheduleRefresh,
     dispose,
   };
-}
+};

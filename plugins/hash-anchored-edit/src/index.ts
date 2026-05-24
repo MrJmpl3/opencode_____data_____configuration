@@ -40,7 +40,7 @@ export const HashAnchoredEditPlugin: Plugin = async () => {
           offset: tool.schema.number().int().positive().optional(),
           limit: tool.schema.number().int().positive().optional(),
         },
-        async execute(args, context) {
+        execute: async (args, context) => {
           const filePath = resolveFilePath(context.directory, args.filePath);
           const info = await readFileInfo(filePath);
           const label = relativeLabel(context.worktree, filePath);
@@ -94,7 +94,7 @@ export const HashAnchoredEditPlugin: Plugin = async () => {
           newText: tool.schema.string().optional(),
           rename: tool.schema.string().optional(),
         },
-        async execute(rawArgs, context) {
+        execute: async (rawArgs, context) => {
           const args = rawArgs as RawEditArgs;
           const filePath = resolveFilePath(context.directory, args.filePath);
           const label = relativeLabel(context.worktree, filePath);
