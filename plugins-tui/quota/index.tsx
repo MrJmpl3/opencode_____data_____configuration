@@ -16,9 +16,11 @@ import { createRefreshScheduler } from "./refresh-scheduler.js";
 // Event-driven refresh with 120s polling fallback.
 
 type QuotaProviderId = "go" | "copilot" | "openrouter" | "openai";
+type QuotaDisplayMode = "remaining" | "used";
 
 type QuotaPluginOptions = {
   compact?: boolean;
+  displayMode?: QuotaDisplayMode;
   visibleProviders?: readonly string[];
 };
 
@@ -98,12 +100,70 @@ function getCompactSetting(options: unknown): boolean {
   return typeof compact === "boolean" ? compact : true;
 }
 
+function getDisplayModeSetting(options: unknown): QuotaDisplayMode {
+  if (!options || typeof options !== "object") return "remaining";
+  return (options as QuotaPluginOptions).displayMode === "used"
+    ? "used"
+    : "remaining";
+}
+
+function formatPercentQuota(
+  used: number,
+  remaining: number,
+  displayMode: QuotaDisplayMode,
+): string {
+  if (displayMode === "used") return `${used.toFixed(0)}/100`;
+  return `${remaining.toFixed(0)}%`;
+}
+
+function formatUsedPercentQuota(
+  usedPct: number,
+  displayMode: QuotaDisplayMode,
+): string {
+  const used = Math.max(0, Math.min(100, usedPct));
+  return formatPercentQuota(used, Math.max(0, 100 - used), displayMode);
+}
+
+function formatCountQuota(
+  data: { text: string; used?: number; remaining?: number; total?: number },
+  displayMode: QuotaDisplayMode,
+): string {
+  const { used, remaining, total } = data;
+  if (typeof total !== "number" || total <= 0) return data.text;
+
+  const value =
+    displayMode === "used"
+      ? (used ?? (typeof remaining === "number" ? total - remaining : undefined))
+      : (remaining ?? (typeof used === "number" ? total - used : undefined));
+
+  if (typeof value !== "number" || !Number.isFinite(value)) return data.text;
+  return `${Math.max(0, value).toFixed(0)}/${total.toFixed(0)}`;
+}
+
+function formatCreditQuota(
+  data: { text: string; usage?: number; remaining?: number; total?: number },
+  displayMode: QuotaDisplayMode,
+): string {
+  const { usage, remaining, total } = data;
+  if (typeof total !== "number" || total <= 0) return data.text;
+
+  const value =
+    displayMode === "used"
+      ? (usage ?? (typeof remaining === "number" ? total - remaining : undefined))
+      : (remaining ?? (typeof usage === "number" ? total - usage : undefined));
+
+  if (typeof value !== "number" || !Number.isFinite(value)) return data.text;
+  if (displayMode === "remaining") return data.text;
+  return `$${Math.max(0, value).toFixed(2)}/$${total.toFixed(2)}`;
+}
+
 function bestGoCompactLine(
   provider: ProviderSpec,
+  displayMode: QuotaDisplayMode,
   windows: {
-    rolling: { remaining: number; resetInSec: number } | null;
-    weekly: { remaining: number; resetInSec: number } | null;
-    monthly: { remaining: number; resetInSec: number } | null;
+    rolling: { used: number; remaining: number; resetInSec: number } | null;
+    weekly: { used: number; remaining: number; resetInSec: number } | null;
+    monthly: { used: number; remaining: number; resetInSec: number } | null;
   },
 ): string[] {
   const best = windows.rolling
@@ -115,12 +175,13 @@ function bestGoCompactLine(
         : null;
   if (!best) return [`${provider.compactLabel}: no windows`];
   return [
-    `${provider.compactLabel}: ${best.label} ${best.window.remaining.toFixed(0)}%`,
+    `${provider.compactLabel}: ${best.label} ${formatPercentQuota(best.window.used, best.window.remaining, displayMode)}`,
   ];
 }
 
 function bestOpenAICompactLine(
   provider: ProviderSpec,
+  displayMode: QuotaDisplayMode,
   data: {
     planType?: string;
     hourly?: { usedPct: number; resetSec: number };
@@ -131,21 +192,23 @@ function bestOpenAICompactLine(
 ): string[] {
   if (data.hourly) {
     const lines = [
-      `${provider.compactLabel}: 5h ${Math.max(0, 100 - data.hourly.usedPct).toFixed(0)}%`,
+      `${provider.compactLabel}: 5h ${formatUsedPercentQuota(data.hourly.usedPct, displayMode)}`,
     ];
     if (data.weekly) {
-      lines.push(`Week ${Math.max(0, 100 - data.weekly.usedPct).toFixed(0)}%`);
+      lines.push(
+        `Week ${formatUsedPercentQuota(data.weekly.usedPct, displayMode)}`,
+      );
     }
     return lines;
   }
   if (data.weekly) {
     return [
-      `${provider.compactLabel}: Week ${Math.max(0, 100 - data.weekly.usedPct).toFixed(0)}%`,
+      `${provider.compactLabel}: Week ${formatUsedPercentQuota(data.weekly.usedPct, displayMode)}`,
     ];
   }
   if (data.codeReview) {
     return [
-      `${provider.compactLabel}: Review ${Math.max(0, 100 - data.codeReview.usedPct).toFixed(0)}%`,
+      `${provider.compactLabel}: Review ${formatUsedPercentQuota(data.codeReview.usedPct, displayMode)}`,
     ];
   }
   if (data.credits) {
@@ -208,6 +271,7 @@ const plugin: TuiPluginModule & { id: string } = {
     const IMMEDIATE_REFRESH_EVENTS = ["tui.session.select"];
     const COMPLETION_REFRESH_EVENTS = ["session.idle"];
     const compact = getCompactSetting(options);
+    const displayMode = getDisplayModeSetting(options);
     const visibleProviders = getVisibleProviders(options);
     // Session select triggers immediate refresh.
     // Session idle (post-LLM-call) triggers a delayed refresh with staggered timers.
@@ -285,7 +349,7 @@ const plugin: TuiPluginModule & { id: string } = {
           if ("data" in result) {
             const d = result.data;
             const dataLines: string[] = compact
-              ? bestGoCompactLine(PROVIDER_SPECS[0], d)
+              ? bestGoCompactLine(PROVIDER_SPECS[0], displayMode, d)
               : [];
             if (!compact) {
               for (const [name, key] of [
@@ -296,7 +360,7 @@ const plugin: TuiPluginModule & { id: string } = {
                 const w = d[key];
                 if (w)
                   dataLines.push(
-                    `${name} · ${w.remaining.toFixed(0)}% · ${fmtDuration(w.resetInSec)} left`,
+                    `${name} · ${formatPercentQuota(w.used, w.remaining, displayMode)} · ${fmtDuration(w.resetInSec)} left`,
                   );
               }
             }
@@ -321,8 +385,10 @@ const plugin: TuiPluginModule & { id: string } = {
             results.set(
               "copilot",
               compact
-                ? bestCopilotCompactLine(PROVIDER_SPECS[1], { text: cp.text })
-                : [`Monthly · ${cp.text}${reset}`],
+                ? bestCopilotCompactLine(PROVIDER_SPECS[1], {
+                    text: formatCountQuota(cp, displayMode),
+                  })
+                : [`Monthly · ${formatCountQuota(cp, displayMode)}${reset}`],
             );
           } else {
             results.set("copilot", cp.error);
@@ -341,9 +407,9 @@ const plugin: TuiPluginModule & { id: string } = {
               "openrouter",
               compact
                 ? bestOpenRouterCompactLine(PROVIDER_SPECS[2], {
-                    text: or.text,
+                    text: formatCreditQuota(or, displayMode),
                   })
-                : [`Credits · ${or.text}`],
+                : [`Credits · ${formatCreditQuota(or, displayMode)}`],
             );
           } else {
             results.set("openrouter", or.error);
@@ -359,7 +425,7 @@ const plugin: TuiPluginModule & { id: string } = {
             results.delete("openai");
           } else if (!("error" in oa)) {
             const dataLines: string[] = compact
-              ? bestOpenAICompactLine(PROVIDER_SPECS[3], oa)
+              ? bestOpenAICompactLine(PROVIDER_SPECS[3], displayMode, oa)
               : [];
             if (!compact) {
               const addWindow = (
@@ -367,9 +433,8 @@ const plugin: TuiPluginModule & { id: string } = {
                 window: { usedPct: number; resetSec: number } | undefined,
               ) => {
                 if (!window) return;
-                const remaining = Math.max(0, 100 - window.usedPct);
                 dataLines.push(
-                  `${label} · ${remaining.toFixed(0)}% · ${fmtDuration(window.resetSec)} left`,
+                  `${label} · ${formatUsedPercentQuota(window.usedPct, displayMode)} · ${fmtDuration(window.resetSec)} left`,
                 );
               };
 

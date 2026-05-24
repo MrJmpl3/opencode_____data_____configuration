@@ -11,9 +11,8 @@
       "./plugins-tui/quota",
       {
         "compact": false,
-        "visibleProviders": [
-          "openai"
-        ]
+        "displayMode": "used",
+        "visibleProviders": ["openai"],
       }
     ],
     [

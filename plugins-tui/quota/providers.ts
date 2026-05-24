@@ -18,6 +18,9 @@ interface GoWindow {
 
 interface CopilotResult {
   text: string;
+  used?: number;
+  remaining?: number;
+  total?: number;
   pctRemaining?: number;
   unlimited?: boolean;
   resetTimeIso?: string;
@@ -461,6 +464,9 @@ export async function fetchCopilotQuota(): Promise<
   const remainingCount = Math.max(0, total - used);
   return {
     text: `${remainingCount}/${total}`,
+    used,
+    remaining: remainingCount,
+    total,
     pctRemaining: Math.round((remainingCount / total) * 100),
     resetTimeIso,
     resetSec,
@@ -540,8 +546,14 @@ export async function fetchOpenRouterQuota(): Promise<
       : null;
 
   if (totalCredits !== null && totalCredits > 0) {
+    const usage = totalUsage ?? 0;
     const remaining = Math.max(0, totalCredits - (totalUsage ?? 0));
-    return { text: `$${remaining.toFixed(2)}`, remaining, total: totalCredits };
+    return {
+      text: `$${remaining.toFixed(2)}`,
+      remaining,
+      total: totalCredits,
+      usage,
+    };
   }
 
   if (totalUsage !== null) {
