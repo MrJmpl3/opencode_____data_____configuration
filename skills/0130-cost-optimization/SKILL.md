@@ -306,7 +306,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
 - **OCI:** Cost Analysis, Budgets, Cloud Advisor
 - **Multi-cloud:** CloudHealth, Cloudability, Kubecost
 
-
 ## Related Skills
 
 - `terraform-module-library` - For resource provisioning

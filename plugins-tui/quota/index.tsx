@@ -133,7 +133,8 @@ function formatCountQuota(
 
   const value =
     displayMode === "used"
-      ? (used ?? (typeof remaining === "number" ? total - remaining : undefined))
+      ? (used ??
+        (typeof remaining === "number" ? total - remaining : undefined))
       : (remaining ?? (typeof used === "number" ? total - used : undefined));
 
   if (typeof value !== "number" || !Number.isFinite(value)) return data.text;
@@ -149,7 +150,8 @@ function formatCreditQuota(
 
   const value =
     displayMode === "used"
-      ? (usage ?? (typeof remaining === "number" ? total - remaining : undefined))
+      ? (usage ??
+        (typeof remaining === "number" ? total - remaining : undefined))
       : (remaining ?? (typeof usage === "number" ? total - usage : undefined));
 
   if (typeof value !== "number" || !Number.isFinite(value)) return data.text;

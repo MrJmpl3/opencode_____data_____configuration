@@ -4,8 +4,8 @@
     [
       "./plugins-tui/limits",
       {
-        "compact": true
-      }
+        "compact": true,
+      },
     ],
     [
       "./plugins-tui/quota",
@@ -13,15 +13,15 @@
         "compact": false,
         "displayMode": "used",
         "visibleProviders": ["openai"],
-      }
+      },
     ],
     [
       "./plugins-tui/cache",
       {
-        "compact": true
-      }
+        "compact": true,
+      },
     ],
-    "opencode-quotes-plugin"
+    "opencode-quotes-plugin",
   ],
-  "theme": "opencode"
+  "theme": "opencode",
 }
