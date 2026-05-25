@@ -178,7 +178,9 @@ const RE_NUM = String.raw`(-?\d+(?:\.\d+)?)`;
 // --- Regex orderings ---
 // The $R[] objects don't guarantee field order. We generate two patterns
 // (usagePercent first, resetInSec first) and try both when parsing.
-const windowRegexes = (key: string): { pctFirst: RegExp; resetFirst: RegExp } => {
+const windowRegexes = (
+  key: string,
+): { pctFirst: RegExp; resetFirst: RegExp } => {
   const pctFirst = new RegExp(
     String.raw`${key}:\$R\[\d+\]=\{[^}]*usagePercent:${RE_NUM}[^}]*resetInSec:${RE_NUM}[^}]*\}`,
   );

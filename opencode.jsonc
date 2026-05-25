@@ -135,8 +135,35 @@
       },
     },
   },
+  "agent": {
+    "orchestrator": {
+      "color": "#3B82F6",
+    },
+    "oracle": {
+      "color": "#F59E0B",
+    },
+    "librarian": {
+      "color": "#06B6D4",
+    },
+    "explorer": {
+      "color": "#10B981",
+    },
+    "designer": {
+      "color": "#8B5CF6",
+    },
+    "fixer": {
+      "color": "#EF4444",
+    },
+    "explore": {
+      "disable": true,
+    },
+    "general": {
+      "disable": true,
+    },
+  },
   "compaction": {
     "auto": true,
     "reserved": 32000,
   },
+  "plugin": ["oh-my-opencode-slim"],
 }

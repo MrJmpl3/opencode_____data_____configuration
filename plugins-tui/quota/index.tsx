@@ -285,10 +285,9 @@ const plugin: TuiPluginModule & { id: string } = {
             const reset = cp.resetSec
               ? ` · ${fmtDuration(cp.resetSec)} left`
               : "";
-            results.set(
-              "copilot",
-              [`Monthly · ${formatCountQuota(cp, displayMode)}${reset}`],
-            );
+            results.set("copilot", [
+              `Monthly · ${formatCountQuota(cp, displayMode)}${reset}`,
+            ]);
           } else {
             results.set("copilot", cp.error);
           }
@@ -302,10 +301,9 @@ const plugin: TuiPluginModule & { id: string } = {
           if (or === null) {
             results.delete("openrouter");
           } else if (!("error" in or)) {
-            results.set(
-              "openrouter",
-              [`Credits · ${formatCreditQuota(or, displayMode)}`],
-            );
+            results.set("openrouter", [
+              `Credits · ${formatCreditQuota(or, displayMode)}`,
+            ]);
           } else {
             results.set("openrouter", or.error);
           }

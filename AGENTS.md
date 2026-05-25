@@ -77,7 +77,7 @@ Formula interna:
 - Si el usuario pide "todos los casos", "refactor", "rename", "codemod", "importaciones" o "patron de codigo", prioriza `ast_grep` antes que `grep`.
 - Si `grep` devuelve demasiados falsos positivos o demasiado ruido, cambia a `ast_grep`.
 - Manten `glob` y `grep` como primera opcion cuando una busqueda textual simple resuelva la tarea con menos coste.
-- Usa `context7` cuando necesites documentacion actualizada de librerias o frameworks y la respuesta no deba depender de memoria.
+- Delega a `@librarian` cuando necesites documentacion actualizada de librerias o frameworks; en la configuracion actual es quien concentra `context7`, `websearch` y ejemplos externos.
 - Usa `deepwiki` cuando necesites entender rapidamente un repositorio publico, su arquitectura o una integracion concreta antes de cambiar codigo.
 - Usa `gh_grep` o busqueda en GitHub cuando necesites ejemplos reales de uso en proyectos publicos o contrastar patrones de implementacion.
 - Usa el MCP de `github` para tareas operativas de GitHub, comentarios, PRs, issues, ramas y metadatos del repositorio remoto en vez de improvisar con texto.
@@ -111,6 +111,10 @@ Formula interna:
 ## OpenCode
 
 - Cuando la tarea sea sobre OpenCode, revisa primero `opencode.jsonc`, `tui.jsonc`, `plugins/`, `plugins-tui/`, `agents/` y `skills/`.
+- La configuracion activa usa `oh-my-opencode-slim` con el preset `openai` definido en `oh-my-opencode-slim.json`.
+- Roles activos del preset `openai`: `orchestrator`, `oracle`, `librarian`, `explorer`, `designer` y `fixer`.
+- Los agentes integrados `explore` y `general` estan deshabilitados en `opencode.jsonc`; usa los roles anteriores en su lugar.
+- Cada agente activo debe conservar un color hexadecimal distinto en `opencode.jsonc`: `orchestrator=#3B82F6`, `oracle=#F59E0B`, `librarian=#06B6D4`, `explorer=#10B981`, `designer=#8B5CF6`, `fixer=#EF4444`.
 - En `plugins/`, usa `plugins/<nombre>.ts` como entrypoint estable; si un plugin necesita tests o typecheck aislado, permite un paquete interno en `plugins/<nombre>/` con `src/`, `test/`, `package.json` y `tsconfig.json`.
 - Si existe ese paquete interno, manten el shim raiz como reexport fino y ejecuta sus checks con `npm --prefix plugins/<nombre> ...` o scripts equivalentes desde la raiz.
 - En `plugins-tui/`, usa la carpeta del plugin como entrypoint estable y manten `index.tsx` en la raiz; si necesita checks aislados, permite `package.json`, `tsconfig.json` y `test/` dentro de esa misma carpeta.
@@ -131,7 +135,8 @@ Formula interna:
 - Evita encadenar subagentes sin necesidad.
 - Si usas un agente, dale contexto operativo suficiente para evitar respuestas genericas.
 - Usa subagentes cuando la tarea requiera una especialidad clara, reproduccion compleja, investigacion profunda o trabajo paralelo acotado.
-- Si el problema principal es localizar codigo o mapear flujo antes de editar, considera `explore` o `code-mapper` antes de un especialista de implementacion.
+- Si el problema principal es localizar codigo o mapear flujo antes de editar, considera `@explorer` antes de un especialista de implementacion.
+- Usa `@oracle` para decisiones de arquitectura, revisiones profundas, simplificacion y problemas persistentes; usa `@fixer` para ejecucion acotada y cambios en tests; usa `@designer` para UI/UX; usa `@librarian` para documentacion externa y ejemplos actuales.
 - Si la tarea cruza varias capas pero sigue bien delimitada, prioriza un solo subagente dueno del recorrido completo sobre varios subagentes pequenos.
 - No uses subagentes para sustituir buen routing de herramientas: primero elige bien MCPs, skills y busquedas; delega cuando eso siga dejando incertidumbre material.
 

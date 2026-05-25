@@ -11,6 +11,7 @@
     ],
     "./plugins-tui/cache",
     "opencode-quotes-plugin",
+    "oh-my-opencode-slim",
   ],
   "theme": "opencode",
 }

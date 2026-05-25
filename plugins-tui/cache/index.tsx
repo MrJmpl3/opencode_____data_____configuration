@@ -37,7 +37,9 @@ const View = (props: {
   const usageLine = () =>
     `Hit ${pct(props.ratio())} · Save ${fmt(props.read())}`;
   const trafficLines = () => {
-    const lines = [`Input ${fmt(props.input())} · Output ${fmt(props.output())}`];
+    const lines = [
+      `Input ${fmt(props.input())} · Output ${fmt(props.output())}`,
+    ];
     if (props.write() > 0) lines.push(`Write ${fmt(props.write())}`);
     return lines;
   };

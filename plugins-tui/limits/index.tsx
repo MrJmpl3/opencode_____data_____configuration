@@ -57,8 +57,10 @@ const View = (props: {
   const theme = () => props.api.theme.current;
   const limitLines = () => {
     const parts: string[] = [];
-    if (props.contextLimit() > 0) parts.push(`Context ${fmt(props.contextLimit())}`);
-    if (props.outputLimit() > 0) parts.push(`Output ${fmt(props.outputLimit())}`);
+    if (props.contextLimit() > 0)
+      parts.push(`Context ${fmt(props.contextLimit())}`);
+    if (props.outputLimit() > 0)
+      parts.push(`Output ${fmt(props.outputLimit())}`);
     return parts.length > 0 ? [parts.join(" · ")] : [];
   };
   return (
