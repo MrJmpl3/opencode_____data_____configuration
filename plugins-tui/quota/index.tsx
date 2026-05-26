@@ -116,6 +116,26 @@ const formatUsedPercentQuota = (
   return formatPercentQuota(used, Math.max(0, 100 - used), displayMode);
 };
 
+const WEEK_SECONDS = 7 * 24 * 60 * 60;
+
+export const formatResponsibleWeeklyUsage = (window: {
+  usedPct: number;
+  resetSec: number;
+}): string => {
+  const usedPct = Math.max(0, Math.min(100, window.usedPct));
+  const remainingSec = Math.max(0, Math.min(WEEK_SECONDS, window.resetSec));
+  const responsibleRemainingPct = (remainingSec / WEEK_SECONDS) * 100;
+  const responsibleUsedPct = 100 - responsibleRemainingPct;
+  const deltaPct = usedPct - responsibleUsedPct;
+  const absDelta = Math.abs(deltaPct).toFixed(0);
+
+  if (deltaPct <= 0) {
+    return `✓ ok · ${absDelta}% below`;
+  }
+
+  return `⚠ high · ${absDelta}% over`;
+};
+
 const formatCountQuota = (
   data: { text: string; used?: number; remaining?: number; total?: number },
   displayMode: QuotaDisplayMode,
@@ -321,15 +341,21 @@ const plugin: TuiPluginModule & { id: string } = {
             const addWindow = (
               label: string,
               window: { usedPct: number; resetSec: number } | undefined,
+              responsibleUsage?: string,
             ) => {
               if (!window) return;
               dataLines.push(
                 `${label} · ${formatUsedPercentQuota(window.usedPct, displayMode)} · ${fmtDuration(window.resetSec)} left`,
               );
+              if (responsibleUsage) dataLines.push(`Usage pace · ${responsibleUsage}`);
             };
 
             addWindow("5h", oa.hourly);
-            addWindow("Weekly", oa.weekly);
+            addWindow(
+              "Weekly",
+              oa.weekly,
+              oa.weekly ? formatResponsibleWeeklyUsage(oa.weekly) : undefined,
+            );
             addWindow("Code Review", oa.codeReview);
             if (oa.credits) dataLines.push(`Credits · ${oa.credits}`);
 

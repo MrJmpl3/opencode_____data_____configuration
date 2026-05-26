@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import plugin from "../index.tsx";
+import plugin, { formatResponsibleWeeklyUsage } from "../index.tsx";
 import { createRefreshScheduler } from "../refresh-scheduler.ts";
 
 describe("quota tui plugin", () => {
@@ -42,5 +42,21 @@ describe("quota tui plugin", () => {
     events.get("now")?.();
     vi.advanceTimersByTime(1000);
     expect(onRefresh).toHaveBeenCalledTimes(2);
+  });
+
+  it("formats weekly responsible usage pace", () => {
+    expect(
+      formatResponsibleWeeklyUsage({
+        usedPct: 20,
+        resetSec: 4 * 24 * 60 * 60,
+      }),
+    ).toBe("✓ ok · 23% below");
+
+    expect(
+      formatResponsibleWeeklyUsage({
+        usedPct: 60,
+        resetSec: 4 * 24 * 60 * 60,
+      }),
+    ).toBe("⚠ high · 17% over");
   });
 });
