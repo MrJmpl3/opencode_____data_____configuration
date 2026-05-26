@@ -5,7 +5,6 @@
     [
       "./plugins-tui/quota",
       {
-        "displayMode": "used",
         "visibleProviders": ["openai"],
       },
     ],

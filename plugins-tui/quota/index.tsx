@@ -347,7 +347,8 @@ const plugin: TuiPluginModule & { id: string } = {
               dataLines.push(
                 `${label} · ${formatUsedPercentQuota(window.usedPct, displayMode)} · ${fmtDuration(window.resetSec)} left`,
               );
-              if (responsibleUsage) dataLines.push(`Usage pace · ${responsibleUsage}`);
+              if (responsibleUsage)
+                dataLines.push(`Usage pace · ${responsibleUsage}`);
             };
 
             addWindow("5h", oa.hourly);
