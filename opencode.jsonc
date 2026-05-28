@@ -113,6 +113,29 @@
       "options": {
         "setCacheKey": true,
       },
+      "models": {
+        "gpt-5.5": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
+        "gpt-5.5-fast": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
+        "gpt-5.5-pro": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
+      },
     },
   },
   "agent": {
