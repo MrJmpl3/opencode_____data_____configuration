@@ -114,6 +114,34 @@
         "setCacheKey": true,
       },
       "models": {
+        "gpt-5.4": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
+        "gpt-5.4-fast": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
+        "gpt-5.4-mini": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
+        "gpt-5.4-mini-fast": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000,
+          },
+        },
         "gpt-5.5": {
           "limit": {
             "context": 272000,

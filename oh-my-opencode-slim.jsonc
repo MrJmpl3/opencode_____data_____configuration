@@ -1,114 +1,105 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
-  "preset": "mrjmpl3-xhigh",
+  "preset": "mrjmpl3-fast-xhigh",
   "agents": {
     "security-auditor": {
-      "model": "openai/gpt-5.5",
-      "skills": [],
-      "mcps": ["ast_grep", "grep_app"],
       "prompt": "You are Security Auditor, a read-first application security reviewer. Inspect code, config, dependency usage, secrets handling, authentication, authorization, input validation, command execution, file access, network calls, and CI/deployment surfaces. Prioritize exploitable vulnerabilities, privilege escalation, data exposure, insecure defaults, and defense-in-depth gaps. Distinguish confirmed issues from suspicions. Provide concrete file references, severity, exploit path, and minimal remediation. Do not edit files; if remediation is needed, recommend precise work for the orchestrator or fixer to implement.",
-      "orchestratorPrompt": "@security-auditor\n- Role: Application security specialist for code, config, auth, secrets, and deployment risk review\n- Delegate when: auth/authorization changes • API/security-sensitive code • secrets or env handling • shell/file/network access • pre-release security review • suspicious dependency/config risk\n- Don't delegate when: ordinary feature work with no security-sensitive surface • purely visual UI polish • simple syntax fixes\n- Output expected: findings by severity with file references, exploitability, and minimal remediation"
+      "orchestratorPrompt": "@security-auditor\n- Role: Application security specialist for code, config, auth, secrets, and deployment risk review\n- Delegate when: auth/authorization changes • API/security-sensitive code • secrets or env handling • shell/file/network access • pre-release security review • suspicious dependency/config risk\n- Don't delegate when: ordinary feature work with no security-sensitive surface • purely visual UI polish • simple syntax fixes\n- Output expected: findings by severity with file references, exploitability, and minimal remediation",
     },
     "tester": {
-      "model": "openai/gpt-5.4-mini",
-      "skills": ["agent-browser"],
-      "mcps": ["ast_grep", "grep_app"],
       "prompt": "You are Tester, a pragmatic QA and test-design specialist. Identify meaningful test coverage gaps, edge cases, regressions, flaky-test risks, and missing assertions. Prefer behavior-focused tests over implementation-detail tests. When asked to edit, add or update the smallest useful tests and keep fixtures maintainable. Limit edits to tests, fixtures, mocks, and test helpers unless the orchestrator explicitly asks otherwise. When only reviewing, return concrete test scenarios, affected files, and recommended commands to run.",
-      "orchestratorPrompt": "@tester\n- Role: QA and test specialist for coverage gaps, regression scenarios, edge cases, and test implementation\n- Delegate when: writing/updating tests • validating bug fixes • planning regression coverage • reviewing PRs for missing assertions • flaky tests or test architecture questions\n- Don't delegate when: production-code-only change is tiny and already covered • broad architecture decisions • visual polish without behavior changes\n- Output expected: test gaps or focused test edits, edge cases, and exact validation commands"
+      "orchestratorPrompt": "@tester\n- Role: QA and test specialist for coverage gaps, regression scenarios, edge cases, and test implementation\n- Delegate when: writing/updating tests • validating bug fixes • planning regression coverage • reviewing PRs for missing assertions • flaky tests or test architecture questions\n- Don't delegate when: production-code-only change is tiny and already covered • broad architecture decisions • visual polish without behavior changes\n- Output expected: test gaps or focused test edits, edge cases, and exact validation commands",
     },
     "janitor": {
-      "model": "openai/gpt-5.4-mini",
-      "skills": ["simplify"],
-      "mcps": ["ast_grep", "grep_app"],
       "prompt": "You are Janitor, a maintenance specialist for codebase entropy reduction. Audit dead code, duplicated logic, stale documentation, inconsistent naming, unnecessary abstractions, overly complex control flow, and files that drifted from project conventions. Prefer small, safe cleanup recommendations and clearly scoped patches. Do not refactor for taste. Preserve behavior and call out risky cleanups separately. Avoid dependency upgrades, broad rewrites, renames, or behavior changes unless explicitly requested.",
-      "orchestratorPrompt": "@janitor\n- Role: Maintenance specialist for cleanup, dead code, docs drift, duplication, naming consistency, and unnecessary complexity\n- Delegate when: after large refactors • code feels overly complex • dead code or duplication is suspected • docs/config drift may exist • maintainability review is requested\n- Don't delegate when: urgent debugging • feature behavior is still unclear • security review is needed • UI/UX polish is the main concern\n- Output expected: prioritized cleanup findings or small behavior-preserving patches"
-    }
+      "orchestratorPrompt": "@janitor\n- Role: Maintenance specialist for cleanup, dead code, docs drift, duplication, naming consistency, and unnecessary complexity\n- Delegate when: after large refactors • code feels overly complex • dead code or duplication is suspected • docs/config drift may exist • maintainability review is requested\n- Don't delegate when: urgent debugging • feature behavior is still unclear • security review is needed • UI/UX polish is the main concern\n- Output expected: prioritized cleanup findings or small behavior-preserving patches",
+    },
   },
   "presets": {
     "default-openai": {
       "orchestrator": {
         "model": "openai/gpt-5.5",
         "skills": ["*"],
-        "mcps": ["*", "!context7"]
+        "mcps": ["*", "!context7"],
       },
       "oracle": {
         "model": "openai/gpt-5.5",
         "variant": "high",
         "skills": ["simplify"],
-        "mcps": []
+        "mcps": [],
       },
       "librarian": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
+        "mcps": ["websearch", "context7", "grep_app"],
       },
       "explorer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "designer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "medium",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "fixer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": []
-      }
+        "mcps": [],
+      },
     },
     "default-opencode-go": {
       "orchestrator": {
         "model": "opencode-go/glm-5.1",
         "skills": ["*"],
-        "mcps": ["*", "!context7"]
+        "mcps": ["*", "!context7"],
       },
       "oracle": {
         "model": "opencode-go/deepseek-v4-pro",
         "variant": "max",
         "skills": ["simplify"],
-        "mcps": []
+        "mcps": [],
       },
       "council": {
         "model": "opencode-go/deepseek-v4-pro",
         "variant": "high",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "librarian": {
         "model": "opencode-go/minimax-m2.7",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
+        "mcps": ["websearch", "context7", "grep_app"],
       },
       "explorer": {
         "model": "opencode-go/minimax-m2.7",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "designer": {
         "model": "opencode-go/kimi-k2.6",
         "variant": "medium",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "fixer": {
         "model": "opencode-go/deepseek-v4-flash",
         "variant": "high",
         "skills": [],
-        "mcps": []
-      }
+        "mcps": [],
+      },
     },
     "mrjmpl3-xhigh": {
       "orchestrator": {
         "model": "openai/gpt-5.5",
         "variant": "xhigh",
         "skills": ["*"],
-        "mcps": ["ast_grep", "github"]
+        "mcps": ["ast_grep", "github"],
       },
       "oracle": {
         "model": "openai/gpt-5.5",
@@ -118,25 +109,25 @@
           "0003-code-quality",
           "0124-architecture-patterns",
           "0129-code-review-excellence",
-          "0132-debugging-strategies"
+          "0132-debugging-strategies",
         ],
-        "mcps": ["ast_grep"]
+        "mcps": ["ast_grep"],
       },
       "librarian": {
         "model": "openai/gpt-5.4-mini",
         "variant": "xhigh",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app", "deepwiki", "github", "nuxt"]
+        "mcps": ["websearch", "context7", "grep_app", "deepwiki", "github", "nuxt"],
       },
       "explorer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "xhigh",
         "skills": [],
-        "mcps": ["ast_grep"]
+        "mcps": ["ast_grep"],
       },
       "designer": {
-        "model": "openai/gpt-5.4-mini",
-        "variant": "xhigh",
+        "model": "github-copilot/gemini-3.1-pro-preview",
+        "variant": "high",
         "skills": [
           "agent-browser",
           "0120-accessibility-compliance",
@@ -144,94 +135,176 @@
           "0164-responsive-design",
           "0178-visual-design-foundations",
           "0179-wcag-audit-patterns",
-          "0180-web-component-design"
+          "0180-web-component-design",
         ],
-        "mcps": []
+        "mcps": [],
       },
       "fixer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "xhigh",
         "skills": ["0003-code-quality", "0114-software-engineer"],
-        "mcps": ["ast_grep"]
-      }
+        "mcps": ["ast_grep"],
+      },
+      "security-auditor": {
+        "model": "openai/gpt-5.5",
+        "variant": "xhigh",
+      },
+      "tester": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "xhigh",
+      },
+      "janitor": {
+        "model": "openai/gpt-5.4-mini",
+        "variant": "xhigh",
+      },
+    },
+    "mrjmpl3-fast-xhigh": {
+      "orchestrator": {
+        "model": "openai/gpt-5.5-fast",
+        "variant": "xhigh",
+        "skills": ["*"],
+        "mcps": ["ast_grep", "github"],
+      },
+      "oracle": {
+        "model": "openai/gpt-5.5-fast",
+        "variant": "xhigh",
+        "skills": [
+          "simplify",
+          "0003-code-quality",
+          "0124-architecture-patterns",
+          "0129-code-review-excellence",
+          "0132-debugging-strategies",
+        ],
+        "mcps": ["ast_grep"],
+      },
+      "librarian": {
+        "model": "openai/gpt-5.3-codex-spark",
+        "variant": "xhigh",
+        "skills": [],
+        "mcps": ["websearch", "context7", "grep_app", "deepwiki", "github", "nuxt"],
+      },
+      "explorer": {
+        "model": "openai/gpt-5.3-codex-spark",
+        "variant": "xhigh",
+        "skills": [],
+        "mcps": ["ast_grep"],
+      },
+      "designer": {
+        "model": "github-copilot/gemini-3.1-pro-preview",
+        "variant": "high",
+        "skills": [
+          "agent-browser",
+          "0120-accessibility-compliance",
+          "0134-design-system-patterns",
+          "0164-responsive-design",
+          "0178-visual-design-foundations",
+          "0179-wcag-audit-patterns",
+          "0180-web-component-design",
+        ],
+        "mcps": [],
+      },
+      "fixer": {
+        "model": "openai/gpt-5.3-codex-spark",
+        "variant": "xhigh",
+        "skills": ["0003-code-quality", "0114-software-engineer"],
+        "mcps": ["ast_grep"],
+      },
+      "security-auditor": {
+        "model": "openai/gpt-5.5-fast",
+        "variant": "xhigh",
+        "skills": [],
+        "mcps": ["ast_grep", "grep_app"],
+      },
+      "tester": {
+        "model": "openai/gpt-5.3-codex-spark",
+        "variant": "xhigh",
+        "skills": ["agent-browser"],
+        "mcps": ["ast_grep", "grep_app"],
+      },
+      "janitor": {
+        "model": "openai/gpt-5.3-codex-spark",
+        "variant": "xhigh",
+        "skills": ["simplify"],
+        "mcps": ["ast_grep", "grep_app"],
+      },
     },
     "alvinunreal-original": {
       "orchestrator": {
         "model": "openai/gpt-5.5-fast",
         "skills": ["*"],
-        "mcps": ["*", "!context7"]
+        "mcps": ["*", "!context7"],
       },
       "oracle": {
         "model": "openai/gpt-5.5-fast",
         "variant": "high",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "council": {
-        "model": "openai/gpt-5.5-fast"
+        "model": "openai/gpt-5.5-fast",
       },
       "librarian": {
         "model": "openai/gpt-5.3-codex-spark",
         "variant": "low",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
+        "mcps": ["websearch", "context7", "grep_app"],
       },
       "explorer": {
         "model": "openai/gpt-5.3-codex-spark",
         "variant": "low",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "designer": {
         "model": "github-copilot/gemini-3.1-pro-preview",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "fixer": {
         "model": "openai/gpt-5.3-codex-spark",
         "variant": "low",
         "skills": [],
-        "mcps": []
-      }
+        "mcps": [],
+      },
     },
     "alvinunreal-thirtydollars": {
       "orchestrator": {
         "model": "openai/gpt-5.5",
         "skills": ["*"],
-        "mcps": ["*", "websearch"]
+        "mcps": ["*", "websearch"],
       },
       "oracle": {
         "model": "openai/gpt-5.5",
         "variant": "high",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "council": {
-        "model": "openai/gpt-5.5"
+        "model": "openai/gpt-5.5",
       },
       "librarian": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
+        "mcps": ["websearch", "context7", "grep_app"],
       },
       "explorer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "designer": {
         "model": "github-copilot/gemini-3.1-pro-preview",
         "skills": [],
-        "mcps": []
+        "mcps": [],
       },
       "fixer": {
         "model": "openai/gpt-5.4-mini",
         "variant": "low",
         "skills": [],
-        "mcps": []
-      }
-    }
-  }
+        "mcps": [],
+      },
+    },
+  },
 }
