@@ -50,9 +50,13 @@ describe("quota tui plugin", () => {
   });
 
   it("recognizes rate-limit errors and ignores plain parse errors", () => {
-    expect(isQuotaRateLimitError("Request failed with status code 429: Too Many Requests")).toBe(true);
+    expect(isQuotaRateLimitError("Request failed with status code 429: Too Many Requests")).toBe(
+      true,
+    );
     expect(isQuotaRateLimitError("Rate limit exceeded while processing request")).toBe(true);
-    expect(isQuotaRateLimitError("Cannot parse response: unexpected token in JSON at position 1")).toBe(false);
+    expect(
+      isQuotaRateLimitError("Cannot parse response: unexpected token in JSON at position 1"),
+    ).toBe(false);
   });
 
   it("honors retry-after details even when an error body follows", () => {

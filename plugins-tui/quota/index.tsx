@@ -199,7 +199,8 @@ const parseBackoffResetMs = (message: string, pattern: RegExp): number => {
   const numericValue = rawValue.match(/^\d+(?:\.\d+)?/)?.[0];
   const resetValue = numericValue ? Number(numericValue) : Number.NaN;
   if (Number.isFinite(resetValue) && resetValue > 0) {
-    const resetAtMs = resetValue > 1_000_000_000 ? resetValue * 1000 : Date.now() + resetValue * 1000;
+    const resetAtMs =
+      resetValue > 1_000_000_000 ? resetValue * 1000 : Date.now() + resetValue * 1000;
     return Math.max(0, resetAtMs - Date.now());
   }
 
@@ -558,7 +559,9 @@ const plugin: TuiPluginModule & { id: string } = {
         fetchedAtMs: now,
         consecutiveErrors,
         cooldownUntilMs:
-          typeof value === "string" ? now + getErrorCooldownMs(value, consecutiveErrors) : undefined,
+          typeof value === "string"
+            ? now + getErrorCooldownMs(value, consecutiveErrors)
+            : undefined,
       });
       return value;
     };
