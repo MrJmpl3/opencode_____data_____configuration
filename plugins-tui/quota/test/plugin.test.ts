@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdirSync, mkdtempSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import plugin, {
   formatResponsibleWeeklyUsage,
@@ -6,12 +10,31 @@ import plugin, {
   retryAfterMsFromMessage,
 } from "../index.tsx";
 import { createRefreshScheduler } from "../refresh-scheduler.ts";
-import { fmtDuration, parseAdditionalRateLimits } from "../providers.ts";
+import {
+  fetchCopilotQuota,
+  fetchOpenAIQuota,
+  fetchOpenRouterQuota,
+  fmtDuration,
+  parseAdditionalRateLimits,
+} from "../providers.ts";
+
+const createAuthFixture = (entries: Record<string, unknown>): string => {
+  const root = mkdtempSync(join(tmpdir(), "opencode-quota-"));
+  const authDir = join(root, "opencode");
+  mkdirSync(authDir, { recursive: true });
+  writeFileSync(join(authDir, "auth.json"), JSON.stringify(entries), "utf8");
+  return root;
+};
 
 describe("quota tui plugin", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.useRealTimers();
   });
 
   it("exposes a stable plugin contract", () => {
@@ -66,6 +89,76 @@ describe("quota tui plugin", () => {
     expect(retryAfterMsFromMessage("OpenRouter HTTP 429; retry-after 120: slow down")).toBe(
       120_000,
     );
+  });
+
+  it("sanitizes html and invalid-json responses from provider endpoints", async () => {
+    vi.stubEnv(
+      "XDG_DATA_HOME",
+      createAuthFixture({
+        "github-copilot": { type: "oauth", access: "copilot-token" },
+        openai: { type: "oauth", access: "openai-token", account_id: "acct-123" },
+      }),
+    );
+
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        "<!doctype html><html><head><title>Quota Failure</title></head><body><h1>\u001b[31mNope\nline</h1></body></html>",
+        { status: 200 },
+      ),
+    );
+
+    const copilot = await fetchCopilotQuota();
+    expect(copilot).not.toBeNull();
+    expect(copilot && "error" in copilot).toBe(true);
+    if (copilot && "error" in copilot) {
+      expect(copilot.error).toContain("Copilot API returned invalid JSON");
+      expect(copilot.error).toContain("HTML response: Quota Failure");
+      expect(copilot.error).not.toContain("<html>");
+      expect(copilot.error).not.toContain("<title>");
+      expect(copilot.error).not.toContain("\u001b");
+      expect(copilot.error).not.toContain("\n");
+    }
+
+    fetchMock.mockResolvedValueOnce(new Response("\u001b[31mnot json\nline2", { status: 200 }));
+
+    const openai = await fetchOpenAIQuota();
+    expect(openai).not.toBeNull();
+    expect(openai && "error" in openai).toBe(true);
+    if (openai && "error" in openai) {
+      expect(openai.error).toContain("OpenAI returned invalid JSON");
+      expect(openai.error).toContain("not json line2");
+      expect(openai.error).not.toContain("\u001b");
+      expect(openai.error).not.toContain("\n");
+    }
+  });
+
+  it("sanitizes html bodies returned by non-ok responses", async () => {
+    vi.stubEnv("OPENROUTER_API_KEY", "openrouter-token");
+
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        "<!doctype html><html><head><title>Gateway Down</title></head><body><h1>\u001b[31mTry again\nlater</h1></body></html>",
+        {
+          status: 502,
+          headers: { "content-type": "text/html" },
+        },
+      ),
+    );
+
+    const result = await fetchOpenRouterQuota();
+    expect(result).not.toBeNull();
+    expect(result && "error" in result).toBe(true);
+    if (result && "error" in result) {
+      expect(result.error).toContain("OpenRouter HTTP 502");
+      expect(result.error).toContain("HTML response: Gateway Down");
+      expect(result.error).not.toContain("<html>");
+      expect(result.error).not.toContain("<title>");
+      expect(result.error).not.toContain("\u001b");
+      expect(result.error).not.toContain("\n");
+    }
   });
 
   it("formats weekly responsible usage pace", () => {

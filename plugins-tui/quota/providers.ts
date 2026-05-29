@@ -92,11 +92,79 @@ const httpErrorMessage = (label: string, res: Response, body?: string): string =
   const rateLimitReset =
     res.headers.get("x-ratelimit-reset")?.trim() || res.headers.get("ratelimit-reset")?.trim();
 
-  if (retryAfter) details.push(`retry-after=${retryAfter}`);
-  if (rateLimitReset) details.push(`rate-limit-reset=${rateLimitReset}`);
-  if (body?.trim()) details.push(body.trim().slice(0, 120));
+  if (retryAfter) details.push(`retry-after=${sanitizeErrorText(retryAfter)}`);
+  if (rateLimitReset) details.push(`rate-limit-reset=${sanitizeErrorText(rateLimitReset)}`);
+
+  const preview = describeResponseBody(body);
+  if (preview) details.push(preview);
 
   return details.join("; ");
+};
+
+const MAX_ERROR_PREVIEW_CHARS = 120;
+const ANSI_ESCAPE_SEQUENCE_RE = /\u001B\[[0-?]*[ -/]*[@-~]/g;
+const HTML_TITLE_RE = /<title[^>]*>([\s\S]*?)<\/title>/i;
+const HTML_MARKUP_RE = /<(?:!doctype\s+html|\/?[a-z][\w:-]*(?:\s[^<>]*?)?)>/i;
+
+const sanitizeErrorText = (value: string): string => {
+  return value
+    .replace(ANSI_ESCAPE_SEQUENCE_RE, "")
+    .replace(/[\u0000-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const stripHtmlTags = (value: string): string => {
+  return value.replace(/<[^>]*>/g, " ");
+};
+
+const previewErrorText = (value: string): string => {
+  const sanitized = sanitizeErrorText(value);
+  if (sanitized.length <= MAX_ERROR_PREVIEW_CHARS) return sanitized;
+  return `${sanitized.slice(0, MAX_ERROR_PREVIEW_CHARS - 1).trimEnd()}…`;
+};
+
+const describeResponseBody = (body?: string): string | undefined => {
+  if (!body) return undefined;
+
+  const trimmed = body.trim();
+  if (!trimmed) return undefined;
+
+  const sanitized = sanitizeErrorText(trimmed);
+  if (!sanitized) return undefined;
+
+  if (HTML_MARKUP_RE.test(sanitized)) {
+    const title = sanitized.match(HTML_TITLE_RE)?.[1] ?? trimmed.match(HTML_TITLE_RE)?.[1];
+    const cleanTitle = title ? previewErrorText(stripHtmlTags(title)) : "";
+    return cleanTitle ? `HTML response: ${cleanTitle}` : "HTML response";
+  }
+
+  const preview = previewErrorText(sanitized);
+  return preview || undefined;
+};
+
+const readJsonResponse = async (
+  label: string,
+  res: Response,
+): Promise<{ data: unknown } | { error: string }> => {
+  let text: string;
+
+  try {
+    text = await res.text();
+  } catch {
+    return { error: `${label} returned an unreadable JSON response` };
+  }
+
+  const normalized = text.replace(/^\uFEFF/, "");
+
+  try {
+    return { data: JSON.parse(normalized) as unknown };
+  } catch {
+    const preview = describeResponseBody(normalized);
+    return {
+      error: preview ? `${label} returned invalid JSON · ${preview}` : `${label} returned invalid JSON`,
+    };
+  }
 };
 
 // ─── OS helpers ──────────────────────────────────────────
@@ -429,7 +497,10 @@ export const fetchCopilotQuota = async (): Promise<CopilotResult | null | { erro
   });
   if (!res.ok) return { error: httpErrorMessage("Copilot API", res) };
 
-  const data: unknown = await res.json();
+  const dataResult = await readJsonResponse("Copilot API", res);
+  if ("error" in dataResult) return dataResult;
+
+  const data: unknown = dataResult.data;
 
   let total = findNumber(data, COPILOT_TOTAL_PATHS);
   let used = findNumber(data, COPILOT_USED_PATHS);
@@ -517,7 +588,10 @@ export const fetchOpenRouterQuota = async (): Promise<
     return { error: httpErrorMessage("OpenRouter", res, text) };
   }
 
-  const body: unknown = await res.json();
+  const bodyResult = await readJsonResponse("OpenRouter", res);
+  if ("error" in bodyResult) return bodyResult;
+
+  const body: unknown = bodyResult.data;
   const d = (body as Record<string, unknown>)?.data ?? body;
 
   const totalCredits =
@@ -817,7 +891,10 @@ export const fetchOpenAIQuota = async (): Promise<OpenAIResult | null | { error:
     return { error: httpErrorMessage("OpenAI", res, text) };
   }
 
-  const body: unknown = await res.json();
+  const bodyResult = await readJsonResponse("OpenAI", res);
+  if ("error" in bodyResult) return bodyResult;
+
+  const body: unknown = bodyResult.data;
   if (!body || typeof body !== "object") {
     return { error: "OpenAI did not return a valid usage payload" };
   }
