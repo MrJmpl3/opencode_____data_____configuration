@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import plugin, { formatResponsibleWeeklyUsage } from "../index.tsx";
 import { createRefreshScheduler } from "../refresh-scheduler.ts";
+import { fmtDuration, parseAdditionalRateLimits } from "../providers.ts";
 
 describe("quota tui plugin", () => {
   beforeEach(() => {
@@ -50,13 +51,60 @@ describe("quota tui plugin", () => {
         usedPct: 20,
         resetSec: 4 * 24 * 60 * 60,
       }),
-    ).toBe("✓ ok · 23% below");
+    ).toBe("✓ ok · 22.86% below");
 
     expect(
       formatResponsibleWeeklyUsage({
         usedPct: 60,
         resetSec: 4 * 24 * 60 * 60,
       }),
-    ).toBe("⚠ high · 17% over");
+    ).toBe("⚠ high · 17.14% over");
+  });
+
+  it("formats durations including minutes and seconds", () => {
+    expect(fmtDuration(6 * 86400 + 23 * 3600 + 12 * 60 + 34)).toBe("6d 23h 12m 34s");
+    expect(fmtDuration(75)).toBe("1m 15s");
+  });
+
+  it("parses Codex Spark additional rate limit", () => {
+    const limits = parseAdditionalRateLimits([
+      {
+        limit_name: "GPT-5.3-Codex-Spark",
+        metered_feature: "...",
+        rate_limit: {
+          allowed: true,
+          limit_reached: false,
+          primary_window: {
+            used_percent: 12.5,
+            reset_after_seconds: 3600,
+            reset_at: 1234567890,
+            limit_window_seconds: 18000,
+          },
+          secondary_window: {
+            used_percent: 25,
+            reset_after_seconds: 7200,
+            reset_at: 1234567890,
+            limit_window_seconds: 604800,
+          },
+        },
+      },
+    ]);
+
+    expect(limits).toHaveLength(1);
+    expect(limits[0]).toMatchObject({
+      label: "Codex Spark",
+      allowed: true,
+      limitReached: false,
+      primary: {
+        usedPct: 12.5,
+        resetSec: 3600,
+        limitWindowSec: 18000,
+      },
+      secondary: {
+        usedPct: 25,
+        resetSec: 7200,
+        limitWindowSec: 604800,
+      },
+    });
   });
 });

@@ -28,6 +28,20 @@ type ProviderSpec = {
   label: string;
 };
 
+type PercentWindow = {
+  usedPct: number;
+  resetSec: number;
+  limitWindowSec?: number;
+};
+
+type QuotaLine =
+  | { kind: "heading"; text: string }
+  | { kind: "detail"; text: string }
+  | { kind: "window"; label: string; value: string; resetAtMs: number }
+  | { kind: "pace"; usedPct: number; resetAtMs: number; windowSeconds: number };
+
+type ProviderResult = QuotaLine[] | string | null;
+
 const PROVIDER_SPECS: readonly ProviderSpec[] = [
   { id: "go", label: "OpenCode Go" },
   { id: "copilot", label: "GitHub Copilot" },
@@ -38,6 +52,33 @@ const PROVIDER_SPECS: readonly ProviderSpec[] = [
 const DEFAULT_VISIBLE_PROVIDERS: readonly QuotaProviderId[] = ["go", "copilot", "openrouter"];
 
 const detailLine = (text: string): string => `  ${text}`;
+const headingLine = (text: string): QuotaLine => ({ kind: "heading", text });
+const detailTextLine = (text: string): QuotaLine => ({ kind: "detail", text });
+const resetAtMsFromSeconds = (resetSec: number, capturedAtMs: number): number =>
+  capturedAtMs + Math.max(0, Math.floor(resetSec)) * 1000;
+const remainingSeconds = (resetAtMs: number, nowMs: number): number =>
+  Math.max(0, Math.ceil((resetAtMs - nowMs) / 1000));
+const windowLine = (
+  label: string,
+  value: string,
+  resetSec: number,
+  capturedAtMs: number,
+): QuotaLine => ({
+  kind: "window",
+  label,
+  value,
+  resetAtMs: resetAtMsFromSeconds(resetSec, capturedAtMs),
+});
+const paceLine = (
+  window: PercentWindow,
+  windowSeconds: number,
+  capturedAtMs: number,
+): QuotaLine => ({
+  kind: "pace",
+  usedPct: window.usedPct,
+  resetAtMs: resetAtMsFromSeconds(window.resetSec, capturedAtMs),
+  windowSeconds,
+});
 
 const normalizeProviderId = (value: string): QuotaProviderId | undefined => {
   const normalized = value.trim().toLowerCase();
@@ -105,22 +146,76 @@ const formatUsedPercentQuota = (usedPct: number, displayMode: QuotaDisplayMode):
 
 const WEEK_SECONDS = 7 * 24 * 60 * 60;
 
-export const formatResponsibleWeeklyUsage = (window: {
-  usedPct: number;
-  resetSec: number;
-}): string => {
+export const formatResponsibleUsagePace = (
+  window: {
+    usedPct: number;
+    resetSec: number;
+  },
+  windowSeconds: number,
+): string => {
+  const totalSec = Math.max(1, windowSeconds);
   const usedPct = Math.max(0, Math.min(100, window.usedPct));
-  const remainingSec = Math.max(0, Math.min(WEEK_SECONDS, window.resetSec));
-  const responsibleRemainingPct = (remainingSec / WEEK_SECONDS) * 100;
+  const remainingSec = Math.max(0, Math.min(totalSec, window.resetSec));
+  const responsibleRemainingPct = (remainingSec / totalSec) * 100;
   const responsibleUsedPct = 100 - responsibleRemainingPct;
   const deltaPct = usedPct - responsibleUsedPct;
-  const absDelta = Math.abs(deltaPct).toFixed(0);
+  const absDelta = Math.abs(deltaPct).toFixed(2);
 
   if (deltaPct <= 0) {
     return `✓ ok · ${absDelta}% below`;
   }
 
   return `⚠ high · ${absDelta}% over`;
+};
+
+export const formatResponsibleWeeklyUsage = (window: {
+  usedPct: number;
+  resetSec: number;
+}): string => formatResponsibleUsagePace(window, WEEK_SECONDS);
+
+const formatOpenAIRateLimitStatus = (limit: {
+  allowed?: boolean;
+  limitReached?: boolean;
+}): string | undefined => {
+  if (limit.limitReached) return "limit reached";
+  if (limit.allowed === false) return "blocked";
+  if (limit.allowed === true) return "available";
+  return undefined;
+};
+
+const isOpenAISparkRateLimit = (limit: {
+  label: string;
+  limitName?: string;
+  meteredFeature?: string;
+}): boolean => {
+  const haystack = [limit.label, limit.limitName, limit.meteredFeature]
+    .filter((value): value is string => Boolean(value))
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes("spark") || haystack.includes("codex");
+};
+
+const renderQuotaLine = (line: QuotaLine, nowMs: number): string => {
+  switch (line.kind) {
+    case "heading":
+      return line.text;
+    case "detail":
+      return detailLine(line.text);
+    case "window":
+      return detailLine(
+        `${line.label} · ${line.value} · ${fmtDuration(remainingSeconds(line.resetAtMs, nowMs))} left`,
+      );
+    case "pace":
+      return detailLine(
+        `Usage pace · ${formatResponsibleUsagePace(
+          {
+            usedPct: line.usedPct,
+            resetSec: remainingSeconds(line.resetAtMs, nowMs),
+          },
+          line.windowSeconds,
+        )}`,
+      );
+  }
 };
 
 const formatCountQuota = (
@@ -156,7 +251,11 @@ const formatCreditQuota = (
   return `$${Math.max(0, value).toFixed(2)}/$${total.toFixed(2)}`;
 };
 
-const View = (props: { getLines: () => string[]; api: TuiPluginApi }) => {
+const View = (props: {
+  getLines: () => QuotaLine[];
+  getNowMs: () => number;
+  api: TuiPluginApi;
+}) => {
   const theme = () => props.api.theme.current;
   return (
     <box gap={0}>
@@ -171,7 +270,7 @@ const View = (props: { getLines: () => string[]; api: TuiPluginApi }) => {
       >
         {props.getLines().map((line) => (
           <text fg={theme().textMuted} wrapMode="none">
-            {line}
+            {renderQuotaLine(line, props.getNowMs())}
           </text>
         ))}
       </Show>
@@ -187,10 +286,21 @@ const plugin: TuiPluginModule & { id: string } = {
     // Reactive state that drives the sidebar view
     // Guards for preventing work after unmount:
     const { slots, event: evt, lifecycle } = api;
-    const [lines, setLines] = createSignal<string[]>([]);
+    const [lines, setLines] = createSignal<QuotaLine[]>([]);
+    const [nowMs, setNowMs] = createSignal(Date.now());
     let currentSessionId = "";
     let inFlightVersion = 0;
     let disposed = false;
+    let clockTimer: ReturnType<typeof setTimeout> | undefined;
+    const scheduleClockTick = () => {
+      const delayMs = 1000 - (Date.now() % 1000);
+      clockTimer = setTimeout(() => {
+        if (disposed) return;
+        setNowMs(Date.now());
+        scheduleClockTick();
+      }, delayMs);
+    };
+    scheduleClockTick();
     // Stale-response guard: each refresh call gets a unique version.
     // When a newer call finishes first, older results are discarded.
     const IMMEDIATE_REFRESH_EVENTS = ["tui.session.select"];
@@ -208,7 +318,7 @@ const plugin: TuiPluginModule & { id: string } = {
       // If a newer call finishes first, this one's results are stale and get discarded.
       const currentVersion = ++inFlightVersion;
 
-      const results = new Map<QuotaProviderId, string[] | string | null>();
+      const results = new Map<QuotaProviderId, ProviderResult>();
       // results map encodes per-provider state:
       //   null      = loading (shows a spinner)
       //   string[]  = success (shows data lines)
@@ -225,27 +335,28 @@ const plugin: TuiPluginModule & { id: string } = {
 
       // --- buildLines() converts the results map to sidebar-ready text ---
       const buildLines = () => {
-        const items: string[] = [];
+        const items: QuotaLine[] = [];
         for (const provider of visibleProviders) {
           const r = results.get(provider.id);
           if (r === undefined) continue;
           // undefined means this provider was never set: not configured, skip it.
           if (r === null) {
             // null means the fetch is still running, show a spinner.
-            items.push(provider.label);
-            items.push(detailLine("Refreshing…"));
+            items.push(headingLine(provider.label));
+            items.push(detailTextLine("Refreshing…"));
           } else if (typeof r === "string") {
-            items.push(provider.label);
-            items.push(detailLine(`Unavailable · ${r}`));
+            items.push(headingLine(provider.label));
+            items.push(detailTextLine(`Unavailable · ${r}`));
           } else {
-            items.push(provider.label);
-            for (const line of r) items.push(detailLine(line));
+            if (r[0]?.kind !== "heading") items.push(headingLine(provider.label));
+            items.push(...r);
           }
           // string[] means data loaded successfully, display it.
         }
         return items;
       };
 
+      setNowMs(Date.now());
       setLines(buildLines());
       // Show loading state immediately, then update per-provider as results arrive.
 
@@ -256,8 +367,10 @@ const plugin: TuiPluginModule & { id: string } = {
           if (currentVersion !== inFlightVersion) return;
           // Stale check: discard if a newer refresh already finished.
           if ("data" in result) {
+            const fetchedAtMs = Date.now();
+            setNowMs(fetchedAtMs);
             const d = result.data;
-            const dataLines: string[] = [];
+            const dataLines: QuotaLine[] = [];
             for (const [name, key] of [
               ["5h window", "rolling"],
               ["Weekly", "weekly"],
@@ -266,10 +379,15 @@ const plugin: TuiPluginModule & { id: string } = {
               const w = d[key];
               if (w)
                 dataLines.push(
-                  `${name} · ${formatPercentQuota(w.used, w.remaining, displayMode)} · ${fmtDuration(w.resetInSec)} left`,
+                  windowLine(
+                    name,
+                    formatPercentQuota(w.used, w.remaining, displayMode),
+                    w.resetInSec,
+                    fetchedAtMs,
+                  ),
                 );
             }
-            results.set("go", dataLines.length ? dataLines : ["No windows"]);
+            results.set("go", dataLines.length ? dataLines : [detailTextLine("No windows")]);
           } else {
             results.set("go", result.error);
           }
@@ -284,8 +402,15 @@ const plugin: TuiPluginModule & { id: string } = {
           if (cp === null) {
             results.delete("copilot");
           } else if (!("error" in cp)) {
-            const reset = cp.resetSec ? ` · ${fmtDuration(cp.resetSec)} left` : "";
-            results.set("copilot", [`Monthly · ${formatCountQuota(cp, displayMode)}${reset}`]);
+            const fetchedAtMs = Date.now();
+            setNowMs(fetchedAtMs);
+            const value = formatCountQuota(cp, displayMode);
+            results.set(
+              "copilot",
+              cp.resetSec
+                ? [windowLine("Monthly", value, cp.resetSec, fetchedAtMs)]
+                : [detailTextLine(`Monthly · ${value}`)],
+            );
           } else {
             results.set("copilot", cp.error);
           }
@@ -299,7 +424,9 @@ const plugin: TuiPluginModule & { id: string } = {
           if (or === null) {
             results.delete("openrouter");
           } else if (!("error" in or)) {
-            results.set("openrouter", [`Credits · ${formatCreditQuota(or, displayMode)}`]);
+            results.set("openrouter", [
+              detailTextLine(`Credits · ${formatCreditQuota(or, displayMode)}`),
+            ]);
           } else {
             results.set("openrouter", or.error);
           }
@@ -313,29 +440,63 @@ const plugin: TuiPluginModule & { id: string } = {
           if (oa === null) {
             results.delete("openai");
           } else if (!("error" in oa)) {
-            const dataLines: string[] = [];
+            const fetchedAtMs = Date.now();
+            setNowMs(fetchedAtMs);
+            const openAILines: QuotaLine[] = [];
+            const sparkLines: QuotaLine[] = [];
             const addWindow = (
+              targetLines: QuotaLine[],
               label: string,
-              window: { usedPct: number; resetSec: number } | undefined,
-              responsibleUsage?: string,
+              window: PercentWindow | undefined,
+              paceWindowSeconds?: number,
             ) => {
               if (!window) return;
-              dataLines.push(
-                `${label} · ${formatUsedPercentQuota(window.usedPct, displayMode)} · ${fmtDuration(window.resetSec)} left`,
+              targetLines.push(
+                windowLine(
+                  label,
+                  formatUsedPercentQuota(window.usedPct, displayMode),
+                  window.resetSec,
+                  fetchedAtMs,
+                ),
               );
-              if (responsibleUsage) dataLines.push(`Usage pace · ${responsibleUsage}`);
+              if (paceWindowSeconds) {
+                targetLines.push(paceLine(window, paceWindowSeconds, fetchedAtMs));
+              }
             };
 
-            addWindow("5h", oa.hourly);
-            addWindow(
-              "Weekly",
-              oa.weekly,
-              oa.weekly ? formatResponsibleWeeklyUsage(oa.weekly) : undefined,
-            );
-            addWindow("Code Review", oa.codeReview);
-            if (oa.credits) dataLines.push(`Credits · ${oa.credits}`);
+            addWindow(openAILines, "5h", oa.hourly);
+            addWindow(openAILines, "Weekly", oa.weekly, WEEK_SECONDS);
+            addWindow(openAILines, "Code Review", oa.codeReview);
 
-            results.set("openai", dataLines.length ? dataLines : ["No windows"]);
+            for (const limit of oa.additionalRateLimits ?? []) {
+              const status = formatOpenAIRateLimitStatus(limit);
+              if (isOpenAISparkRateLimit(limit)) {
+                addWindow(sparkLines, "5h", limit.primary);
+                addWindow(
+                  sparkLines,
+                  "Weekly",
+                  limit.secondary,
+                  limit.secondary?.limitWindowSec || WEEK_SECONDS,
+                );
+                continue;
+              }
+
+              const primaryLabel = status ? `${limit.label} · ${status}` : limit.label;
+              addWindow(openAILines, primaryLabel, limit.primary);
+              addWindow(
+                openAILines,
+                limit.primary ? `${limit.label} Secondary` : `${primaryLabel} Secondary`,
+                limit.secondary,
+              );
+            }
+
+            if (oa.credits) openAILines.push(detailTextLine(`Credits · ${oa.credits}`));
+
+            const dataLines: QuotaLine[] = [];
+            if (openAILines.length) dataLines.push(headingLine("OpenAI"), ...openAILines);
+            if (sparkLines.length) dataLines.push(headingLine("OpenAI Spark"), ...sparkLines);
+
+            results.set("openai", dataLines.length ? dataLines : [detailTextLine("No windows")]);
           } else {
             results.set("openai", oa.error);
           }
@@ -344,7 +505,7 @@ const plugin: TuiPluginModule & { id: string } = {
       } catch (e) {
         if (disposed || currentVersion !== inFlightVersion) return;
         const msg = `Error: ${e instanceof Error ? e.message : String(e)}`;
-        setLines([msg]);
+        setLines([detailTextLine(msg)]);
       }
       // Network errors or unexpected failures.
       // Both guards checked again because await can resolve after dispose.
@@ -358,6 +519,7 @@ const plugin: TuiPluginModule & { id: string } = {
     });
     lifecycle.onDispose(() => {
       disposed = true;
+      if (clockTimer) clearTimeout(clockTimer);
       scheduler.dispose();
     });
     // Fire-and-forget initial fetch (don't block slot registration)
@@ -372,7 +534,7 @@ const plugin: TuiPluginModule & { id: string } = {
             currentSessionId = sid;
             refresh(sid).catch(() => {});
           }
-          return <View getLines={lines} api={api} />;
+          return <View getLines={lines} getNowMs={nowMs} api={api} />;
         },
       },
     });
