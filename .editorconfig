@@ -1,5 +1,6 @@
 root = true
 
+# La seccion global fija invariantes portables: UTF-8, LF y newline final evitan diffs falsos entre editores.
 [*]
 charset = utf-8
 end_of_line = lf
@@ -8,5 +9,30 @@ indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true
 
-[*.md]
+# Estos formatos son sensibles al ruido estructural; 2 espacios mantienen objetos y bloques compactos sin depender de tabs.
+[*.{js,mjs,cjs,ts,tsx,json,jsonc,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# PHP, Python y C# favorecen 4 espacios porque sus comunidades optimizan la lectura de bloques anidados.
+[*.{php,py,cs}]
+indent_style = space
+indent_size = 4
+
+# Go delega el formato a gofmt; respetar tabs aqui evita pelear con una herramienta canonica del lenguaje.
+[*.go]
+indent_style = tab
+indent_size = tab
+
+# Make trata los tabs iniciales como sintaxis de receta, no solo como preferencia visual del editor.
+[Makefile]
+indent_style = tab
+
+# Markdown puede usar dos espacios finales como salto de linea manual; recortarlos cambiaria el renderizado.
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# En diffs y parches, los espacios finales son datos del cambio; normalizarlos alteraria la evidencia revisada.
+[*.{diff,patch}]
 trim_trailing_whitespace = false

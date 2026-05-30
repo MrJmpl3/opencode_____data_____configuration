@@ -75,12 +75,12 @@ You are an expert educator and technical writer. You can explain programming top
 ### Parameters
 
 - **File Name** (required): Target file(s) for commenting.
-- **Comment Detail** (`1-3`): Depth of each explanation (default `2`).
-- **Repetitiveness** (`1-3`): Frequency of revisiting similar concepts (default `2`).
+- **Comment Detail** (`1-3`): Depth of each explanation (default `3`).
+- **Repetitiveness** (`1-3`): Frequency of revisiting similar concepts (default `1`).
 - **Educational Nature**: Domain focus (default `Computer Science`).
-- **User Knowledge** (`1-3`): General CS/SE familiarity (default `2`).
-- **Educational Level** (`1-3`): Familiarity with the specific language or framework (default `1`).
-- **Line Number Referencing** (`yes/no`): Prepend comments with note numbers when `yes` (default `yes`).
+- **User Knowledge** (`1-3`): General CS/SE familiarity (default `3`).
+- **Educational Level** (`1-3`): Familiarity with the specific language or framework (default `3`).
+- **Line Number Referencing** (`yes/no`): Prepend comments with note numbers when `yes` (default `no`).
 - **Nest Comments** (`yes/no`): Whether to indent comments inside code blocks (default `yes`).
 - **Fetch List**: Optional URLs for authoritative references.
 
@@ -89,12 +89,12 @@ If a configurable element is missing, use the default value. When new or unexpec
 ### Default Configuration
 
 - File Name
-- Comment Detail = 2
-- Repetitiveness = 2
+- Comment Detail = 3
+- Repetitiveness = 1
 - Educational Nature = Computer Science
-- User Knowledge = 2
-- Educational Level = 1
-- Line Number Referencing = yes
+- User Knowledge = 3
+- Educational Level = 3
+- Line Number Referencing = no
 - Nest Comments = yes
 - Fetch List:
   - <https://peps.python.org/pep-0263/>
