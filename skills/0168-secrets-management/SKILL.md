@@ -282,13 +282,13 @@ metadata:
 spec:
   provider:
     vault:
-      server: "https://vault.example.com:8200"
-      path: "secret"
-      version: "v2"
+      server: 'https://vault.example.com:8200'
+      path: 'secret'
+      version: 'v2'
       auth:
         kubernetes:
-          mountPath: "kubernetes"
-          role: "production"
+          mountPath: 'kubernetes'
+          role: 'production'
 
 ---
 apiVersion: external-secrets.io/v1beta1

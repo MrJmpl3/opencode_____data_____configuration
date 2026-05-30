@@ -4,7 +4,7 @@ import {
   fetchOpenAIQuota,
   fetchOpenRouterQuota,
   readGoConfig,
-} from "../providers.js";
+} from '../providers.js';
 import {
   formatCountQuota,
   formatCreditQuota,
@@ -13,10 +13,10 @@ import {
   formatUsedPercentQuota,
   isOpenAISparkRateLimit,
   WEEK_SECONDS,
-} from "./format.js";
-import { detailTextLine, headingLine, paceLine, windowLine } from "./lines.js";
-import type { PercentWindow, QuotaLine } from "./lines.js";
-import type { QuotaDisplayMode, QuotaProviderId } from "./options.js";
+} from './format.js';
+import { detailTextLine, headingLine, paceLine, windowLine } from './lines.js';
+import type { PercentWindow, QuotaLine } from './lines.js';
+import type { QuotaDisplayMode, QuotaProviderId } from './options.js';
 
 export type GoConfig = ReturnType<typeof readGoConfig>;
 export type CachedProviderValue = QuotaLine[] | string;
@@ -29,18 +29,18 @@ export const fetchProviderLines = async (
   displayMode: QuotaDisplayMode,
   setNowMs: (nowMs: number) => void,
 ): Promise<ProviderFetchResult> => {
-  if (providerId === "go") {
+  if (providerId === 'go') {
     if (!goConfig) return undefined;
     const result = await fetchGoDashboard(goConfig.workspaceId, goConfig.authCookie);
-    if (!("data" in result)) return result.error;
+    if (!('data' in result)) return result.error;
 
     const fetchedAtMs = Date.now();
     setNowMs(fetchedAtMs);
     const dataLines: QuotaLine[] = [];
     for (const [name, key] of [
-      ["5h window", "rolling"],
-      ["Weekly", "weekly"],
-      ["Monthly", "monthly"],
+      ['5h window', 'rolling'],
+      ['Weekly', 'weekly'],
+      ['Monthly', 'monthly'],
     ] as const) {
       const window = result.data[key];
       if (!window) continue;
@@ -53,32 +53,32 @@ export const fetchProviderLines = async (
         ),
       );
     }
-    return dataLines.length ? dataLines : [detailTextLine("No windows")];
+    return dataLines.length ? dataLines : [detailTextLine('No windows')];
   }
 
-  if (providerId === "copilot") {
+  if (providerId === 'copilot') {
     const cp = await fetchCopilotQuota();
     if (cp === null) return undefined;
-    if ("error" in cp) return cp.error;
+    if ('error' in cp) return cp.error;
 
     const fetchedAtMs = Date.now();
     setNowMs(fetchedAtMs);
     const value = formatCountQuota(cp, displayMode);
     return cp.resetSec
-      ? [windowLine("Monthly", value, cp.resetSec, fetchedAtMs)]
+      ? [windowLine('Monthly', value, cp.resetSec, fetchedAtMs)]
       : [detailTextLine(`Monthly · ${value}`)];
   }
 
-  if (providerId === "openrouter") {
+  if (providerId === 'openrouter') {
     const openRouter = await fetchOpenRouterQuota();
     if (openRouter === null) return undefined;
-    if ("error" in openRouter) return openRouter.error;
+    if ('error' in openRouter) return openRouter.error;
     return [detailTextLine(`Credits · ${formatCreditQuota(openRouter, displayMode)}`)];
   }
 
   const openAI = await fetchOpenAIQuota();
   if (openAI === null) return undefined;
-  if ("error" in openAI) return openAI.error;
+  if ('error' in openAI) return openAI.error;
 
   const fetchedAtMs = Date.now();
   setNowMs(fetchedAtMs);
@@ -99,32 +99,28 @@ export const fetchProviderLines = async (
     }
   };
 
-  addWindow(openAILines, "5h", openAI.hourly);
-  addWindow(openAILines, "Weekly", openAI.weekly, WEEK_SECONDS);
-  addWindow(openAILines, "Code Review", openAI.codeReview);
+  addWindow(openAILines, '5h', openAI.hourly);
+  addWindow(openAILines, 'Weekly', openAI.weekly, WEEK_SECONDS);
+  addWindow(openAILines, 'Code Review', openAI.codeReview);
 
   for (const limit of openAI.additionalRateLimits ?? []) {
     const status = formatOpenAIRateLimitStatus(limit);
     if (isOpenAISparkRateLimit(limit)) {
-      addWindow(sparkLines, "5h", limit.primary);
-      addWindow(sparkLines, "Weekly", limit.secondary, limit.secondary?.limitWindowSec || WEEK_SECONDS);
+      addWindow(sparkLines, '5h', limit.primary);
+      addWindow(sparkLines, 'Weekly', limit.secondary, limit.secondary?.limitWindowSec || WEEK_SECONDS);
       continue;
     }
 
     const primaryLabel = status ? `${limit.label} · ${status}` : limit.label;
     addWindow(openAILines, primaryLabel, limit.primary);
-    addWindow(
-      openAILines,
-      limit.primary ? `${limit.label} Secondary` : `${primaryLabel} Secondary`,
-      limit.secondary,
-    );
+    addWindow(openAILines, limit.primary ? `${limit.label} Secondary` : `${primaryLabel} Secondary`, limit.secondary);
   }
 
   if (openAI.credits) openAILines.push(detailTextLine(`Credits · ${openAI.credits}`));
 
   const dataLines: QuotaLine[] = [];
-  if (openAILines.length) dataLines.push(headingLine("OpenAI"), ...openAILines);
-  if (sparkLines.length) dataLines.push(headingLine("OpenAI Spark"), ...sparkLines);
+  if (openAILines.length) dataLines.push(headingLine('OpenAI'), ...openAILines);
+  if (sparkLines.length) dataLines.push(headingLine('OpenAI Spark'), ...sparkLines);
 
-  return dataLines.length ? dataLines : [detailTextLine("No windows")];
+  return dataLines.length ? dataLines : [detailTextLine('No windows')];
 };

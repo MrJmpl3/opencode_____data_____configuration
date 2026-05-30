@@ -60,13 +60,13 @@ Volumes provide persistent storage:
 ## Basic Compose File Structure
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   web:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./html:/usr/share/nginx/html
     networks:
@@ -214,9 +214,9 @@ services:
 services:
   web:
     ports:
-      - "8080:80" # Host:Container
+      - '8080:80' # Host:Container
     expose:
-      - "8080" # Internal only
+      - '8080' # Internal only
     networks:
       - frontend
       - backend
@@ -265,7 +265,7 @@ services:
 services:
   web:
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -280,10 +280,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 2G
         reservations:
-          cpus: "1"
+          cpus: '1'
           memory: 1G
 ```
 
@@ -299,7 +299,7 @@ services:
     volumes:
       - ./src:/app/src # Hot reload
     ports:
-      - "3000:3000" # Expose for debugging
+      - '3000:3000' # Expose for debugging
     environment:
       - DEBUG=*
 ```
@@ -315,7 +315,7 @@ services:
       replicas: 3
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 2G
 ```
 
@@ -426,7 +426,7 @@ volumes:
 
 ```yaml
 healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost/health"]
+  test: ['CMD', 'curl', '-f', 'http://localhost/health']
   interval: 30s
   timeout: 10s
   retries: 3
@@ -452,7 +452,7 @@ healthcheck:
 
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "healthcheck.js"]
+  test: ['CMD', 'node', 'healthcheck.js']
   interval: 30s
   timeout: 10s
   retries: 3
@@ -476,7 +476,7 @@ image: postgres:latest
 services:
   db:
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ['CMD-SHELL', 'pg_isready']
       interval: 10s
 ```
 
@@ -513,7 +513,7 @@ services:
 deploy:
   resources:
     limits:
-      cpus: "2"
+      cpus: '2'
       memory: 2G
 ```
 
@@ -523,8 +523,8 @@ deploy:
 logging:
   driver: json-file
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 ```
 
 ## Common Patterns
@@ -536,7 +536,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -544,7 +544,7 @@ services:
 
   app:
     expose:
-      - "3000"
+      - '3000'
 ```
 
 ### Database with Adminer
@@ -557,7 +557,7 @@ services:
   adminer:
     image: adminer:latest
     ports:
-      - "8080:8080"
+      - '8080:8080'
 ```
 
 ### Cache Layer
@@ -709,13 +709,13 @@ deploy:
 1. Create `compose.yaml`:
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   web:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./html:/usr/share/nginx/html
 ```

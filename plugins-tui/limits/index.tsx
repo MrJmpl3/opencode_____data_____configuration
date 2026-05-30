@@ -1,26 +1,24 @@
 /** @jsxImportSource @opentui/solid */
-import { createSignal, Show } from "solid-js";
-import type { TuiPluginModule, TuiPluginApi } from "@opencode-ai/plugin/tui";
+import { createSignal, Show } from 'solid-js';
+import type { TuiPluginModule, TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 // --- number formatting ---
 const fmt = (n: number): string => {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-  if (n >= 10_000) return Math.round(n / 1_000) + "K";
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + "K";
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 10_000) return Math.round(n / 1_000) + 'K';
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
   return String(n);
 };
 
 const detailLine = (text: string): string => `  ${text}`;
 
 // --- extract model info from the last message that carries it ---
-const getModelFromMessages = (
-  msgs: readonly any[],
-): { modelId: string; providerId: string } | null => {
+const getModelFromMessages = (msgs: readonly any[]): { modelId: string; providerId: string } | null => {
   for (let i = msgs.length - 1; i >= 0; i--) {
     const msg = msgs[i];
-    if (msg.role === "user" && msg.model?.modelID && msg.model?.providerID)
+    if (msg.role === 'user' && msg.model?.modelID && msg.model?.providerID)
       return { modelId: msg.model.modelID, providerId: msg.model.providerID };
-    if (msg.role === "assistant" && msg.modelID && msg.providerID)
+    if (msg.role === 'assistant' && msg.modelID && msg.providerID)
       return { modelId: msg.modelID, providerId: msg.providerID };
   }
   return null;
@@ -59,7 +57,7 @@ const View = (props: {
     const parts: string[] = [];
     if (props.contextLimit() > 0) parts.push(`Context ${fmt(props.contextLimit())}`);
     if (props.outputLimit() > 0) parts.push(`Output ${fmt(props.outputLimit())}`);
-    return parts.length > 0 ? [parts.join(" · ")] : [];
+    return parts.length > 0 ? [parts.join(' · ')] : [];
   };
   return (
     <box gap={0}>
@@ -97,22 +95,22 @@ const View = (props: {
 
 // --- plugin definition ---
 const plugin: TuiPluginModule & { id: string } = {
-  id: "limits",
+  id: 'limits',
 
   // --- tui() lifecycle ---
   tui: async (api) => {
     const { slots, event: evt, lifecycle } = api;
-    const [modelLabel, setModelLabel] = createSignal("");
+    const [modelLabel, setModelLabel] = createSignal('');
     const [contextLimit, setContextLimit] = createSignal(0);
     const [outputLimit, setOutputLimit] = createSignal(0);
     const [hasData, setHasData] = createSignal(false);
     let disposed = false;
-    let currentSessionId = "";
-    let resolvedSessionId = "";
+    let currentSessionId = '';
+    let resolvedSessionId = '';
     let retryTimer: any = null;
     let inFlightVersion = 0;
 
-    const REFRESH_EVENTS = ["tui.session.select", "session.idle"] as const;
+    const REFRESH_EVENTS = ['tui.session.select', 'session.idle'] as const;
 
     // --- apply a (providerId, modelId) pair ---
     const applyModel = (providerId: string, modelId: string) => {
@@ -173,13 +171,13 @@ const plugin: TuiPluginModule & { id: string } = {
       // 3. Last resort: show modelID from last message
       for (let i = msgs.length - 1; i >= 0; i--) {
         const m = msgs[i];
-        if (m.role === "user" && m.model?.modelID) {
+        if (m.role === 'user' && m.model?.modelID) {
           setModelLabel(m.model.modelID);
           setHasData(true);
           resolvedSessionId = sid;
           return;
         }
-        if (m.role === "assistant" && m.modelID) {
+        if (m.role === 'assistant' && m.modelID) {
           setModelLabel(m.modelID);
           setHasData(true);
           resolvedSessionId = sid;
@@ -196,7 +194,7 @@ const plugin: TuiPluginModule & { id: string } = {
       }
     };
 
-    const unsubModelSwitch = evt.on("session.next.model.switched" as any, (event: any) => {
+    const unsubModelSwitch = evt.on('session.next.model.switched' as any, (event: any) => {
       const props = event.properties || event;
       const m = props.model;
       const sid = props.sessionID || currentSessionId;
@@ -228,7 +226,7 @@ const plugin: TuiPluginModule & { id: string } = {
       order: 120,
       slots: {
         sidebar_content: (_ctx: any, slotInput: any) => {
-          const sid: string = slotInput?.session_id ?? "";
+          const sid: string = slotInput?.session_id ?? '';
           if (sid && sid !== currentSessionId) {
             clearTimeout(retryTimer);
             retryTimer = null;

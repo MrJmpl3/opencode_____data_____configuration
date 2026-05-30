@@ -126,11 +126,7 @@ function ResponsiveCard({ title, image, description }) {
   return (
     <div className="@container">
       <article className="flex flex-col @md:flex-row @md:gap-4">
-        <img
-          src={image}
-          alt=""
-          className="w-full @md:w-48 @lg:w-64 aspect-video @md:aspect-square object-cover"
-        />
+        <img src={image} alt="" className="w-full @md:w-48 @lg:w-64 aspect-video @md:aspect-square object-cover" />
         <div className="p-4 @md:p-0">
           <h2 className="text-lg @md:text-xl @lg:text-2xl font-semibold">{title}</h2>
           <p className="mt-2 text-muted-foreground @md:line-clamp-3">{description}</p>
@@ -196,7 +192,7 @@ const fluidTypeScale = {
   base: fluidValue(1, 1.125),
   lg: fluidValue(1.25, 1.5),
   xl: fluidValue(1.5, 2),
-  "2xl": fluidValue(2, 3),
+  '2xl': fluidValue(2, 3),
 };
 ```
 
@@ -221,10 +217,10 @@ const fluidTypeScale = {
 .page-layout {
   display: grid;
   grid-template-areas:
-    "header"
-    "main"
-    "sidebar"
-    "footer";
+    'header'
+    'main'
+    'sidebar'
+    'footer';
   gap: 1rem;
 }
 
@@ -232,9 +228,9 @@ const fluidTypeScale = {
   .page-layout {
     grid-template-columns: 1fr 300px;
     grid-template-areas:
-      "header header"
-      "main sidebar"
-      "footer footer";
+      'header header'
+      'main sidebar'
+      'footer footer';
   }
 }
 
@@ -242,9 +238,9 @@ const fluidTypeScale = {
   .page-layout {
     grid-template-columns: 250px 1fr 300px;
     grid-template-areas:
-      "header header header"
-      "nav main sidebar"
-      "footer footer footer";
+      'header header header'
+      'nav main sidebar'
+      'footer footer footer';
   }
 }
 
@@ -264,7 +260,7 @@ const fluidTypeScale = {
 
 ```tsx
 // Responsive grid component
-function ResponsiveGrid({ children, minItemWidth = "250px", gap = "1.5rem" }) {
+function ResponsiveGrid({ children, minItemWidth = '250px', gap = '1.5rem' }) {
   return (
     <div
       className="grid"
@@ -314,12 +310,12 @@ function ResponsiveNav({ items }) {
         id="nav-menu"
         className={cn(
           // Base: hidden on mobile
-          "absolute top-full left-0 right-0 bg-background border-b",
-          "flex flex-col",
+          'absolute top-full left-0 right-0 bg-background border-b',
+          'flex flex-col',
           // Mobile: slide down
-          isOpen ? "flex" : "hidden",
+          isOpen ? 'flex' : 'hidden',
           // Desktop: always visible, horizontal
-          "lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent",
+          'lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent',
         )}
       >
         {items.map((item) => (
@@ -327,9 +323,9 @@ function ResponsiveNav({ items }) {
             <a
               href={item.href}
               className={cn(
-                "block px-4 py-3",
-                "lg:px-3 lg:py-2",
-                "hover:bg-muted lg:hover:bg-transparent lg:hover:text-primary",
+                'block px-4 py-3',
+                'lg:px-3 lg:py-2',
+                'hover:bg-muted lg:hover:bg-transparent lg:hover:text-primary',
               )}
             >
               {item.label}

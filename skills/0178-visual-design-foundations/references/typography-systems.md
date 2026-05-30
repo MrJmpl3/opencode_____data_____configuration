@@ -79,8 +79,8 @@ const typeScale = generateScale(16, RATIOS.perfectFourth, 6);
 ```css
 /* Use font-display to control loading behavior */
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/Inter-Variable.woff2") format("woff2-variations");
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Variable.woff2') format('woff2-variations');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap; /* Show fallback immediately, swap when loaded */
@@ -88,8 +88,8 @@ const typeScale = generateScale(16, RATIOS.perfectFourth, 6);
 
 /* Optional: size-adjust for better fallback matching */
 @font-face {
-  font-family: "Inter Fallback";
-  src: local("Arial");
+  font-family: 'Inter Fallback';
+  src: local('Arial');
   size-adjust: 107%; /* Adjust to match Inter metrics */
   ascent-override: 90%;
   descent-override: 22%;
@@ -97,7 +97,7 @@ const typeScale = generateScale(16, RATIOS.perfectFourth, 6);
 }
 
 body {
-  font-family: "Inter", "Inter Fallback", system-ui, sans-serif;
+  font-family: 'Inter', 'Inter Fallback', system-ui, sans-serif;
 }
 ```
 
@@ -115,8 +115,8 @@ body {
 ```css
 /* Variable font with weight and width axes */
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/Inter-Variable.woff2") format("woff2");
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Variable.woff2') format('woff2');
   font-weight: 100 900;
   font-stretch: 75% 125%;
 }
@@ -124,8 +124,8 @@ body {
 /* Use font-variation-settings for fine control */
 .custom-weight {
   font-variation-settings:
-    "wght" 450,
-    "wdth" 95;
+    'wght' 450,
+    'wdth' 95;
 }
 
 /* Or use standard properties */
@@ -178,15 +178,15 @@ p {
 module.exports = {
   theme: {
     fontSize: {
-      xs: ["0.75rem", { lineHeight: "1rem" }],
-      sm: ["0.875rem", { lineHeight: "1.25rem" }],
-      base: ["1rem", { lineHeight: "1.5rem" }],
-      lg: ["1.125rem", { lineHeight: "1.75rem" }],
-      xl: ["1.25rem", { lineHeight: "1.75rem" }],
-      "2xl": ["1.5rem", { lineHeight: "2rem" }],
-      "3xl": ["1.875rem", { lineHeight: "2.25rem" }],
-      "4xl": ["2.25rem", { lineHeight: "2.5rem" }],
-      "5xl": ["3rem", { lineHeight: "1" }],
+      xs: ['0.75rem', { lineHeight: '1rem' }],
+      sm: ['0.875rem', { lineHeight: '1.25rem' }],
+      base: ['1rem', { lineHeight: '1.5rem' }],
+      lg: ['1.125rem', { lineHeight: '1.75rem' }],
+      xl: ['1.25rem', { lineHeight: '1.75rem' }],
+      '2xl': ['1.5rem', { lineHeight: '2rem' }],
+      '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+      '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+      '5xl': ['3rem', { lineHeight: '1' }],
     },
   },
 };
@@ -285,20 +285,20 @@ h3 {
 ```css
 /* Serif heading + Sans body */
 :root {
-  --font-heading: "Playfair Display", Georgia, serif;
-  --font-body: "Source Sans Pro", -apple-system, sans-serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Sans Pro', -apple-system, sans-serif;
 }
 
 /* Geometric heading + Humanist body */
 :root {
-  --font-heading: "Space Grotesk", sans-serif;
-  --font-body: "IBM Plex Sans", sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
 }
 
 /* Modern sans heading + Classic serif body */
 :root {
-  --font-heading: "Inter", system-ui, sans-serif;
-  --font-body: "Georgia", Times, serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Georgia', Times, serif;
 }
 ```
 
@@ -307,7 +307,7 @@ h3 {
 ```css
 /* Single variable font family for all uses */
 :root {
-  --font-family: "Inter", system-ui, sans-serif;
+  --font-family: 'Inter', system-ui, sans-serif;
 }
 
 h1 {
@@ -398,7 +398,7 @@ p {
   font-variant-numeric: tabular-nums lining-nums;
 
   /* Fractions */
-  font-feature-settings: "frac" 1;
+  font-feature-settings: 'frac' 1;
 }
 
 /* Tabular numbers for aligned columns */

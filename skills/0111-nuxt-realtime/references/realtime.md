@@ -17,7 +17,7 @@ NUXT_PUBLIC_ECHO_PORT=443
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ["nuxt-laravel-echo"],
+  modules: ['nuxt-laravel-echo'],
 
   runtimeConfig: {
     public: {
@@ -42,17 +42,17 @@ export default defineNuxtConfig({
 // app/constants/channels.ts
 
 // Collection channels
-export const Posts = "posts";
-export const Authors = "authors";
-export const Comments = "comments";
+export const Posts = 'posts';
+export const Authors = 'authors';
+export const Comments = 'comments';
 
 // Resource channels (with parameter)
-export const Post = "post.{post}";
-export const Author = "author.{author}";
-export const Conversation = "conversation.{conversation}";
+export const Post = 'post.{post}';
+export const Author = 'author.{author}';
+export const Conversation = 'conversation.{conversation}';
 
 // User-specific channels
-export const UserNotifications = "user.{user}.notifications";
+export const UserNotifications = 'user.{user}.notifications';
 ```
 
 ### Event Names
@@ -61,21 +61,21 @@ export const UserNotifications = "user.{user}.notifications";
 // app/constants/events.ts
 
 // Post events
-export const PostCreated = "PostCreated";
-export const PostUpdated = "PostUpdated";
-export const PostDeleted = "PostDeleted";
+export const PostCreated = 'PostCreated';
+export const PostUpdated = 'PostUpdated';
+export const PostDeleted = 'PostDeleted';
 
 // Comment events
-export const CommentCreated = "CommentCreated";
-export const CommentApproved = "CommentApproved";
-export const CommentRejected = "CommentRejected";
+export const CommentCreated = 'CommentCreated';
+export const CommentApproved = 'CommentApproved';
+export const CommentRejected = 'CommentRejected';
 
 // Conversation events
-export const MessageReceived = "MessageReceived";
-export const ConversationEnded = "ConversationEnded";
+export const MessageReceived = 'MessageReceived';
+export const ConversationEnded = 'ConversationEnded';
 
 // System events
-export const NotificationReceived = "NotificationReceived";
+export const NotificationReceived = 'NotificationReceived';
 ```
 
 ---
@@ -97,8 +97,8 @@ const {
 ### Basic Subscription
 
 ```typescript
-import { Posts, PostCreated, PostUpdated } from "~/constants/channels";
-import { PostCreated, PostUpdated } from "~/constants/events";
+import { Posts, PostCreated, PostUpdated } from '~/constants/channels';
+import { PostCreated, PostUpdated } from '~/constants/events';
 
 const { privateChannel } = useRealtime();
 
@@ -107,7 +107,7 @@ const channel = privateChannel(Posts);
 
 // Listen for single event
 channel.on(PostCreated, (event) => {
-  console.log("New post:", event.post);
+  console.log('New post:', event.post);
   refresh();
 });
 
@@ -120,7 +120,7 @@ channel.on([PostCreated, PostUpdated], (event) => {
 ### Channel with Parameter
 
 ```typescript
-import { Post, PostUpdated, PostDeleted } from "~/constants";
+import { Post, PostUpdated, PostDeleted } from '~/constants';
 
 // Channel with dynamic ID
 const channel = privateChannel(Post, post.ulid);
@@ -151,8 +151,8 @@ onUnmounted(() => {
 ```vue
 <!-- app/pages/posts/[ulid].vue -->
 <script lang="ts" setup>
-import { Post, PostUpdated, PostDeleted } from "~/constants/channels";
-import { PostUpdated, PostDeleted } from "~/constants/events";
+import { Post, PostUpdated, PostDeleted } from '~/constants/channels';
+import { PostUpdated, PostDeleted } from '~/constants/events';
 
 const route = useRoute();
 const router = useRouter();
@@ -175,8 +175,8 @@ channel.on(PostUpdated, () => {
 
 // Handle deletion
 channel.on(PostDeleted, () => {
-  flash.info("This post has been deleted");
-  router.push("/posts");
+  flash.info('This post has been deleted');
+  router.push('/posts');
 });
 
 // Cleanup on unmount
@@ -193,7 +193,7 @@ onUnmounted(() => {
 ```vue
 <!-- app/pages/posts/index.vue -->
 <script lang="ts" setup>
-import { Posts, PostCreated, PostUpdated, PostDeleted } from "~/constants";
+import { Posts, PostCreated, PostUpdated, PostDeleted } from '~/constants';
 
 // Query
 const getPostsQuery = getPostsQueryFactory();
@@ -212,15 +212,15 @@ privateChannel(Posts).on([PostCreated, PostUpdated, PostDeleted], refresh);
 
 ```typescript
 // app/composables/useRemainingTaskCount.ts
-import { Tasks, TaskCreated, TaskCompleted } from "~/constants";
+import { Tasks, TaskCreated, TaskCompleted } from '~/constants';
 
 export default function useRemainingTaskCount() {
-  const remainingTaskCount = useState<number>("remaining-task-count", () => 0);
-  const taskApi = useRepository("tasks");
+  const remainingTaskCount = useState<number>('remaining-task-count', () => 0);
+  const taskApi = useRepository('tasks');
   const { privateChannel } = useRealtime();
 
   const fetchTaskCount = async () => {
-    const { data } = await taskApi.list({ filter: { status: "pending" } });
+    const { data } = await taskApi.list({ filter: { status: 'pending' } });
     remainingTaskCount.value = data.length;
   };
 
@@ -246,26 +246,26 @@ For channels that track online users:
 const { presenceChannel } = useRealtime();
 
 // Join presence channel
-const channel = presenceChannel("room.{room}", roomId);
+const channel = presenceChannel('room.{room}', roomId);
 
 // Handle events
-channel.on("here", (users) => {
+channel.on('here', (users) => {
   // Initial list of users in channel
   onlineUsers.value = users;
 });
 
-channel.on("joining", (user) => {
+channel.on('joining', (user) => {
   // User joined
   onlineUsers.value.push(user);
 });
 
-channel.on("leaving", (user) => {
+channel.on('leaving', (user) => {
   // User left
   onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
 });
 
 // Listen for custom events too
-channel.on("MessageSent", (event) => {
+channel.on('MessageSent', (event) => {
   messages.value.push(event.message);
 });
 ```
@@ -280,8 +280,8 @@ const { privateChannel } = useRealtime();
 const channel = privateChannel(Posts);
 
 channel.error((error) => {
-  console.error("Channel error:", error);
-  flash.error("Real-time connection failed");
+  console.error('Channel error:', error);
+  flash.error('Real-time connection failed');
 });
 ```
 
@@ -314,7 +314,7 @@ privateChannel(Posts).on(PostCreated, ...)
 ### 3. Debounce Refreshes
 
 ```typescript
-import { useDebounceFn } from "@vueuse/core";
+import { useDebounceFn } from '@vueuse/core';
 
 const debouncedRefresh = useDebounceFn(refresh, 300);
 

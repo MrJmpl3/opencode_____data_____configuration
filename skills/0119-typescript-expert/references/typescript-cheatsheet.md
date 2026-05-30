@@ -4,7 +4,7 @@
 
 ```typescript
 // Primitives
-const name: string = "John";
+const name: string = 'John';
 const age: number = 30;
 const isActive: boolean = true;
 const nothing: null = null;
@@ -12,23 +12,23 @@ const notDefined: undefined = undefined;
 
 // Arrays
 const numbers: number[] = [1, 2, 3];
-const strings: Array<string> = ["a", "b", "c"];
+const strings: Array<string> = ['a', 'b', 'c'];
 
 // Tuple
-const tuple: [string, number] = ["hello", 42];
+const tuple: [string, number] = ['hello', 42];
 
 // Object
-const user: { name: string; age: number } = { name: "John", age: 30 };
+const user: { name: string; age: number } = { name: 'John', age: 30 };
 
 // Union
-const value: string | number = "hello";
+const value: string | number = 'hello';
 
 // Literal
-const direction: "up" | "down" | "left" | "right" = "up";
+const direction: 'up' | 'down' | 'left' | 'right' = 'up';
 
 // Any vs Unknown
-const anyValue: any = "anything"; // ❌ Avoid
-const unknownValue: unknown = "safe"; // ✅ Prefer, requires narrowing
+const anyValue: any = 'anything'; // ❌ Avoid
+const unknownValue: unknown = 'safe'; // ✅ Prefer, requires narrowing
 ```
 
 ## Type Aliases & Interfaces
@@ -108,10 +108,10 @@ type RequiredUser = Required<User>;
 type ReadonlyUser = Readonly<User>;
 
 // Pick - select properties
-type UserName = Pick<User, "id" | "name">;
+type UserName = Pick<User, 'id' | 'name'>;
 
 // Omit - exclude properties
-type UserWithoutEmail = Omit<User, "email">;
+type UserWithoutEmail = Omit<User, 'email'>;
 
 // Record - key-value map
 type UserMap = Record<string, User>;
@@ -129,7 +129,7 @@ type DefinitelyString = NonNullable<MaybeString>;
 
 // ReturnType - get function return type
 function getUser() {
-  return { name: "John" };
+  return { name: 'John' };
 }
 type UserReturn = ReturnType<typeof getUser>;
 
@@ -160,15 +160,15 @@ type ToArrayNonDist<T> = [T] extends [any] ? T[] : never;
 ## Template Literal Types
 
 ```typescript
-type Color = "red" | "green" | "blue";
-type Size = "small" | "medium" | "large";
+type Color = 'red' | 'green' | 'blue';
+type Size = 'small' | 'medium' | 'large';
 
 // Combine
 type ColorSize = `${Color}-${Size}`;
 // 'red-small' | 'red-medium' | 'red-large' | ...
 
 // Event handlers
-type EventName = "click" | "focus" | "blur";
+type EventName = 'click' | 'focus' | 'blur';
 type EventHandler = `on${Capitalize<EventName>}`;
 // 'onClick' | 'onFocus' | 'onBlur'
 ```
@@ -197,7 +197,7 @@ type OnlyStrings<T> = {
 ```typescript
 // typeof guard
 function process(value: string | number) {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return value.toUpperCase(); // string
   }
   return value.toFixed(2); // number
@@ -228,7 +228,7 @@ interface Fish {
 }
 
 function move(animal: Bird | Fish) {
-  if ("fly" in animal) {
+  if ('fly' in animal) {
     animal.fly();
   } else {
     animal.swim();
@@ -237,13 +237,13 @@ function move(animal: Bird | Fish) {
 
 // Custom type guard
 function isString(value: unknown): value is string {
-  return typeof value === "string";
+  return typeof value === 'string';
 }
 
 // Assertion function
 function assertIsString(value: unknown): asserts value is string {
-  if (typeof value !== "string") {
-    throw new Error("Not a string");
+  if (typeof value !== 'string') {
+    throw new Error('Not a string');
   }
 }
 ```
@@ -252,19 +252,19 @@ function assertIsString(value: unknown): asserts value is string {
 
 ```typescript
 // With type discriminant
-type Success<T> = { type: "success"; data: T };
-type Error = { type: "error"; message: string };
-type Loading = { type: "loading" };
+type Success<T> = { type: 'success'; data: T };
+type Error = { type: 'error'; message: string };
+type Loading = { type: 'loading' };
 
 type State<T> = Success<T> | Error | Loading;
 
 function handle<T>(state: State<T>) {
   switch (state.type) {
-    case "success":
+    case 'success':
       return state.data; // T
-    case "error":
+    case 'error':
       return state.message; // string
-    case "loading":
+    case 'loading':
       return null;
   }
 }
@@ -281,8 +281,8 @@ function assertNever(value: never): never {
 // Create branded type
 type Brand<K, T> = K & { __brand: T };
 
-type UserId = Brand<string, "UserId">;
-type OrderId = Brand<string, "OrderId">;
+type UserId = Brand<string, 'UserId'>;
+type OrderId = Brand<string, 'OrderId'>;
 
 // Constructor functions
 function createUserId(id: string): UserId {
@@ -296,8 +296,8 @@ function createOrderId(id: string): OrderId {
 // Usage - prevents mixing
 function getOrder(orderId: OrderId, userId: UserId) {}
 
-const userId = createUserId("user-123");
-const orderId = createOrderId("order-456");
+const userId = createUserId('user-123');
+const orderId = createOrderId('order-456');
 
 getOrder(orderId, userId); // ✅ OK
 // getOrder(userId, orderId)  // ❌ Error - types don't match
@@ -307,13 +307,13 @@ getOrder(orderId, userId); // ✅ OK
 
 ```typescript
 // Declare module for untyped package
-declare module "untyped-package" {
+declare module 'untyped-package' {
   export function doSomething(): void;
   export const value: string;
 }
 
 // Augment existing module
-declare module "express" {
+declare module 'express' {
   interface Request {
     user?: { id: string };
   }
@@ -368,16 +368,16 @@ interface User {
 }
 
 // ✅ Use const assertions
-const routes = ["home", "about"] as const;
+const routes = ['home', 'about'] as const;
 
 // ✅ Use satisfies for validation
 const config = {
-  api: "https://api.example.com",
+  api: 'https://api.example.com',
 } satisfies Record<string, string>;
 
 // ✅ Use unknown over any
 function parse(input: unknown) {
-  if (typeof input === "string") {
+  if (typeof input === 'string') {
     return JSON.parse(input);
   }
 }

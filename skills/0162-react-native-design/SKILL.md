@@ -106,26 +106,26 @@ const styles = StyleSheet.create({
 const styles = StyleSheet.create({
   // Vertical stack (column)
   column: {
-    flexDirection: "column",
+    flexDirection: 'column',
     gap: 12,
   },
   // Horizontal stack (row)
   row: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   // Space between items
   spaceBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   // Centered content
   centered: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   // Fill remaining space
   fill: {
@@ -297,14 +297,14 @@ function DraggableCard() {
 ### 5. Platform-Specific Styling
 
 ```typescript
-import { Platform, StyleSheet } from "react-native";
+import { Platform, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -315,14 +315,14 @@ const styles = StyleSheet.create({
     }),
   },
   text: {
-    fontFamily: Platform.OS === "ios" ? "SF Pro Text" : "Roboto",
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'Roboto',
     fontSize: 16,
   },
 });
 
 // Platform-specific components
-import { Platform } from "react-native";
-const StatusBarHeight = Platform.OS === "ios" ? 44 : 0;
+import { Platform } from 'react-native';
+const StatusBarHeight = Platform.OS === 'ios' ? 44 : 0;
 ```
 
 ## Quick Start Component

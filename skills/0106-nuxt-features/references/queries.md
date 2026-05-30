@@ -18,14 +18,14 @@ useFilterQuery(key, fetcher, filters);
 
 ```typescript
 // app/features/posts/queries/get-post-query.ts
-import type { MaybeRef } from "vue";
+import type { MaybeRef } from 'vue';
 
 export default function getPostQueryFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
 
   return (ulid: MaybeRef<string>) => {
     return useQuery(`post-${toValue(ulid)}`, () => {
-      const params = useJsonSpec().include("author", "comments", "tags").build();
+      const params = useJsonSpec().include('author', 'comments', 'tags').build();
 
       return postApi.get(toValue(ulid), params);
     });
@@ -50,27 +50,27 @@ post.value?.data.author.name;
 
 ```typescript
 // app/features/posts/queries/get-posts-query.ts
-import type { Filters } from "#layers/base/app/types";
-import type { MaybeRef } from "vue";
-import { KebabCase } from "#layers/base/app/utils";
+import type { Filters } from '#layers/base/app/types';
+import type { MaybeRef } from 'vue';
+import { KebabCase } from '#layers/base/app/utils';
 
 // Define filter interface
-export interface GetPostsFilters extends Pick<Filters, "page" | "size" | "search"> {
+export interface GetPostsFilters extends Pick<Filters, 'page' | 'size' | 'search'> {
   status?: string;
   isDraft?: boolean;
 }
 
 export default function getPostsQueryFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
 
   return (filters: MaybeRef<GetPostsFilters>) => {
     return useFilterQuery(
-      "posts",
+      'posts',
       () => {
         // Build JSON:API spec params
         const params = useJsonSpec()
           .filters(filters, KebabCase) // Apply filters
-          .include("author", "tags") // Include relations
+          .include('author', 'tags') // Include relations
           .build();
 
         return postApi.list(params);
@@ -97,7 +97,7 @@ const getPostsQuery = getPostsQueryFactory();
 const { data: posts, refresh, isLoading, isFetching, pagination } = getPostsQuery(filters);
 
 // Data auto-refetches when filters change
-filters.status = "published"; // Triggers refetch
+filters.status = 'published'; // Triggers refetch
 filters.page = 2; // Triggers refetch
 ```
 
@@ -113,16 +113,16 @@ const params = useJsonSpec()
   .filters(filters, KebabCase)
 
   // Include relations
-  .include("author", "comments")
+  .include('author', 'comments')
 
   // Or include as array
-  .include(["author", "comments"])
+  .include(['author', 'comments'])
 
   // Sort
-  .sort("-created_at", "title")
+  .sort('-created_at', 'title')
 
   // Sparse fieldsets
-  .fields("posts", ["ulid", "title", "created_at"])
+  .fields('posts', ['ulid', 'title', 'created_at'])
 
   // Build final params object
   .build();
@@ -177,18 +177,18 @@ pagination: {
 
 ```typescript
 // app/features/posts/queries/get-posts-by-author-query.ts
-export interface GetPostsByAuthorFilters extends Pick<Filters, "page" | "size"> {
+export interface GetPostsByAuthorFilters extends Pick<Filters, 'page' | 'size'> {
   status?: string;
 }
 
 export default function getPostsByAuthorQueryFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
 
   return (authorUlid: MaybeRef<string>, filters: MaybeRef<GetPostsByAuthorFilters>) => {
     return useFilterQuery(
       `posts-by-author-${toValue(authorUlid)}`,
       () => {
-        const params = useJsonSpec().filters(filters, KebabCase).include("tags").build();
+        const params = useJsonSpec().filters(filters, KebabCase).include('tags').build();
 
         return postApi.listByAuthor(toValue(authorUlid), params);
       },
@@ -202,16 +202,16 @@ export default function getPostsByAuthorQueryFactory() {
 
 ```typescript
 // app/features/users/queries/get-users-query.ts
-export interface GetUsersFilters extends Pick<Filters, "page" | "size" | "search"> {}
+export interface GetUsersFilters extends Pick<Filters, 'page' | 'size' | 'search'> {}
 
 export default function getUsersQueryFactory() {
-  const userApi = useRepository("users");
+  const userApi = useRepository('users');
 
   return (filters: MaybeRef<GetUsersFilters>) => {
     return useFilterQuery(
-      "users",
+      'users',
       () => {
-        const params = useJsonSpec().filters(filters, KebabCase).include("posts").build();
+        const params = useJsonSpec().filters(filters, KebabCase).include('posts').build();
 
         return userApi.list(params);
       },
@@ -225,19 +225,19 @@ export default function getUsersQueryFactory() {
 
 ```typescript
 // app/features/comments/queries/get-comments-query.ts
-export interface GetCommentsFilters extends Pick<Filters, "page" | "size"> {
+export interface GetCommentsFilters extends Pick<Filters, 'page' | 'size'> {
   status?: string;
   approved?: boolean;
 }
 
 export default function getCommentsQueryFactory() {
-  const commentApi = useRepository("comments");
+  const commentApi = useRepository('comments');
 
   return (filters: MaybeRef<GetCommentsFilters>) => {
     return useFilterQuery(
-      "comments",
+      'comments',
       () => {
-        const params = useJsonSpec().filters(filters, KebabCase).sort("-created_at").build();
+        const params = useJsonSpec().filters(filters, KebabCase).sort('-created_at').build();
 
         return commentApi.list(params);
       },
@@ -253,9 +253,7 @@ export default function getCommentsQueryFactory() {
 
 ```vue
 <script lang="ts" setup>
-import getPostsQueryFactory, {
-  type GetPostsFilters,
-} from "~/features/posts/queries/get-posts-query";
+import getPostsQueryFactory, { type GetPostsFilters } from '~/features/posts/queries/get-posts-query';
 
 // Set up filters
 const { filters, hasFilters, resetFilters } = useReactiveFilters<GetPostsFilters>(

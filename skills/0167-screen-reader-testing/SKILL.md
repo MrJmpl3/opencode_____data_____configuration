@@ -372,10 +372,10 @@ function openModal(modal) {
   lastFocus = document.activeElement;
 
   // Move focus to modal
-  modal.querySelector("h2").focus();
+  modal.querySelector('h2').focus();
 
   // Trap focus
-  modal.addEventListener("keydown", trapFocus);
+  modal.addEventListener('keydown', trapFocus);
 }
 
 function closeModal(modal) {
@@ -384,7 +384,7 @@ function closeModal(modal) {
 }
 
 function trapFocus(e) {
-  if (e.key === "Tab") {
+  if (e.key === 'Tab') {
     const focusable = modal.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
@@ -400,7 +400,7 @@ function trapFocus(e) {
     }
   }
 
-  if (e.key === "Escape") {
+  if (e.key === 'Escape') {
     closeModal(modal);
   }
 }
@@ -420,13 +420,7 @@ function trapFocus(e) {
 </div>
 
 <!-- Progress updates -->
-<div
-  role="progressbar"
-  aria-valuenow="75"
-  aria-valuemin="0"
-  aria-valuemax="100"
-  aria-label="Upload progress"
-></div>
+<div role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress"></div>
 
 <!-- Log (additions only) -->
 <div role="log" aria-live="polite" aria-relevant="additions">
@@ -439,9 +433,7 @@ function trapFocus(e) {
 ```html
 <div role="tablist" aria-label="Product information">
   <button role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">Description</button>
-  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">
-    Reviews
-  </button>
+  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">Reviews</button>
 </div>
 
 <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">Product description content...</div>
@@ -451,22 +443,22 @@ function trapFocus(e) {
 
 ```javascript
 // Tab keyboard navigation
-tablist.addEventListener("keydown", (e) => {
+tablist.addEventListener('keydown', (e) => {
   const tabs = [...tablist.querySelectorAll('[role="tab"]')];
   const index = tabs.indexOf(document.activeElement);
 
   let newIndex;
   switch (e.key) {
-    case "ArrowRight":
+    case 'ArrowRight':
       newIndex = (index + 1) % tabs.length;
       break;
-    case "ArrowLeft":
+    case 'ArrowLeft':
       newIndex = (index - 1 + tabs.length) % tabs.length;
       break;
-    case "Home":
+    case 'Home':
       newIndex = 0;
       break;
-    case "End":
+    case 'End':
       newIndex = tabs.length - 1;
       break;
     default:
@@ -486,18 +478,15 @@ tablist.addEventListener("keydown", (e) => {
 function logAccessibleName(element) {
   const computed = window.getComputedStyle(element);
   console.log({
-    role: element.getAttribute("role") || element.tagName,
-    name:
-      element.getAttribute("aria-label") ||
-      element.getAttribute("aria-labelledby") ||
-      element.textContent,
+    role: element.getAttribute('role') || element.tagName,
+    name: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent,
     state: {
-      expanded: element.getAttribute("aria-expanded"),
-      selected: element.getAttribute("aria-selected"),
-      checked: element.getAttribute("aria-checked"),
+      expanded: element.getAttribute('aria-expanded'),
+      selected: element.getAttribute('aria-selected'),
+      checked: element.getAttribute('aria-checked'),
       disabled: element.disabled,
     },
-    visible: computed.display !== "none" && computed.visibility !== "hidden",
+    visible: computed.display !== 'none' && computed.visibility !== 'hidden',
   });
 }
 ```

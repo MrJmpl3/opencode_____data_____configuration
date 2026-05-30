@@ -29,7 +29,7 @@ export default function create{Entity}MutationFactory() {
 
 ```typescript
 // app/features/posts/mutations/create-post-mutation.ts
-import type Post from "~/models/Post";
+import type Post from '~/models/Post';
 
 export type CreatePostData = {
   title: string;
@@ -40,7 +40,7 @@ export type CreatePostData = {
 };
 
 export default function createPostMutationFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
   const { start, stop, waitingFor } = useWait();
 
   return async (data: CreatePostData): Promise<Post> => {
@@ -59,7 +59,7 @@ export default function createPostMutationFactory() {
 
 ```typescript
 // app/features/posts/mutations/update-post-mutation.ts
-import type Post from "~/models/Post";
+import type Post from '~/models/Post';
 
 export type UpdatePostData = Partial<{
   title: string;
@@ -69,7 +69,7 @@ export type UpdatePostData = Partial<{
 }>;
 
 export default function updatePostMutationFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
   const { start, stop, waitingFor } = useWait();
 
   return async (ulid: string, data: UpdatePostData): Promise<Post> => {
@@ -89,7 +89,7 @@ export default function updatePostMutationFactory() {
 ```typescript
 // app/features/posts/mutations/delete-post-mutation.ts
 export default function deletePostMutationFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
   const { start, stop, waitingFor } = useWait();
 
   return async (ulid: string): Promise<void> => {
@@ -156,10 +156,10 @@ const isCreating = is(waitingFor.posts.creating)
 
 ```typescript
 // app/features/comments/mutations/create-comment-for-post-mutation.ts
-import type Comment from "~/models/Comment";
+import type Comment from '~/models/Comment';
 
 export default function createCommentForPostMutationFactory() {
-  const commentApi = useRepository("comments");
+  const commentApi = useRepository('comments');
   const { start, stop, waitingFor } = useWait();
 
   return async (postUlid: string, content: string): Promise<Comment> => {
@@ -182,11 +182,11 @@ export default function createCommentForPostMutationFactory() {
 
 ```typescript
 // app/features/posts/mutations/create-post-with-image-mutation.ts
-import type Post from "~/models/Post";
+import type Post from '~/models/Post';
 
 export default function createPostWithImageMutationFactory() {
-  const postApi = useRepository("posts");
-  const imageApi = useRepository("images");
+  const postApi = useRepository('posts');
+  const imageApi = useRepository('images');
   const { start, stop, waitingFor } = useWait();
 
   return async (data: CreatePostData, imageFile?: File): Promise<Post> => {
@@ -269,7 +269,7 @@ return async (data: CreatePostData): Promise<Post | null> => {
     const { data: post } = await postApi.create(data);
     return post;
   } catch (error) {
-    console.error("Failed:", error); // Don't do this
+    console.error('Failed:', error); // Don't do this
     return null;
   } finally {
     stop(waitingFor.posts.creating);

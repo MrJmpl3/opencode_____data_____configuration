@@ -15,20 +15,20 @@ Data tables with column builder pattern and XTable component.
 
 ```typescript
 // app/tables/posts.ts
-import { h } from "vue";
-import type { TableColumn } from "@tanstack/vue-table";
+import { h } from 'vue';
+import type { TableColumn } from '@tanstack/vue-table';
 
 const statusColumn: TableColumn<Post> = {
-  id: "status",
-  accessorKey: "status",
-  header: "Status",
+  id: 'status',
+  accessorKey: 'status',
+  header: 'Status',
   cell: ({ row }) =>
     h(
       UBadge,
       {
-        color: row.getValue("status").color(),
+        color: row.getValue('status').color(),
       },
-      () => row.getValue("status").text,
+      () => row.getValue('status').text,
     ),
 };
 
@@ -41,8 +41,8 @@ export const postsColumnBuilder = createColumnBuilder<Post>({
 
 // Usage
 const columns = postsColumnBuilder.all();
-const columns = postsColumnBuilder.build(["ulid", "status"]);
-const columns = postsColumnBuilder.except(["dates"]);
+const columns = postsColumnBuilder.build(['ulid', 'status']);
+const columns = postsColumnBuilder.except(['dates']);
 ```
 
 ## XTable Usage
@@ -63,8 +63,8 @@ const columns = postsColumnBuilder.except(["dates"]);
 
 ```typescript
 const rowActions = computed(() => (row: Row<Post>) => [
-  { label: "View", to: `/posts/${row.original.ulid}` },
-  { label: "Edit", onSelect: () => openEdit(row.original) },
-  { label: "Delete", onSelect: () => handleDelete(row.original) },
+  { label: 'View', to: `/posts/${row.original.ulid}` },
+  { label: 'Edit', onSelect: () => openEdit(row.original) },
+  { label: 'Delete', onSelect: () => handleDelete(row.original) },
 ]);
 ```

@@ -1,25 +1,25 @@
 /** @jsxImportSource @opentui/solid */
-import { createSignal, Show } from "solid-js";
-import type { TuiPluginModule, TuiPluginApi } from "@opencode-ai/plugin/tui";
+import { createSignal, Show } from 'solid-js';
+import type { TuiPluginModule, TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 // Cache sidebar plugin for OpenCode TUI.
 // Shows hit ratio, tokens saved by reads, input/output totals,
 // and cache writes (when the provider reports them).
 // --- number formatting helpers ---
 const fmt = (n: number): string => {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-  if (n >= 10_000) return Math.round(n / 1_000) + "K";
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + "K";
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 10_000) return Math.round(n / 1_000) + 'K';
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
   return String(n);
 };
 
 const detailLine = (text: string): string => `  ${text}`;
 
 // Coerce unknown to a finite number, defaulting to 0.
-const num = (v: unknown): number => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 
 // Clamp ratio to [0,1] and show as integer percentage.
-const pct = (ratio: number): string => Math.round(Math.max(0, Math.min(1, ratio)) * 100) + "%";
+const pct = (ratio: number): string => Math.round(Math.max(0, Math.min(1, ratio)) * 100) + '%';
 
 // --- View: renders cache stats in the sidebar ---
 const View = (props: {
@@ -73,7 +73,7 @@ const View = (props: {
 
 // --- plugin definition ---
 const plugin: TuiPluginModule & { id: string } = {
-  id: "cache",
+  id: 'cache',
 
   // --- tui() lifecycle: signals, events, refresh ---
   tui: async (api) => {
@@ -85,12 +85,12 @@ const plugin: TuiPluginModule & { id: string } = {
     const [output, setOutput] = createSignal(0);
     const [inp, setInp] = createSignal(0);
     let disposed = false;
-    let currentSessionId = "";
+    let currentSessionId = '';
     let retryTimer: any = null;
     let inFlightVersion = 0;
     // Refresh immediately on session switch; re-accumulate on session idle
-    const IMMEDIATE_REFRESH_EVENTS = ["tui.session.select"];
-    const COMPLETION_REFRESH_EVENTS = ["session.idle"];
+    const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'];
+    const COMPLETION_REFRESH_EVENTS = ['session.idle'];
 
     // --- refresh(): accumulate tokens across all messages ---
     const refresh = (sessionId?: string) => {
@@ -118,7 +118,7 @@ const plugin: TuiPluginModule & { id: string } = {
 
       // Sum cache and token metrics across assistant messages
       for (const msg of msgs) {
-        if (msg.role !== "assistant") continue;
+        if (msg.role !== 'assistant') continue;
         inpAcc += num(msg.tokens?.input);
         outAcc += num(msg.tokens?.output);
         r += num(msg.tokens?.cache?.read);
@@ -130,7 +130,7 @@ const plugin: TuiPluginModule & { id: string } = {
       // the aggregated message object. This loop catches that edge case.
       if (w === 0 && r > 0) {
         for (const msg of msgs) {
-          if (msg.role !== "assistant") continue;
+          if (msg.role !== 'assistant') continue;
           for (const part of api.state.part(msg.id)) {
             if ((part as any).tokens?.cache?.write) {
               w += num((part as any).tokens.cache.write);
@@ -191,7 +191,7 @@ const plugin: TuiPluginModule & { id: string } = {
       order: 140,
       slots: {
         sidebar_content: (_ctx: any, slotInput: any) => {
-          const sid: string = slotInput?.session_id ?? "";
+          const sid: string = slotInput?.session_id ?? '';
           if (sid && sid !== currentSessionId) {
             clearTimeout(retryTimer);
             retryTimer = null;
@@ -201,15 +201,7 @@ const plugin: TuiPluginModule & { id: string } = {
             refresh(sid);
           }
           return (
-            <View
-              hasData={hasData}
-              ratio={ratio}
-              read={read}
-              write={write}
-              input={inp}
-              output={output}
-              api={api}
-            />
+            <View hasData={hasData} ratio={ratio} read={read} write={write} input={inp} output={output} api={api} />
           );
         },
       },

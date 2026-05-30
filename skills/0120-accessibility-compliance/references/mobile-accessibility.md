@@ -35,7 +35,7 @@ Mobile accessibility ensures apps work for users with disabilities on iOS and An
 function ButtonGroup({ buttons }) {
   return (
     <div className="flex gap-3">
-      {" "}
+      {' '}
       {/* 12px minimum gap */}
       {buttons.map((btn) => (
         <button key={btn.id} className="min-w-[44px] min-h-[44px] px-4 py-2">
@@ -65,7 +65,7 @@ function IconButton({ icon, label, onClick }) {
 ### React Native Accessibility Props
 
 ```tsx
-import { View, Text, TouchableOpacity, AccessibilityInfo } from "react-native";
+import { View, Text, TouchableOpacity, AccessibilityInfo } from 'react-native';
 
 // Basic accessible button
 function AccessibleButton({ onPress, title, hint }) {
@@ -90,15 +90,15 @@ function ProductCard({ product }) {
       accessibilityLabel={`${product.name}, ${product.price}, ${product.rating} stars`}
       accessibilityRole="button"
       accessibilityActions={[
-        { name: "activate", label: "View details" },
-        { name: "addToCart", label: "Add to cart" },
+        { name: 'activate', label: 'View details' },
+        { name: 'addToCart', label: 'Add to cart' },
       ]}
       onAccessibilityAction={(event) => {
         switch (event.nativeEvent.actionName) {
-          case "addToCart":
+          case 'addToCart':
             addToCart(product);
             break;
-          case "activate":
+          case 'activate':
             viewDetails(product);
             break;
         }
@@ -355,9 +355,9 @@ function SwipeableCard({ item, onDelete }) {
   return (
     <View
       accessible={true}
-      accessibilityActions={[{ name: "delete", label: "Delete item" }]}
+      accessibilityActions={[{ name: 'delete', label: 'Delete item' }]}
       onAccessibilityAction={(event) => {
-        if (event.nativeEvent.actionName === "delete") {
+        if (event.nativeEvent.actionName === 'delete') {
           onDelete(item);
         }
       }}
@@ -376,7 +376,7 @@ function SwipeableCard({ item, onDelete }) {
       <TouchableOpacity
         accessibilityLabel={`Delete ${item.title}`}
         onPress={() => onDelete(item)}
-        style={{ position: "absolute", right: 0 }}
+        style={{ position: 'absolute', right: 0 }}
       >
         <Text>Delete</Text>
       </TouchableOpacity>
@@ -389,7 +389,7 @@ function SwipeableCard({ item, onDelete }) {
 
 ```tsx
 // Respect reduced motion preference
-import { AccessibilityInfo } from "react-native";
+import { AccessibilityInfo } from 'react-native';
 
 function AnimatedComponent() {
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -397,7 +397,7 @@ function AnimatedComponent() {
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
 
-    const subscription = AccessibilityInfo.addEventListener("reduceMotionChanged", setReduceMotion);
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
 
     return () => subscription.remove();
   }, []);

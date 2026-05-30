@@ -26,14 +26,14 @@ Comprehensive guide for implementing robust testing strategies in JavaScript/Typ
 
 ```typescript
 // jest.config.ts
-import type { Config } from "jest";
+import type { Config } from 'jest';
 
 const config: Config = {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  roots: ["<rootDir>/src"],
-  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
-  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/**/*.interface.ts"],
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src'],
+  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/**/*.interface.ts'],
   coverageThreshold: {
     global: {
       branches: 80,
@@ -42,7 +42,7 @@ const config: Config = {
       statements: 80,
     },
   },
-  setupFilesAfterEnv: ["<rootDir>/src/test/setup.ts"],
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
 };
 
 export default config;
@@ -54,18 +54,18 @@ export default config;
 
 ```typescript
 // vitest.config.ts
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: "node",
+    environment: 'node',
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-      exclude: ["**/*.d.ts", "**/*.config.ts", "**/dist/**"],
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['**/*.d.ts', '**/*.config.ts', '**/dist/**'],
     },
-    setupFiles: ["./src/test/setup.ts"],
+    setupFiles: ['./src/test/setup.ts'],
   },
 });
 ```
@@ -82,42 +82,42 @@ export function add(a: number, b: number): number {
 
 export function divide(a: number, b: number): number {
   if (b === 0) {
-    throw new Error("Division by zero");
+    throw new Error('Division by zero');
   }
   return a / b;
 }
 
 // utils/calculator.test.ts
-import { describe, it, expect } from "vitest";
-import { add, divide } from "./calculator";
+import { describe, it, expect } from 'vitest';
+import { add, divide } from './calculator';
 
-describe("Calculator", () => {
-  describe("add", () => {
-    it("should add two positive numbers", () => {
+describe('Calculator', () => {
+  describe('add', () => {
+    it('should add two positive numbers', () => {
       expect(add(2, 3)).toBe(5);
     });
 
-    it("should add negative numbers", () => {
+    it('should add negative numbers', () => {
       expect(add(-2, -3)).toBe(-5);
     });
 
-    it("should handle zero", () => {
+    it('should handle zero', () => {
       expect(add(0, 5)).toBe(5);
       expect(add(5, 0)).toBe(5);
     });
   });
 
-  describe("divide", () => {
-    it("should divide two numbers", () => {
+  describe('divide', () => {
+    it('should divide two numbers', () => {
       expect(divide(10, 2)).toBe(5);
     });
 
-    it("should handle decimal results", () => {
+    it('should handle decimal results', () => {
       expect(divide(5, 2)).toBe(2.5);
     });
 
-    it("should throw error when dividing by zero", () => {
-      expect(() => divide(10, 0)).toThrow("Division by zero");
+    it('should throw error when dividing by zero', () => {
+      expect(() => divide(10, 0)).toThrow('Division by zero');
     });
   });
 });
@@ -132,7 +132,7 @@ export class UserService {
 
   create(user: User): User {
     if (this.users.has(user.id)) {
-      throw new Error("User already exists");
+      throw new Error('User already exists');
     }
     this.users.set(user.id, user);
     return user;
@@ -145,7 +145,7 @@ export class UserService {
   update(id: string, updates: Partial<User>): User {
     const user = this.users.get(id);
     if (!user) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
     const updated = { ...user, ...updates };
     this.users.set(id, updated);
@@ -158,46 +158,46 @@ export class UserService {
 }
 
 // services/user.service.test.ts
-import { describe, it, expect, beforeEach } from "vitest";
-import { UserService } from "./user.service";
+import { describe, it, expect, beforeEach } from 'vitest';
+import { UserService } from './user.service';
 
-describe("UserService", () => {
+describe('UserService', () => {
   let service: UserService;
 
   beforeEach(() => {
     service = new UserService();
   });
 
-  describe("create", () => {
-    it("should create a new user", () => {
-      const user = { id: "1", name: "John", email: "john@example.com" };
+  describe('create', () => {
+    it('should create a new user', () => {
+      const user = { id: '1', name: 'John', email: 'john@example.com' };
       const created = service.create(user);
 
       expect(created).toEqual(user);
-      expect(service.findById("1")).toEqual(user);
+      expect(service.findById('1')).toEqual(user);
     });
 
-    it("should throw error if user already exists", () => {
-      const user = { id: "1", name: "John", email: "john@example.com" };
+    it('should throw error if user already exists', () => {
+      const user = { id: '1', name: 'John', email: 'john@example.com' };
       service.create(user);
 
-      expect(() => service.create(user)).toThrow("User already exists");
+      expect(() => service.create(user)).toThrow('User already exists');
     });
   });
 
-  describe("update", () => {
-    it("should update existing user", () => {
-      const user = { id: "1", name: "John", email: "john@example.com" };
+  describe('update', () => {
+    it('should update existing user', () => {
+      const user = { id: '1', name: 'John', email: 'john@example.com' };
       service.create(user);
 
-      const updated = service.update("1", { name: "Jane" });
+      const updated = service.update('1', { name: 'Jane' });
 
-      expect(updated.name).toBe("Jane");
-      expect(updated.email).toBe("john@example.com");
+      expect(updated.name).toBe('Jane');
+      expect(updated.email).toBe('john@example.com');
     });
 
-    it("should throw error if user not found", () => {
-      expect(() => service.update("999", { name: "Jane" })).toThrow("User not found");
+    it('should throw error if user not found', () => {
+      expect(() => service.update('999', { name: 'Jane' })).toThrow('User not found');
     });
   });
 });
@@ -211,15 +211,15 @@ export class ApiService {
   async fetchUser(id: string): Promise<User> {
     const response = await fetch(`https://api.example.com/users/${id}`);
     if (!response.ok) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
     return response.json();
   }
 
   async createUser(user: CreateUserDTO): Promise<User> {
-    const response = await fetch("https://api.example.com/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('https://api.example.com/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user),
     });
     return response.json();
@@ -227,13 +227,13 @@ export class ApiService {
 }
 
 // services/api.service.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ApiService } from "./api.service";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ApiService } from './api.service';
 
 // Mock fetch globally
 global.fetch = vi.fn();
 
-describe("ApiService", () => {
+describe('ApiService', () => {
   let service: ApiService;
 
   beforeEach(() => {
@@ -241,34 +241,34 @@ describe("ApiService", () => {
     vi.clearAllMocks();
   });
 
-  describe("fetchUser", () => {
-    it("should fetch user successfully", async () => {
-      const mockUser = { id: "1", name: "John", email: "john@example.com" };
+  describe('fetchUser', () => {
+    it('should fetch user successfully', async () => {
+      const mockUser = { id: '1', name: 'John', email: 'john@example.com' };
 
       (fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => mockUser,
       });
 
-      const user = await service.fetchUser("1");
+      const user = await service.fetchUser('1');
 
       expect(user).toEqual(mockUser);
-      expect(fetch).toHaveBeenCalledWith("https://api.example.com/users/1");
+      expect(fetch).toHaveBeenCalledWith('https://api.example.com/users/1');
     });
 
-    it("should throw error if user not found", async () => {
+    it('should throw error if user not found', async () => {
       (fetch as any).mockResolvedValueOnce({
         ok: false,
       });
 
-      await expect(service.fetchUser("999")).rejects.toThrow("User not found");
+      await expect(service.fetchUser('999')).rejects.toThrow('User not found');
     });
   });
 
-  describe("createUser", () => {
-    it("should create user successfully", async () => {
-      const newUser = { name: "John", email: "john@example.com" };
-      const createdUser = { id: "1", ...newUser };
+  describe('createUser', () => {
+    it('should create user successfully', async () => {
+      const newUser = { name: 'John', email: 'john@example.com' };
+      const createdUser = { id: '1', ...newUser };
 
       (fetch as any).mockResolvedValueOnce({
         ok: true,
@@ -279,9 +279,9 @@ describe("ApiService", () => {
 
       expect(user).toEqual(createdUser);
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/users",
+        'https://api.example.com/users',
         expect.objectContaining({
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify(newUser),
         }),
       );
@@ -296,7 +296,7 @@ describe("ApiService", () => {
 
 ```typescript
 // services/email.service.ts
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
 export class EmailService {
   private transporter = nodemailer.createTransport({
@@ -319,31 +319,31 @@ export class EmailService {
 }
 
 // services/email.service.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { EmailService } from "./email.service";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { EmailService } from './email.service';
 
-vi.mock("nodemailer", () => ({
+vi.mock('nodemailer', () => ({
   default: {
     createTransport: vi.fn(() => ({
-      sendMail: vi.fn().mockResolvedValue({ messageId: "123" }),
+      sendMail: vi.fn().mockResolvedValue({ messageId: '123' }),
     })),
   },
 }));
 
-describe("EmailService", () => {
+describe('EmailService', () => {
   let service: EmailService;
 
   beforeEach(() => {
     service = new EmailService();
   });
 
-  it("should send email successfully", async () => {
-    await service.sendEmail("test@example.com", "Test Subject", "<p>Test Body</p>");
+  it('should send email successfully', async () => {
+    await service.sendEmail('test@example.com', 'Test Subject', '<p>Test Body</p>');
 
-    expect(service["transporter"].sendMail).toHaveBeenCalledWith(
+    expect(service['transporter'].sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        to: "test@example.com",
-        subject: "Test Subject",
+        to: 'test@example.com',
+        subject: 'Test Subject',
       }),
     );
   });
@@ -365,7 +365,7 @@ export class UserService {
   async getUser(id: string): Promise<User> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
     return user;
   }
@@ -378,10 +378,10 @@ export class UserService {
 }
 
 // services/user.service.test.ts
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { UserService, IUserRepository } from "./user.service";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { UserService, IUserRepository } from './user.service';
 
-describe("UserService", () => {
+describe('UserService', () => {
   let service: UserService;
   let mockRepository: IUserRepository;
 
@@ -393,28 +393,28 @@ describe("UserService", () => {
     service = new UserService(mockRepository);
   });
 
-  describe("getUser", () => {
-    it("should return user if found", async () => {
-      const mockUser = { id: "1", name: "John", email: "john@example.com" };
+  describe('getUser', () => {
+    it('should return user if found', async () => {
+      const mockUser = { id: '1', name: 'John', email: 'john@example.com' };
       vi.mocked(mockRepository.findById).mockResolvedValue(mockUser);
 
-      const user = await service.getUser("1");
+      const user = await service.getUser('1');
 
       expect(user).toEqual(mockUser);
-      expect(mockRepository.findById).toHaveBeenCalledWith("1");
+      expect(mockRepository.findById).toHaveBeenCalledWith('1');
     });
 
-    it("should throw error if user not found", async () => {
+    it('should throw error if user not found', async () => {
       vi.mocked(mockRepository.findById).mockResolvedValue(null);
 
-      await expect(service.getUser("999")).rejects.toThrow("User not found");
+      await expect(service.getUser('999')).rejects.toThrow('User not found');
     });
   });
 
-  describe("createUser", () => {
-    it("should create user successfully", async () => {
-      const userData = { name: "John", email: "john@example.com" };
-      const createdUser = { id: "1", ...userData };
+  describe('createUser', () => {
+    it('should create user successfully', async () => {
+      const userData = { name: 'John', email: 'john@example.com' };
+      const createdUser = { id: '1', ...userData };
 
       vi.mocked(mockRepository.create).mockResolvedValue(createdUser);
 
@@ -437,7 +437,7 @@ export const logger = {
 };
 
 // services/order.service.ts
-import { logger } from "../utils/logger";
+import { logger } from '../utils/logger';
 
 export class OrderService {
   async processOrder(orderId: string): Promise<void> {
@@ -448,28 +448,28 @@ export class OrderService {
 }
 
 // services/order.service.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { OrderService } from "./order.service";
-import { logger } from "../utils/logger";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { OrderService } from './order.service';
+import { logger } from '../utils/logger';
 
-describe("OrderService", () => {
+describe('OrderService', () => {
   let service: OrderService;
   let loggerSpy: any;
 
   beforeEach(() => {
     service = new OrderService();
-    loggerSpy = vi.spyOn(logger, "info");
+    loggerSpy = vi.spyOn(logger, 'info');
   });
 
   afterEach(() => {
     loggerSpy.mockRestore();
   });
 
-  it("should log order processing", async () => {
-    await service.processOrder("123");
+  it('should log order processing', async () => {
+    await service.processOrder('123');
 
-    expect(loggerSpy).toHaveBeenCalledWith("Processing order 123");
-    expect(loggerSpy).toHaveBeenCalledWith("Order 123 processed successfully");
+    expect(loggerSpy).toHaveBeenCalledWith('Processing order 123');
+    expect(loggerSpy).toHaveBeenCalledWith('Order 123 processed successfully');
     expect(loggerSpy).toHaveBeenCalledTimes(2);
   });
 });
@@ -493,7 +493,7 @@ Use `@faker-js/faker` to generate realistic test data factories. Factories accep
 
 ```typescript
 // tests/fixtures/user.fixture.ts
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker';
 
 export function createUserFixture(overrides?: Partial<User>): User {
   return {

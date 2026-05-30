@@ -38,9 +38,9 @@ Form handling with XForm component and validation error display.
 
 ```typescript
 const formData = ref<CreatePostData>({
-  title: "",
-  content: "",
-  authorId: "",
+  title: '',
+  content: '',
+  authorId: '',
   isDraft: true,
 });
 
@@ -49,7 +49,7 @@ const onSubmit = async (data: CreatePostData) => {
 };
 
 const onSuccess = () => {
-  emits("close", true);
+  emits('close', true);
 };
 ```
 

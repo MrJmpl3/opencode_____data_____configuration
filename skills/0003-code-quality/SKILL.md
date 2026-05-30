@@ -29,20 +29,20 @@ Principles and practices for writing maintainable, readable, and reliable code.
 // ❌ Cryptic names
 const d = new Date();
 const u = getU();
-const arr = data.filter((x) => x.s === "a");
+const arr = data.filter((x) => x.s === 'a');
 
 // ✅ Descriptive names
 const currentDate = new Date();
 const currentUser = getCurrentUser();
-const activeUsers = users.filter((user) => user.status === "active");
+const activeUsers = users.filter((user) => user.status === 'active');
 
 // ❌ Hungarian notation (outdated)
-const strName = "John";
+const strName = 'John';
 const arrItems = [];
 const bIsActive = true;
 
 // ✅ Let the type system handle types
-const name = "John";
+const name = 'John';
 const items: Item[] = [];
 const isActive = true;
 ```
@@ -183,11 +183,11 @@ class UserReportGenerator {
 // ❌ Must modify to add new payment methods
 class PaymentProcessor {
   process(payment: Payment) {
-    if (payment.type === "credit") {
+    if (payment.type === 'credit') {
       // Credit card logic
-    } else if (payment.type === "paypal") {
+    } else if (payment.type === 'paypal') {
       // PayPal logic
-    } else if (payment.type === "crypto") {
+    } else if (payment.type === 'crypto') {
       // Crypto logic - had to modify existing code!
     }
   }
@@ -299,10 +299,10 @@ class Robot implements Worker {
     /* ... */
   }
   eat() {
-    throw new Error("Robots do not eat");
+    throw new Error('Robots do not eat');
   } // Forced to implement
   sleep() {
-    throw new Error("Robots do not sleep");
+    throw new Error('Robots do not sleep');
   }
   // ...
 }
@@ -348,8 +348,8 @@ class OrderService {
   private mailer = new SendGridMailer(); // Concrete dependency
 
   createOrder(data: OrderData) {
-    const order = this.db.insert("orders", data);
-    this.mailer.send(data.email, "Order confirmed");
+    const order = this.db.insert('orders', data);
+    this.mailer.send(data.email, 'Order confirmed');
     return order;
   }
 }
@@ -371,8 +371,8 @@ class OrderService {
   ) {}
 
   createOrder(data: OrderData) {
-    const order = this.db.insert("orders", data);
-    this.mailer.send(data.email, "Order confirmed");
+    const order = this.db.insert('orders', data);
+    this.mailer.send(data.email, 'Order confirmed');
     return order;
   }
 }
@@ -476,9 +476,9 @@ a new array: `const active = items.filter(i => i.active)`"
 ```typescript
 // High complexity (10+) - hard to test and maintain
 function processOrder(order: Order): Result {
-  if (order.status === "pending") {
+  if (order.status === 'pending') {
     // +1
-    if (order.paymentMethod === "card") {
+    if (order.paymentMethod === 'card') {
       // +1
       if (order.amount > 1000) {
         // +1
@@ -489,11 +489,11 @@ function processOrder(order: Order): Result {
       } else {
         // ...
       }
-    } else if (order.paymentMethod === "cash") {
+    } else if (order.paymentMethod === 'cash') {
       // +1
       // ...
     }
-  } else if (order.status === "processing") {
+  } else if (order.status === 'processing') {
     // +1
     // ...
   }
@@ -527,21 +527,21 @@ function processOrder(order: Order): Result {
 ```javascript
 // .eslintrc.js
 module.exports = {
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
   rules: {
     // Prevent bugs
-    "no-unused-vars": "error",
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-misused-promises": "error",
+    'no-unused-vars': 'error',
+    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/no-misused-promises': 'error',
 
     // Code quality
-    complexity: ["warn", 10],
-    "max-lines-per-function": ["warn", 50],
-    "max-depth": ["warn", 3],
+    complexity: ['warn', 10],
+    'max-lines-per-function': ['warn', 50],
+    'max-depth': ['warn', 3],
 
     // Consistency
-    "prefer-const": "error",
-    "no-var": "error",
+    'prefer-const': 'error',
+    'no-var': 'error',
   },
 };
 ```

@@ -1,10 +1,6 @@
-import { FETCH_TIMEOUT_MS } from "./constants.js";
+import { FETCH_TIMEOUT_MS } from './constants.js';
 
-export const fetchWithTimeout = (
-  url: string,
-  opts: RequestInit,
-  ms: number = FETCH_TIMEOUT_MS,
-): Promise<Response> => {
+export const fetchWithTimeout = (url: string, opts: RequestInit, ms: number = FETCH_TIMEOUT_MS): Promise<Response> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
   return fetch(url, { ...opts, signal: controller.signal }).finally(() => clearTimeout(timer));
@@ -12,9 +8,8 @@ export const fetchWithTimeout = (
 
 export const httpErrorMessage = (label: string, res: Response, body?: string): string => {
   const details = [`${label} HTTP ${res.status}`];
-  const retryAfter = res.headers.get("retry-after")?.trim();
-  const rateLimitReset =
-    res.headers.get("x-ratelimit-reset")?.trim() || res.headers.get("ratelimit-reset")?.trim();
+  const retryAfter = res.headers.get('retry-after')?.trim();
+  const rateLimitReset = res.headers.get('x-ratelimit-reset')?.trim() || res.headers.get('ratelimit-reset')?.trim();
 
   if (retryAfter) details.push(`retry-after=${sanitizeErrorText(retryAfter)}`);
   if (rateLimitReset) details.push(`rate-limit-reset=${sanitizeErrorText(rateLimitReset)}`);
@@ -22,7 +17,7 @@ export const httpErrorMessage = (label: string, res: Response, body?: string): s
   const preview = describeResponseBody(body);
   if (preview) details.push(preview);
 
-  return details.join("; ");
+  return details.join('; ');
 };
 
 const MAX_ERROR_PREVIEW_CHARS = 120;
@@ -32,14 +27,14 @@ const HTML_MARKUP_RE = /<(?:!doctype\s+html|\/?[a-z][\w:-]*(?:\s[^<>]*?)?)>/i;
 
 const sanitizeErrorText = (value: string): string => {
   return value
-    .replace(ANSI_ESCAPE_SEQUENCE_RE, "")
-    .replace(/[\u0000-\u001F\u007F]/g, " ")
-    .replace(/\s+/g, " ")
+    .replace(ANSI_ESCAPE_SEQUENCE_RE, '')
+    .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 };
 
 const stripHtmlTags = (value: string): string => {
-  return value.replace(/<[^>]*>/g, " ");
+  return value.replace(/<[^>]*>/g, ' ');
 };
 
 const previewErrorText = (value: string): string => {
@@ -59,8 +54,8 @@ const describeResponseBody = (body?: string): string | undefined => {
 
   if (HTML_MARKUP_RE.test(sanitized)) {
     const title = sanitized.match(HTML_TITLE_RE)?.[1] ?? trimmed.match(HTML_TITLE_RE)?.[1];
-    const cleanTitle = title ? previewErrorText(stripHtmlTags(title)) : "";
-    return cleanTitle ? `HTML response: ${cleanTitle}` : "HTML response";
+    const cleanTitle = title ? previewErrorText(stripHtmlTags(title)) : '';
+    return cleanTitle ? `HTML response: ${cleanTitle}` : 'HTML response';
   }
 
   const preview = previewErrorText(sanitized);
@@ -79,16 +74,14 @@ export const readJsonResponse = async (
     return { error: `${label} returned an unreadable JSON response` };
   }
 
-  const normalized = text.replace(/^\uFEFF/, "");
+  const normalized = text.replace(/^\uFEFF/, '');
 
   try {
     return { data: JSON.parse(normalized) as unknown };
   } catch {
     const preview = describeResponseBody(normalized);
     return {
-      error: preview
-        ? `${label} returned invalid JSON · ${preview}`
-        : `${label} returned invalid JSON`,
+      error: preview ? `${label} returned invalid JSON · ${preview}` : `${label} returned invalid JSON`,
     };
   }
 };

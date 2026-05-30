@@ -1,14 +1,14 @@
 /** @jsxImportSource @opentui/solid */
-import { createSignal } from "solid-js";
-import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
+import { createSignal } from 'solid-js';
+import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { readGoConfig } from "../providers.js";
-import { createRefreshScheduler } from "./refresh-scheduler.js";
-import { createQuotaProviderCache } from "./cache.js";
-import { fetchProviderLines } from "./provider-results.js";
-import type { ProviderResult } from "./provider-results.js";
-import { detailTextLine, headingLine } from "./lines.js";
-import type { QuotaLine } from "./lines.js";
+import { readGoConfig } from '../providers.js';
+import { createRefreshScheduler } from './refresh-scheduler.js';
+import { createQuotaProviderCache } from './cache.js';
+import { fetchProviderLines } from './provider-results.js';
+import type { ProviderResult } from './provider-results.js';
+import { detailTextLine, headingLine } from './lines.js';
+import type { QuotaLine } from './lines.js';
 import {
   DEFAULT_MIN_REFRESH_INTERVAL_MS,
   DEFAULT_POLL_INTERVAL_MS,
@@ -19,18 +19,18 @@ import {
   getVisibleProviders,
   MIN_SAFE_CACHE_TTL_MS,
   MIN_SAFE_REFRESH_INTERVAL_MS,
-} from "./options.js";
-import type { QuotaProviderId } from "./options.js";
-import { View } from "./view.js";
+} from './options.js';
+import type { QuotaProviderId } from './options.js';
+import { View } from './view.js';
 
-const IMMEDIATE_REFRESH_EVENTS = ["tui.session.select"];
-const COMPLETION_REFRESH_EVENTS = ["session.idle"];
+const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'];
+const COMPLETION_REFRESH_EVENTS = ['session.idle'];
 
 export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Promise<void> => {
   const { slots, event: evt, lifecycle } = api;
   const [lines, setLines] = createSignal<QuotaLine[]>([]);
   const [nowMs, setNowMs] = createSignal(Date.now());
-  let currentSessionId = "";
+  let currentSessionId = '';
   let inFlightVersion = 0;
   let disposed = false;
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
@@ -48,34 +48,33 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
   const visibleProviders = getVisibleProviders(options);
   const pollIntervalMs = getNumberOption(
     options,
-    "pollIntervalMs",
+    'pollIntervalMs',
     DEFAULT_POLL_INTERVAL_MS,
     MIN_SAFE_REFRESH_INTERVAL_MS,
     true,
   );
   const minRefreshIntervalMs = getNumberOption(
     options,
-    "minRefreshIntervalMs",
+    'minRefreshIntervalMs',
     DEFAULT_MIN_REFRESH_INTERVAL_MS,
     MIN_SAFE_REFRESH_INTERVAL_MS,
   );
   const providerCacheTtlMs = getNumberOption(
     options,
-    "providerCacheTtlMs",
+    'providerCacheTtlMs',
     DEFAULT_PROVIDER_CACHE_TTL_MS,
     MIN_SAFE_CACHE_TTL_MS,
   );
   const providerErrorBackoffMs = getNumberOption(
     options,
-    "providerErrorBackoffMs",
+    'providerErrorBackoffMs',
     DEFAULT_PROVIDER_ERROR_BACKOFF_MS,
     MIN_SAFE_CACHE_TTL_MS,
   );
   const { providerCache, getCachedProviderLines } = createQuotaProviderCache({
     providerCacheTtlMs,
     providerErrorBackoffMs,
-    fetchProviderLines: (providerId, goConfig) =>
-      fetchProviderLines(providerId, goConfig, displayMode, setNowMs),
+    fetchProviderLines: (providerId, goConfig) => fetchProviderLines(providerId, goConfig, displayMode, setNowMs),
   });
   let refreshPromise: Promise<void> | undefined;
   let pendingRefreshSource: string | undefined;
@@ -89,7 +88,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     const goConfig = readGoConfig();
 
     for (const provider of visibleProviders) {
-      if (provider.id === "go" && !goConfig) continue;
+      if (provider.id === 'go' && !goConfig) continue;
       results.set(provider.id, providerCache.get(provider.id)?.value ?? null);
     }
 
@@ -100,12 +99,12 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
         if (result === undefined) continue;
         if (result === null) {
           items.push(headingLine(provider.label));
-          items.push(detailTextLine("Refreshing…"));
-        } else if (typeof result === "string") {
+          items.push(detailTextLine('Refreshing…'));
+        } else if (typeof result === 'string') {
           items.push(headingLine(provider.label));
           items.push(detailTextLine(`Unavailable · ${result}`));
         } else {
-          if (result[0]?.kind !== "heading") items.push(headingLine(provider.label));
+          if (result[0]?.kind !== 'heading') items.push(headingLine(provider.label));
           items.push(...result);
         }
       }
@@ -184,13 +183,13 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     scheduler.dispose();
   });
 
-  requestRefresh("initial", true);
+  requestRefresh('initial', true);
 
   slots.register({
     order: 180,
     slots: {
       sidebar_content: (_ctx, slotInput) => {
-        const sid = slotInput.session_id ?? "";
+        const sid = slotInput.session_id ?? '';
         if (sid && sid !== currentSessionId) {
           currentSessionId = sid;
           requestRefresh(`session:${sid}`);

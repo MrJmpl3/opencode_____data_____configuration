@@ -103,29 +103,29 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {
-        xs: ["0.75rem", { lineHeight: "1rem" }],
-        sm: ["0.875rem", { lineHeight: "1.25rem" }],
-        base: ["1rem", { lineHeight: "1.5rem" }],
-        lg: ["1.125rem", { lineHeight: "1.75rem" }],
-        xl: ["1.25rem", { lineHeight: "1.75rem" }],
-        "2xl": ["1.5rem", { lineHeight: "2rem" }],
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.875rem', { lineHeight: '1.25rem' }],
+        base: ['1rem', { lineHeight: '1.5rem' }],
+        lg: ['1.125rem', { lineHeight: '1.75rem' }],
+        xl: ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
       },
       colors: {
         brand: {
-          50: "#eff6ff",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
+          50: '#eff6ff',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
         },
       },
       spacing: {
         // Extends default with custom values
-        18: "4.5rem",
-        88: "22rem",
+        18: '4.5rem',
+        88: '22rem',
       },
     },
   },
@@ -163,8 +163,8 @@ p {
 ```css
 /* Prevent layout shift */
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/Inter.woff2") format("woff2");
+  font-family: 'Inter';
+  src: url('/fonts/Inter.woff2') format('woff2');
   font-display: swap;
   font-weight: 400 700;
 }
@@ -192,7 +192,7 @@ p {
   --border: #e5e7eb;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-primary: #111827;
   --bg-secondary: #1f2937;
   --text-primary: #f9fafb;
@@ -272,7 +272,7 @@ Icon-text gap:     8px (--space-2)
 ```tsx
 interface IconProps {
   name: string;
-  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
@@ -284,12 +284,12 @@ const sizeMap = {
   xl: 32,
 };
 
-export function Icon({ name, size = "md", className }: IconProps) {
+export function Icon({ name, size = 'md', className }: IconProps) {
   return (
     <svg
       width={sizeMap[size]}
       height={sizeMap[size]}
-      className={cn("inline-block flex-shrink-0", className)}
+      className={cn('inline-block flex-shrink-0', className)}
       aria-hidden="true"
     >
       <use href={`/icons.svg#${name}`} />

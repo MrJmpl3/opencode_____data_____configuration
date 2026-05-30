@@ -16,7 +16,7 @@ WebSocket real-time updates via Laravel Echo.
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ["nuxt-laravel-echo"],
+  modules: ['nuxt-laravel-echo'],
 
   runtimeConfig: {
     public: {
@@ -37,19 +37,19 @@ export default defineNuxtConfig({
 const { privateChannel, presenceChannel, leaveChannel } = useRealtime();
 
 // Subscribe to channel
-const channel = privateChannel("posts.{id}", postId);
+const channel = privateChannel('posts.{id}', postId);
 
 // Listen for events
-channel.on("PostUpdated", (event) => {
+channel.on('PostUpdated', (event) => {
   refresh();
 });
 
 // Multiple events
-channel.on(["PostCreated", "PostUpdated", "PostDeleted"], refresh);
+channel.on(['PostCreated', 'PostUpdated', 'PostDeleted'], refresh);
 
 // Cleanup
 onUnmounted(() => {
-  leaveChannel("posts.{id}", postId);
+  leaveChannel('posts.{id}', postId);
 });
 ```
 
@@ -57,10 +57,10 @@ onUnmounted(() => {
 
 ```typescript
 // app/constants/channels.ts
-export const Posts = "posts";
-export const Post = "post.{post}";
+export const Posts = 'posts';
+export const Post = 'post.{post}';
 
 // app/constants/events.ts
-export const PostCreated = "PostCreated";
-export const PostUpdated = "PostUpdated";
+export const PostCreated = 'PostCreated';
+export const PostUpdated = 'PostUpdated';
 ```

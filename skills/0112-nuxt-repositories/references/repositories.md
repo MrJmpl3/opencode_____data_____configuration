@@ -5,7 +5,7 @@
 All repositories extend `BaseRepository<T>` from the base layer:
 
 ```typescript
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
 ```
 
 ### Core Properties
@@ -13,7 +13,7 @@ import { BaseRepository } from "#layers/base/app/repositories/base-repository";
 ```typescript
 class MyRepository extends BaseRepository<MyModel> {
   // API resource path (required)
-  protected resource = "/api/my-resource";
+  protected resource = '/api/my-resource';
 
   // Enable model hydration (optional, default: false)
   protected hydration = true;
@@ -59,19 +59,14 @@ jsonDelete(url: string): Promise<void>
 
 ```typescript
 // app/repositories/PostRepository.ts
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
-import Post from "~/models/Post";
-import type {
-  CollectionResponse,
-  DataResponse,
-  GenericQueryParams,
-  OutgoingQueryParams,
-} from "#layers/base/app/types";
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
+import Post from '~/models/Post';
+import type { CollectionResponse, DataResponse, GenericQueryParams, OutgoingQueryParams } from '#layers/base/app/types';
 
 export default class PostRepository extends BaseRepository<Post> {
   // API resource path
-  protected resource = "/api/posts";
+  protected resource = '/api/posts';
 
   // Enable automatic model hydration
   protected hydration = true;
@@ -99,8 +94,8 @@ export default class PostRepository extends BaseRepository<Post> {
 ### Enabling Hydration
 
 ```typescript
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
-import Post from "~/models/Post";
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
+import Post from '~/models/Post';
 
 class PostRepository extends BaseRepository<Post> {
   protected hydration = true;
@@ -119,7 +114,7 @@ class PostRepository extends BaseRepository<Post> {
 ### Hydration Control
 
 ```typescript
-const postApi = useRepository("posts");
+const postApi = useRepository('posts');
 
 // Temporarily disable hydration
 const rawData = await postApi.withoutHydration(async (repo) => {
@@ -140,9 +135,9 @@ const models = await postApi.withHydration(async (repo) => {
 
 ```typescript
 // app/app.config.ts
-import PostRepository from "~/repositories/PostRepository";
-import AuthorRepository from "~/repositories/AuthorRepository";
-import CommentRepository from "~/repositories/CommentRepository";
+import PostRepository from '~/repositories/PostRepository';
+import AuthorRepository from '~/repositories/AuthorRepository';
+import CommentRepository from '~/repositories/CommentRepository';
 
 export default defineAppConfig({
   repositories: {
@@ -165,10 +160,10 @@ export default defineAppConfig({
     externalService: {
       repository: ExternalRepository,
       fetchOptions: {
-        baseURL: "https://external-api.example.com",
+        baseURL: 'https://external-api.example.com',
         timeout: 30000,
         headers: {
-          "X-Service": "external",
+          'X-Service': 'external',
         },
       },
     },
@@ -192,27 +187,27 @@ NUXT_PUBLIC_REPOSITORIES_AUTHORS_FETCH_OPTIONS_BASE_URL=https://authors-api.exam
 
 ```typescript
 // Get typed repository instance
-const postApi = useRepository("posts"); // Returns PostRepository
+const postApi = useRepository('posts'); // Returns PostRepository
 
 // List all
 const { data: posts } = await postApi.list();
 
 // Get single
-const { data: post } = await postApi.get("ulid123");
+const { data: post } = await postApi.get('ulid123');
 
 // Create
 const { data: newPost } = await postApi.create({
-  title: "Hello World",
-  content: "My first post",
+  title: 'Hello World',
+  content: 'My first post',
 });
 
 // Update
-const { data: updated } = await postApi.update("ulid123", {
-  title: "Updated Title",
+const { data: updated } = await postApi.update('ulid123', {
+  title: 'Updated Title',
 });
 
 // Delete
-await postApi.delete("ulid123");
+await postApi.delete('ulid123');
 ```
 
 ### With Query Parameters
@@ -220,14 +215,14 @@ await postApi.delete("ulid123");
 ```typescript
 // Include relations
 const { data: posts } = await postApi.list({
-  include: "author,comments",
+  include: 'author,comments',
 });
 
 // With filters
 const { data: posts } = await postApi.list({
   filter: {
-    status: "published",
-    "is-draft": false,
+    status: 'published',
+    'is-draft': false,
   },
 });
 
@@ -238,8 +233,8 @@ const { data: posts } = await postApi.list({
 
 // Combined
 const { data: posts } = await postApi.list({
-  include: "author",
-  filter: { status: "published" },
+  include: 'author',
+  filter: { status: 'published' },
   page: { number: 1, size: 25 },
 });
 ```
@@ -247,14 +242,14 @@ const { data: posts } = await postApi.list({
 ### Custom Methods
 
 ```typescript
-const postApi = useRepository("posts");
+const postApi = useRepository('posts');
 
 // Use custom method
-const { data: authorPosts } = await postApi.listByAuthor("author-ulid");
+const { data: authorPosts } = await postApi.listByAuthor('author-ulid');
 
-const commentApi = useRepository("comments");
-const { data: comment } = await commentApi.createForPost("post-ulid", {
-  content: "Great post!",
+const commentApi = useRepository('comments');
+const { data: comment } = await commentApi.createForPost('post-ulid', {
+  content: 'Great post!',
 });
 ```
 
@@ -266,12 +261,12 @@ const { data: comment } = await commentApi.createForPost("post-ulid", {
 
 ```typescript
 // app/repositories/AuthorRepository.ts
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
-import Author from "~/models/Author";
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
+import Author from '~/models/Author';
 
 export default class AuthorRepository extends BaseRepository<Author> {
-  protected resource = "/api/authors";
+  protected resource = '/api/authors';
   protected hydration = true;
   protected hydrator = new ModelHydrator(Author);
 
@@ -288,12 +283,12 @@ export default class AuthorRepository extends BaseRepository<Author> {
 
 ```typescript
 // app/repositories/CommentRepository.ts
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
-import Comment from "~/models/Comment";
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
+import Comment from '~/models/Comment';
 
 export default class CommentRepository extends BaseRepository<Comment> {
-  protected resource = "/api/comments";
+  protected resource = '/api/comments';
   protected hydration = true;
   protected hydrator = new ModelHydrator(Comment);
 
@@ -313,12 +308,12 @@ export default class CommentRepository extends BaseRepository<Comment> {
 
 ```typescript
 // app/repositories/TagRepository.ts
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
-import Tag from "~/models/Tag";
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
+import Tag from '~/models/Tag';
 
 export default class TagRepository extends BaseRepository<Tag> {
-  protected resource = "/api/tags";
+  protected resource = '/api/tags';
   protected hydration = true;
   protected hydrator = new ModelHydrator(Tag);
 
@@ -339,7 +334,7 @@ interface DataResponse<T> {
   data: T;
 }
 
-const { data: post } = await postApi.get("ulid");
+const { data: post } = await postApi.get('ulid');
 // post is typed as Post
 ```
 

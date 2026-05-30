@@ -67,17 +67,17 @@ The 8-point grid is the industry standard for consistent spacing.
 // Tailwind-like spacing scale generator
 function createSpacingScale(baseUnit: number = 4): Record<string, string> {
   const scale: Record<string, string> = {
-    "0": "0",
-    px: "1px",
+    '0': '0',
+    px: '1px',
   };
 
   const multipliers = [
-    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44,
-    48, 52, 56, 60, 64, 72, 80, 96,
+    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64,
+    72, 80, 96,
   ];
 
   for (const m of multipliers) {
-    const key = m % 1 === 0 ? String(m) : String(m).replace(".", "-");
+    const key = m % 1 === 0 ? String(m) : String(m).replace('.', '-');
     scale[key] = `${baseUnit * m}px`;
   }
 
@@ -155,11 +155,11 @@ function createSpacingScale(baseUnit: number = 4): Record<string, string> {
 ### SVG Icon Component
 
 ```tsx
-import { forwardRef, type SVGProps } from "react";
+import { forwardRef, type SVGProps } from 'react';
 
 interface IconProps extends SVGProps<SVGSVGElement> {
   name: string;
-  size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   label?: string;
 }
 
@@ -169,31 +169,29 @@ const sizeMap = {
   md: 20,
   lg: 24,
   xl: 32,
-  "2xl": 48,
+  '2xl': 48,
 };
 
-export const Icon = forwardRef<SVGSVGElement, IconProps>(
-  ({ name, size = "md", label, className, ...props }, ref) => {
-    const pixelSize = sizeMap[size];
+export const Icon = forwardRef<SVGSVGElement, IconProps>(({ name, size = 'md', label, className, ...props }, ref) => {
+  const pixelSize = sizeMap[size];
 
-    return (
-      <svg
-        ref={ref}
-        width={pixelSize}
-        height={pixelSize}
-        className={`inline-block flex-shrink-0 ${className}`}
-        aria-hidden={!label}
-        aria-label={label}
-        role={label ? "img" : undefined}
-        {...props}
-      >
-        <use href={`/icons.svg#${name}`} />
-      </svg>
-    );
-  },
-);
+  return (
+    <svg
+      ref={ref}
+      width={pixelSize}
+      height={pixelSize}
+      className={`inline-block flex-shrink-0 ${className}`}
+      aria-hidden={!label}
+      aria-label={label}
+      role={label ? 'img' : undefined}
+      {...props}
+    >
+      <use href={`/icons.svg#${name}`} />
+    </svg>
+  );
+});
 
-Icon.displayName = "Icon";
+Icon.displayName = 'Icon';
 ```
 
 ### Icon Button Patterns
@@ -202,39 +200,32 @@ Icon.displayName = "Icon";
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: string;
   label: string;
-  size?: "sm" | "md" | "lg";
-  variant?: "solid" | "ghost" | "outline";
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'solid' | 'ghost' | 'outline';
 }
 
 const sizeClasses = {
-  sm: "p-1.5" /* 32px total with 16px icon */,
-  md: "p-2" /* 40px total with 20px icon */,
-  lg: "p-2.5" /* 48px total with 24px icon */,
+  sm: 'p-1.5' /* 32px total with 16px icon */,
+  md: 'p-2' /* 40px total with 20px icon */,
+  lg: 'p-2.5' /* 48px total with 24px icon */,
 };
 
 const iconSizes = {
-  sm: "sm" as const,
-  md: "md" as const,
-  lg: "lg" as const,
+  sm: 'sm' as const,
+  md: 'md' as const,
+  lg: 'lg' as const,
 };
 
-export function IconButton({
-  icon,
-  label,
-  size = "md",
-  variant = "ghost",
-  className,
-  ...props
-}: IconButtonProps) {
+export function IconButton({ icon, label, size = 'md', variant = 'ghost', className, ...props }: IconButtonProps) {
   return (
     <button
       className={`
         inline-flex items-center justify-center rounded-lg
         transition-colors focus-visible:outline-none focus-visible:ring-2
         ${sizeClasses[size]}
-        ${variant === "solid" && "bg-blue-600 text-white hover:bg-blue-700"}
-        ${variant === "ghost" && "hover:bg-gray-100"}
-        ${variant === "outline" && "border border-gray-300 hover:bg-gray-50"}
+        ${variant === 'solid' && 'bg-blue-600 text-white hover:bg-blue-700'}
+        ${variant === 'ghost' && 'hover:bg-gray-100'}
+        ${variant === 'outline' && 'border border-gray-300 hover:bg-gray-50'}
         ${className}
       `}
       aria-label={label}
@@ -250,60 +241,60 @@ export function IconButton({
 
 ```tsx
 // Build script for SVG sprite
-import { readdir, readFile, writeFile } from "fs/promises";
-import { optimize } from "svgo";
+import { readdir, readFile, writeFile } from 'fs/promises';
+import { optimize } from 'svgo';
 
 async function buildIconSprite(iconDir: string, outputPath: string) {
   const files = await readdir(iconDir);
-  const svgFiles = files.filter((f) => f.endsWith(".svg"));
+  const svgFiles = files.filter((f) => f.endsWith('.svg'));
 
   const symbols = await Promise.all(
     svgFiles.map(async (file) => {
-      const content = await readFile(`${iconDir}/${file}`, "utf-8");
-      const name = file.replace(".svg", "");
+      const content = await readFile(`${iconDir}/${file}`, 'utf-8');
+      const name = file.replace('.svg', '');
 
       // Optimize SVG
       const result = optimize(content, {
         plugins: [
-          "removeDoctype",
-          "removeXMLProcInst",
-          "removeComments",
-          "removeMetadata",
-          "removeTitle",
-          "removeDesc",
-          "removeUselessDefs",
-          "removeEditorsNSData",
-          "removeEmptyAttrs",
-          "removeHiddenElems",
-          "removeEmptyText",
-          "removeEmptyContainers",
-          "convertStyleToAttrs",
-          "convertColors",
-          "convertPathData",
-          "convertTransform",
-          "removeUnknownsAndDefaults",
-          "removeNonInheritableGroupAttrs",
-          "removeUselessStrokeAndFill",
-          "removeUnusedNS",
-          "cleanupNumericValues",
-          "cleanupListOfValues",
-          "moveElemsAttrsToGroup",
-          "moveGroupAttrsToElems",
-          "collapseGroups",
-          "mergePaths",
+          'removeDoctype',
+          'removeXMLProcInst',
+          'removeComments',
+          'removeMetadata',
+          'removeTitle',
+          'removeDesc',
+          'removeUselessDefs',
+          'removeEditorsNSData',
+          'removeEmptyAttrs',
+          'removeHiddenElems',
+          'removeEmptyText',
+          'removeEmptyContainers',
+          'convertStyleToAttrs',
+          'convertColors',
+          'convertPathData',
+          'convertTransform',
+          'removeUnknownsAndDefaults',
+          'removeNonInheritableGroupAttrs',
+          'removeUselessStrokeAndFill',
+          'removeUnusedNS',
+          'cleanupNumericValues',
+          'cleanupListOfValues',
+          'moveElemsAttrsToGroup',
+          'moveGroupAttrsToElems',
+          'collapseGroups',
+          'mergePaths',
         ],
       });
 
       // Extract viewBox and content
       const viewBoxMatch = result.data.match(/viewBox="([^"]+)"/);
-      const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 24 24";
-      const innerContent = result.data.replace(/<svg[^>]*>/, "").replace(/<\/svg>/, "");
+      const viewBox = viewBoxMatch ? viewBoxMatch[1] : '0 0 24 24';
+      const innerContent = result.data.replace(/<svg[^>]*>/, '').replace(/<\/svg>/, '');
 
       return `<symbol id="${name}" viewBox="${viewBox}">${innerContent}</symbol>`;
     }),
   );
 
-  const sprite = `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">${symbols.join("")}</svg>`;
+  const sprite = `<svg xmlns="http://www.w3.org/2000/svg" style="display:none">${symbols.join('')}</svg>`;
 
   await writeFile(outputPath, sprite);
   console.log(`Generated sprite with ${symbols.length} icons`);
@@ -314,7 +305,7 @@ async function buildIconSprite(iconDir: string, outputPath: string) {
 
 ```tsx
 // Lucide React
-import { Home, Settings, User, Search } from "lucide-react";
+import { Home, Settings, User, Search } from 'lucide-react';
 
 function Navigation() {
   return (
@@ -328,8 +319,8 @@ function Navigation() {
 }
 
 // Heroicons
-import { HomeIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
-import { HomeIcon as HomeIconSolid } from "@heroicons/react/24/solid";
+import { HomeIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { HomeIcon as HomeIconSolid } from '@heroicons/react/24/solid';
 
 function ToggleIcon({ active }: { active: boolean }) {
   const Icon = active ? HomeIconSolid : HomeIcon;
@@ -337,7 +328,7 @@ function ToggleIcon({ active }: { active: boolean }) {
 }
 
 // Radix Icons
-import { HomeIcon, GearIcon } from "@radix-ui/react-icons";
+import { HomeIcon, GearIcon } from '@radix-ui/react-icons';
 ```
 
 ## Sizing Systems

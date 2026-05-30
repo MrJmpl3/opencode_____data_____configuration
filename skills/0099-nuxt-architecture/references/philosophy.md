@@ -22,7 +22,7 @@ Full TypeScript coverage:
 
 ```typescript
 // Explicit types on all public interfaces
-interface GetPostsFilters extends Pick<Filters, "page" | "size" | "search"> {
+interface GetPostsFilters extends Pick<Filters, 'page' | 'size' | 'search'> {
   status?: string;
   isDraft?: boolean;
 }
@@ -113,8 +113,8 @@ Data from API?
 ```typescript
 // BAD: Business logic in component
 const onSubmit = async () => {
-  const { data } = await useRepository("posts").create(formData);
-  flash.success("Post created!");
+  const { data } = await useRepository('posts').create(formData);
+  flash.success('Post created!');
   if (data.hasComments()) {
     // Show toast with link...
   }
@@ -132,7 +132,7 @@ const onSubmit = async () => {
 ```typescript
 // BAD: Component directly calls repository for mutations
 const deleteButton = async () => {
-  await useRepository("posts").delete(post.ulid);
+  await useRepository('posts').delete(post.ulid);
 };
 
 // GOOD: Use action for mutations with feedback

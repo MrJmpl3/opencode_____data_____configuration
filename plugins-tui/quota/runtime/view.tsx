@@ -1,15 +1,11 @@
 /** @jsxImportSource @opentui/solid */
-import { Show } from "solid-js";
-import type { TuiPluginApi } from "@opencode-ai/plugin/tui";
+import { Show } from 'solid-js';
+import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { renderQuotaLine } from "./lines.js";
-import type { QuotaLine } from "./lines.js";
+import { renderQuotaLine } from './lines.js';
+import type { QuotaLine } from './lines.js';
 
-export const View = (props: {
-  getLines: () => QuotaLine[];
-  getNowMs: () => number;
-  api: TuiPluginApi;
-}) => {
+export const View = (props: { getLines: () => QuotaLine[]; getNowMs: () => number; api: TuiPluginApi }) => {
   const theme = () => props.api.theme.current;
   return (
     <box gap={0}>

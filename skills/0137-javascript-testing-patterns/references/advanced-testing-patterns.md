@@ -8,78 +8,78 @@ Advanced patterns for integration testing, frontend component testing, fixtures,
 
 ```typescript
 // tests/integration/user.api.test.ts
-import request from "supertest";
-import { app } from "../../src/app";
-import { pool } from "../../src/config/database";
+import request from 'supertest';
+import { app } from '../../src/app';
+import { pool } from '../../src/config/database';
 
-describe("User API Integration Tests", () => {
+describe('User API Integration Tests', () => {
   beforeAll(async () => {
     // Setup test database
-    await pool.query("CREATE TABLE IF NOT EXISTS users (...)");
+    await pool.query('CREATE TABLE IF NOT EXISTS users (...)');
   });
 
   afterAll(async () => {
     // Cleanup
-    await pool.query("DROP TABLE IF EXISTS users");
+    await pool.query('DROP TABLE IF EXISTS users');
     await pool.end();
   });
 
   beforeEach(async () => {
     // Clear data before each test
-    await pool.query("TRUNCATE TABLE users CASCADE");
+    await pool.query('TRUNCATE TABLE users CASCADE');
   });
 
-  describe("POST /api/users", () => {
-    it("should create a new user", async () => {
+  describe('POST /api/users', () => {
+    it('should create a new user', async () => {
       const userData = {
-        name: "John Doe",
-        email: "john@example.com",
-        password: "password123",
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: 'password123',
       };
 
-      const response = await request(app).post("/api/users").send(userData).expect(201);
+      const response = await request(app).post('/api/users').send(userData).expect(201);
 
       expect(response.body).toMatchObject({
         name: userData.name,
         email: userData.email,
       });
-      expect(response.body).toHaveProperty("id");
-      expect(response.body).not.toHaveProperty("password");
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).not.toHaveProperty('password');
     });
 
-    it("should return 400 if email is invalid", async () => {
+    it('should return 400 if email is invalid', async () => {
       const userData = {
-        name: "John Doe",
-        email: "invalid-email",
-        password: "password123",
+        name: 'John Doe',
+        email: 'invalid-email',
+        password: 'password123',
       };
 
-      const response = await request(app).post("/api/users").send(userData).expect(400);
+      const response = await request(app).post('/api/users').send(userData).expect(400);
 
-      expect(response.body).toHaveProperty("error");
+      expect(response.body).toHaveProperty('error');
     });
 
-    it("should return 409 if email already exists", async () => {
+    it('should return 409 if email already exists', async () => {
       const userData = {
-        name: "John Doe",
-        email: "john@example.com",
-        password: "password123",
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: 'password123',
       };
 
-      await request(app).post("/api/users").send(userData);
+      await request(app).post('/api/users').send(userData);
 
-      const response = await request(app).post("/api/users").send(userData).expect(409);
+      const response = await request(app).post('/api/users').send(userData).expect(409);
 
-      expect(response.body.error).toContain("already exists");
+      expect(response.body.error).toContain('already exists');
     });
   });
 
-  describe("GET /api/users/:id", () => {
-    it("should get user by id", async () => {
-      const createResponse = await request(app).post("/api/users").send({
-        name: "John Doe",
-        email: "john@example.com",
-        password: "password123",
+  describe('GET /api/users/:id', () => {
+    it('should get user by id', async () => {
+      const createResponse = await request(app).post('/api/users').send({
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: 'password123',
       });
 
       const userId = createResponse.body.id;
@@ -88,42 +88,39 @@ describe("User API Integration Tests", () => {
 
       expect(response.body).toMatchObject({
         id: userId,
-        name: "John Doe",
-        email: "john@example.com",
+        name: 'John Doe',
+        email: 'john@example.com',
       });
     });
 
-    it("should return 404 if user not found", async () => {
-      await request(app).get("/api/users/999").expect(404);
+    it('should return 404 if user not found', async () => {
+      await request(app).get('/api/users/999').expect(404);
     });
   });
 
-  describe("Authentication", () => {
-    it("should require authentication for protected routes", async () => {
-      await request(app).get("/api/users/me").expect(401);
+  describe('Authentication', () => {
+    it('should require authentication for protected routes', async () => {
+      await request(app).get('/api/users/me').expect(401);
     });
 
-    it("should allow access with valid token", async () => {
+    it('should allow access with valid token', async () => {
       // Create user and login
-      await request(app).post("/api/users").send({
-        name: "John Doe",
-        email: "john@example.com",
-        password: "password123",
+      await request(app).post('/api/users').send({
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: 'password123',
       });
 
-      const loginResponse = await request(app).post("/api/auth/login").send({
-        email: "john@example.com",
-        password: "password123",
+      const loginResponse = await request(app).post('/api/auth/login').send({
+        email: 'john@example.com',
+        password: 'password123',
       });
 
       const token = loginResponse.body.token;
 
-      const response = await request(app)
-        .get("/api/users/me")
-        .set("Authorization", `Bearer ${token}`)
-        .expect(200);
+      const response = await request(app).get('/api/users/me').set('Authorization', `Bearer ${token}`).expect(200);
 
-      expect(response.body.email).toBe("john@example.com");
+      expect(response.body.email).toBe('john@example.com');
     });
   });
 });
@@ -133,21 +130,21 @@ describe("User API Integration Tests", () => {
 
 ```typescript
 // tests/integration/user.repository.test.ts
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { Pool } from "pg";
-import { UserRepository } from "../../src/repositories/user.repository";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { Pool } from 'pg';
+import { UserRepository } from '../../src/repositories/user.repository';
 
-describe("UserRepository Integration Tests", () => {
+describe('UserRepository Integration Tests', () => {
   let pool: Pool;
   let repository: UserRepository;
 
   beforeAll(async () => {
     pool = new Pool({
-      host: "localhost",
+      host: 'localhost',
       port: 5432,
-      database: "test_db",
-      user: "test_user",
-      password: "test_password",
+      database: 'test_db',
+      user: 'test_user',
+      password: 'test_password',
     });
 
     repository = new UserRepository(pool);
@@ -165,41 +162,41 @@ describe("UserRepository Integration Tests", () => {
   });
 
   afterAll(async () => {
-    await pool.query("DROP TABLE IF EXISTS users");
+    await pool.query('DROP TABLE IF EXISTS users');
     await pool.end();
   });
 
   beforeEach(async () => {
-    await pool.query("TRUNCATE TABLE users CASCADE");
+    await pool.query('TRUNCATE TABLE users CASCADE');
   });
 
-  it("should create a user", async () => {
+  it('should create a user', async () => {
     const user = await repository.create({
-      name: "John Doe",
-      email: "john@example.com",
-      password: "hashed_password",
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'hashed_password',
     });
 
-    expect(user).toHaveProperty("id");
-    expect(user.name).toBe("John Doe");
-    expect(user.email).toBe("john@example.com");
+    expect(user).toHaveProperty('id');
+    expect(user.name).toBe('John Doe');
+    expect(user.email).toBe('john@example.com');
   });
 
-  it("should find user by email", async () => {
+  it('should find user by email', async () => {
     await repository.create({
-      name: "John Doe",
-      email: "john@example.com",
-      password: "hashed_password",
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'hashed_password',
     });
 
-    const user = await repository.findByEmail("john@example.com");
+    const user = await repository.findByEmail('john@example.com');
 
     expect(user).toBeTruthy();
-    expect(user?.name).toBe("John Doe");
+    expect(user?.name).toBe('John Doe');
   });
 
-  it("should return null if user not found", async () => {
-    const user = await repository.findByEmail("nonexistent@example.com");
+  it('should return null if user not found', async () => {
+    const user = await repository.findByEmail('nonexistent@example.com');
     expect(user).toBeNull();
   });
 });
@@ -298,7 +295,7 @@ describe('UserForm', () => {
 
 ```typescript
 // hooks/useCounter.ts
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 export function useCounter(initialValue = 0) {
   const [count, setCount] = useState(initialValue);
@@ -311,22 +308,22 @@ export function useCounter(initialValue = 0) {
 }
 
 // hooks/useCounter.test.ts
-import { renderHook, act } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
-import { useCounter } from "./useCounter";
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { useCounter } from './useCounter';
 
-describe("useCounter", () => {
-  it("should initialize with default value", () => {
+describe('useCounter', () => {
+  it('should initialize with default value', () => {
     const { result } = renderHook(() => useCounter());
     expect(result.current.count).toBe(0);
   });
 
-  it("should initialize with custom value", () => {
+  it('should initialize with custom value', () => {
     const { result } = renderHook(() => useCounter(10));
     expect(result.current.count).toBe(10);
   });
 
-  it("should increment count", () => {
+  it('should increment count', () => {
     const { result } = renderHook(() => useCounter());
 
     act(() => {
@@ -336,7 +333,7 @@ describe("useCounter", () => {
     expect(result.current.count).toBe(1);
   });
 
-  it("should decrement count", () => {
+  it('should decrement count', () => {
     const { result } = renderHook(() => useCounter(5));
 
     act(() => {
@@ -346,7 +343,7 @@ describe("useCounter", () => {
     expect(result.current.count).toBe(4);
   });
 
-  it("should reset to initial value", () => {
+  it('should reset to initial value', () => {
     const { result } = renderHook(() => useCounter(10));
 
     act(() => {
@@ -369,7 +366,7 @@ describe("useCounter", () => {
 
 ```typescript
 // tests/fixtures/user.fixture.ts
-import { faker } from "@faker-js/faker";
+import { faker } from '@faker-js/faker';
 
 export function createUserFixture(overrides?: Partial<User>): User {
   return {
@@ -386,15 +383,15 @@ export function createUsersFixture(count: number): User[] {
 }
 
 // Usage in tests
-import { createUserFixture, createUsersFixture } from "../fixtures/user.fixture";
+import { createUserFixture, createUsersFixture } from '../fixtures/user.fixture';
 
-describe("UserService", () => {
-  it("should process user", () => {
-    const user = createUserFixture({ name: "John Doe" });
+describe('UserService', () => {
+  it('should process user', () => {
+    const user = createUserFixture({ name: 'John Doe' });
     // Use user in test
   });
 
-  it("should handle multiple users", () => {
+  it('should handle multiple users', () => {
     const users = createUsersFixture(10);
     // Use users in test
   });
@@ -448,16 +445,16 @@ describe('UserCard', () => {
 ### Test Organization
 
 ```typescript
-describe("UserService", () => {
-  describe("createUser", () => {
-    it("should create user successfully", () => {});
-    it("should throw error if email exists", () => {});
-    it("should hash password", () => {});
+describe('UserService', () => {
+  describe('createUser', () => {
+    it('should create user successfully', () => {});
+    it('should throw error if email exists', () => {});
+    it('should hash password', () => {});
   });
 
-  describe("updateUser", () => {
-    it("should update user", () => {});
-    it("should throw error if not found", () => {});
+  describe('updateUser', () => {
+    it('should update user', () => {});
+    it('should throw error if not found', () => {});
   });
 });
 ```
@@ -466,23 +463,23 @@ describe("UserService", () => {
 
 ```typescript
 // Using async/await
-it("should fetch user", async () => {
-  const user = await service.fetchUser("1");
+it('should fetch user', async () => {
+  const user = await service.fetchUser('1');
   expect(user).toBeDefined();
 });
 
 // Testing rejections
-it("should throw error", async () => {
-  await expect(service.fetchUser("invalid")).rejects.toThrow("Not found");
+it('should throw error', async () => {
+  await expect(service.fetchUser('invalid')).rejects.toThrow('Not found');
 });
 ```
 
 ### Testing Timers
 
 ```typescript
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
-it("should call function after delay", () => {
+it('should call function after delay', () => {
   vi.useFakeTimers();
 
   const callback = vi.fn();

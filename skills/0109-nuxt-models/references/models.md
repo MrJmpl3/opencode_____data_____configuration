@@ -5,7 +5,7 @@
 All models extend `Model` from the base layer:
 
 ```typescript
-import Model from "#layers/base/app/models/Model";
+import Model from '#layers/base/app/models/Model';
 ```
 
 ### Static Factory Methods
@@ -37,7 +37,7 @@ const copy = post.clone();
 class Post extends Model {
   // Custom primary key (default: 'id')
   public override primaryKey(): string {
-    return "ulid";
+    return 'ulid';
   }
 
   // Transform raw data before assignment
@@ -107,13 +107,13 @@ Model Instance Ready
 
 ```typescript
 // app/models/Post.ts
-import Model from "#layers/base/app/models/Model";
-import type { Castable } from "#layers/base/app/types";
-import PostStatus from "~/enums/PostStatus";
-import DateValue from "~/values/DateValue";
-import Author from "~/models/Author";
-import Comment from "~/models/Comment";
-import Tag from "~/models/Tag";
+import Model from '#layers/base/app/models/Model';
+import type { Castable } from '#layers/base/app/types';
+import PostStatus from '~/enums/PostStatus';
+import DateValue from '~/values/DateValue';
+import Author from '~/models/Author';
+import Comment from '~/models/Comment';
+import Tag from '~/models/Tag';
 
 export default class Post extends Model {
   // Scalar properties
@@ -137,7 +137,7 @@ export default class Post extends Model {
 
   // Custom primary key
   public override primaryKey(): string {
-    return "ulid";
+    return 'ulid';
   }
 
   // Define casts
@@ -269,8 +269,8 @@ casts(): Record<string, Castable> {
 ### Snake Case to Camel Case
 
 ```typescript
-import { transformKeys } from "#layers/base/app/utils";
-import { camelCase } from "change-case";
+import { transformKeys } from '#layers/base/app/utils';
+import { camelCase } from 'change-case';
 
 export default class User extends Model {
   uuid: string;
@@ -288,8 +288,8 @@ export default class User extends Model {
 ## Model with Booted Hook
 
 ```typescript
-import Model from "#layers/base/app/models/Model";
-import { registerPermissions } from "~/composables/usePermissions";
+import Model from '#layers/base/app/models/Model';
+import { registerPermissions } from '~/composables/usePermissions';
 
 export default class User extends Model {
   uuid: string;
@@ -312,9 +312,9 @@ export default class User extends Model {
 
 ```typescript
 // app/models/Tag.ts
-import Model from "#layers/base/app/models/Model";
-import type { Castable } from "#layers/base/app/types";
-import DateValue from "~/values/DateValue";
+import Model from '#layers/base/app/models/Model';
+import type { Castable } from '#layers/base/app/types';
+import DateValue from '~/values/DateValue';
 
 export default class Tag extends Model {
   ulid: string;
@@ -323,7 +323,7 @@ export default class Tag extends Model {
   createdAt: DateValue;
 
   public override primaryKey(): string {
-    return "ulid";
+    return 'ulid';
   }
 
   public override casts(): Record<string, Castable> {
@@ -342,8 +342,8 @@ export default class Tag extends Model {
 
 ```typescript
 // Repositories with hydration enabled return model instances
-const postApi = useRepository("posts");
-const { data: post } = await postApi.get("ulid123");
+const postApi = useRepository('posts');
+const { data: post } = await postApi.get('ulid123');
 
 // post is already a Post instance
 post.status.color();

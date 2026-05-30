@@ -28,7 +28,7 @@ services:
       context: .
       target: dev # Use dev stage of multi-stage Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - .:/app # Bind mount for hot reload
       - /app/node_modules # Anonymous volume -- preserves container deps
@@ -46,7 +46,7 @@ services:
   db:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -55,7 +55,7 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -63,15 +63,15 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redisdata:/data
 
   mailpit: # Local email testing
     image: axllent/mailpit
     ports:
-      - "8025:8025" # Web UI
-      - "1025:1025" # SMTP
+      - '8025:8025' # Web UI
+      - '1025:1025' # SMTP
 
 volumes:
   pgdata:
@@ -189,7 +189,7 @@ networks:
 services:
   db:
     ports:
-      - "127.0.0.1:5432:5432" # Only accessible from host, not network
+      - '127.0.0.1:5432:5432' # Only accessible from host, not network
     # Omit ports entirely in production -- accessible only within Docker network
 ```
 

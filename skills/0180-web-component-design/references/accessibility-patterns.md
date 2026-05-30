@@ -5,8 +5,8 @@
 ### Modal Dialog
 
 ```tsx
-import { useEffect, useRef, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
   isOpen: boolean;
@@ -23,27 +23,27 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     if (isOpen) {
       previousActiveElement.current = document.activeElement;
       dialogRef.current?.focus();
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
       (previousActiveElement.current as HTMLElement)?.focus();
     }
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "Tab") trapFocus(e, dialogRef.current);
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'Tab') trapFocus(e, dialogRef.current);
     };
 
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener('keydown', handleKeyDown);
     }
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -97,7 +97,7 @@ function trapFocus(e: KeyboardEvent, container: HTMLElement | null) {
 ### Dropdown Menu
 
 ```tsx
-import { useState, useRef, useEffect, type ReactNode } from "react";
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 
 interface DropdownProps {
   trigger: ReactNode;
@@ -118,17 +118,17 @@ export function Dropdown({ trigger, children, label }: DropdownProps) {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
-      case "Escape":
+      case 'Escape':
         setIsOpen(false);
         triggerRef.current?.focus();
         break;
-      case "ArrowDown":
+      case 'ArrowDown':
         e.preventDefault();
         if (!isOpen) {
           setIsOpen(true);
@@ -136,17 +136,17 @@ export function Dropdown({ trigger, children, label }: DropdownProps) {
           focusNextItem(menuRef.current, 1);
         }
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         e.preventDefault();
         if (isOpen) {
           focusNextItem(menuRef.current, -1);
         }
         break;
-      case "Home":
+      case 'Home':
         e.preventDefault();
         focusFirstItem(menuRef.current);
         break;
-      case "End":
+      case 'End':
         e.preventDefault();
         focusLastItem(menuRef.current);
         break;
@@ -164,10 +164,7 @@ export function Dropdown({ trigger, children, label }: DropdownProps) {
         className="flex items-center gap-2 px-3 py-2"
       >
         {trigger}
-        <ChevronDownIcon
-          aria-hidden="true"
-          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
-        />
+        <ChevronDownIcon aria-hidden="true" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
@@ -225,7 +222,7 @@ function focusLastItem(menu: HTMLElement | null) {
 ### Combobox / Autocomplete
 
 ```tsx
-import { useState, useRef, useId, type ChangeEvent, type KeyboardEvent } from "react";
+import { useState, useRef, useId, type ChangeEvent, type KeyboardEvent } from 'react';
 
 interface Option {
   value: string;
@@ -242,7 +239,7 @@ interface ComboboxProps {
 
 export function Combobox({ options, value, onChange, label, placeholder }: ComboboxProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -250,9 +247,7 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
   const inputId = useId();
   const listboxId = useId();
 
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(inputValue.toLowerCase()),
-  );
+  const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(inputValue.toLowerCase()));
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -269,7 +264,7 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
 
   const handleKeyDown = (e: KeyboardEvent) => {
     switch (e.key) {
-      case "ArrowDown":
+      case 'ArrowDown':
         e.preventDefault();
         if (!isOpen) {
           setIsOpen(true);
@@ -277,17 +272,17 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
           setActiveIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : prev));
         }
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         e.preventDefault();
         setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev));
         break;
-      case "Enter":
+      case 'Enter':
         e.preventDefault();
         if (activeIndex >= 0 && filteredOptions[activeIndex]) {
           handleSelect(filteredOptions[activeIndex]);
         }
         break;
-      case "Escape":
+      case 'Escape':
         setIsOpen(false);
         break;
     }
@@ -332,8 +327,8 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
               aria-selected={activeIndex === index}
               onClick={() => handleSelect(option)}
               className={`cursor-pointer px-3 py-2 ${
-                activeIndex === index ? "bg-blue-100" : "hover:bg-gray-100"
-              } ${value === option.value ? "font-medium" : ""}`}
+                activeIndex === index ? 'bg-blue-100' : 'hover:bg-gray-100'
+              } ${value === option.value ? 'font-medium' : ''}`}
             >
               {option.label}
             </li>
@@ -342,9 +337,7 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
       )}
 
       {isOpen && filteredOptions.length === 0 && (
-        <div className="absolute z-10 mt-1 w-full rounded-md bg-white px-3 py-2 shadow-lg">
-          No results found
-        </div>
+        <div className="absolute z-10 mt-1 w-full rounded-md bg-white px-3 py-2 shadow-lg">No results found</div>
       )}
     </div>
   );
@@ -354,17 +347,13 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
 ### Form Validation
 
 ```tsx
-import { useId, type FormEvent } from "react";
+import { useId, type FormEvent } from 'react';
 
 interface FormFieldProps {
   label: string;
   error?: string;
   required?: boolean;
-  children: (props: {
-    id: string;
-    "aria-describedby": string | undefined;
-    "aria-invalid": boolean;
-  }) => ReactNode;
+  children: (props: { id: string; 'aria-describedby': string | undefined; 'aria-invalid': boolean }) => ReactNode;
 }
 
 export function FormField({ label, error, required, children }: FormFieldProps) {
@@ -384,8 +373,8 @@ export function FormField({ label, error, required, children }: FormFieldProps) 
 
       {children({
         id,
-        "aria-describedby": error ? errorId : undefined,
-        "aria-invalid": !!error,
+        'aria-describedby': error ? errorId : undefined,
+        'aria-invalid': !!error,
       })}
 
       {error && (
@@ -415,7 +404,7 @@ function ContactForm() {
             type="email"
             required
             className={`w-full rounded border px-3 py-2 ${
-              props["aria-invalid"] ? "border-red-500" : "border-gray-300"
+              props['aria-invalid'] ? 'border-red-500' : 'border-gray-300'
             }`}
           />
         )}
@@ -455,19 +444,19 @@ export function SkipLinks() {
 ## Live Regions
 
 ```tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 interface LiveAnnouncerProps {
   message: string;
-  politeness?: "polite" | "assertive";
+  politeness?: 'polite' | 'assertive';
 }
 
-export function LiveAnnouncer({ message, politeness = "polite" }: LiveAnnouncerProps) {
-  const [announcement, setAnnouncement] = useState("");
+export function LiveAnnouncer({ message, politeness = 'polite' }: LiveAnnouncerProps) {
+  const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
     // Clear first, then set - ensures screen readers pick up the change
-    setAnnouncement("");
+    setAnnouncement('');
     const timer = setTimeout(() => setAnnouncement(message), 100);
     return () => clearTimeout(timer);
   }, [message]);
@@ -481,7 +470,7 @@ export function LiveAnnouncer({ message, politeness = "polite" }: LiveAnnouncerP
 
 // Usage in a search component
 function SearchResults({ results, loading }: { results: Item[]; loading: boolean }) {
-  const message = loading ? "Loading results..." : `${results.length} results found`;
+  const message = loading ? 'Loading results...' : `${results.length} results found`;
 
   return (
     <>
@@ -516,11 +505,10 @@ function useFocusTrap(containerRef: RefObject<HTMLElement>, isActive: boolean) {
     if (!isActive || !containerRef.current) return;
 
     const container = containerRef.current;
-    const focusableSelector =
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
+      if (e.key !== 'Tab') return;
 
       const focusableElements = container.querySelectorAll<HTMLElement>(focusableSelector);
       const first = focusableElements[0];
@@ -535,8 +523,8 @@ function useFocusTrap(containerRef: RefObject<HTMLElement>, isActive: boolean) {
       }
     };
 
-    container.addEventListener("keydown", handleKeyDown);
-    return () => container.removeEventListener("keydown", handleKeyDown);
+    container.addEventListener('keydown', handleKeyDown);
+    return () => container.removeEventListener('keydown', handleKeyDown);
   }, [containerRef, isActive]);
 }
 ```
@@ -568,8 +556,8 @@ function getContrastRatio(fg: string, bg: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function meetsWCAG(fg: string, bg: string, level: "AA" | "AAA" = "AA"): boolean {
+function meetsWCAG(fg: string, bg: string, level: 'AA' | 'AAA' = 'AA'): boolean {
   const ratio = getContrastRatio(fg, bg);
-  return level === "AAA" ? ratio >= 7 : ratio >= 4.5;
+  return level === 'AAA' ? ratio >= 7 : ratio >= 4.5;
 }
 ```

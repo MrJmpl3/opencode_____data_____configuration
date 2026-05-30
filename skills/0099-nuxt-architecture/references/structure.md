@@ -135,19 +135,19 @@ Static values shared across the app:
 
 ```typescript
 // channels.ts - WebSocket channels
-export const Posts = "posts";
-export const Post = "post.{post}";
+export const Posts = 'posts';
+export const Post = 'post.{post}';
 
 // events.ts - Event names
-export const PostCreated = "PostCreated";
-export const PostUpdated = "PostUpdated";
+export const PostCreated = 'PostCreated';
+export const PostUpdated = 'PostUpdated';
 
 // permissions.ts - Permission strings
-export const ListPosts = "posts.list";
-export const CreatePost = "posts.create";
+export const ListPosts = 'posts.list';
+export const CreatePost = 'posts.create';
 
 // symbols.ts - Vue injection keys
-export const SlideoverKey = Symbol("slideover");
+export const SlideoverKey = Symbol('slideover');
 ```
 
 ## Configuration Files
@@ -158,15 +158,11 @@ export const SlideoverKey = Symbol("slideover");
 export default defineNuxtConfig({
   ssr: false, // SPA mode
 
-  extends: [
-    "../../../nuxt-layers/base",
-    "../../../nuxt-layers/nuxt-ui",
-    "../../../nuxt-layers/x-ui",
-  ],
+  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
 
-  modules: ["nuxt-auth-sanctum", "@nuxt/ui"],
+  modules: ['nuxt-auth-sanctum', '@nuxt/ui'],
 
-  components: [{ path: "components", pathPrefix: false }],
+  components: [{ path: 'components', pathPrefix: false }],
 });
 ```
 
@@ -199,13 +195,13 @@ Use layer aliases for base layer imports:
 
 ```typescript
 // Import from layers
-import Model from "#layers/base/app/models/Model";
-import type { Castable } from "#layers/base/app/types";
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
+import Model from '#layers/base/app/models/Model';
+import type { Castable } from '#layers/base/app/types';
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
 
 // Import from app (use ~ alias)
-import Post from "~/models/Post";
-import { ListPosts } from "~/constants/permissions";
+import Post from '~/models/Post';
+import { ListPosts } from '~/constants/permissions';
 ```
 
 ## New Feature Checklist

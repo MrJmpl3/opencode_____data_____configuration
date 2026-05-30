@@ -5,7 +5,7 @@
 All enums extend `Enum` from the base layer:
 
 ```typescript
-import Enum from "#layers/base/app/enums/Enum";
+import Enum from '#layers/base/app/enums/Enum';
 ```
 
 ### Core Methods
@@ -33,15 +33,15 @@ instance.value  // string
 
 ```typescript
 // app/enums/PostStatus.ts
-import Enum from "#layers/base/app/enums/Enum";
-import type { Castable, EnumStoreObject } from "#layers/base/app/types";
+import Enum from '#layers/base/app/enums/Enum';
+import type { Castable, EnumStoreObject } from '#layers/base/app/types';
 
 export default class PostStatus extends Enum implements Castable {
   // Define all possible values
-  static readonly Draft = PostStatus.create("draft");
-  static readonly PendingReview = PostStatus.create("pending review");
-  static readonly Published = PostStatus.create("published");
-  static readonly Archived = PostStatus.create("archived");
+  static readonly Draft = PostStatus.create('draft');
+  static readonly PendingReview = PostStatus.create('pending review');
+  static readonly Published = PostStatus.create('published');
+  static readonly Archived = PostStatus.create('archived');
 
   // Required for model casting
   static cast(value: string | EnumStoreObject): PostStatus {
@@ -51,16 +51,16 @@ export default class PostStatus extends Enum implements Castable {
   // UI color mapping
   color(): string {
     switch (this.value) {
-      case "draft":
-        return "neutral";
-      case "pending review":
-        return "warning";
-      case "published":
-        return "success";
-      case "archived":
-        return "error";
+      case 'draft':
+        return 'neutral';
+      case 'pending review':
+        return 'warning';
+      case 'published':
+        return 'success';
+      case 'archived':
+        return 'error';
       default:
-        return "neutral";
+        return 'neutral';
     }
   }
 
@@ -72,14 +72,14 @@ export default class PostStatus extends Enum implements Castable {
   // Custom display text (if different from value)
   get label(): string {
     switch (this.value) {
-      case "draft":
-        return "Draft";
-      case "pending review":
-        return "Pending Review";
-      case "published":
-        return "Published";
-      case "archived":
-        return "Archived";
+      case 'draft':
+        return 'Draft';
+      case 'pending review':
+        return 'Pending Review';
+      case 'published':
+        return 'Published';
+      case 'archived':
+        return 'Archived';
       default:
         return this.value;
     }
@@ -103,7 +103,7 @@ export default class PostStatus extends Enum implements Castable {
 Enums implement `Castable` for model integration:
 
 ```typescript
-import type { Castable } from "#layers/base/app/types";
+import type { Castable } from '#layers/base/app/types';
 
 class PostStatus extends Enum implements Castable {
   // Static cast method - called by model hydration
@@ -116,7 +116,7 @@ class PostStatus extends Enum implements Castable {
 ### In Models
 
 ```typescript
-import PostStatus from "~/enums/PostStatus";
+import PostStatus from '~/enums/PostStatus';
 
 class Post extends Model {
   status: PostStatus;
@@ -226,7 +226,7 @@ canBeEdited(): boolean {
 <USelect v-model="filters.status" :options="statusOptions" placeholder="Filter by status" />
 
 <script setup>
-import PostStatus from "~/enums/PostStatus";
+import PostStatus from '~/enums/PostStatus';
 
 const statusOptions = computed(() =>
   PostStatus.values().map((status) => ({
@@ -281,7 +281,7 @@ const allStatuses = PostStatus.values();
 
 ```typescript
 // Coerce string back to enum instance
-const status = PostStatus.coerce("published");
+const status = PostStatus.coerce('published');
 status.is(PostStatus.Published); // true
 ```
 
@@ -294,11 +294,11 @@ status.is(PostStatus.Published); // true
 ```typescript
 // app/enums/TaskStatus.ts
 export default class TaskStatus extends Enum implements Castable {
-  static readonly Pending = TaskStatus.create("pending");
-  static readonly Scheduled = TaskStatus.create("scheduled");
-  static readonly InProgress = TaskStatus.create("in_progress");
-  static readonly Completed = TaskStatus.create("completed");
-  static readonly Failed = TaskStatus.create("failed");
+  static readonly Pending = TaskStatus.create('pending');
+  static readonly Scheduled = TaskStatus.create('scheduled');
+  static readonly InProgress = TaskStatus.create('in_progress');
+  static readonly Completed = TaskStatus.create('completed');
+  static readonly Failed = TaskStatus.create('failed');
 
   static cast(value: string): TaskStatus {
     return TaskStatus.coerce(value);
@@ -306,18 +306,18 @@ export default class TaskStatus extends Enum implements Castable {
 
   color(): string {
     switch (this.value) {
-      case "pending":
-        return "warning";
-      case "scheduled":
-        return "info";
-      case "in_progress":
-        return "primary";
-      case "completed":
-        return "success";
-      case "failed":
-        return "error";
+      case 'pending':
+        return 'warning';
+      case 'scheduled':
+        return 'info';
+      case 'in_progress':
+        return 'primary';
+      case 'completed':
+        return 'success';
+      case 'failed':
+        return 'error';
       default:
-        return "neutral";
+        return 'neutral';
     }
   }
 }
@@ -328,10 +328,10 @@ export default class TaskStatus extends Enum implements Castable {
 ```typescript
 // app/enums/NotificationStatus.ts
 export default class NotificationStatus extends Enum implements Castable {
-  static readonly Pending = NotificationStatus.create("pending");
-  static readonly Sent = NotificationStatus.create("sent");
-  static readonly Delivered = NotificationStatus.create("delivered");
-  static readonly Failed = NotificationStatus.create("failed");
+  static readonly Pending = NotificationStatus.create('pending');
+  static readonly Sent = NotificationStatus.create('sent');
+  static readonly Delivered = NotificationStatus.create('delivered');
+  static readonly Failed = NotificationStatus.create('failed');
 
   static cast(value: string): NotificationStatus {
     return NotificationStatus.coerce(value);
@@ -339,16 +339,16 @@ export default class NotificationStatus extends Enum implements Castable {
 
   color(): string {
     switch (this.value) {
-      case "pending":
-        return "warning";
-      case "sent":
-        return "info";
-      case "delivered":
-        return "success";
-      case "failed":
-        return "error";
+      case 'pending':
+        return 'warning';
+      case 'sent':
+        return 'info';
+      case 'delivered':
+        return 'success';
+      case 'failed':
+        return 'error';
       default:
-        return "neutral";
+        return 'neutral';
     }
   }
 

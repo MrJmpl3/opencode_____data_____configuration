@@ -97,9 +97,9 @@ For state that needs SSR hydration:
 ```typescript
 // app/composables/useSettings.ts
 export default function useSettings() {
-  const settings = useState<Settings>("app-settings", () => ({
-    theme: "light",
-    language: "en",
+  const settings = useState<Settings>('app-settings', () => ({
+    theme: 'light',
+    language: 'en',
   }));
 
   const setTheme = (theme: string) => {
@@ -119,7 +119,7 @@ Composables that use other composables or repositories:
 ```typescript
 // app/composables/useCategories.ts
 export function useCategories() {
-  const categoryApi = useRepository("categories");
+  const categoryApi = useRepository('categories');
   const categories = ref<Category[]>([]);
   const loading = ref(false);
 
@@ -183,15 +183,15 @@ Encapsulating WebSocket subscriptions:
 
 ```typescript
 // app/composables/useTaskNotifications.ts
-import { Tasks, TaskCreated, TaskCompleted } from "~/constants";
+import { Tasks, TaskCreated, TaskCompleted } from '~/constants';
 
 export default function useTaskNotifications() {
   const pendingCount = ref(0);
-  const taskApi = useRepository("tasks");
+  const taskApi = useRepository('tasks');
   const { privateChannel, leaveChannel } = useRealtime();
 
   const fetchCount = async () => {
-    const { data } = await taskApi.list({ filter: { status: "pending" } });
+    const { data } = await taskApi.list({ filter: { status: 'pending' } });
     pendingCount.value = data.length;
   };
 
@@ -217,7 +217,7 @@ For scoped state within component trees:
 
 ```typescript
 // app/composables/useFormContext.ts
-import type { InjectionKey } from "vue";
+import type { InjectionKey } from 'vue';
 
 interface FormContext {
   errors: Ref<Record<string, string[]>>;
@@ -225,7 +225,7 @@ interface FormContext {
   clearError: (field: string) => void;
 }
 
-export const FormContextKey: InjectionKey<FormContext> = Symbol("form-context");
+export const FormContextKey: InjectionKey<FormContext> = Symbol('form-context');
 
 export function useProvideFormContext() {
   const errors = ref<Record<string, string[]>>({});
@@ -247,7 +247,7 @@ export function useProvideFormContext() {
 export function useFormContext() {
   const context = inject(FormContextKey);
   if (!context) {
-    throw new Error("useFormContext must be used within a form provider");
+    throw new Error('useFormContext must be used within a form provider');
   }
   return context;
 }
@@ -346,7 +346,7 @@ export default function useSearch(repository: string) {
 
 // Less flexible: Hardcoded dependency
 export default function useSearch() {
-  const api = useRepository("posts"); // Always posts
+  const api = useRepository('posts'); // Always posts
   // ...
 }
 ```

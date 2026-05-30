@@ -38,7 +38,7 @@ export const createRefreshScheduler = ({
     pollIntervalMs > 0
       ? setInterval(() => {
           if (disposed) return;
-          onRefresh("poll");
+          onRefresh('poll');
         }, pollIntervalMs)
       : undefined;
 
@@ -70,9 +70,7 @@ export const createRefreshScheduler = ({
   // before fetching updated quota. Prevents reading stale intermediate state.
 
   const bindEvents = (eventNames: string[], extraDelays: number[] = []) => {
-    return eventNames.map((eventName) =>
-      subscribe(eventName, () => scheduleRefresh(extraDelays, eventName)),
-    );
+    return eventNames.map((eventName) => subscribe(eventName, () => scheduleRefresh(extraDelays, eventName)));
   };
 
   const unsubscribers = [...bindEvents(immediateEvents), ...bindEvents(completionEvents, [250])];

@@ -158,7 +158,7 @@ function processOrder(order: Order) {
   debugger; // Execution pauses here
 
   const total = calculateTotal(order);
-  console.log("Total:", total);
+  console.log('Total:', total);
 
   // Conditional breakpoint
   if (order.items.length > 10) {
@@ -169,19 +169,19 @@ function processOrder(order: Order) {
 }
 
 // Console debugging techniques
-console.log("Value:", value); // Basic
+console.log('Value:', value); // Basic
 console.table(arrayOfObjects); // Table format
-console.time("operation");
-/* code */ console.timeEnd("operation"); // Timing
+console.time('operation');
+/* code */ console.timeEnd('operation'); // Timing
 console.trace(); // Stack trace
-console.assert(value > 0, "Value must be positive"); // Assertion
+console.assert(value > 0, 'Value must be positive'); // Assertion
 
 // Performance profiling
-performance.mark("start-operation");
+performance.mark('start-operation');
 // ... operation code
-performance.mark("end-operation");
-performance.measure("operation", "start-operation", "end-operation");
-console.log(performance.getEntriesByType("measure"));
+performance.mark('end-operation');
+performance.measure('operation', 'start-operation', 'end-operation');
+console.log(performance.getEntriesByType('measure'));
 ```
 
 **VS Code Debugger Configuration:**
@@ -384,10 +384,10 @@ class OrderService {
 
 // Node.js memory debugging
 if (process.memoryUsage().heapUsed > 500 * 1024 * 1024) {
-  console.warn("High memory usage:", process.memoryUsage());
+  console.warn('High memory usage:', process.memoryUsage());
 
   // Generate heap dump
-  require("v8").writeHeapSnapshot();
+  require('v8').writeHeapSnapshot();
 }
 
 // Find memory leaks in tests

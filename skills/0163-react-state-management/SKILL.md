@@ -87,10 +87,10 @@ function Header() {
 
 ```typescript
 // store/index.ts
-import { configureStore } from "@reduxjs/toolkit";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import userReducer from "./slices/userSlice";
-import cartReducer from "./slices/cartSlice";
+import { configureStore } from '@reduxjs/toolkit';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import userReducer from './slices/userSlice';
+import cartReducer from './slices/cartSlice';
 
 export const store = configureStore({
   reducer: {
@@ -100,7 +100,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ["persist/PERSIST"],
+        ignoredActions: ['persist/PERSIST'],
       },
     }),
 });
@@ -115,7 +115,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 ```typescript
 // store/slices/userSlice.ts
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
   id: string;
@@ -125,54 +125,51 @@ interface User {
 
 interface UserState {
   current: User | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: UserState = {
   current: null,
-  status: "idle",
+  status: 'idle',
   error: null,
 };
 
-export const fetchUser = createAsyncThunk(
-  "user/fetchUser",
-  async (userId: string, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`/api/users/${userId}`);
-      if (!response.ok) throw new Error("Failed to fetch user");
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
-  },
-);
+export const fetchUser = createAsyncThunk('user/fetchUser', async (userId: string, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`/api/users/${userId}`);
+    if (!response.ok) throw new Error('Failed to fetch user');
+    return await response.json();
+  } catch (error) {
+    return rejectWithValue((error as Error).message);
+  }
+});
 
 const userSlice = createSlice({
-  name: "user",
+  name: 'user',
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
       state.current = action.payload;
-      state.status = "succeeded";
+      state.status = 'succeeded';
     },
     clearUser: (state) => {
       state.current = null;
-      state.status = "idle";
+      state.status = 'idle';
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status = 'succeeded';
         state.current = action.payload;
       })
       .addCase(fetchUser.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = 'failed';
         state.error = action.payload as string;
       });
   },
@@ -186,7 +183,7 @@ export default userSlice.reducer;
 
 ```typescript
 // store/slices/createUserSlice.ts
-import { StateCreator } from "zustand";
+import { StateCreator } from 'zustand';
 
 export interface UserSlice {
   user: User | null;
@@ -215,9 +212,9 @@ export const createUserSlice: StateCreator<
 });
 
 // store/index.ts
-import { create } from "zustand";
-import { createUserSlice, UserSlice } from "./slices/createUserSlice";
-import { createCartSlice, CartSlice } from "./slices/createCartSlice";
+import { create } from 'zustand';
+import { createUserSlice, UserSlice } from './slices/createUserSlice';
+import { createCartSlice, CartSlice } from './slices/createCartSlice';
 
 type StoreState = UserSlice & CartSlice;
 
@@ -280,14 +277,14 @@ function Profile() {
 
 ```typescript
 // hooks/useUsers.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Query keys factory
 export const userKeys = {
-  all: ["users"] as const,
-  lists: () => [...userKeys.all, "list"] as const,
+  all: ['users'] as const,
+  lists: () => [...userKeys.all, 'list'] as const,
   list: (filters: UserFilters) => [...userKeys.lists(), filters] as const,
-  details: () => [...userKeys.all, "detail"] as const,
+  details: () => [...userKeys.all, 'detail'] as const,
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
@@ -400,7 +397,7 @@ function Dashboard() {
 
 ```typescript
 // Before (legacy Redux)
-const ADD_TODO = "ADD_TODO";
+const ADD_TODO = 'ADD_TODO';
 const addTodo = (text) => ({ type: ADD_TODO, payload: text });
 function todosReducer(state = [], action) {
   switch (action.type) {
@@ -413,7 +410,7 @@ function todosReducer(state = [], action) {
 
 // After (Redux Toolkit)
 const todosSlice = createSlice({
-  name: "todos",
+  name: 'todos',
   initialState: [],
   reducers: {
     addTodo: (state, action: PayloadAction<string>) => {

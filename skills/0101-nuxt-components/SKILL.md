@@ -30,7 +30,7 @@ components/
 ```vue
 <script lang="ts" setup>
 // 1. Imports
-import createPostActionFactory from "~/features/posts/actions/create-post-action";
+import createPostActionFactory from '~/features/posts/actions/create-post-action';
 
 // 2. Props & Emits
 const props = defineProps<{ author?: Author }>();
@@ -43,13 +43,13 @@ const flash = useFlash();
 const slideover = inject(SlideoverKey);
 
 // 5. Refs
-const formRef = useTemplateRef("formRef");
+const formRef = useTemplateRef('formRef');
 
 // 6. Toggles
 const isOpen = ref(false);
 
 // 7. Reactive props
-const formData = ref<CreatePostData>({ title: "", content: "" });
+const formData = ref<CreatePostData>({ title: '', content: '' });
 
 // 8. Computed
 const canSubmit = computed(() => formData.value.title && formData.value.content);
@@ -62,7 +62,7 @@ const createPostAction = createPostActionFactory();
 
 // 11. Watchers
 watch(selectedAuthor, (a) => {
-  formData.value.authorId = a?.ulid || "";
+  formData.value.authorId = a?.ulid || '';
 });
 
 // 12. Methods

@@ -728,7 +728,7 @@ const threshold = useMemo(() => calculateThreshold(screenWidth), [screenWidth]);
 ```typescript
 // Do: Keep worklets simple
 const simpleWorklet = () => {
-  "worklet";
+  'worklet';
   return scale.value * 2;
 };
 
@@ -741,7 +741,7 @@ const onComplete = () => {
 };
 
 opacity.value = withTiming(1, {}, (finished) => {
-  "worklet";
+  'worklet';
   if (finished) {
     runOnJS(onComplete)();
   }

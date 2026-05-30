@@ -54,8 +54,8 @@ The XForm component from x-ui layer handles form state, submission, and validati
 ```vue
 <!-- app/components/Slideovers/CreatePostSlideover.vue -->
 <script lang="ts" setup>
-import createPostActionFactory from "~/features/posts/actions/create-post-action";
-import type { CreatePostData } from "~/features/posts/mutations/create-post-mutation";
+import createPostActionFactory from '~/features/posts/actions/create-post-action';
+import type { CreatePostData } from '~/features/posts/mutations/create-post-mutation';
 
 // Props & Emits
 const props = defineProps<{ author?: Author }>();
@@ -65,15 +65,15 @@ const emits = defineEmits<{ close: [success: boolean] }>();
 const { is, waitingFor } = useWait();
 
 // Refs
-const formRef = useTemplateRef("formRef");
+const formRef = useTemplateRef('formRef');
 const existingAuthor = ref<Author>();
 
 // Form data
 const formData = ref<CreatePostData>({
-  email: props.author?.email || "",
-  name: props.author?.name || "",
-  content: "",
-  publishAt: "",
+  email: props.author?.email || '',
+  name: props.author?.name || '',
+  content: '',
+  publishAt: '',
   isDraft: false,
   notifySubscribers: true,
 });
@@ -94,7 +94,7 @@ const onSubmit = async (data: CreatePostData) => {
 };
 
 const onSuccess = () => {
-  emits("close", true);
+  emits('close', true);
 };
 
 const onError = ({ error }: { error: unknown }) => {
@@ -158,13 +158,13 @@ const onError = ({ error }: { error: unknown }) => {
 
 ```typescript
 // Check if field has errors
-form.errors.has("email"); // boolean
+form.errors.has('email'); // boolean
 
 // Get first error for field
-form.errors.first("email"); // string | undefined
+form.errors.first('email'); // string | undefined
 
 // Get all errors for field
-form.errors.get("email"); // string[] | undefined
+form.errors.get('email'); // string[] | undefined
 
 // Check if any errors exist
 form.errors.any(); // boolean
@@ -173,7 +173,7 @@ form.errors.any(); // boolean
 form.errors.clear();
 
 // Clear specific field error
-form.errors.forget("email");
+form.errors.forget('email');
 ```
 
 ### Display in Template
@@ -202,20 +202,20 @@ Fluent API for form configuration:
 
 ```typescript
 const form = useFormBuilder<CreatePostData>()
-  .post("/api/posts")
+  .post('/api/posts')
   .data({
-    name: "",
-    email: "",
-    content: "",
+    name: '',
+    email: '',
+    content: '',
   })
-  .waiting("posts.creating")
+  .waiting('posts.creating')
   .resetOnSuccess(true)
   .before(({ data }) => {
     // Transform data before submit
   })
   .success(({ response }) => {
-    flash.success("Post created!");
-    emits("close");
+    flash.success('Post created!');
+    emits('close');
   })
   .error(({ error }) => {
     if (error instanceof ValidationError) {
@@ -284,10 +284,10 @@ form.data; // reactive data
 ```vue
 <!-- app/components/Form/AuthorEmailInput.vue -->
 <script lang="ts" setup>
-const email = defineModel<string>("email");
-const author = defineModel<Author>("author");
+const email = defineModel<string>('email');
+const author = defineModel<Author>('author');
 
-const authorApi = useRepository("authors");
+const authorApi = useRepository('authors');
 const searching = ref(false);
 const results = ref<Author[]>([]);
 

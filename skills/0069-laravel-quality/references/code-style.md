@@ -222,10 +222,7 @@ Use Composer scripts for common tasks:
       "php artisan migrate:fresh --env=testing --quiet",
       "./vendor/bin/pest --compact"
     ],
-    "pest-dirty": [
-      "Composer\\Config::disableProcessTimeout",
-      "./vendor/bin/pest --dirty --compact"
-    ],
+    "pest-dirty": ["Composer\\Config::disableProcessTimeout", "./vendor/bin/pest --dirty --compact"],
     "pest-coverage": [
       "Composer\\Config::disableProcessTimeout",
       "php artisan migrate:fresh --env=testing --quiet",

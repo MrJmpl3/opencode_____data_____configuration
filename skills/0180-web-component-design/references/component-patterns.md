@@ -15,7 +15,7 @@ import {
   type ReactNode,
   type Dispatch,
   type SetStateAction,
-} from "react";
+} from 'react';
 
 // Types
 interface TabsContextValue {
@@ -51,7 +51,7 @@ const TabsContext = createContext<TabsContextValue | null>(null);
 function useTabs() {
   const context = useContext(TabsContext);
   if (!context) {
-    throw new Error("Tabs components must be used within <Tabs>");
+    throw new Error('Tabs components must be used within <Tabs>');
   }
   return context;
 }
@@ -62,7 +62,7 @@ export function Tabs({ defaultValue, children, onChange }: TabsProps) {
 
   const handleChange: Dispatch<SetStateAction<string>> = useCallback(
     (value) => {
-      const newValue = typeof value === "function" ? value(activeTab) : value;
+      const newValue = typeof value === 'function' ? value(activeTab) : value;
       setActiveTab(newValue);
       onChange?.(newValue);
     },
@@ -100,12 +100,8 @@ Tabs.Tab = function Tab({ value, children, disabled }: TabProps) {
       onClick={() => setActiveTab(value)}
       className={`
         px-4 py-2 font-medium transition-colors
-        ${
-          isActive
-            ? "border-b-2 border-blue-600 text-blue-600"
-            : "text-gray-600 hover:text-gray-900"
-        }
-        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+        ${isActive ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-900'}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
       `}
     >
       {children}
@@ -120,13 +116,7 @@ Tabs.Panel = function TabPanel({ value, children }: TabPanelProps) {
   if (activeTab !== value) return null;
 
   return (
-    <div
-      role="tabpanel"
-      id={`panel-${value}`}
-      aria-labelledby={`tab-${value}`}
-      tabIndex={0}
-      className="py-4"
-    >
+    <div role="tabpanel" id={`panel-${value}`} aria-labelledby={`tab-${value}`} tabIndex={0} className="py-4">
       {children}
     </div>
   );
@@ -187,7 +177,7 @@ function DataLoader<T>({ url, children }: DataLoaderProps<T>) {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       const response = await fetch(url);
-      if (!response.ok) throw new Error("Fetch failed");
+      if (!response.ok) throw new Error('Fetch failed');
       const data = await response.json();
       setState({ data, loading: false, error: null });
     } catch (error) {
@@ -369,7 +359,7 @@ function Card({ children, header, footer, media }: CardProps) {
 Allow parent components to access the underlying DOM node.
 
 ```tsx
-import { forwardRef, useRef, useImperativeHandle } from "react";
+import { forwardRef, useRef, useImperativeHandle } from 'react';
 
 interface InputHandle {
   focus: () => void;
@@ -388,25 +378,20 @@ const FancyInput = forwardRef<InputHandle, FancyInputProps>(({ label, placeholde
   useImperativeHandle(ref, () => ({
     focus: () => inputRef.current?.focus(),
     clear: () => {
-      if (inputRef.current) inputRef.current.value = "";
+      if (inputRef.current) inputRef.current.value = '';
     },
-    getValue: () => inputRef.current?.value ?? "",
+    getValue: () => inputRef.current?.value ?? '',
   }));
 
   return (
     <div>
       <label className="block text-sm font-medium mb-1">{label}</label>
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder={placeholder}
-        className="w-full px-3 py-2 border rounded-md"
-      />
+      <input ref={inputRef} type="text" placeholder={placeholder} className="w-full px-3 py-2 border rounded-md" />
     </div>
   );
 });
 
-FancyInput.displayName = "FancyInput";
+FancyInput.displayName = 'FancyInput';
 
 // Usage
 function Form() {

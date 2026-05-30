@@ -308,13 +308,13 @@ Examples:
 ### Style Dictionary Transforms
 
 ```javascript
-const StyleDictionary = require("style-dictionary");
+const StyleDictionary = require('style-dictionary');
 
 // Custom transform for px to rem
 StyleDictionary.registerTransform({
-  name: "size/pxToRem",
-  type: "value",
-  matcher: (token) => token.attributes.category === "size",
+  name: 'size/pxToRem',
+  type: 'value',
+  matcher: (token) => token.attributes.category === 'size',
   transformer: (token) => {
     const value = parseFloat(token.value);
     return `${value / 16}rem`;
@@ -323,14 +323,14 @@ StyleDictionary.registerTransform({
 
 // Custom format for CSS custom properties
 StyleDictionary.registerFormat({
-  name: "css/customProperties",
+  name: 'css/customProperties',
   formatter: function ({ dictionary, options }) {
     const tokens = dictionary.allTokens.map((token) => {
-      const name = token.name.replace(/\./g, "-");
+      const name = token.name.replace(/\./g, '-');
       return `  --${name}: ${token.value};`;
     });
 
-    return `:root {\n${tokens.join("\n")}\n}`;
+    return `:root {\n${tokens.join('\n')}\n}`;
   },
 });
 ```
@@ -402,13 +402,9 @@ interface TokenValidation {
 }
 
 // Contrast validation
-function validateContrast(
-  foreground: string,
-  background: string,
-  level: "AA" | "AAA" = "AA",
-): boolean {
+function validateContrast(foreground: string, background: string, level: 'AA' | 'AAA' = 'AA'): boolean {
   const ratio = getContrastRatio(foreground, background);
-  return level === "AA" ? ratio >= 4.5 : ratio >= 7;
+  return level === 'AA' ? ratio >= 4.5 : ratio >= 7;
 }
 ```
 

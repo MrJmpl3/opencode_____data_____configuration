@@ -31,15 +31,13 @@ pages/
 
 ```vue
 <script lang="ts" setup>
-import getPostsQueryFactory, {
-  type GetPostsFilters,
-} from "~/features/posts/queries/get-posts-query";
-import { ListPosts, CreatePost } from "~/constants/permissions";
+import getPostsQueryFactory, { type GetPostsFilters } from '~/features/posts/queries/get-posts-query';
+import { ListPosts, CreatePost } from '~/constants/permissions';
 
 definePageMeta({ permissions: ListPosts });
 
 const { setAppHeader } = useAppHeader();
-setAppHeader({ title: "Posts", icon: "lucide:file-text" });
+setAppHeader({ title: 'Posts', icon: 'lucide:file-text' });
 
 const { filters } = useReactiveFilters<GetPostsFilters>({
   status: undefined,
@@ -64,9 +62,9 @@ const { data: posts, isLoading, pagination } = getPostsQuery(filters);
 
 ```vue
 <script lang="ts" setup>
-import getPostQueryFactory from "~/features/posts/queries/get-post-query";
+import getPostQueryFactory from '~/features/posts/queries/get-post-query';
 
-definePageMeta({ permissions: "posts.show" });
+definePageMeta({ permissions: 'posts.show' });
 
 const route = useRoute();
 const ulid = computed(() => route.params.ulid as string);

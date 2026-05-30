@@ -7,7 +7,7 @@ Value objects encapsulate primitive values with behavior and formatting.
 Value objects implement `Castable` for model integration:
 
 ```typescript
-import type { Castable } from "#layers/base/app/types";
+import type { Castable } from '#layers/base/app/types';
 
 class DateValue implements Castable {
   // Static cast method required
@@ -25,7 +25,7 @@ The primary value object for date handling:
 
 ```typescript
 // app/values/DateValue.ts
-import type { Castable } from "#layers/base/app/types";
+import type { Castable } from '#layers/base/app/types';
 
 export default class DateValue implements Castable {
   iso8601: string;
@@ -35,7 +35,7 @@ export default class DateValue implements Castable {
   }
 
   // Format using dayjs (auto-imported from layer)
-  format(format: string = "DD MMM YYYY"): string | undefined {
+  format(format: string = 'DD MMM YYYY'): string | undefined {
     if (!this.iso8601) return undefined;
     return useDayjs()(this.iso8601).format(format);
   }
@@ -71,7 +71,7 @@ export default class DateValue implements Castable {
 ### Usage in Models
 
 ```typescript
-import DateValue from "~/values/DateValue";
+import DateValue from '~/values/DateValue';
 
 class Post extends Model {
   createdAt: DateValue;
@@ -94,10 +94,10 @@ class Post extends Model {
 <template>
   <div>
     <!-- Formatted date -->
-    <span>{{ post.createdAt.format("DD MMM YYYY") }}</span>
+    <span>{{ post.createdAt.format('DD MMM YYYY') }}</span>
 
     <!-- Different formats -->
-    <span>{{ post.createdAt.format("YYYY-MM-DD HH:mm") }}</span>
+    <span>{{ post.createdAt.format('YYYY-MM-DD HH:mm') }}</span>
 
     <!-- Relative time -->
     <span>{{ post.createdAt.fromNow() }}</span>
@@ -116,7 +116,7 @@ class Post extends Model {
 
 ```typescript
 // app/values/MoneyValue.ts
-import type { Castable } from "#layers/base/app/types";
+import type { Castable } from '#layers/base/app/types';
 
 interface MoneyData {
   amount: number;
@@ -133,15 +133,15 @@ export default class MoneyValue implements Castable {
   }
 
   format(): string {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
+    return new Intl.NumberFormat('en-GB', {
+      style: 'currency',
       currency: this.currency,
     }).format(this.amount / 100); // Assuming cents
   }
 
   add(other: MoneyValue): MoneyValue {
     if (this.currency !== other.currency) {
-      throw new Error("Cannot add different currencies");
+      throw new Error('Cannot add different currencies');
     }
     return new MoneyValue({
       amount: this.amount + other.amount,
@@ -159,7 +159,7 @@ export default class MoneyValue implements Castable {
 
 ```typescript
 // app/values/PhoneValue.ts
-import type { Castable } from "#layers/base/app/types";
+import type { Castable } from '#layers/base/app/types';
 
 export default class PhoneValue implements Castable {
   raw: string;
@@ -170,17 +170,17 @@ export default class PhoneValue implements Castable {
 
   format(): string {
     // UK format: 07XXX XXX XXX
-    const cleaned = this.raw.replace(/\D/g, "");
-    if (cleaned.length === 11 && cleaned.startsWith("07")) {
+    const cleaned = this.raw.replace(/\D/g, '');
+    if (cleaned.length === 11 && cleaned.startsWith('07')) {
       return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
     }
     return this.raw;
   }
 
   get international(): string {
-    const cleaned = this.raw.replace(/\D/g, "");
-    if (cleaned.startsWith("07")) {
-      return "+44" + cleaned.slice(1);
+    const cleaned = this.raw.replace(/\D/g, '');
+    if (cleaned.startsWith('07')) {
+      return '+44' + cleaned.slice(1);
     }
     return cleaned;
   }
@@ -209,7 +209,7 @@ class DateValue implements Castable {
 
   // Return new instance instead of mutating
   addDays(days: number): DateValue {
-    const date = useDayjs()(this.iso8601).add(days, "day");
+    const date = useDayjs()(this.iso8601).add(days, 'day');
     return new DateValue(date.toISOString());
   }
 }
@@ -233,7 +233,7 @@ Handle null/undefined gracefully:
 
 ```typescript
 class DateValue implements Castable {
-  format(format: string = "DD MMM YYYY"): string | undefined {
+  format(format: string = 'DD MMM YYYY'): string | undefined {
     if (!this.iso8601) return undefined; // Safe for null/undefined
     return useDayjs()(this.iso8601).format(format);
   }

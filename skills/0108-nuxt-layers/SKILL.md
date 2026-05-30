@@ -26,11 +26,7 @@ base          → Core infrastructure (Model, Repository, composables, utils)
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: [
-    "../../../nuxt-layers/base",
-    "../../../nuxt-layers/nuxt-ui",
-    "../../../nuxt-layers/x-ui",
-  ],
+  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
 });
 ```
 
@@ -38,13 +34,13 @@ export default defineNuxtConfig({
 
 ```typescript
 // Base layer imports
-import Model from "#layers/base/app/models/Model";
-import type { Castable, DataResponse } from "#layers/base/app/types";
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
+import Model from '#layers/base/app/models/Model';
+import type { Castable, DataResponse } from '#layers/base/app/types';
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
 
 // Composables auto-imported
-const leadApi = useRepository("leads");
+const leadApi = useRepository('leads');
 const { start, stop } = useWait();
 const { can } = usePermissions();
 ```

@@ -17,19 +17,15 @@ Application configuration via nuxt.config.ts and app.config.ts.
 export default defineNuxtConfig({
   ssr: false, // SPA mode
 
-  extends: [
-    "../../../nuxt-layers/base",
-    "../../../nuxt-layers/nuxt-ui",
-    "../../../nuxt-layers/x-ui",
-  ],
+  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
 
-  modules: ["nuxt-auth-sanctum", "@nuxt/ui"],
+  modules: ['nuxt-auth-sanctum', '@nuxt/ui'],
 
-  components: [{ path: "components", pathPrefix: false }],
+  components: [{ path: 'components', pathPrefix: false }],
 
   sanctum: {
     baseUrl: process.env.NUXT_PUBLIC_API_URL,
-    endpoints: { login: "/auth/login", user: "/auth/user" },
+    endpoints: { login: '/auth/login', user: '/auth/user' },
   },
 
   runtimeConfig: {
@@ -55,7 +51,7 @@ export default defineAppConfig({
   },
 
   errorHandlers: {
-    401: async ({ flash }) => navigateTo("/auth/login"),
+    401: async ({ flash }) => navigateTo('/auth/login'),
     422: async ({ response }) => new ValidationError(response),
   },
 });

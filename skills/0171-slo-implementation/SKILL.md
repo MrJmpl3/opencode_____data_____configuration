@@ -203,8 +203,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Fast error budget burn detected"
-          description: "Error budget burning at {{ $value }}x rate"
+          summary: 'Fast error budget burn detected'
+          description: 'Error budget burning at {{ $value }}x rate'
 
       # Slow burn: 6x rate, 6 hour window
       # Consumes 5% error budget in 6 hours
@@ -217,8 +217,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Slow error budget burn detected"
-          description: "Error budget burning at {{ $value }}x rate"
+          summary: 'Slow error budget burn detected'
+          description: 'Error budget burning at {{ $value }}x rate'
 
       # Error budget exhausted
       - alert: SLOErrorBudgetExhausted
@@ -227,8 +227,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "SLO error budget exhausted"
-          description: "Error budget remaining: {{ $value }}%"
+          summary: 'SLO error budget exhausted'
+          description: 'Error budget remaining: {{ $value }}%'
 ```
 
 ## SLO Dashboard

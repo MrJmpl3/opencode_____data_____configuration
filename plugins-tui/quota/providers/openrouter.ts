@@ -1,22 +1,22 @@
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
-import os from "os";
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
+import os from 'os';
 
-import { OPENROUTER_CREDITS_URL } from "./constants.js";
-import { fetchWithTimeout, httpErrorMessage, readJsonResponse } from "./http.js";
-import type { OpenRouterResult } from "./types.js";
+import { OPENROUTER_CREDITS_URL } from './constants.js';
+import { fetchWithTimeout, httpErrorMessage, readJsonResponse } from './http.js';
+import type { OpenRouterResult } from './types.js';
 
 export const readOpenRouterKey = (): string | null => {
   const key = process.env.OPENROUTER_API_KEY?.trim();
   if (key) return key;
 
   try {
-    const path = join(os.homedir(), ".config", "opencode", "openrouter-auth.json");
+    const path = join(os.homedir(), '.config', 'opencode', 'openrouter-auth.json');
     if (existsSync(path)) {
-      const raw: Record<string, unknown> = JSON.parse(readFileSync(path, "utf-8"));
-      for (const k of ["apiKey", "api_key", "token", "openrouterApiKey"] as const) {
+      const raw: Record<string, unknown> = JSON.parse(readFileSync(path, 'utf-8'));
+      for (const k of ['apiKey', 'api_key', 'token', 'openrouterApiKey'] as const) {
         const value = raw[k];
-        if (value && typeof value === "string") return value.trim();
+        if (value && typeof value === 'string') return value.trim();
       }
     }
   } catch {
@@ -25,33 +25,31 @@ export const readOpenRouterKey = (): string | null => {
   return null;
 };
 
-export const fetchOpenRouterQuota = async (): Promise<
-  OpenRouterResult | null | { error: string }
-> => {
+export const fetchOpenRouterQuota = async (): Promise<OpenRouterResult | null | { error: string }> => {
   const key = readOpenRouterKey();
   if (!key) return null;
 
   const res = await fetchWithTimeout(OPENROUTER_CREDITS_URL, {
-    headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
+    headers: { Authorization: `Bearer ${key}`, Accept: 'application/json' },
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    return { error: httpErrorMessage("OpenRouter", res, text) };
+    const text = await res.text().catch(() => '');
+    return { error: httpErrorMessage('OpenRouter', res, text) };
   }
 
-  const bodyResult = await readJsonResponse("OpenRouter", res);
-  if ("error" in bodyResult) return bodyResult;
+  const bodyResult = await readJsonResponse('OpenRouter', res);
+  if ('error' in bodyResult) return bodyResult;
 
   const body: unknown = bodyResult.data;
   const d = (body as Record<string, unknown>)?.data ?? body;
 
   const totalCredits =
-    typeof (d as Record<string, unknown>).total_credits === "number" &&
+    typeof (d as Record<string, unknown>).total_credits === 'number' &&
     Number.isFinite((d as Record<string, unknown>).total_credits)
       ? ((d as Record<string, unknown>).total_credits as number)
       : null;
   const totalUsage =
-    typeof (d as Record<string, unknown>).total_usage === "number" &&
+    typeof (d as Record<string, unknown>).total_usage === 'number' &&
     Number.isFinite((d as Record<string, unknown>).total_usage)
       ? ((d as Record<string, unknown>).total_usage as number)
       : null;
@@ -74,5 +72,5 @@ export const fetchOpenRouterQuota = async (): Promise<
     };
   }
 
-  return { error: "OpenRouter did not return expected credit data" };
+  return { error: 'OpenRouter did not return expected credit data' };
 };

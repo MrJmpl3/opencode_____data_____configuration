@@ -1,16 +1,16 @@
-import type { TuiPluginModule } from "@opencode-ai/plugin/tui";
+import type { TuiPluginModule } from '@opencode-ai/plugin/tui';
 
-import { registerQuotaTui } from "./runtime/runtime.js";
+import { registerQuotaTui } from './runtime/runtime.js';
 
 export {
   formatResponsibleUsagePace,
   formatResponsibleWeeklyUsage,
   isQuotaRateLimitError,
   retryAfterMsFromMessage,
-} from "./runtime/format.js";
+} from './runtime/format.js';
 
 const plugin: TuiPluginModule & { id: string } = {
-  id: "quota",
+  id: 'quota',
   tui: registerQuotaTui,
 };
 

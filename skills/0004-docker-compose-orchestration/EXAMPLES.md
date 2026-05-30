@@ -22,7 +22,7 @@ A comprehensive collection of real-world Docker Compose examples covering variou
 ### MERN Stack (MongoDB, Express, React, Node.js)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # React Frontend
@@ -31,7 +31,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./frontend/src:/app/src
       - /app/node_modules
@@ -49,7 +49,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - '5000:5000'
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -70,7 +70,7 @@ services:
     container_name: mongodb
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - '27017:27017'
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=secret
@@ -82,7 +82,7 @@ services:
     networks:
       - mern-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -93,7 +93,7 @@ services:
     container_name: mongo-express
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
       - ME_CONFIG_MONGODB_ADMINPASSWORD=secret
@@ -119,7 +119,7 @@ volumes:
 ### LAMP Stack (Linux, Apache, MySQL, PHP)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # Apache + PHP
@@ -130,8 +130,8 @@ services:
     container_name: lamp-web
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./public:/var/www/html
       - ./docker/php/php.ini:/usr/local/etc/php/php.ini:ro
@@ -154,7 +154,7 @@ services:
     container_name: lamp-mysql
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - '3306:3306'
     environment:
       - MYSQL_ROOT_PASSWORD=root_secret
       - MYSQL_DATABASE=lampdb
@@ -168,7 +168,7 @@ services:
       - lamp-network
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secret"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-proot_secret']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -179,7 +179,7 @@ services:
     container_name: lamp-phpmyadmin
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - '8080:80'
     environment:
       - PMA_HOST=mysql
       - PMA_PORT=3306
@@ -197,8 +197,8 @@ services:
     container_name: lamp-mailhog
     restart: unless-stopped
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - '1025:1025'
+      - '8025:8025'
     networks:
       - lamp-network
 
@@ -216,7 +216,7 @@ volumes:
 ### Next.js + PostgreSQL + Redis
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # Next.js Application
@@ -227,7 +227,7 @@ services:
       target: development
     container_name: nextjs-app
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./nextjs-app:/app
       - /app/node_modules
@@ -253,7 +253,7 @@ services:
     container_name: nextjs-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -264,7 +264,7 @@ services:
     networks:
       - nextjs-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -275,14 +275,14 @@ services:
     container_name: nextjs-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis-data:/data
     networks:
       - nextjs-network
     command: redis-server --appendonly yes --requirepass redis_password
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -293,7 +293,7 @@ services:
     container_name: nextjs-pgadmin
     restart: unless-stopped
     ports:
-      - "5050:80"
+      - '5050:80'
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=admin
@@ -311,7 +311,7 @@ services:
     container_name: nextjs-redis-commander
     restart: unless-stopped
     ports:
-      - "8082:8081"
+      - '8082:8081'
     environment:
       - REDIS_HOSTS=local:redis:6379:0:redis_password
     networks:
@@ -332,7 +332,7 @@ volumes:
 ### Django + PostgreSQL + Celery + Redis
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # Django Web Application
@@ -347,7 +347,7 @@ services:
       - static-volume:/code/staticfiles
       - media-volume:/code/media
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DEBUG=True
       - SECRET_KEY=django-insecure-dev-key
@@ -375,7 +375,7 @@ services:
     networks:
       - django-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U django"]
+      test: ['CMD-SHELL', 'pg_isready -U django']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -389,7 +389,7 @@ services:
     networks:
       - django-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -444,7 +444,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - "5555:5555"
+      - '5555:5555'
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -459,7 +459,7 @@ services:
     image: nginx:alpine
     container_name: django-nginx
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static-volume:/staticfiles:ro
@@ -487,7 +487,7 @@ volumes:
 ### PostgreSQL with Replication
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # Primary PostgreSQL
@@ -508,7 +508,7 @@ services:
     networks:
       - db-network
     ports:
-      - "5432:5432"
+      - '5432:5432'
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
 
   # Standby PostgreSQL (Read Replica)
@@ -526,7 +526,7 @@ services:
     networks:
       - db-network
     ports:
-      - "5433:5432"
+      - '5433:5432'
     depends_on:
       - postgres-primary
 
@@ -542,22 +542,22 @@ volumes:
 ### MongoDB Replica Set
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   mongo1:
     image: mongo:6
     container_name: mongo1
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo1-data:/data/db
       - ./mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
     networks:
       - mongo-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -565,9 +565,9 @@ services:
   mongo2:
     image: mongo:6
     container_name: mongo2
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
     ports:
-      - "27018:27017"
+      - '27018:27017'
     volumes:
       - mongo2-data:/data/db
     networks:
@@ -578,9 +578,9 @@ services:
   mongo3:
     image: mongo:6
     container_name: mongo3
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
     ports:
-      - "27019:27017"
+      - '27019:27017'
     volumes:
       - mongo3-data:/data/db
     networks:
@@ -601,7 +601,7 @@ volumes:
 ### MySQL with Master-Slave Replication
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # MySQL Master
@@ -620,7 +620,7 @@ services:
     networks:
       - mysql-network
     ports:
-      - "3306:3306"
+      - '3306:3306'
     command: --server-id=1 --log-bin=mysql-bin --binlog-do-db=myapp
 
   # MySQL Slave
@@ -637,7 +637,7 @@ services:
     networks:
       - mysql-network
     ports:
-      - "3307:3306"
+      - '3307:3306'
     depends_on:
       - mysql-master
     command: --server-id=2 --relay-log=mysql-relay-bin --read-only=1
@@ -658,7 +658,7 @@ volumes:
 ### Redis Cluster
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   redis-node-1:
@@ -666,7 +666,7 @@ services:
     container_name: redis-node-1
     command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
-      - "7001:6379"
+      - '7001:6379'
     volumes:
       - redis-node-1:/data
     networks:
@@ -677,7 +677,7 @@ services:
     container_name: redis-node-2
     command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
-      - "7002:6379"
+      - '7002:6379'
     volumes:
       - redis-node-2:/data
     networks:
@@ -688,7 +688,7 @@ services:
     container_name: redis-node-3
     command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
-      - "7003:6379"
+      - '7003:6379'
     volumes:
       - redis-node-3:/data
     networks:
@@ -699,7 +699,7 @@ services:
     container_name: redis-node-4
     command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
-      - "7004:6379"
+      - '7004:6379'
     volumes:
       - redis-node-4:/data
     networks:
@@ -710,7 +710,7 @@ services:
     container_name: redis-node-5
     command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
-      - "7005:6379"
+      - '7005:6379'
     volumes:
       - redis-node-5:/data
     networks:
@@ -721,7 +721,7 @@ services:
     container_name: redis-node-6
     command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
     ports:
-      - "7006:6379"
+      - '7006:6379'
     volumes:
       - redis-node-6:/data
     networks:
@@ -767,7 +767,7 @@ volumes:
 ### RabbitMQ with High Availability
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   rabbitmq1:
@@ -783,8 +783,8 @@ services:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'
+      - '15672:15672'
     networks:
       - rabbitmq-network
 
@@ -801,8 +801,8 @@ services:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     ports:
-      - "5673:5672"
-      - "15673:15672"
+      - '5673:5672'
+      - '15673:15672'
     networks:
       - rabbitmq-network
     depends_on:
@@ -821,8 +821,8 @@ services:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     ports:
-      - "5674:5672"
-      - "15674:15672"
+      - '5674:5672'
+      - '15674:15672'
     networks:
       - rabbitmq-network
     depends_on:
@@ -835,9 +835,9 @@ services:
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
-      - "5670:5670"
-      - "15670:15670"
-      - "8404:8404"
+      - '5670:5670'
+      - '15670:15670'
+      - '8404:8404'
     networks:
       - rabbitmq-network
     depends_on:
@@ -858,7 +858,7 @@ volumes:
 ### Apache Kafka with Schema Registry
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   zookeeper:
@@ -879,7 +879,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
+      - '9092:9092'
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -900,7 +900,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9093:9092"
+      - '9093:9092'
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -921,7 +921,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9094:9092"
+      - '9094:9092'
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -944,7 +944,7 @@ services:
       - kafka-broker-2
       - kafka-broker-3
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
@@ -961,7 +961,7 @@ services:
       - kafka-broker-3
       - schema-registry
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
@@ -989,21 +989,21 @@ volumes:
 ### Complete Monitoring Stack (Prometheus, Grafana, AlertManager)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.console.libraries=/etc/prometheus/console_libraries"
-      - "--web.console.templates=/etc/prometheus/consoles"
-      - "--storage.tsdb.retention.time=30d"
-      - "--web.enable-lifecycle"
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
@@ -1016,10 +1016,10 @@ services:
     image: prom/alertmanager:latest
     container_name: alertmanager
     command:
-      - "--config.file=/etc/alertmanager/config.yml"
-      - "--storage.path=/alertmanager"
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
     ports:
-      - "9093:9093"
+      - '9093:9093'
     volumes:
       - ./alertmanager/config.yml:/etc/alertmanager/config.yml:ro
       - alertmanager-data:/alertmanager
@@ -1031,7 +1031,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -1051,12 +1051,12 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
-      - "--path.rootfs=/rootfs"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
-      - "9100:9100"
+      - '9100:9100'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -1069,7 +1069,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -1085,9 +1085,9 @@ services:
     image: prometheuscommunity/postgres-exporter:latest
     container_name: postgres-exporter
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:password@postgres:5432/myapp?sslmode=disable"
+      DATA_SOURCE_NAME: 'postgresql://postgres:password@postgres:5432/myapp?sslmode=disable'
     ports:
-      - "9187:9187"
+      - '9187:9187'
     networks:
       - monitoring
     restart: unless-stopped
@@ -1098,7 +1098,7 @@ services:
     environment:
       - REDIS_ADDR=redis://redis:6379
     ports:
-      - "9121:9121"
+      - '9121:9121'
     networks:
       - monitoring
     restart: unless-stopped
@@ -1116,7 +1116,7 @@ volumes:
 ### ELK Stack (Elasticsearch, Logstash, Kibana) + Filebeat
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   elasticsearch:
@@ -1124,19 +1124,19 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - 'ES_JAVA_OPTS=-Xms2g -Xmx2g'
       - xpack.security.enabled=false
       - xpack.monitoring.collection.enabled=true
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - '9200:9200'
+      - '9300:9300'
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
       - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     networks:
       - elk
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -1149,11 +1149,11 @@ services:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/patterns:/usr/share/logstash/patterns:ro
     ports:
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
-      - "9600:9600"
+      - '5000:5000/tcp'
+      - '5000:5000/udp'
+      - '9600:9600'
     environment:
-      LS_JAVA_OPTS: "-Xmx1g -Xms1g"
+      LS_JAVA_OPTS: '-Xmx1g -Xms1g'
     networks:
       - elk
     depends_on:
@@ -1164,7 +1164,7 @@ services:
     image: docker.elastic.co/kibana/kibana:8.10.0
     container_name: kibana
     ports:
-      - "5601:5601"
+      - '5601:5601'
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
@@ -1208,7 +1208,7 @@ volumes:
 ### Complete GitLab Stack
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   gitlab:
@@ -1224,16 +1224,16 @@ services:
         gitlab_ci['backup_keep_time'] = 604800
         prometheus_monitoring['enable'] = true
     ports:
-      - "80:80"
-      - "443:443"
-      - "2222:22"
+      - '80:80'
+      - '443:443'
+      - '2222:22'
     volumes:
       - gitlab-config:/etc/gitlab
       - gitlab-logs:/var/log/gitlab
       - gitlab-data:/var/opt/gitlab
     networks:
       - gitlab-network
-    shm_size: "256m"
+    shm_size: '256m'
 
   gitlab-runner:
     image: gitlab/gitlab-runner:latest

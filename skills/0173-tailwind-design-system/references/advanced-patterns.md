@@ -236,7 +236,7 @@ Define reusable custom utilities:
 }
 
 /* Import with theme options */
-@import "tailwindcss" theme(static);
+@import 'tailwindcss' theme(static);
 ```
 
 ### Namespace Overrides

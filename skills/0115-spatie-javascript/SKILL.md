@@ -102,15 +102,15 @@ const obj = {
 
 ```javascript
 // Good
-const [hours, minutes] = "12:00".split(":");
+const [hours, minutes] = '12:00'.split(':');
 
 // Good — configuration objects with defaults
-function createUser({ name, email, role = "member" }) {
+function createUser({ name, email, role = 'member' }) {
   // ...
 }
 
 // Avoid
-const parts = "12:00".split(":");
+const parts = '12:00'.split(':');
 const hours = parts[0];
 const minutes = parts[1];
 ```

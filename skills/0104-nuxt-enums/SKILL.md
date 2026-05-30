@@ -15,15 +15,15 @@ Class-based enums with behavior methods and model casting integration.
 
 ```typescript
 // app/enums/PostStatus.ts
-import Enum from "#layers/base/app/enums/Enum";
-import type { Castable } from "#layers/base/app/types";
+import Enum from '#layers/base/app/enums/Enum';
+import type { Castable } from '#layers/base/app/types';
 
 export default class PostStatus extends Enum implements Castable {
   // Static enum values
-  static readonly Draft = PostStatus.create("draft");
-  static readonly PendingReview = PostStatus.create("pending review");
-  static readonly Published = PostStatus.create("published");
-  static readonly Archived = PostStatus.create("archived");
+  static readonly Draft = PostStatus.create('draft');
+  static readonly PendingReview = PostStatus.create('pending review');
+  static readonly Published = PostStatus.create('published');
+  static readonly Archived = PostStatus.create('archived');
 
   // Cast method for model system
   static cast(value: string): PostStatus {
@@ -33,16 +33,16 @@ export default class PostStatus extends Enum implements Castable {
   // Behavior methods
   color(): string {
     switch (this.value) {
-      case "draft":
-        return "neutral";
-      case "pending review":
-        return "warning";
-      case "published":
-        return "success";
-      case "archived":
-        return "error";
+      case 'draft':
+        return 'neutral';
+      case 'pending review':
+        return 'warning';
+      case 'published':
+        return 'success';
+      case 'archived':
+        return 'error';
       default:
-        return "neutral";
+        return 'neutral';
     }
   }
 

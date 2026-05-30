@@ -5,25 +5,25 @@
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ["nuxt-auth-sanctum"],
+  modules: ['nuxt-auth-sanctum'],
 
   sanctum: {
     baseUrl: process.env.NUXT_PUBLIC_API_URL,
     endpoints: {
-      login: "/login",
-      user: "/user",
-      csrf: "/csrf-cookie",
-      logout: "/logout",
+      login: '/login',
+      user: '/user',
+      csrf: '/csrf-cookie',
+      logout: '/logout',
     },
     csrf: {
-      cookie: "XSRF-TOKEN",
-      header: "X-XSRF-TOKEN",
+      cookie: 'XSRF-TOKEN',
+      header: 'X-XSRF-TOKEN',
     },
     redirect: {
-      onAuthOnly: "/auth/login", // Redirect when auth required
-      onGuestOnly: "/", // Redirect when already authenticated
-      onLogin: "/", // Redirect after login
-      onLogout: "/auth/login", // Redirect after logout
+      onAuthOnly: '/auth/login', // Redirect when auth required
+      onGuestOnly: '/', // Redirect when already authenticated
+      onLogin: '/', // Redirect after login
+      onLogout: '/auth/login', // Redirect after logout
     },
   },
 });
@@ -62,7 +62,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   });
 
   // Handle login event
-  nuxtApp.hook("sanctum:login", async () => {
+  nuxtApp.hook('sanctum:login', async () => {
     await initUser();
   });
 
@@ -77,8 +77,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 <!-- app/pages/auth/login.vue -->
 <script lang="ts" setup>
 definePageMeta({
-  layout: "auth",
-  middleware: "guest",
+  layout: 'auth',
+  middleware: 'guest',
 });
 
 const { login } = useSanctumAuth();
@@ -86,8 +86,8 @@ const router = useRouter();
 const flash = useFlash();
 
 const credentials = ref({
-  email: "",
-  password: "",
+  email: '',
+  password: '',
 });
 const loading = ref(false);
 
@@ -95,9 +95,9 @@ const onSubmit = async () => {
   loading.value = true;
   try {
     await login(credentials.value);
-    router.push("/");
+    router.push('/');
   } catch (error) {
-    flash.error("Invalid credentials");
+    flash.error('Invalid credentials');
   } finally {
     loading.value = false;
   }
@@ -159,17 +159,17 @@ registerPermissions(['posts.list', 'posts.create', 'posts.update'])
 const { can, cannot, before } = usePermissions();
 
 // Check single permission
-if (can("posts.create")) {
+if (can('posts.create')) {
   // User can create posts
 }
 
 // Check if user cannot
-if (cannot("posts.delete")) {
+if (cannot('posts.delete')) {
   // User cannot delete posts
 }
 
 // Check multiple (any of)
-if (can(["posts.create", "posts.update"])) {
+if (can(['posts.create', 'posts.update'])) {
   // User can create OR update
 }
 ```
@@ -198,7 +198,7 @@ export default defineAppConfig({
 ```typescript
 // In page component
 definePageMeta({
-  permissions: "posts.list",
+  permissions: 'posts.list',
 });
 ```
 
@@ -206,7 +206,7 @@ definePageMeta({
 
 ```typescript
 definePageMeta({
-  permissions: ["posts.list", "authors.list"],
+  permissions: ['posts.list', 'authors.list'],
 });
 ```
 
@@ -214,8 +214,8 @@ definePageMeta({
 
 ```typescript
 definePageMeta({
-  middleware: ["auth", "verified"],
-  permissions: "posts.list",
+  middleware: ['auth', 'verified'],
+  permissions: 'posts.list',
 });
 ```
 
@@ -246,8 +246,8 @@ const createPostAction = createPostActionFactory();
 const { can } = usePermissions();
 
 const handleCreate = async () => {
-  if (!can("posts.create")) {
-    flash.error("You do not have permission to create posts");
+  if (!can('posts.create')) {
+    flash.error('You do not have permission to create posts');
     return;
   }
 
@@ -264,35 +264,29 @@ const handleCreate = async () => {
 // Auto-generated from Laravel backend
 
 // Post permissions
-export const ListPosts = "posts.list";
-export const ShowPost = "posts.show";
-export const CreatePost = "posts.create";
-export const UpdatePost = "posts.update";
-export const DeletePost = "posts.delete";
+export const ListPosts = 'posts.list';
+export const ShowPost = 'posts.show';
+export const CreatePost = 'posts.create';
+export const UpdatePost = 'posts.update';
+export const DeletePost = 'posts.delete';
 
 // Author permissions
-export const ListAuthors = "authors.list";
-export const ShowAuthor = "authors.show";
-export const CreateAuthor = "authors.create";
-export const UpdateAuthor = "authors.update";
-export const DeleteAuthor = "authors.delete";
+export const ListAuthors = 'authors.list';
+export const ShowAuthor = 'authors.show';
+export const CreateAuthor = 'authors.create';
+export const UpdateAuthor = 'authors.update';
+export const DeleteAuthor = 'authors.delete';
 
 // Permission groups
 export const PostPermissions = [ListPosts, ShowPost, CreatePost, UpdatePost, DeletePost];
 
-export const AuthorPermissions = [
-  ListAuthors,
-  ShowAuthor,
-  CreateAuthor,
-  UpdateAuthor,
-  DeleteAuthor,
-];
+export const AuthorPermissions = [ListAuthors, ShowAuthor, CreateAuthor, UpdateAuthor, DeleteAuthor];
 ```
 
 ### Using Constants
 
 ```typescript
-import { ListPosts, CreatePost } from "~/constants/permissions";
+import { ListPosts, CreatePost } from '~/constants/permissions';
 
 // In page meta
 definePageMeta({
@@ -319,20 +313,20 @@ export default defineNuxtPlugin((nuxtApp) => {
   const { logout, refreshSession } = useSanctumAuth();
 
   // Pre-expiry warning
-  nuxtApp.hook("session-watcher:pre-expire", async () => {
+  nuxtApp.hook('session-watcher:pre-expire', async () => {
     trigger({
-      title: "Session Expiring",
-      description: "Your session will expire soon. Stay logged in?",
-      confirmLabel: "Stay Logged In",
-      cancelLabel: "Logout",
+      title: 'Session Expiring',
+      description: 'Your session will expire soon. Stay logged in?',
+      confirmLabel: 'Stay Logged In',
+      cancelLabel: 'Logout',
       onConfirm: () => refreshSession(),
       onCancel: () => logout(),
     });
   });
 
   // Session expired
-  nuxtApp.hook("session-watcher:expire", async () => {
-    flash.info("Session expired", "You have been logged out.");
+  nuxtApp.hook('session-watcher:expire', async () => {
+    flash.info('Session expired', 'You have been logged out.');
     await logout();
   });
 });

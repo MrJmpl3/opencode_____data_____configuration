@@ -41,19 +41,19 @@ Foundation layer providing core patterns and utilities.
 
 ```typescript
 // Model base class
-import Model from "#layers/base/app/models/Model";
+import Model from '#layers/base/app/models/Model';
 
 // Repository base class
-import { BaseRepository } from "#layers/base/app/repositories/base-repository";
-import { ModelHydrator } from "#layers/base/app/repositories/hydrators/model-hydrator";
+import { BaseRepository } from '#layers/base/app/repositories/base-repository';
+import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
 ```
 
 ### Error Classes
 
 ```typescript
-import { ValidationError } from "#layers/base/app/errors/validation-error";
-import { ConflictError } from "#layers/base/app/errors/conflict-error";
-import { TooManyRequestsError } from "#layers/base/app/errors/too-many-requests-error";
+import { ValidationError } from '#layers/base/app/errors/validation-error';
+import { ConflictError } from '#layers/base/app/errors/conflict-error';
+import { TooManyRequestsError } from '#layers/base/app/errors/too-many-requests-error';
 ```
 
 ### Type Definitions
@@ -67,7 +67,7 @@ import type {
   GenericQueryParams,
   Filters,
   FormError,
-} from "#layers/base/app/types";
+} from '#layers/base/app/types';
 ```
 
 ### Utilities (49 functions)
@@ -76,19 +76,19 @@ Organized by category:
 
 ```typescript
 // Array utilities
-import { wrap, unique, flatten } from "#layers/base/app/utils/array";
+import { wrap, unique, flatten } from '#layers/base/app/utils/array';
 
 // String utilities
-import { capitalize, truncate, formatBytes } from "#layers/base/app/utils/string";
+import { capitalize, truncate, formatBytes } from '#layers/base/app/utils/string';
 
 // Object utilities
-import { pick, combine, transformKeys, removeEmptyProperties } from "#layers/base/app/utils/object";
+import { pick, combine, transformKeys, removeEmptyProperties } from '#layers/base/app/utils/object';
 
 // Async utilities
-import { sleep, retry } from "#layers/base/app/utils/async";
+import { sleep, retry } from '#layers/base/app/utils/async';
 
 // Date utilities
-import { formatDate, parseDate } from "#layers/base/app/utils/date";
+import { formatDate, parseDate } from '#layers/base/app/utils/date';
 ```
 
 ### App Config Extensions
@@ -111,9 +111,9 @@ export default defineAppConfig({
 
   // Error handlers by status code
   errorHandlers: {
-    401: async ({ flash }) => navigateTo("/auth/login"),
+    401: async ({ flash }) => navigateTo('/auth/login'),
     422: async ({ response }) => Promise.reject(new ValidationError(response)),
-    500: async ({ flash }) => flash.error("Server error"),
+    500: async ({ flash }) => flash.error('Server error'),
   },
 
   // Permission system config
@@ -170,23 +170,23 @@ UI primitives built on Nuxt UI Pro.
 ### Modal Usage
 
 ```typescript
-const { open, close } = useModal("my-modal");
+const { open, close } = useModal('my-modal');
 
 // Open with props
-open({ title: "Confirm Delete", item: post });
+open({ title: 'Confirm Delete', item: post });
 
 // In component
-const modal = useModal("my-modal");
+const modal = useModal('my-modal');
 watch(modal.isOpen, (open) => {
-  if (open) console.log("Props:", modal.props);
+  if (open) console.log('Props:', modal.props);
 });
 ```
 
 ### Slideover Usage
 
 ```typescript
-const { open: openCreate } = useSlideover("create-post");
-const { open: openEdit } = useSlideover("edit-post");
+const { open: openCreate } = useSlideover('create-post');
+const { open: openEdit } = useSlideover('edit-post');
 
 // Open slideover
 openCreate();
@@ -199,10 +199,10 @@ openEdit({ post: selectedPost });
 const { trigger } = useConfirmationToast();
 
 trigger({
-  title: "Delete Post?",
-  description: "This action cannot be undone.",
-  confirmLabel: "Delete",
-  cancelLabel: "Cancel",
+  title: 'Delete Post?',
+  description: 'This action cannot be undone.',
+  confirmLabel: 'Delete',
+  cancelLabel: 'Cancel',
   onConfirm: async () => {
     await deletePostAction(post);
   },
@@ -283,20 +283,16 @@ Extended UI components for applications.
 // In your app's nuxt.config.ts
 export default defineNuxtConfig({
   // Extend layers (order matters - later overrides earlier)
-  extends: [
-    "../../../nuxt-layers/base",
-    "../../../nuxt-layers/nuxt-ui",
-    "../../../nuxt-layers/x-ui",
-  ],
+  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
 
   // SPA mode
   ssr: false,
 
   // Components without path prefix
-  components: [{ path: "components", pathPrefix: false }],
+  components: [{ path: 'components', pathPrefix: false }],
 
   // Modules
-  modules: ["nuxt-auth-sanctum", "@nuxt/ui"],
+  modules: ['nuxt-auth-sanctum', '@nuxt/ui'],
 });
 ```
 
@@ -306,7 +302,7 @@ Each layer declares TypeScript module augmentations:
 
 ```typescript
 // In layer's app.config.ts
-declare module "nuxt/schema" {
+declare module 'nuxt/schema' {
   interface AppConfigInput {
     repositories?: Record<string, RepositoryClass>;
     errorHandlers?: Record<number, ErrorHandler>;
@@ -337,15 +333,15 @@ my-layer/
 ```typescript
 export default defineNuxtConfig({
   // Can extend other layers
-  extends: ["../base"],
+  extends: ['../base'],
 
   // Auto-import directories
   imports: {
-    dirs: ["app/composables", "app/utils"],
+    dirs: ['app/composables', 'app/utils'],
   },
 
   // Component configuration
-  components: [{ path: "app/components", pathPrefix: false }],
+  components: [{ path: 'app/components', pathPrefix: false }],
 });
 ```
 
@@ -367,7 +363,7 @@ All composables are auto-imported:
 
 ```typescript
 // No import needed - auto-imported from layers
-const postApi = useRepository("posts");
+const postApi = useRepository('posts');
 const { start, stop, waitingFor } = useWait();
 const flash = useFlash();
 const { can, cannot } = usePermissions();
@@ -392,7 +388,7 @@ export function useExtendedFlash() {
   return {
     ...flash,
     successWithSound: (message: string) => {
-      playSound("success");
+      playSound('success');
       flash.success(message);
     },
   };

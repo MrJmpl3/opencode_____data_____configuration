@@ -25,8 +25,8 @@ Always follow this order in `<script setup>`:
 ```vue
 <script lang="ts" setup>
 // 1. Imports
-import createPostActionFactory from "~/features/posts/actions/create-post-action";
-import type { CreatePostData } from "~/features/posts/mutations/create-post-mutation";
+import createPostActionFactory from '~/features/posts/actions/create-post-action';
+import type { CreatePostData } from '~/features/posts/mutations/create-post-mutation';
 
 // 2. Props & Emits
 const props = defineProps<{ author?: Author }>();
@@ -44,7 +44,7 @@ const { start, stop, waitingFor } = useWait();
 const slideover = inject(SlideoverKey);
 
 // 5. Refs (template refs)
-const formRef = useTemplateRef("formRef");
+const formRef = useTemplateRef('formRef');
 
 // 6. Toggles (boolean refs)
 const isOpen = ref(false);
@@ -52,8 +52,8 @@ const showAdvanced = ref(false);
 
 // 7. Reactive props (complex state)
 const formData = ref<CreatePostData>({
-  title: "",
-  content: "",
+  title: '',
+  content: '',
 });
 const selectedAuthor = ref<Author>();
 
@@ -85,11 +85,11 @@ watch(
 // 12. Methods
 const onSubmit = async (data: CreatePostData) => {
   await createPostAction(data);
-  emits("close", true);
+  emits('close', true);
 };
 
 const resetForm = () => {
-  formData.value = { title: "", content: "" };
+  formData.value = { title: '', content: '' };
 };
 
 // 13. Real-time listeners
@@ -156,48 +156,41 @@ components/
 ```vue
 <!-- app/components/Slideovers/CreatePostSlideover.vue -->
 <script lang="ts" setup>
-import createPostActionFactory from "~/features/posts/actions/create-post-action";
-import type { CreatePostData } from "~/features/posts/mutations/create-post-mutation";
+import createPostActionFactory from '~/features/posts/actions/create-post-action';
+import type { CreatePostData } from '~/features/posts/mutations/create-post-mutation';
 
 // Props & Emits
 const props = defineProps<{ author?: Author }>();
 const emits = defineEmits<{ close: [success: boolean] }>();
 
 // Refs
-const formRef = useTemplateRef("formRef");
+const formRef = useTemplateRef('formRef');
 const selectedAuthor = ref<Author>();
 
 // Form data
 const formData = ref<CreatePostData>({
-  title: "",
-  content: "",
-  authorId: props.author?.ulid || "",
-  publishedAt: "",
+  title: '',
+  content: '',
+  authorId: props.author?.ulid || '',
+  publishedAt: '',
   isDraft: true,
 });
 
 // Watchers
 watch(selectedAuthor, (author) => {
-  formData.value.authorId = author?.ulid || "";
+  formData.value.authorId = author?.ulid || '';
 });
 
 // Methods
 const createPostAction = createPostActionFactory();
 
 const onSubmit = (data: CreatePostData) => createPostAction(data);
-const onSuccess = () => emits("close", true);
+const onSuccess = () => emits('close', true);
 </script>
 
 <template>
   <USlideover title="Create Post">
-    <XForm
-      ref="formRef"
-      url="/api/posts"
-      method="POST"
-      :data="formData"
-      @submit="onSubmit"
-      @success="onSuccess"
-    >
+    <XForm ref="formRef" url="/api/posts" method="POST" :data="formData" @submit="onSubmit" @success="onSuccess">
       <div class="space-y-4">
         <AuthorSelect v-model="selectedAuthor" />
 
@@ -225,8 +218,8 @@ const onSuccess = () => emits("close", true);
 ```vue
 <!-- app/components/Tables/PostsTable.vue -->
 <script lang="ts" setup>
-import { postsColumnBuilder } from "~/tables/posts";
-import type { Row } from "@tanstack/vue-table";
+import { postsColumnBuilder } from '~/tables/posts';
+import type { Row } from '@tanstack/vue-table';
 
 const props = defineProps<{
   posts: Post[];
@@ -244,9 +237,9 @@ const columns = postsColumnBuilder.all();
 
 // Row actions
 const rowActions = computed(() => (row: Row<Post>) => [
-  { label: "View", to: `/posts/${row.original.ulid}` },
-  { label: "Edit", onSelect: () => emits("edit", row.original) },
-  { label: "Delete", onSelect: () => emits("delete", [row.original]) },
+  { label: 'View', to: `/posts/${row.original.ulid}` },
+  { label: 'Edit', onSelect: () => emits('edit', row.original) },
+  { label: 'Delete', onSelect: () => emits('delete', [row.original]) },
 ]);
 </script>
 
@@ -314,7 +307,7 @@ const emits = defineEmits<{
 ```vue
 <!-- app/components/Modals/DeletePostModal.vue -->
 <script lang="ts" setup>
-import deletePostActionFactory from "~/features/posts/actions/delete-post-action";
+import deletePostActionFactory from '~/features/posts/actions/delete-post-action';
 
 const props = defineProps<{ post: Post }>();
 const emits = defineEmits<{ close: [deleted: boolean] }>();
@@ -324,7 +317,7 @@ const { is, waitingFor } = useWait();
 
 const onConfirm = async () => {
   await deletePostAction(props.post);
-  emits("close", true);
+  emits('close', true);
 };
 </script>
 
@@ -335,9 +328,7 @@ const onConfirm = async () => {
 
     <template #footer>
       <UButton variant="ghost" @click="emits('close', false)"> Cancel </UButton>
-      <UButton color="error" :loading="is(waitingFor.post.deleting(post.ulid))" @click="onConfirm">
-        Delete
-      </UButton>
+      <UButton color="error" :loading="is(waitingFor.post.deleting(post.ulid))" @click="onConfirm"> Delete </UButton>
     </template>
   </UModal>
 </template>
@@ -379,8 +370,8 @@ const emits = defineEmits<{
 }>();
 
 // Usage
-emits("close", true);
-emits("update", updatedPost);
+emits('close', true);
+emits('update', updatedPost);
 ```
 
 ---
@@ -390,7 +381,7 @@ emits("update", updatedPost);
 ```vue
 <script lang="ts" setup>
 // Modern way (Nuxt 3.13+)
-const formRef = useTemplateRef("formRef");
+const formRef = useTemplateRef('formRef');
 
 // Access
 formRef.value?.submit();

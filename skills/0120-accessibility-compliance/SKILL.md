@@ -78,17 +78,11 @@ Master accessibility implementation to create inclusive experiences that work fo
 
 ```tsx
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary";
+  variant?: 'primary' | 'secondary';
   isLoading?: boolean;
 }
 
-function AccessibleButton({
-  children,
-  variant = "primary",
-  isLoading = false,
-  disabled,
-  ...props
-}: ButtonProps) {
+function AccessibleButton({ children, variant = 'primary', isLoading = false, disabled, ...props }: ButtonProps) {
   return (
     <button
       // Disable when loading
@@ -99,11 +93,11 @@ function AccessibleButton({
       aria-disabled={disabled || isLoading}
       className={cn(
         // Visible focus ring
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         // Minimum touch target size (44x44px)
-        "min-h-[44px] min-w-[44px]",
-        variant === "primary" && "bg-primary text-primary-foreground",
-        (disabled || isLoading) && "opacity-50 cursor-not-allowed",
+        'min-h-[44px] min-w-[44px]',
+        variant === 'primary' && 'bg-primary text-primary-foreground',
+        (disabled || isLoading) && 'opacity-50 cursor-not-allowed',
       )}
       {...props}
     >
@@ -123,8 +117,8 @@ function AccessibleButton({
 ### Pattern 2: Accessible Modal Dialog
 
 ```tsx
-import * as React from "react";
-import { FocusTrap } from "@headlessui/react";
+import * as React from 'react';
+import { FocusTrap } from '@headlessui/react';
 
 interface DialogProps {
   isOpen: boolean;
@@ -140,21 +134,21 @@ function AccessibleDialog({ isOpen, onClose, title, children }: DialogProps) {
   // Close on Escape key
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
   // Prevent body scroll when open
   React.useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -229,8 +223,8 @@ function AccessibleForm() {
           required
           aria-required="true"
           aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? "email-error" : "email-hint"}
-          className={cn("w-full px-3 py-2 border rounded-md", errors.email && "border-destructive")}
+          aria-describedby={errors.email ? 'email-error' : 'email-hint'}
+          className={cn('w-full px-3 py-2 border rounded-md', errors.email && 'border-destructive')}
         />
         {errors.email ? (
           <p id="email-error" className="text-sm text-destructive" role="alert">
@@ -260,10 +254,10 @@ function SkipLink() {
       href="#main-content"
       className={cn(
         // Hidden by default, visible on focus
-        "sr-only focus:not-sr-only",
-        "focus:absolute focus:top-4 focus:left-4 focus:z-50",
-        "focus:bg-background focus:px-4 focus:py-2 focus:rounded-md",
-        "focus:ring-2 focus:ring-primary",
+        'sr-only focus:not-sr-only',
+        'focus:absolute focus:top-4 focus:left-4 focus:z-50',
+        'focus:bg-background focus:px-4 focus:py-2 focus:rounded-md',
+        'focus:ring-2 focus:ring-primary',
       )}
     >
       Skip to main content
@@ -291,15 +285,12 @@ function Layout({ children }) {
 
 ```tsx
 function useAnnounce() {
-  const [message, setMessage] = React.useState("");
+  const [message, setMessage] = React.useState('');
 
-  const announce = React.useCallback(
-    (text: string, priority: "polite" | "assertive" = "polite") => {
-      setMessage(""); // Clear first to ensure re-announcement
-      setTimeout(() => setMessage(text), 100);
-    },
-    [],
-  );
+  const announce = React.useCallback((text: string, priority: 'polite' | 'assertive' = 'polite') => {
+    setMessage(''); // Clear first to ensure re-announcement
+    setTimeout(() => setMessage(text), 100);
+  }, []);
 
   const Announcer = () => (
     <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">

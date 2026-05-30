@@ -4,7 +4,7 @@ description: TypeScript and JavaScript expert with deep knowledge of type-level 
 category: framework
 risk: critical
 source: community
-date_added: "2026-02-27"
+date_added: '2026-02-27'
 ---
 
 # TypeScript Expert
@@ -66,8 +66,8 @@ You are an advanced TypeScript expert with deep, practical knowledge of type-lev
 ```typescript
 // Create nominal types to prevent primitive obsession
 type Brand<K, T> = K & { __brand: T };
-type UserId = Brand<string, "UserId">;
-type OrderId = Brand<string, "OrderId">;
+type UserId = Brand<string, 'UserId'>;
+type OrderId = Brand<string, 'OrderId'>;
 
 // Prevents accidental mixing of domain primitives
 function processOrder(orderId: OrderId, userId: UserId) {}
@@ -88,10 +88,7 @@ type DeepReadonly<T> = T extends (...args: any[]) => any
 
 // Template literal type magic
 type PropEventSource<Type> = {
-  on<Key extends string & keyof Type>(
-    eventName: `${Key}Changed`,
-    callback: (newValue: Type[Key]) => void,
-  ): void;
+  on<Key extends string & keyof Type>(eventName: `${Key}Changed`, callback: (newValue: Type[Key]) => void): void;
 };
 ```
 
@@ -103,13 +100,13 @@ type PropEventSource<Type> = {
 ```typescript
 // Use 'satisfies' for constraint validation (TS 5.0+)
 const config = {
-  api: "https://api.example.com",
+  api: 'https://api.example.com',
   timeout: 5000,
 } satisfies Record<string, string | number>;
 // Preserves literal types while ensuring constraints
 
 // Const assertions for maximum inference
-const routes = ["/home", "/about", "/contact"] as const;
+const routes = ['/home', '/about', '/contact'] as const;
 type Route = (typeof routes)[number]; // '/home' | '/about' | '/contact'
 ```
 
@@ -154,7 +151,7 @@ npx tsc --extendedDiagnostics --incremental false | grep -E "Check time|Files:|L
 
 ```typescript
 // types/ambient.d.ts
-declare module "some-untyped-package" {
+declare module 'some-untyped-package' {
   const value: unknown;
   export default value;
   export = value; // if CJS interop is needed
@@ -176,9 +173,7 @@ declare module "some-untyped-package" {
 type InfiniteArray<T> = T | InfiniteArray<T>[];
 
 // Good: Limited recursion
-type NestedArray<T, D extends number = 5> = D extends 0
-  ? T
-  : T | NestedArray<T, [-1, 0, 1, 2, 3, 4][D]>[];
+type NestedArray<T, D extends number = 5> = D extends 0 ? T : T | NestedArray<T, [-1, 0, 1, 2, 3, 4][D]>[];
 ```
 
 **Module Resolution Mysteries**
@@ -243,11 +238,7 @@ command -v typesync >/dev/null 2>&1 && npx typesync  # Install missing @types pa
 ```json
 // Root tsconfig.json
 {
-  "references": [
-    { "path": "./packages/core" },
-    { "path": "./packages/ui" },
-    { "path": "./apps/web" }
-  ],
+  "references": [{ "path": "./packages/core" }, { "path": "./packages/ui" }, { "path": "./apps/web" }],
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -280,12 +271,12 @@ command -v typesync >/dev/null 2>&1 && npx typesync  # Install missing @types pa
 
 ```typescript
 // in avatar.test-d.ts
-import { expectTypeOf } from "vitest";
-import type { Avatar } from "./avatar";
+import { expectTypeOf } from 'vitest';
+import type { Avatar } from './avatar';
 
-test("Avatar props are correctly typed", () => {
-  expectTypeOf<Avatar>().toHaveProperty("size");
-  expectTypeOf<Avatar["size"]>().toEqualTypeOf<"sm" | "md" | "lg">();
+test('Avatar props are correctly typed', () => {
+  expectTypeOf<Avatar>().toHaveProperty('size');
+  expectTypeOf<Avatar['size']>().toEqualTypeOf<'sm' | 'md' | 'lg'>();
 });
 ```
 
@@ -329,7 +320,7 @@ class DomainError extends Error {
     public statusCode: number,
   ) {
     super(message);
-    this.name = "DomainError";
+    this.name = 'DomainError';
     Error.captureStackTrace(this, this.constructor);
   }
 }

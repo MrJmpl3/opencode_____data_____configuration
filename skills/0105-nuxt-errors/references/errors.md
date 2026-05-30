@@ -66,24 +66,24 @@ export class TooManyRequestsError<T = any> extends ErrorResponse<T> {}
 
 ```typescript
 // app.config.ts
-import { ValidationError } from "#layers/base/app/errors/validation-error";
-import { TooManyRequestsError } from "#layers/base/app/errors/too-many-requests-error";
+import { ValidationError } from '#layers/base/app/errors/validation-error';
+import { TooManyRequestsError } from '#layers/base/app/errors/too-many-requests-error';
 
 export default defineAppConfig({
   errorHandlers: {
     // 401: Session expired - redirect to login
     401: async ({ response, flash }) => {
-      flash.error("Session expired. Please log in again.");
-      return navigateTo("/auth/login");
+      flash.error('Session expired. Please log in again.');
+      return navigateTo('/auth/login');
     },
 
     // 403: Access denied
     403: async ({ flash }) => {
-      flash.error("Access denied.");
+      flash.error('Access denied.');
     },
 
     // 404: Not found - redirect to error page
-    404: "/not-found", // String = redirect path
+    404: '/not-found', // String = redirect path
 
     // 422: Validation error - throw typed error
     422: async ({ response }) => {
@@ -97,7 +97,7 @@ export default defineAppConfig({
 
     // 500: Server error
     500: async ({ flash }) => {
-      flash.error("Server error. Please try again later.");
+      flash.error('Server error. Please try again later.');
     },
   },
 });
@@ -106,10 +106,7 @@ export default defineAppConfig({
 ### Handler Signature
 
 ```typescript
-type ErrorHandler = (context: {
-  response: FetchResponse;
-  flash: FlashInstance;
-}) => Promise<any> | string;
+type ErrorHandler = (context: { response: FetchResponse; flash: FlashInstance }) => Promise<any> | string;
 
 // String = redirect path
 // Promise.reject() = throw error
@@ -122,9 +119,9 @@ type ErrorHandler = (context: {
 
 ```typescript
 // app/interceptors/response/error-handler.ts
-import type { NuxtApp } from "#app";
-import type { FetchContext } from "ofetch";
-import type { InterceptorResult } from "#layers/base/app/types";
+import type { NuxtApp } from '#app';
+import type { FetchContext } from 'ofetch';
+import type { InterceptorResult } from '#layers/base/app/types';
 
 export default async function handleResponseErrors(
   app: NuxtApp,
@@ -142,7 +139,7 @@ export default async function handleResponseErrors(
 
 ```typescript
 // app.config.ts
-import errorHandler from "~/interceptors/response/error-handler";
+import errorHandler from '~/interceptors/response/error-handler';
 
 export default defineAppConfig({
   interceptors: {
@@ -168,11 +165,11 @@ export function useHandleActionError() {
     if (error instanceof ValidationError) {
       flash.error(message, error.message);
     } else if (error instanceof ConflictError) {
-      flash.error(message, "A conflict occurred. Please refresh and try again.");
+      flash.error(message, 'A conflict occurred. Please refresh and try again.');
     } else if (error instanceof TooManyRequestsError) {
-      flash.error(message, "Too many requests. Please wait and try again.");
+      flash.error(message, 'Too many requests. Please wait and try again.');
     } else {
-      flash.error(message, "An unexpected error occurred.");
+      flash.error(message, 'An unexpected error occurred.');
     }
 
     return error; // Re-throw for further handling
@@ -193,12 +190,12 @@ export default function createPostActionFactory() {
   return async (data: CreatePostData): Promise<Post> => {
     try {
       const post = await createPost(data);
-      flash.success("Post created successfully.");
+      flash.success('Post created successfully.');
       return post;
     } catch (error) {
       throw handleActionError(error, {
-        entity: "post",
-        operation: "create",
+        entity: 'post',
+        operation: 'create',
       });
     }
   };
@@ -213,7 +210,7 @@ export default function createPostActionFactory() {
 
 ```vue
 <script setup>
-const formRef = useTemplateRef("formRef");
+const formRef = useTemplateRef('formRef');
 </script>
 
 <template>
@@ -268,7 +265,7 @@ const handleError = () => clearError({ redirect: '/' })
 if (!data.value) {
   throw createError({
     statusCode: 404,
-    message: "Post not found",
+    message: 'Post not found',
   });
 }
 ```
@@ -286,12 +283,12 @@ export class BusinessError extends Error {
     public details?: Record<string, any>,
   ) {
     super(message);
-    this.name = "BusinessError";
+    this.name = 'BusinessError';
   }
 }
 
 // Usage
-throw new BusinessError("Post cannot be deleted", "POST_HAS_ACTIVE_COMMENTS", {
+throw new BusinessError('Post cannot be deleted', 'POST_HAS_ACTIVE_COMMENTS', {
   commentCount: 3,
 });
 ```
@@ -308,12 +305,12 @@ try {
   await riskyOperation();
 } catch (error) {
   // Log error for debugging
-  console.error("Operation failed:", error);
+  console.error('Operation failed:', error);
 
   // Handle for user
   throw handleActionError(error, {
-    entity: "operation",
-    operation: "perform",
+    entity: 'operation',
+    operation: 'perform',
   });
 }
 ```
@@ -362,7 +359,7 @@ async (data) => {
 flash.error(error.message);
 
 // DO
-flash.error("Failed to create post.", error.message);
+flash.error('Failed to create post.', error.message);
 ```
 
 ---

@@ -33,8 +33,8 @@ export default function {verb}{Entity}ActionFactory() {
 
 ```typescript
 // app/features/posts/actions/create-post-action.ts
-import createPostMutationFactory, { type CreatePostData } from "../mutations/create-post-mutation";
-import type Post from "~/models/Post";
+import createPostMutationFactory, { type CreatePostData } from '../mutations/create-post-mutation';
+import type Post from '~/models/Post';
 
 export default function createPostActionFactory() {
   const createPost = createPostMutationFactory();
@@ -44,12 +44,12 @@ export default function createPostActionFactory() {
   return async (data: CreatePostData): Promise<Post> => {
     try {
       const post = await createPost(data);
-      flash.success("Post created successfully.");
+      flash.success('Post created successfully.');
       return post;
     } catch (error) {
       throw handleActionError(error, {
-        entity: "post",
-        operation: "create",
+        entity: 'post',
+        operation: 'create',
       });
     }
   };
@@ -60,8 +60,8 @@ export default function createPostActionFactory() {
 
 ```typescript
 // app/features/posts/actions/update-post-action.ts
-import updatePostMutationFactory, { type UpdatePostData } from "../mutations/update-post-mutation";
-import type Post from "~/models/Post";
+import updatePostMutationFactory, { type UpdatePostData } from '../mutations/update-post-mutation';
+import type Post from '~/models/Post';
 
 export default function updatePostActionFactory() {
   const updatePost = updatePostMutationFactory();
@@ -71,12 +71,12 @@ export default function updatePostActionFactory() {
   return async (ulid: string, data: UpdatePostData): Promise<Post> => {
     try {
       const post = await updatePost(ulid, data);
-      flash.success("Post updated successfully.");
+      flash.success('Post updated successfully.');
       return post;
     } catch (error) {
       throw handleActionError(error, {
-        entity: "post",
-        operation: "update",
+        entity: 'post',
+        operation: 'update',
       });
     }
   };
@@ -87,8 +87,8 @@ export default function updatePostActionFactory() {
 
 ```typescript
 // app/features/posts/actions/delete-post-action.ts
-import deletePostMutationFactory from "../mutations/delete-post-mutation";
-import type Post from "~/models/Post";
+import deletePostMutationFactory from '../mutations/delete-post-mutation';
+import type Post from '~/models/Post';
 
 export default function deletePostActionFactory() {
   const deletePost = deletePostMutationFactory();
@@ -98,11 +98,11 @@ export default function deletePostActionFactory() {
   return async (post: Post): Promise<void> => {
     try {
       await deletePost(post.ulid);
-      flash.success("Post deleted successfully.");
+      flash.success('Post deleted successfully.');
     } catch (error) {
       throw handleActionError(error, {
-        entity: "post",
-        operation: "delete",
+        entity: 'post',
+        operation: 'delete',
       });
     }
   };
@@ -139,7 +139,7 @@ export function useHandleActionError() {
     if (error instanceof ValidationError) {
       flash.error(message, error.message);
     } else {
-      flash.error(message, "An unexpected error occurred.");
+      flash.error(message, 'An unexpected error occurred.');
     }
 
     return error; // Re-throw for component handling
@@ -176,17 +176,17 @@ export default function deletePostWithConfirmActionFactory() {
   return (post: Post): Promise<boolean> => {
     return new Promise((resolve) => {
       trigger({
-        title: "Delete Post?",
+        title: 'Delete Post?',
         description: `Are you sure you want to delete "${post.title}"?`,
-        confirmLabel: "Delete",
-        cancelLabel: "Cancel",
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
         onConfirm: async () => {
           try {
             await deletePost(post.ulid);
-            flash.success("Post deleted successfully.");
+            flash.success('Post deleted successfully.');
             resolve(true);
           } catch (error) {
-            handleActionError(error, { entity: "post", operation: "delete" });
+            handleActionError(error, { entity: 'post', operation: 'delete' });
             resolve(false);
           }
         },
@@ -212,7 +212,7 @@ export default function createAndNavigateActionFactory() {
   return async (data: CreatePostData): Promise<Post> => {
     try {
       const post = await createPost(data);
-      flash.success("Post created successfully.");
+      flash.success('Post created successfully.');
 
       // Navigate to new post
       await router.push(`/posts/${post.ulid}`);
@@ -220,8 +220,8 @@ export default function createAndNavigateActionFactory() {
       return post;
     } catch (error) {
       throw handleActionError(error, {
-        entity: "post",
-        operation: "create",
+        entity: 'post',
+        operation: 'create',
       });
     }
   };
@@ -244,19 +244,19 @@ export default function publishPostActionFactory() {
     try {
       // Update post status
       const updatedPost = await updatePost(post.ulid, {
-        status: "published",
+        status: 'published',
         publishedAt: new Date().toISOString(),
       });
 
       // Notify subscribers
       await notifySubscribers(post.ulid);
 
-      flash.success("Post published successfully.");
+      flash.success('Post published successfully.');
       return updatedPost;
     } catch (error) {
       throw handleActionError(error, {
-        entity: "post",
-        operation: "publish",
+        entity: 'post',
+        operation: 'publish',
       });
     }
   };
@@ -304,18 +304,18 @@ export default function bulkDeletePostsActionFactory() {
 
 ```vue
 <script lang="ts" setup>
-import createPostActionFactory from "~/features/posts/actions/create-post-action";
-import type { CreatePostData } from "~/features/posts/mutations/create-post-mutation";
+import createPostActionFactory from '~/features/posts/actions/create-post-action';
+import type { CreatePostData } from '~/features/posts/mutations/create-post-mutation';
 
 // Create action instance
 const createPostAction = createPostActionFactory();
 
 // Form data
 const formData = ref<CreatePostData>({
-  title: "",
-  content: "",
-  authorId: "",
-  publishedAt: "",
+  title: '',
+  content: '',
+  authorId: '',
+  publishedAt: '',
   isDraft: true,
 });
 
@@ -323,7 +323,7 @@ const formData = ref<CreatePostData>({
 const onSubmit = async (data: CreatePostData) => {
   const post = await createPostAction(data);
   // Action handles success message
-  emits("close", true);
+  emits('close', true);
 };
 </script>
 ```

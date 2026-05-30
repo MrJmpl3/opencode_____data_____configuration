@@ -6,63 +6,59 @@ Build-time configuration for Nuxt:
 
 ```typescript
 // nuxt.config.ts
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineNuxtConfig({
   // SPA mode - SSR disabled
   ssr: false,
 
   // Extend shared layers
-  extends: [
-    "../../../nuxt-layers/base",
-    "../../../nuxt-layers/nuxt-ui",
-    "../../../nuxt-layers/x-ui",
-  ],
+  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
 
   // Compatibility
-  compatibilityDate: "2025-07-15",
+  compatibilityDate: '2025-07-15',
 
   // Modules
-  modules: ["nuxt-auth-sanctum", "reka-ui/nuxt", "@nuxt/ui"],
+  modules: ['nuxt-auth-sanctum', 'reka-ui/nuxt', '@nuxt/ui'],
 
   // Dev tools
   devtools: { enabled: true },
 
   // Component auto-import without path prefix
-  components: [{ path: "components", pathPrefix: false }],
+  components: [{ path: 'components', pathPrefix: false }],
 
   // Sanctum authentication
   sanctum: {
     baseUrl: process.env.NUXT_PUBLIC_API_URL,
     endpoints: {
-      login: "/login",
-      user: "/user",
-      csrf: "/csrf-cookie",
-      logout: "/logout",
+      login: '/login',
+      user: '/user',
+      csrf: '/csrf-cookie',
+      logout: '/logout',
     },
     csrf: {
-      cookie: "XSRF-TOKEN",
-      header: "X-XSRF-TOKEN",
+      cookie: 'XSRF-TOKEN',
+      header: 'X-XSRF-TOKEN',
     },
     redirect: {
-      onAuthOnly: "/auth/login",
-      onGuestOnly: "/",
-      onLogin: "/",
-      onLogout: "/auth/login",
+      onAuthOnly: '/auth/login',
+      onGuestOnly: '/',
+      onLogin: '/',
+      onLogout: '/auth/login',
     },
   },
 
   // Icon configuration
   icon: {
-    serverBundle: "remote",
+    serverBundle: 'remote',
     clientBundle: {
       scan: true,
       includeCustomCollections: true,
     },
     customCollections: [
       {
-        prefix: "custom",
-        dir: "./app/assets/icons",
+        prefix: 'custom',
+        dir: './app/assets/icons',
       },
     ],
   },
@@ -88,12 +84,12 @@ export default defineNuxtConfig({
   ui: {
     colorMode: false,
     theme: {
-      colors: ["primary", "secondary", "success", "info", "warning", "error", "neutral"],
+      colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral'],
     },
   },
 
   // Tailwind CSS
-  css: ["~/assets/css/main.css"],
+  css: ['~/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss()],
   },
@@ -108,12 +104,12 @@ Runtime application configuration:
 
 ```typescript
 // app.config.ts
-import LeadRepository from "~/repositories/LeadRepository";
-import ContactRepository from "~/repositories/ContactRepository";
-import SecureLinkRepository from "~/repositories/SecureLinkRepository";
-import appendSource from "~/interceptors/request/append-source";
-import errorHandler from "~/interceptors/response/error-handler";
-import { ValidationError } from "#layers/base/app/errors/validation-error";
+import LeadRepository from '~/repositories/LeadRepository';
+import ContactRepository from '~/repositories/ContactRepository';
+import SecureLinkRepository from '~/repositories/SecureLinkRepository';
+import appendSource from '~/interceptors/request/append-source';
+import errorHandler from '~/interceptors/response/error-handler';
+import { ValidationError } from '#layers/base/app/errors/validation-error';
 
 export default defineAppConfig({
   // Repository registration
@@ -127,7 +123,7 @@ export default defineAppConfig({
     externalService: {
       repository: ExternalRepository,
       fetchOptions: {
-        baseURL: "https://external-api.example.com",
+        baseURL: 'https://external-api.example.com',
         timeout: 30000,
       },
     },
@@ -142,13 +138,13 @@ export default defineAppConfig({
   // Error handlers by status code
   errorHandlers: {
     401: async ({ response, flash }) => {
-      flash.error("Session expired. Please log in again.");
-      return navigateTo("/auth/login");
+      flash.error('Session expired. Please log in again.');
+      return navigateTo('/auth/login');
     },
     403: async ({ flash }) => {
-      flash.error("Access denied.");
+      flash.error('Access denied.');
     },
-    404: "/not-found", // String = redirect path
+    404: '/not-found', // String = redirect path
     422: async ({ response }) => {
       return Promise.reject(new ValidationError(response));
     },
@@ -156,7 +152,7 @@ export default defineAppConfig({
       return Promise.reject(new TooManyRequestsError(response));
     },
     500: async ({ flash }) => {
-      flash.error("Server error. Please try again later.");
+      flash.error('Server error. Please try again later.');
     },
   },
 
@@ -267,14 +263,14 @@ const handlers = appConfig.errorHandlers;
 ## eslint.config.mjs
 
 ```javascript
-import withNuxt from "./.nuxt/eslint.config.mjs";
+import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt({
   rules: {
-    "vue/multi-word-component-names": "off",
-    "vue/no-v-html": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-    "import/order": "off",
+    'vue/multi-word-component-names': 'off',
+    'vue/no-v-html': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'import/order': 'off',
   },
 });
 ```
@@ -285,7 +281,7 @@ export default withNuxt({
 
 ```css
 /* app/assets/css/main.css */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Custom colors */
@@ -294,7 +290,7 @@ export default withNuxt({
   --color-primary-900: oklch(0.25 0.1 250);
 
   /* Custom fonts */
-  --font-sans: "Inter", sans-serif;
+  --font-sans: 'Inter', sans-serif;
 }
 ```
 
@@ -320,7 +316,7 @@ Extend TypeScript types for config:
 
 ```typescript
 // In app.config.ts
-declare module "nuxt/schema" {
+declare module 'nuxt/schema' {
   interface AppConfigInput {
     repositories?: Record<string, RepositoryClass | RepositoryConfig>;
     errorHandlers?: Record<number, ErrorHandler>;

@@ -14,9 +14,9 @@ Centralized error handling with typed error classes and configurable handlers.
 ## Error Classes
 
 ```typescript
-import { ValidationError } from "#layers/base/app/errors/validation-error";
-import { ConflictError } from "#layers/base/app/errors/conflict-error";
-import { TooManyRequestsError } from "#layers/base/app/errors/too-many-requests-error";
+import { ValidationError } from '#layers/base/app/errors/validation-error';
+import { ConflictError } from '#layers/base/app/errors/conflict-error';
+import { TooManyRequestsError } from '#layers/base/app/errors/too-many-requests-error';
 
 // ValidationError (422)
 if (error instanceof ValidationError) {
@@ -32,9 +32,9 @@ if (error instanceof ValidationError) {
 // app.config.ts
 export default defineAppConfig({
   errorHandlers: {
-    401: async ({ flash }) => navigateTo("/auth/login"),
+    401: async ({ flash }) => navigateTo('/auth/login'),
     422: async ({ response }) => Promise.reject(new ValidationError(response)),
-    500: async ({ flash }) => flash.error("Server error"),
+    500: async ({ flash }) => flash.error('Server error'),
   },
 });
 ```
@@ -48,8 +48,8 @@ try {
   await createPost(data);
 } catch (error) {
   throw handleActionError(error, {
-    entity: "post",
-    operation: "create",
+    entity: 'post',
+    operation: 'create',
   });
 }
 // Shows: "Failed to create post. [error details]"

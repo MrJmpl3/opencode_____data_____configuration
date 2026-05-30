@@ -15,19 +15,7 @@
     },
     "tailwindcss-language-server": {
       "command": ["tailwindcss-language-server", "--stdio"],
-      "extensions": [
-        ".css",
-        ".scss",
-        ".less",
-        ".html",
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".vue",
-        ".md",
-        ".php"
-      ]
+      "extensions": [".css", ".scss", ".less", ".html", ".js", ".jsx", ".ts", ".tsx", ".vue", ".md", ".php"]
     },
     "taplo": {
       "command": ["taplo", "lsp", "stdio"],

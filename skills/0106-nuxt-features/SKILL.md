@@ -44,9 +44,9 @@ features/{domain}/
 
 ```typescript
 export default function getPostsQueryFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
   return (filters: MaybeRef<GetPostsFilters>) => {
-    return useFilterQuery("posts", () => postApi.list(params), filters);
+    return useFilterQuery('posts', () => postApi.list(params), filters);
   };
 }
 ```
@@ -55,7 +55,7 @@ export default function getPostsQueryFactory() {
 
 ```typescript
 export default function createPostMutationFactory() {
-  const postApi = useRepository("posts");
+  const postApi = useRepository('posts');
   const { start, stop, waitingFor } = useWait();
   return async (data: CreatePostData) => {
     start(waitingFor.posts.creating);
@@ -76,7 +76,7 @@ export default function createPostActionFactory() {
   const flash = useFlash();
   return async (data: CreatePostData) => {
     const post = await createPost(data);
-    flash.success("Post created!");
+    flash.success('Post created!');
     return post;
   };
 }

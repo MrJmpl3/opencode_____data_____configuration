@@ -1,6 +1,6 @@
-import { DASHBOARD_URL, USER_AGENT } from "./constants.js";
-import { fetchWithTimeout, httpErrorMessage } from "./http.js";
-import type { GoWindow } from "./types.js";
+import { DASHBOARD_URL, USER_AGENT } from './constants.js';
+import { fetchWithTimeout, httpErrorMessage } from './http.js';
+import type { GoWindow } from './types.js';
 
 export const readGoConfig = (): {
   workspaceId: string;
@@ -60,21 +60,21 @@ export const fetchGoDashboard = async (
 > => {
   const res = await fetchWithTimeout(DASHBOARD_URL(workspaceId), {
     headers: {
-      "User-Agent": USER_AGENT,
-      Accept: "text/html",
+      'User-Agent': USER_AGENT,
+      Accept: 'text/html',
       Cookie: `auth=${authCookie}`,
     },
   });
-  if (!res.ok) return { error: httpErrorMessage("OpenCode Go", res) };
+  if (!res.ok) return { error: httpErrorMessage('OpenCode Go', res) };
 
   const html = await res.text();
   const data = {
-    rolling: parseGoWindow(html, "rollingUsage"),
-    weekly: parseGoWindow(html, "weeklyUsage"),
-    monthly: parseGoWindow(html, "monthlyUsage"),
+    rolling: parseGoWindow(html, 'rollingUsage'),
+    weekly: parseGoWindow(html, 'weeklyUsage'),
+    monthly: parseGoWindow(html, 'monthlyUsage'),
   };
   if (!data.rolling && !data.weekly && !data.monthly) {
-    return { error: "No quota data found in OpenCode Go dashboard" };
+    return { error: 'No quota data found in OpenCode Go dashboard' };
   }
   return { data };
 };

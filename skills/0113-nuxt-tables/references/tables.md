@@ -6,7 +6,7 @@ Create reusable column configurations:
 
 ```typescript
 // app/utils/createColumnBuilder.ts
-import type { TableColumn } from "@tanstack/vue-table";
+import type { TableColumn } from '@tanstack/vue-table';
 
 export interface ColumnBuilder<TModel> {
   all(): TableColumn<TModel>[];
@@ -14,9 +14,7 @@ export interface ColumnBuilder<TModel> {
   except(columnsToExclude: string[]): TableColumn<TModel>[];
 }
 
-export function createColumnBuilder<TModel>(
-  columns: Record<string, TableColumn<TModel>>,
-): ColumnBuilder<TModel> {
+export function createColumnBuilder<TModel>(columns: Record<string, TableColumn<TModel>>): ColumnBuilder<TModel> {
   return {
     all: () => Object.values(columns),
     build: (columnKeys: string[]) => columnKeys.map((key) => columns[key]).filter(Boolean),
@@ -34,47 +32,46 @@ export function createColumnBuilder<TModel>(
 
 ```typescript
 // app/tables/posts.ts
-import { h } from "vue";
-import type { TableColumn } from "@tanstack/vue-table";
-import type Post from "~/models/Post";
-import Copyable from "~/components/Common/Copyable.vue";
-import { truncateMiddle } from "#layers/base/app/utils";
+import { h } from 'vue';
+import type { TableColumn } from '@tanstack/vue-table';
+import type Post from '~/models/Post';
+import Copyable from '~/components/Common/Copyable.vue';
+import { truncateMiddle } from '#layers/base/app/utils';
 
 // ULID column with copy functionality
 const ulidColumn: TableColumn<Post> = {
-  id: "ulid",
-  accessorKey: "ulid",
-  header: "ULID",
-  cell: ({ row }) =>
-    h(Copyable, { content: row.original.ulid }, () => truncateMiddle(row.original.ulid, 8)),
+  id: 'ulid',
+  accessorKey: 'ulid',
+  header: 'ULID',
+  cell: ({ row }) => h(Copyable, { content: row.original.ulid }, () => truncateMiddle(row.original.ulid, 8)),
 };
 
 // Status column with badge
 const statusColumn: TableColumn<Post> = {
-  id: "status",
-  accessorKey: "status",
-  header: "Status",
+  id: 'status',
+  accessorKey: 'status',
+  header: 'Status',
   cell: ({ row }) =>
     h(
       UBadge,
       {
-        color: row.getValue("status").color(),
+        color: row.getValue('status').color(),
       },
-      () => row.getValue("status").text,
+      () => row.getValue('status').text,
     ),
 };
 
 // Author column with link
 const authorColumn: TableColumn<Post> = {
-  id: "author",
-  accessorKey: "author.name",
-  header: "Author",
+  id: 'author',
+  accessorKey: 'author.name',
+  header: 'Author',
   cell: ({ row }) =>
     h(
       NuxtLink,
       {
         to: `/users/${row.original.author.ulid}`,
-        class: "text-primary-500 hover:underline",
+        class: 'text-primary-500 hover:underline',
       },
       () => row.original.author.name,
     ),
@@ -82,22 +79,22 @@ const authorColumn: TableColumn<Post> = {
 
 // Title column
 const titleColumn: TableColumn<Post> = {
-  id: "title",
-  accessorKey: "title",
-  header: "Title",
+  id: 'title',
+  accessorKey: 'title',
+  header: 'Title',
   cell: ({ row }) => row.original.title,
 };
 
 // Content column (truncated)
 const contentColumn: TableColumn<Post> = {
-  id: "content",
-  accessorKey: "content",
-  header: "Content",
+  id: 'content',
+  accessorKey: 'content',
+  header: 'Content',
   cell: ({ row }) =>
     h(
-      "span",
+      'span',
       {
-        class: "truncate max-w-xs",
+        class: 'truncate max-w-xs',
         title: row.original.content,
       },
       row.original.content,
@@ -106,23 +103,23 @@ const contentColumn: TableColumn<Post> = {
 
 // Dates column
 const datesColumn: TableColumn<Post> = {
-  id: "dates",
-  header: "Created",
-  cell: ({ row }) => row.original.createdAt.format("DD MMM YYYY"),
+  id: 'dates',
+  header: 'Created',
+  cell: ({ row }) => row.original.createdAt.format('DD MMM YYYY'),
 };
 
 // Comments count column
 const commentsColumn: TableColumn<Post> = {
-  id: "comments",
-  header: "Comments",
+  id: 'comments',
+  header: 'Comments',
   cell: ({ row }) => row.original.commentsCount ?? 0,
 };
 
 // Draft flag column
 const draftColumn: TableColumn<Post> = {
-  id: "isDraft",
-  header: "Draft",
-  cell: ({ row }) => (row.original.isDraft ? h(UBadge, { color: "warning" }, () => "Draft") : null),
+  id: 'isDraft',
+  header: 'Draft',
+  cell: ({ row }) => (row.original.isDraft ? h(UBadge, { color: 'warning' }, () => 'Draft') : null),
 };
 
 // Export builder
@@ -147,10 +144,10 @@ export const postsColumnBuilder = createColumnBuilder<Post>({
 const columns = postsColumnBuilder.all();
 
 // Specific columns
-const columns = postsColumnBuilder.build(["ulid", "title", "status"]);
+const columns = postsColumnBuilder.build(['ulid', 'title', 'status']);
 
 // Exclude columns
-const columns = postsColumnBuilder.except(["ulid", "dates"]);
+const columns = postsColumnBuilder.except(['ulid', 'dates']);
 ```
 
 ---
@@ -194,27 +191,27 @@ const columns = postsColumnBuilder.except(["ulid", "dates"]);
 ## Row Actions
 
 ```typescript
-import type { Row } from "@tanstack/vue-table";
+import type { Row } from '@tanstack/vue-table';
 
 const rowActions = computed(() => (row: Row<Post>) => [
   // Navigation action
   {
-    label: "View post",
+    label: 'View post',
     to: `/posts/${row.original.ulid}`,
   },
   // Navigation action
   {
-    label: "View author",
+    label: 'View author',
     to: `/users/${row.original.author.ulid}`,
   },
   // Function action
   {
-    label: "Edit post",
+    label: 'Edit post',
     onSelect: () => openUpdateSlideover({ post: row.original }),
   },
   // Destructive action
   {
-    label: "Delete post",
+    label: 'Delete post',
     onSelect: () => handleDelete([row.original]),
   },
 ]);
@@ -224,12 +221,12 @@ const rowActions = computed(() => (row: Row<Post>) => [
 
 ```typescript
 const rowActions = computed(() => (row: Row<Post>) => {
-  const actions = [{ label: "View", to: `/posts/${row.original.ulid}` }];
+  const actions = [{ label: 'View', to: `/posts/${row.original.ulid}` }];
 
   // Conditional edit
   if (can(UpdatePost)) {
     actions.push({
-      label: "Edit",
+      label: 'Edit',
       onSelect: () => openEdit(row.original),
     });
   }
@@ -237,7 +234,7 @@ const rowActions = computed(() => (row: Row<Post>) => {
   // Conditional delete
   if (can(DeletePost) && row.original.status.isEditable()) {
     actions.push({
-      label: "Delete",
+      label: 'Delete',
       onSelect: () => handleDelete(row.original),
     });
   }
@@ -253,8 +250,8 @@ const rowActions = computed(() => (row: Row<Post>) => {
 ```vue
 <!-- app/components/Tables/PostsTable.vue -->
 <script lang="ts" setup>
-import { postsColumnBuilder } from "~/tables/posts";
-import type { Row } from "@tanstack/vue-table";
+import { postsColumnBuilder } from '~/tables/posts';
+import type { Row } from '@tanstack/vue-table';
 
 const props = defineProps<{
   posts: Post[];
@@ -276,10 +273,10 @@ const columns = postsColumnBuilder.all();
 
 // Row actions
 const rowActions = computed(() => (row: Row<Post>) => [
-  { label: "View post", to: `/posts/${row.original.ulid}` },
-  { label: "View author", to: `/users/${row.original.author.ulid}` },
-  { label: "Edit post", onSelect: () => emits("edit", row.original) },
-  { label: "Delete post", onSelect: () => emits("delete", [row.original]) },
+  { label: 'View post', to: `/posts/${row.original.ulid}` },
+  { label: 'View author', to: `/users/${row.original.author.ulid}` },
+  { label: 'Edit post', onSelect: () => emits('edit', row.original) },
+  { label: 'Delete post', onSelect: () => emits('delete', [row.original]) },
 ]);
 
 // Row click handler
@@ -308,11 +305,11 @@ const handleRowClick = ({ row }: { row: Row<Post> }) => {
 ### Using h() function
 
 ```typescript
-import { h } from "vue";
+import { h } from 'vue';
 
 const statusColumn: TableColumn<Post> = {
-  id: "status",
-  header: "Status",
+  id: 'status',
+  header: 'Status',
   cell: ({ row }) =>
     h(
       UBadge,
@@ -328,22 +325,22 @@ const statusColumn: TableColumn<Post> = {
 
 ```typescript
 const actionsColumn: TableColumn<Post> = {
-  id: "actions",
-  header: "",
+  id: 'actions',
+  header: '',
   cell: ({ row }) =>
-    h("div", { class: "flex gap-2" }, [
+    h('div', { class: 'flex gap-2' }, [
       h(UButton, {
-        size: "xs",
-        variant: "ghost",
-        icon: "i-heroicons-pencil",
-        onClick: () => emits("edit", row.original),
+        size: 'xs',
+        variant: 'ghost',
+        icon: 'i-heroicons-pencil',
+        onClick: () => emits('edit', row.original),
       }),
       h(UButton, {
-        size: "xs",
-        variant: "ghost",
-        color: "error",
-        icon: "i-heroicons-trash",
-        onClick: () => emits("delete", row.original),
+        size: 'xs',
+        variant: 'ghost',
+        color: 'error',
+        icon: 'i-heroicons-trash',
+        onClick: () => emits('delete', row.original),
       }),
     ]),
 };
@@ -353,9 +350,9 @@ const actionsColumn: TableColumn<Post> = {
 
 ```typescript
 const draftColumn: TableColumn<Post> = {
-  id: "isDraft",
-  header: "Draft",
-  cell: ({ row }) => (row.original.isDraft ? h(UBadge, { color: "warning" }, () => "Draft") : null),
+  id: 'isDraft',
+  header: 'Draft',
+  cell: ({ row }) => (row.original.isDraft ? h(UBadge, { color: 'warning' }, () => 'Draft') : null),
 };
 ```
 

@@ -56,9 +56,9 @@ const typeScale = {
   base: fluidType({ minFontSize: 16, maxFontSize: 18 }),
   lg: fluidType({ minFontSize: 18, maxFontSize: 20 }),
   xl: fluidType({ minFontSize: 20, maxFontSize: 24 }),
-  "2xl": fluidType({ minFontSize: 24, maxFontSize: 32 }),
-  "3xl": fluidType({ minFontSize: 30, maxFontSize: 48 }),
-  "4xl": fluidType({ minFontSize: 36, maxFontSize: 60 }),
+  '2xl': fluidType({ minFontSize: 24, maxFontSize: 32 }),
+  '3xl': fluidType({ minFontSize: 30, maxFontSize: 48 }),
+  '4xl': fluidType({ minFontSize: 36, maxFontSize: 60 }),
 };
 ```
 
@@ -206,10 +206,7 @@ small {
 /* With maximum columns */
 .auto-grid-max-4 {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(100%, max(200px, calc((100% - 3 * var(--space-md)) / 4))), 1fr)
-  );
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(200px, calc((100% - 3 * var(--space-md)) / 4))), 1fr));
   gap: var(--space-md);
 }
 ```

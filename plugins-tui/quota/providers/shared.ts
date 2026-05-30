@@ -1,68 +1,50 @@
 export const getNested = (obj: unknown, path: readonly string[]): unknown => {
   let v: unknown = obj;
   for (const k of path) {
-    if (v == null || typeof v !== "object") return undefined;
+    if (v == null || typeof v !== 'object') return undefined;
     v = (v as Record<string, unknown>)[k];
   }
   return v;
 };
 
-export const findNumber = (
-  data: unknown,
-  paths: readonly (readonly string[])[],
-): number | undefined => {
+export const findNumber = (data: unknown, paths: readonly (readonly string[])[]): number | undefined => {
   for (const p of paths) {
     const v = getNested(data, p);
-    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
   }
   return undefined;
 };
 
-export const findBoolean = (
-  data: unknown,
-  paths: readonly (readonly string[])[],
-): boolean | undefined => {
+export const findBoolean = (data: unknown, paths: readonly (readonly string[])[]): boolean | undefined => {
   for (const p of paths) {
     const v = getNested(data, p);
-    if (typeof v === "boolean") return v;
+    if (typeof v === 'boolean') return v;
   }
   return undefined;
 };
 
-export const findString = (
-  data: unknown,
-  paths: readonly (readonly string[])[],
-): string | undefined => {
+export const findString = (data: unknown, paths: readonly (readonly string[])[]): string | undefined => {
   for (const p of paths) {
     const v = getNested(data, p);
-    if (typeof v === "string") return v;
+    if (typeof v === 'string') return v;
   }
   return undefined;
 };
 
-export const readStringField = (
-  data: Record<string, unknown>,
-  key: string,
-): string | undefined => {
+export const readStringField = (data: Record<string, unknown>, key: string): string | undefined => {
   const value = data[key];
-  return typeof value === "string" && value.trim() ? value : undefined;
+  return typeof value === 'string' && value.trim() ? value : undefined;
 };
 
-export const readBooleanField = (
-  data: Record<string, unknown>,
-  key: string,
-): boolean | undefined => {
+export const readBooleanField = (data: Record<string, unknown>, key: string): boolean | undefined => {
   const value = data[key];
-  return typeof value === "boolean" ? value : undefined;
+  return typeof value === 'boolean' ? value : undefined;
 };
 
-export const readNumericField = (
-  data: Record<string, unknown>,
-  key: string,
-): number | undefined => {
+export const readNumericField = (data: Record<string, unknown>, key: string): number | undefined => {
   const value = data[key];
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
     const parsed = Number(value.trim());
     return Number.isFinite(parsed) ? parsed : undefined;
   }

@@ -49,7 +49,7 @@ Docker Compose simplifies multi-container application management through:
 ### Compose File Structure
 
 ```yaml
-version: "3.8" # Compose file format version
+version: '3.8' # Compose file format version
 
 services: # Define containers
   service-name:
@@ -83,7 +83,7 @@ services:
     container_name: my-web # Custom container name
     restart: unless-stopped # Restart policy
     ports:
-      - "80:80" # Host:Container port mapping
+      - '80:80' # Host:Container port mapping
     environment:
       - ENV_VAR=value # Environment variables
     volumes:
@@ -105,7 +105,7 @@ services:
       target: development # Multi-stage build target
     image: myapp:latest # Tag resulting image
     ports:
-      - "3000:3000"
+      - '3000:3000'
 ```
 
 ### Service with Dependencies
@@ -123,7 +123,7 @@ services:
   db:
     image: postgres:15
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -141,42 +141,42 @@ services:
     build: ./backend
     command: npm run dev # Override default command
     working_dir: /app # Set working directory
-    user: "1000:1000" # Run as specific user
+    user: '1000:1000' # Run as specific user
     hostname: api-server # Custom hostname
     domainname: example.com # Domain name
     env_file:
       - .env # Load env from file
       - .env.local
     environment:
-      DATABASE_URL: "postgresql://db:5432/myapp"
-      REDIS_URL: "redis://cache:6379"
+      DATABASE_URL: 'postgresql://db:5432/myapp'
+      REDIS_URL: 'redis://cache:6379'
     volumes:
       - ./backend:/app # Source code mount
       - /app/node_modules # Preserve node_modules
       - app-data:/data # Named volume
     ports:
-      - "3000:3000" # Application port
-      - "9229:9229" # Debug port
+      - '3000:3000' # Application port
+      - '9229:9229' # Debug port
     expose:
-      - "8080" # Expose to other services only
+      - '8080' # Expose to other services only
     networks:
       - backend
       - frontend
     labels:
-      - "com.example.description=Backend API"
-      - "com.example.version=1.0"
+      - 'com.example.description=Backend API'
+      - 'com.example.version=1.0'
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 512M
 ```
 
@@ -187,7 +187,7 @@ services:
 **Scenario:** React frontend + Node.js backend + PostgreSQL database
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # Frontend React Application
@@ -197,7 +197,7 @@ services:
       dockerfile: Dockerfile
       target: development
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./frontend/src:/app/src
       - /app/node_modules
@@ -215,8 +215,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "4000:4000"
-      - "9229:9229" # Debugger
+      - '4000:4000'
+      - '9229:9229' # Debugger
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -243,7 +243,7 @@ services:
     container_name: postgres-db
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
@@ -254,7 +254,7 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -265,14 +265,14 @@ services:
     container_name: redis-cache
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis-data:/data
     networks:
       - backend
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -295,7 +295,7 @@ volumes:
 **Scenario:** Multiple services with reverse proxy and service discovery
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # NGINX Reverse Proxy
@@ -303,8 +303,8 @@ services:
     image: nginx:alpine
     container_name: reverse-proxy
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
@@ -322,7 +322,7 @@ services:
     build: ./services/auth
     container_name: auth-service
     expose:
-      - "8001"
+      - '8001'
     environment:
       - SERVICE_NAME=auth
       - DATABASE_URL=postgresql://db:5432/auth_db
@@ -334,7 +334,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8001/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -344,7 +344,7 @@ services:
     build: ./services/user
     container_name: user-service
     expose:
-      - "8002"
+      - '8002'
     environment:
       - SERVICE_NAME=user
       - DATABASE_URL=postgresql://db:5432/user_db
@@ -356,7 +356,7 @@ services:
       - auth-service
       - db
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8002/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -366,7 +366,7 @@ services:
     build: ./services/order
     container_name: order-service
     expose:
-      - "8003"
+      - '8003'
     environment:
       - SERVICE_NAME=order
       - DATABASE_URL=postgresql://db:5432/order_db
@@ -380,7 +380,7 @@ services:
       - db
       - rabbitmq
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8003/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -398,7 +398,7 @@ services:
     networks:
       - internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -408,8 +408,8 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
     ports:
-      - "5672:5672" # AMQP
-      - "15672:15672" # Management UI
+      - '5672:5672' # AMQP
+      - '15672:15672' # Management UI
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
@@ -418,7 +418,7 @@ services:
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -440,7 +440,7 @@ volumes:
 **Scenario:** Development setup with live code reloading and debugging
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   # Development Frontend
@@ -449,8 +449,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
-      - "9222:9222" # Chrome DevTools
+      - '3000:3000'
+      - '9222:9222' # Chrome DevTools
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -471,8 +471,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
     ports:
-      - "4000:4000"
-      - "9229:9229" # Node.js debugger
+      - '4000:4000'
+      - '9229:9229' # Node.js debugger
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -494,7 +494,7 @@ services:
       - POSTGRES_PASSWORD=dev
       - POSTGRES_DB=dev_db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - dev-db-data:/var/lib/postgresql/data
     networks:
@@ -506,7 +506,7 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@dev.local
       - PGADMIN_DEFAULT_PASSWORD=admin
     ports:
-      - "5050:80"
+      - '5050:80'
     networks:
       - dev-network
     depends_on:
@@ -516,8 +516,8 @@ services:
   mailhog:
     image: mailhog/mailhog:latest
     ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # Web UI
+      - '1025:1025' # SMTP
+      - '8025:8025' # Web UI
     networks:
       - dev-network
 
@@ -547,7 +547,7 @@ services:
 ### Custom Bridge Networks
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   frontend:
@@ -598,7 +598,7 @@ networks:
 services:
   app:
     image: myapp
-    network_mode: "host" # Use host network stack
+    network_mode: 'host' # Use host network stack
     # No port mapping needed, uses host ports directly
 ```
 
@@ -616,7 +616,7 @@ networks:
         - subnet: 172.28.0.0/16
           gateway: 172.28.0.1
     labels:
-      - "com.example.description=Custom network"
+      - 'com.example.description=Custom network'
 ```
 
 ## Volume Management
@@ -624,7 +624,7 @@ networks:
 ### Named Volumes
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   db:
@@ -711,16 +711,16 @@ volumes:
   data:
     driver: local
     driver_opts:
-      type: "nfs"
-      o: "addr=10.40.0.199,nolock,soft,rw"
-      device: ":/docker/example"
+      type: 'nfs'
+      o: 'addr=10.40.0.199,nolock,soft,rw'
+      device: ':/docker/example'
 
   cache:
     driver: local
     driver_opts:
       type: tmpfs
       device: tmpfs
-      o: "size=100m,uid=1000"
+      o: 'size=100m,uid=1000'
 
   external-volume:
     external: true # Volume created outside Compose
@@ -736,7 +736,7 @@ services:
   web:
     image: nginx
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -750,7 +750,7 @@ services:
   postgres:
     image: postgres:15
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -759,7 +759,7 @@ services:
   mysql:
     image: mysql:8
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -767,7 +767,7 @@ services:
   mongodb:
     image: mongo:6
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -780,7 +780,7 @@ services:
   app:
     build: ./app
     healthcheck:
-      test: ["CMD", "node", "healthcheck.js"]
+      test: ['CMD', 'node', 'healthcheck.js']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -789,8 +789,7 @@ services:
   api:
     build: ./api
     healthcheck:
-      test:
-        ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -818,7 +817,7 @@ services:
 ### Base Configuration (compose.yaml)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   web:
@@ -842,7 +841,7 @@ networks:
 
 ```yaml
 # Automatically merged with compose.yaml in development
-version: "3.8"
+version: '3.8'
 
 services:
   web:
@@ -853,8 +852,8 @@ services:
       - ./src:/app/src # Live code reload
       - /app/node_modules
     ports:
-      - "3000:3000" # Expose for local access
-      - "9229:9229" # Debugger port
+      - '3000:3000' # Expose for local access
+      - '9229:9229' # Debugger port
     environment:
       - NODE_ENV=development
       - DEBUG=*
@@ -862,7 +861,7 @@ services:
 
   db:
     ports:
-      - "5432:5432" # Expose for local tools
+      - '5432:5432' # Expose for local tools
     environment:
       - POSTGRES_PASSWORD=dev
     volumes:
@@ -872,7 +871,7 @@ services:
 ### Production Configuration (compose.prod.yaml)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   web:
@@ -884,10 +883,10 @@ services:
       replicas: 3
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 2G
         reservations:
-          cpus: "1"
+          cpus: '1'
           memory: 1G
       update_config:
         parallelism: 1
@@ -899,8 +898,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "5"
+        max-size: '10m'
+        max-file: '5'
 
   db:
     image: postgres:15-alpine
@@ -914,15 +913,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 4G
 
   # Production additions
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/prod.conf:/etc/nginx/nginx.conf:ro
       - ssl-certs:/etc/nginx/ssl:ro
@@ -944,7 +943,7 @@ volumes:
 ### Staging Configuration (compose.staging.yaml)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   web:
@@ -956,7 +955,7 @@ services:
       replicas: 2
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 1G
 
   db:
@@ -1050,13 +1049,13 @@ docker compose config --volumes      # List volumes
 ### Example 1: NGINX + PHP + MySQL (LAMP Stack)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./public:/var/www/html
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -1098,7 +1097,7 @@ volumes:
 ### Example 2: Django + PostgreSQL + Redis + Celery
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   web:
@@ -1107,7 +1106,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/django_db
       - REDIS_URL=redis://redis:6379/0
@@ -1161,7 +1160,7 @@ volumes:
 ### Example 3: React + Node.js + MongoDB + NGINX
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   frontend:
@@ -1180,7 +1179,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - '5000:5000'
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -1195,7 +1194,7 @@ services:
   mongo:
     image: mongo:6
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
       - mongo-config:/data/configdb
@@ -1208,7 +1207,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -1229,7 +1228,7 @@ volumes:
 ### Example 4: Spring Boot + MySQL + Adminer
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   app:
@@ -1237,7 +1236,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/springdb?useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
@@ -1259,7 +1258,7 @@ services:
     networks:
       - spring-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -1267,7 +1266,7 @@ services:
   adminer:
     image: adminer:latest
     ports:
-      - "8081:8080"
+      - '8081:8080'
     environment:
       ADMINER_DEFAULT_SERVER: db
     networks:
@@ -1283,13 +1282,13 @@ volumes:
 ### Example 5: WordPress + MySQL + phpMyAdmin
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   wordpress:
     image: wordpress:latest
     ports:
-      - "8000:80"
+      - '8000:80'
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress
@@ -1317,7 +1316,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     ports:
-      - "8080:80"
+      - '8080:80'
     environment:
       PMA_HOST: db
       PMA_USER: root
@@ -1338,7 +1337,7 @@ volumes:
 ### Example 6: Elasticsearch + Kibana + Logstash (ELK Stack)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   elasticsearch:
@@ -1346,11 +1345,11 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
       - xpack.security.enabled=false
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - '9200:9200'
+      - '9300:9300'
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
@@ -1363,10 +1362,10 @@ services:
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
     ports:
-      - "5000:5000"
-      - "9600:9600"
+      - '5000:5000'
+      - '9600:9600'
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      LS_JAVA_OPTS: '-Xmx256m -Xms256m'
     networks:
       - elk
     depends_on:
@@ -1376,7 +1375,7 @@ services:
     image: docker.elastic.co/kibana/kibana:8.10.0
     container_name: kibana
     ports:
-      - "5601:5601"
+      - '5601:5601'
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
@@ -1396,7 +1395,7 @@ volumes:
 ### Example 7: GitLab + GitLab Runner
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   gitlab:
@@ -1409,9 +1408,9 @@ services:
         external_url 'http://gitlab.local'
         gitlab_rails['gitlab_shell_ssh_port'] = 2222
     ports:
-      - "80:80"
-      - "443:443"
-      - "2222:22"
+      - '80:80'
+      - '443:443'
+      - '2222:22'
     volumes:
       - gitlab-config:/etc/gitlab
       - gitlab-logs:/var/log/gitlab
@@ -1444,7 +1443,7 @@ volumes:
 ### Example 8: Jenkins + Docker-in-Docker
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   jenkins:
@@ -1452,8 +1451,8 @@ services:
     container_name: jenkins
     user: root
     ports:
-      - "8080:8080"
-      - "50000:50000"
+      - '8080:8080'
+      - '50000:50000'
     volumes:
       - jenkins-data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
@@ -1488,20 +1487,20 @@ volumes:
 ### Example 9: Prometheus + Grafana + Node Exporter
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
     networks:
       - monitoring
 
@@ -1509,7 +1508,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -1526,15 +1525,15 @@ services:
     image: prom/node-exporter:latest
     container_name: node-exporter
     ports:
-      - "9100:9100"
+      - '9100:9100'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - "--path.procfs=/host/proc"
-      - "--path.sysfs=/host/sys"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
       - monitoring
 
@@ -1549,15 +1548,15 @@ volumes:
 ### Example 10: RabbitMQ + Multiple Consumers
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
     ports:
-      - "5672:5672" # AMQP
-      - "15672:15672" # Management UI
+      - '5672:5672' # AMQP
+      - '15672:15672' # Management UI
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: secret
@@ -1567,7 +1566,7 @@ services:
     networks:
       - messaging
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -1616,7 +1615,7 @@ volumes:
 ### Example 11: Traefik Reverse Proxy
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   traefik:
@@ -1629,9 +1628,9 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080" # Traefik dashboard
+      - '80:80'
+      - '443:443'
+      - '8080:8080' # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
@@ -1642,19 +1641,19 @@ services:
   whoami:
     image: traefik/whoami
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.local`)"
-      - "traefik.http.routers.whoami.entrypoints=web"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.whoami.rule=Host(`whoami.local`)'
+      - 'traefik.http.routers.whoami.entrypoints=web'
     networks:
       - traefik-network
 
   app:
     image: nginx:alpine
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`app.local`)"
-      - "traefik.http.routers.app.entrypoints=web"
-      - "traefik.http.services.app.loadbalancer.server.port=80"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.app.rule=Host(`app.local`)'
+      - 'traefik.http.routers.app.entrypoints=web'
+      - 'traefik.http.services.app.loadbalancer.server.port=80'
     networks:
       - traefik-network
 
@@ -1666,7 +1665,7 @@ networks:
 ### Example 12: MinIO + PostgreSQL Backup
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   minio:
@@ -1674,8 +1673,8 @@ services:
     container_name: minio
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -1684,7 +1683,7 @@ services:
     networks:
       - storage
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 20s
       retries: 3
@@ -1712,7 +1711,7 @@ services:
       MINIO_SECRET_KEY: minioadmin
     volumes:
       - ./scripts/backup.sh:/backup.sh:ro
-    entrypoint: ["/bin/sh", "/backup.sh"]
+    entrypoint: ['/bin/sh', '/backup.sh']
     depends_on:
       - postgres
       - minio
@@ -1730,7 +1729,7 @@ volumes:
 ### Example 13: Apache Kafka + Zookeeper
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   zookeeper:
@@ -1740,7 +1739,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - '2181:2181'
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-logs:/var/lib/zookeeper/log
@@ -1753,8 +1752,8 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - '9092:9092'
+      - '29092:29092'
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -1773,7 +1772,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -1793,7 +1792,7 @@ volumes:
 ### Example 14: Keycloak + PostgreSQL (Identity & Access Management)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   postgres:
@@ -1820,7 +1819,7 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
     command: start-dev
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       - postgres
     networks:
@@ -1836,7 +1835,7 @@ volumes:
 ### Example 15: Portainer (Docker Management UI)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   portainer:
@@ -1844,8 +1843,8 @@ services:
     container_name: portainer
     restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "8000:8000"
+      - '9000:9000'
+      - '8000:8000'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
@@ -1862,7 +1861,7 @@ volumes:
 ### Example 16: SonarQube + PostgreSQL (Code Quality)
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   sonarqube:
@@ -1880,7 +1879,7 @@ services:
       - sonarqube-logs:/opt/sonarqube/logs
       - sonarqube-extensions:/opt/sonarqube/extensions
     ports:
-      - "9000:9000"
+      - '9000:9000'
     networks:
       - sonarqube-network
 

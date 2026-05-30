@@ -212,7 +212,7 @@ import {
   Tags,
   Security,
   Example,
-} from "tsoa";
+} from 'tsoa';
 
 // Models
 interface User {
@@ -233,16 +233,16 @@ interface User {
 }
 
 enum UserStatus {
-  Active = "active",
-  Inactive = "inactive",
-  Suspended = "suspended",
-  Pending = "pending",
+  Active = 'active',
+  Inactive = 'inactive',
+  Suspended = 'suspended',
+  Pending = 'pending',
 }
 
 enum UserRole {
-  User = "user",
-  Moderator = "moderator",
-  Admin = "admin",
+  User = 'user',
+  Moderator = 'moderator',
+  Admin = 'admin',
 }
 
 interface CreateUserRequest {
@@ -280,8 +280,8 @@ interface ErrorResponse {
   requestId?: string;
 }
 
-@Route("users")
-@Tags("Users")
+@Route('users')
+@Tags('Users')
 export class UsersController extends Controller {
   /**
    * List all users with pagination and filtering
@@ -291,18 +291,18 @@ export class UsersController extends Controller {
    * @param search Search by name or email
    */
   @Get()
-  @Security("bearerAuth")
-  @Response<ErrorResponse>(400, "Invalid request")
-  @Response<ErrorResponse>(401, "Unauthorized")
+  @Security('bearerAuth')
+  @Response<ErrorResponse>(400, 'Invalid request')
+  @Response<ErrorResponse>(401, 'Unauthorized')
   @Example<UserListResponse>({
     data: [
       {
-        id: "550e8400-e29b-41d4-a716-446655440000",
-        email: "john@example.com",
-        name: "John Doe",
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        email: 'john@example.com',
+        name: 'John Doe',
         status: UserStatus.Active,
         role: UserRole.User,
-        createdAt: new Date("2024-01-15T10:30:00Z"),
+        createdAt: new Date('2024-01-15T10:30:00Z'),
       },
     ],
     pagination: {
@@ -321,54 +321,54 @@ export class UsersController extends Controller {
     @Query() search?: string,
   ): Promise<UserListResponse> {
     // Implementation
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
    * Create a new user
    */
   @Post()
-  @Security("bearerAuth")
-  @SuccessResponse(201, "Created")
-  @Response<ErrorResponse>(400, "Invalid request")
-  @Response<ErrorResponse>(409, "Email already exists")
+  @Security('bearerAuth')
+  @SuccessResponse(201, 'Created')
+  @Response<ErrorResponse>(400, 'Invalid request')
+  @Response<ErrorResponse>(409, 'Email already exists')
   public async createUser(@Body() body: CreateUserRequest): Promise<User> {
     this.setStatus(201);
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
    * Get user by ID
    * @param userId User ID
    */
-  @Get("{userId}")
-  @Security("bearerAuth")
-  @Response<ErrorResponse>(404, "User not found")
+  @Get('{userId}')
+  @Security('bearerAuth')
+  @Response<ErrorResponse>(404, 'User not found')
   public async getUser(@Path() userId: string): Promise<User> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
    * Update user attributes
    * @param userId User ID
    */
-  @Patch("{userId}")
-  @Security("bearerAuth")
-  @Response<ErrorResponse>(400, "Invalid request")
-  @Response<ErrorResponse>(404, "User not found")
+  @Patch('{userId}')
+  @Security('bearerAuth')
+  @Response<ErrorResponse>(400, 'Invalid request')
+  @Response<ErrorResponse>(404, 'User not found')
   public async updateUser(@Path() userId: string, @Body() body: UpdateUserRequest): Promise<User> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
    * Delete user
    * @param userId User ID
    */
-  @Delete("{userId}")
-  @Tags("Users", "Admin")
-  @Security("bearerAuth")
-  @SuccessResponse(204, "Deleted")
-  @Response<ErrorResponse>(404, "User not found")
+  @Delete('{userId}')
+  @Tags('Users', 'Admin')
+  @Security('bearerAuth')
+  @SuccessResponse(204, 'Deleted')
+  @Response<ErrorResponse>(404, 'User not found')
   public async deleteUser(@Path() userId: string): Promise<void> {
     this.setStatus(204);
   }

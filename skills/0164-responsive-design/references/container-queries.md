@@ -417,7 +417,7 @@ Style queries allow querying CSS custom property values. Currently limited suppo
 // Tailwind v3.2+ supports container queries
 // tailwind.config.js
 module.exports = {
-  plugins: [require("@tailwindcss/container-queries")],
+  plugins: [require('@tailwindcss/container-queries')],
 };
 
 // Component usage
@@ -540,16 +540,16 @@ function Dashboard() {
 
 ```javascript
 // Test container query support
-const supportsContainerQueries = CSS.supports("container-type", "inline-size");
+const supportsContainerQueries = CSS.supports('container-type', 'inline-size');
 
 // Resize observer for testing
 const observer = new ResizeObserver((entries) => {
   for (const entry of entries) {
-    console.log("Container width:", entry.contentRect.width);
+    console.log('Container width:', entry.contentRect.width);
   }
 });
 
-observer.observe(document.querySelector(".container"));
+observer.observe(document.querySelector('.container'));
 ```
 
 ## Resources

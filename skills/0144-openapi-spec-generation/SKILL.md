@@ -94,13 +94,13 @@ paths:
       tags:
         - Users
       parameters:
-        - $ref: "#/components/parameters/PageParam"
-        - $ref: "#/components/parameters/LimitParam"
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
         - name: status
           in: query
           description: Filter by user status
           schema:
-            $ref: "#/components/schemas/UserStatus"
+            $ref: '#/components/schemas/UserStatus'
         - name: search
           in: query
           description: Search by name or email
@@ -109,21 +109,21 @@ paths:
             minLength: 2
             maxLength: 100
       responses:
-        "200":
+        '200':
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserListResponse"
+                $ref: '#/components/schemas/UserListResponse'
               examples:
                 default:
-                  $ref: "#/components/examples/UserListExample"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "429":
-          $ref: "#/components/responses/RateLimited"
+                  $ref: '#/components/examples/UserListExample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
       security:
         - bearerAuth: []
 
@@ -138,7 +138,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateUserRequest"
+              $ref: '#/components/schemas/CreateUserRequest'
             examples:
               standard:
                 summary: Standard user
@@ -153,32 +153,32 @@ paths:
                   name: Admin User
                   role: admin
       responses:
-        "201":
+        '201':
           description: User created successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: '#/components/schemas/User'
           headers:
             Location:
               description: URL of created user
               schema:
                 type: string
                 format: uri
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "409":
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
           description: Email already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
       security:
         - bearerAuth: []
 
   /users/{userId}:
     parameters:
-      - $ref: "#/components/parameters/UserIdParam"
+      - $ref: '#/components/parameters/UserIdParam'
 
     get:
       operationId: getUser
@@ -186,14 +186,14 @@ paths:
       tags:
         - Users
       responses:
-        "200":
+        '200':
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-        "404":
-          $ref: "#/components/responses/NotFound"
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
 
@@ -207,18 +207,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdateUserRequest"
+              $ref: '#/components/schemas/UpdateUserRequest'
       responses:
-        "200":
+        '200':
           description: User updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "404":
-          $ref: "#/components/responses/NotFound"
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
 
@@ -229,10 +229,10 @@ paths:
         - Users
         - Admin
       responses:
-        "204":
+        '204':
           description: User deleted
-        "404":
-          $ref: "#/components/responses/NotFound"
+        '404':
+          $ref: '#/components/responses/NotFound'
       security:
         - bearerAuth: []
         - apiKey: []
@@ -263,7 +263,7 @@ components:
           maxLength: 100
           description: User display name
         status:
-          $ref: "#/components/schemas/UserStatus"
+          $ref: '#/components/schemas/UserStatus'
         role:
           type: string
           enum: [user, moderator, admin]
@@ -320,7 +320,7 @@ components:
           minLength: 1
           maxLength: 100
         status:
-          $ref: "#/components/schemas/UserStatus"
+          $ref: '#/components/schemas/UserStatus'
         role:
           type: string
           enum: [user, moderator, admin]
@@ -337,9 +337,9 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/User"
+            $ref: '#/components/schemas/User'
         pagination:
-          $ref: "#/components/schemas/Pagination"
+          $ref: '#/components/schemas/Pagination'
 
     Pagination:
       type: object
@@ -427,7 +427,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
           example:
             code: VALIDATION_ERROR
             message: Invalid request parameters
@@ -440,7 +440,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
           example:
             code: UNAUTHORIZED
             message: Authentication required
@@ -450,7 +450,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
           example:
             code: NOT_FOUND
             message: User not found
@@ -460,7 +460,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
+            $ref: '#/components/schemas/Error'
       headers:
         Retry-After:
           description: Seconds until rate limit resets
@@ -479,12 +479,12 @@ components:
     UserListExample:
       value:
         data:
-          - id: "550e8400-e29b-41d4-a716-446655440000"
-            email: "john@example.com"
-            name: "John Doe"
-            status: "active"
-            role: "user"
-            createdAt: "2024-01-15T10:30:00Z"
+          - id: '550e8400-e29b-41d4-a716-446655440000'
+            email: 'john@example.com'
+            name: 'John Doe'
+            status: 'active'
+            role: 'user'
+            createdAt: '2024-01-15T10:30:00Z'
         pagination:
           page: 1
           limit: 20

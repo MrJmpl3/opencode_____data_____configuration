@@ -35,12 +35,12 @@ pages/
 ```typescript
 // Single permission
 definePageMeta({
-  permissions: "posts.list",
+  permissions: 'posts.list',
 });
 
 // Multiple permissions (any of)
 definePageMeta({
-  permissions: ["posts.list", "users.list"],
+  permissions: ['posts.list', 'users.list'],
 });
 ```
 
@@ -49,7 +49,7 @@ definePageMeta({
 ```typescript
 // Use specific layout
 definePageMeta({
-  layout: "auth",
+  layout: 'auth',
 });
 
 // Disable layout
@@ -63,7 +63,7 @@ definePageMeta({
 ```typescript
 // Apply middleware
 definePageMeta({
-  middleware: ["auth", "verified"],
+  middleware: ['auth', 'verified'],
 });
 ```
 
@@ -74,12 +74,10 @@ definePageMeta({
 ```vue
 <!-- app/pages/posts/index.vue -->
 <script lang="ts" setup>
-import getPostsQueryFactory, {
-  type GetPostsFilters,
-} from "~/features/posts/queries/get-posts-query";
-import deletePostActionFactory from "~/features/posts/actions/delete-post-action";
-import { ListPosts, CreatePost } from "~/constants/permissions";
-import type { Row } from "@tanstack/vue-table";
+import getPostsQueryFactory, { type GetPostsFilters } from '~/features/posts/queries/get-posts-query';
+import deletePostActionFactory from '~/features/posts/actions/delete-post-action';
+import { ListPosts, CreatePost } from '~/constants/permissions';
+import type { Row } from '@tanstack/vue-table';
 
 // Page meta
 definePageMeta({
@@ -89,13 +87,13 @@ definePageMeta({
 // Page header
 const { setAppHeader } = useAppHeader();
 setAppHeader({
-  title: "Posts",
-  icon: "lucide:file-text",
+  title: 'Posts',
+  icon: 'lucide:file-text',
 });
 
 // Breadcrumbs
 const { setBreadcrumbs } = useBreadcrumbs();
-setBreadcrumbs([{ label: "Content" }, { label: "Posts" }]);
+setBreadcrumbs([{ label: 'Content' }, { label: 'Posts' }]);
 
 // Reactive filters
 const { filters, hasFilters, resetFilters } = useReactiveFilters<GetPostsFilters>(
@@ -118,8 +116,8 @@ const { data: posts, refresh, isLoading, isFetching, pagination } = getPostsQuer
 const deletePostAction = deletePostActionFactory();
 
 // Slideovers
-const { open: openCreateSlideover } = useSlideover("create-post");
-const { open: openUpdateSlideover } = useSlideover("update-post");
+const { open: openCreateSlideover } = useSlideover('create-post');
+const { open: openUpdateSlideover } = useSlideover('update-post');
 
 // Delete handling
 const deletePosts = async (items: Post[]) => {
@@ -131,13 +129,13 @@ const deletePosts = async (items: Post[]) => {
 
 // Row actions
 const tableRowActions = computed(() => (row: Row<Post>) => [
-  { label: "View post", to: `/posts/${row.original.ulid}` },
-  { label: "View author", to: `/users/${row.original.author.ulid}` },
+  { label: 'View post', to: `/posts/${row.original.ulid}` },
+  { label: 'View author', to: `/users/${row.original.author.ulid}` },
   {
-    label: "Edit post",
+    label: 'Edit post',
     onSelect: () => openUpdateSlideover({ post: row.original }),
   },
-  { label: "Delete post", onSelect: () => deletePosts([row.original]) },
+  { label: 'Delete post', onSelect: () => deletePosts([row.original]) },
 ]);
 </script>
 
@@ -145,29 +143,15 @@ const tableRowActions = computed(() => (row: Row<Post>) => [
   <div>
     <!-- Toolbar -->
     <div class="flex items-center gap-4 mb-4">
-      <UInput
-        v-model="filters.search"
-        placeholder="Search..."
-        icon="i-heroicons-magnifying-glass"
-      />
+      <UInput v-model="filters.search" placeholder="Search..." icon="i-heroicons-magnifying-glass" />
 
-      <USelect
-        v-model="filters.status"
-        :options="PostStatus.values()"
-        placeholder="Status"
-        option-attribute="text"
-      />
+      <USelect v-model="filters.status" :options="PostStatus.values()" placeholder="Status" option-attribute="text" />
 
       <UButton v-if="hasFilters" variant="ghost" @click="resetFilters"> Clear filters </UButton>
 
       <div class="flex-1" />
 
-      <UButton
-        v-if="can(CreatePost)"
-        icon="i-heroicons-plus"
-        label="Create Post"
-        @click="openCreateSlideover()"
-      />
+      <UButton v-if="can(CreatePost)" icon="i-heroicons-plus" label="Create Post" @click="openCreateSlideover()" />
     </div>
 
     <!-- Loading indicator -->
@@ -183,12 +167,7 @@ const tableRowActions = computed(() => (row: Row<Post>) => [
     />
 
     <!-- Pagination -->
-    <XPagination
-      v-if="pagination"
-      v-model:page="filters.page"
-      :pagination="pagination"
-      class="mt-4"
-    />
+    <XPagination v-if="pagination" v-model:page="filters.page" :pagination="pagination" class="mt-4" />
 
     <!-- Slideovers -->
     <CreatePostSlideover @close="refresh" />
@@ -204,9 +183,9 @@ const tableRowActions = computed(() => (row: Row<Post>) => [
 ```vue
 <!-- app/pages/posts/[ulid].vue -->
 <script lang="ts" setup>
-import getPostQueryFactory from "~/features/posts/queries/get-post-query";
-import deletePostActionFactory from "~/features/posts/actions/delete-post-action";
-import { ShowPost, UpdatePost, DeletePost } from "~/constants/permissions";
+import getPostQueryFactory from '~/features/posts/queries/get-post-query';
+import deletePostActionFactory from '~/features/posts/actions/delete-post-action';
+import { ShowPost, UpdatePost, DeletePost } from '~/constants/permissions';
 
 // Page meta
 definePageMeta({
@@ -234,7 +213,7 @@ watch(
       setAppHeader({
         title: p.data.title,
         subtitle: p.data.author.name,
-        icon: "lucide:file-text",
+        icon: 'lucide:file-text',
       });
     }
   },
@@ -247,11 +226,7 @@ watch(
   post,
   (p) => {
     if (p) {
-      setBreadcrumbs([
-        { label: "Content" },
-        { label: "Posts", to: "/posts" },
-        { label: p.data.title },
-      ]);
+      setBreadcrumbs([{ label: 'Content' }, { label: 'Posts', to: '/posts' }, { label: p.data.title }]);
     }
   },
   { immediate: true },
@@ -259,27 +234,27 @@ watch(
 
 // Tabs
 const tabs = computed(() => [
-  { label: "Details", slot: "details" },
+  { label: 'Details', slot: 'details' },
   {
-    label: "Comments",
-    slot: "comments",
+    label: 'Comments',
+    slot: 'comments',
     badge: post.value?.data.commentsCount,
   },
   {
-    label: "Tags",
-    slot: "tags",
+    label: 'Tags',
+    slot: 'tags',
     badge: post.value?.data.tagsCount,
   },
 ]);
 
 // Slideover
-const { open: openEditSlideover } = useSlideover("edit-post");
+const { open: openEditSlideover } = useSlideover('edit-post');
 
 // Delete
 const handleDelete = async () => {
   if (!post.value) return;
   await deletePostAction(post.value.data);
-  router.push("/posts");
+  router.push('/posts');
 };
 
 // Real-time updates
@@ -296,9 +271,7 @@ privateChannel(Post, ulid.value).on(PostUpdated, refresh);
     <div v-else-if="post">
       <!-- Actions -->
       <div class="flex gap-2 mb-4">
-        <UButton v-if="can(UpdatePost)" @click="openEditSlideover({ post: post.data })">
-          Edit
-        </UButton>
+        <UButton v-if="can(UpdatePost)" @click="openEditSlideover({ post: post.data })"> Edit </UButton>
         <UButton v-if="can(DeletePost)" color="error" @click="handleDelete"> Delete </UButton>
       </div>
 
@@ -390,9 +363,9 @@ const { breadcrumbs } = useBreadcrumbs();
 const { setAppHeader, appHeader } = useAppHeader();
 
 setAppHeader({
-  title: "Posts",
-  subtitle: "Manage your posts",
-  icon: "lucide:file-text",
+  title: 'Posts',
+  subtitle: 'Manage your posts',
+  icon: 'lucide:file-text',
 });
 ```
 
@@ -401,7 +374,7 @@ setAppHeader({
 ```typescript
 const { setBreadcrumbs, breadcrumbs } = useBreadcrumbs();
 
-setBreadcrumbs([{ label: "Content" }, { label: "Posts", to: "/posts" }, { label: "My Post" }]);
+setBreadcrumbs([{ label: 'Content' }, { label: 'Posts', to: '/posts' }, { label: 'My Post' }]);
 ```
 
 ---
@@ -413,7 +386,7 @@ setBreadcrumbs([{ label: "Content" }, { label: "Posts", to: "/posts" }, { label:
 <script lang="ts" setup>
 // Redirect to posts on root
 definePageMeta({
-  redirect: "/posts",
+  redirect: '/posts',
 });
 </script>
 ```
@@ -426,21 +399,21 @@ definePageMeta({
 <!-- app/pages/auth/login.vue -->
 <script lang="ts" setup>
 definePageMeta({
-  layout: "auth",
-  middleware: "guest", // Only for unauthenticated
+  layout: 'auth',
+  middleware: 'guest', // Only for unauthenticated
 });
 
 const { login } = useSanctumAuth();
 const router = useRouter();
 
 const credentials = ref({
-  email: "",
-  password: "",
+  email: '',
+  password: '',
 });
 
 const onSubmit = async () => {
   await login(credentials.value);
-  router.push("/");
+  router.push('/');
 };
 </script>
 

@@ -16,11 +16,11 @@ Type-safe domain models with automatic hydration, relations, and property castin
 
 ```typescript
 // app/models/Post.ts
-import Model from "#layers/base/app/models/Model";
-import type { Castable } from "#layers/base/app/types";
-import PostStatus from "~/enums/PostStatus";
-import DateValue from "~/values/DateValue";
-import Author from "~/models/Author";
+import Model from '#layers/base/app/models/Model';
+import type { Castable } from '#layers/base/app/types';
+import PostStatus from '~/enums/PostStatus';
+import DateValue from '~/values/DateValue';
+import Author from '~/models/Author';
 
 export default class Post extends Model {
   ulid: string;
@@ -32,7 +32,7 @@ export default class Post extends Model {
   createdAt: DateValue;
 
   public override primaryKey(): string {
-    return "ulid";
+    return 'ulid';
   }
 
   public override casts(): Record<string, Castable> {

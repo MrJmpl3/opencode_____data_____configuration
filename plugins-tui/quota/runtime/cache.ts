@@ -1,9 +1,9 @@
-import { fmtDuration } from "../providers.js";
-import { isQuotaRateLimitError, retryAfterMsFromMessage } from "./format.js";
-import { MAX_PROVIDER_BACKOFF_MS } from "./options.js";
-import type { QuotaProviderId } from "./options.js";
-import type { GoConfig, ProviderFetchResult } from "./provider-results.js";
-import type { CachedProviderValue } from "./provider-results.js";
+import { fmtDuration } from '../providers.js';
+import { isQuotaRateLimitError, retryAfterMsFromMessage } from './format.js';
+import { MAX_PROVIDER_BACKOFF_MS } from './options.js';
+import type { QuotaProviderId } from './options.js';
+import type { GoConfig, ProviderFetchResult } from './provider-results.js';
+import type { CachedProviderValue } from './provider-results.js';
 
 export type ProviderCacheEntry = {
   value?: CachedProviderValue;
@@ -25,10 +25,7 @@ export const createQuotaProviderCache = ({
   fetchProviderLines,
 }: QuotaProviderCacheConfig): {
   providerCache: Map<QuotaProviderId, ProviderCacheEntry>;
-  getCachedProviderLines: (
-    providerId: QuotaProviderId,
-    goConfig: GoConfig,
-  ) => Promise<ProviderFetchResult>;
+  getCachedProviderLines: (providerId: QuotaProviderId, goConfig: GoConfig) => Promise<ProviderFetchResult>;
 } => {
   const providerCache = new Map<QuotaProviderId, ProviderCacheEntry>();
 
@@ -39,10 +36,7 @@ export const createQuotaProviderCache = ({
     return Math.max(retryAfterMs, Math.min(multipliedMs, MAX_PROVIDER_BACKOFF_MS));
   };
 
-  const cacheProviderResult = (
-    providerId: QuotaProviderId,
-    value: ProviderFetchResult,
-  ): ProviderFetchResult => {
+  const cacheProviderResult = (providerId: QuotaProviderId, value: ProviderFetchResult): ProviderFetchResult => {
     if (value === undefined) {
       providerCache.delete(providerId);
       return undefined;
@@ -50,14 +44,12 @@ export const createQuotaProviderCache = ({
 
     const now = Date.now();
     const previous = providerCache.get(providerId);
-    const consecutiveErrors =
-      typeof value === "string" ? (previous?.consecutiveErrors ?? 0) + 1 : 0;
+    const consecutiveErrors = typeof value === 'string' ? (previous?.consecutiveErrors ?? 0) + 1 : 0;
     providerCache.set(providerId, {
       value,
       fetchedAtMs: now,
       consecutiveErrors,
-      cooldownUntilMs:
-        typeof value === "string" ? now + getErrorCooldownMs(value, consecutiveErrors) : undefined,
+      cooldownUntilMs: typeof value === 'string' ? now + getErrorCooldownMs(value, consecutiveErrors) : undefined,
     });
     return value;
   };
@@ -70,10 +62,7 @@ export const createQuotaProviderCache = ({
     const entry = providerCache.get(providerId);
     if (entry?.inFlight) return entry.inFlight;
     if (entry?.cooldownUntilMs && entry.cooldownUntilMs > now) {
-      return (
-        entry.value ??
-        `Refresh paused · retry in ${fmtDuration(Math.ceil((entry.cooldownUntilMs - now) / 1000))}`
-      );
+      return entry.value ?? `Refresh paused · retry in ${fmtDuration(Math.ceil((entry.cooldownUntilMs - now) / 1000))}`;
     }
     if (entry?.value !== undefined && now - entry.fetchedAtMs < providerCacheTtlMs) {
       return entry.value;

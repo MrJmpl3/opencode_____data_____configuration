@@ -16,19 +16,19 @@ Laravel Sanctum authentication with permission-based access control.
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ["nuxt-auth-sanctum"],
+  modules: ['nuxt-auth-sanctum'],
 
   sanctum: {
     baseUrl: process.env.NUXT_PUBLIC_API_URL,
     endpoints: {
-      login: "/auth/login",
-      user: "/auth/user",
-      csrf: "/sanctum/csrf-cookie",
-      logout: "/auth/logout",
+      login: '/auth/login',
+      user: '/auth/user',
+      csrf: '/sanctum/csrf-cookie',
+      logout: '/auth/logout',
     },
     redirect: {
-      onAuthOnly: "/auth/login",
-      onGuestOnly: "/",
+      onAuthOnly: '/auth/login',
+      onGuestOnly: '/',
     },
   },
 });
@@ -67,6 +67,6 @@ if (can('leads.create')) { /* ... */ }
 
 ```typescript
 definePageMeta({
-  permissions: "leads.list",
+  permissions: 'leads.list',
 });
 ```
