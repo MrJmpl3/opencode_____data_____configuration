@@ -9,8 +9,7 @@
       }
     ],
     "./plugins-tui/cache",
-    "opencode-quotes-plugin",
-    "oh-my-opencode-slim"
+    "opencode-quotes-plugin"
   ],
   "theme": "opencode"
 }

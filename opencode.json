@@ -1,31 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "agent": {
-    "designer": {
-      "color": "#8B5CF6"
-    },
-    "explore": {
-      "disable": true
-    },
-    "explorer": {
-      "color": "#10B981"
-    },
-    "fixer": {
-      "color": "#EF4444"
-    },
-    "general": {
-      "disable": true
-    },
-    "librarian": {
-      "color": "#06B6D4"
-    },
-    "oracle": {
-      "color": "#F59E0B"
-    },
-    "orchestrator": {
-      "color": "#3B82F6"
-    }
-  },
   "lsp": {
     "bash-language-server": {
       "command": ["bash-language-server", "start"],
@@ -89,20 +63,6 @@
     }
   },
   "mcp": {
-    "ast_grep": {
-      "command": ["ast-grep-mcp"],
-      "enabled": true,
-      "timeout": 30000,
-      "type": "local"
-    },
-    "context7": {
-      "enabled": true,
-      "headers": {
-        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
-      },
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp"
-    },
     "deepwiki": {
       "enabled": true,
       "type": "remote",
@@ -116,18 +76,13 @@
       "type": "remote",
       "url": "https://api.githubcopilot.com/mcp"
     },
-    "grep_app": {
-      "enabled": true,
-      "type": "remote",
-      "url": "https://mcp.grep.app"
-    },
     "nuxt": {
       "enabled": true,
       "type": "remote",
       "url": "https://nuxt.com/mcp"
     }
   },
-  "plugin": ["oh-my-opencode-slim"],
+  "plugin": ["oh-my-openagent@latest"],
   "provider": {
     "openai": {
       "options": {
