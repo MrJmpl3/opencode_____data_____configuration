@@ -6,22 +6,33 @@
       "variant": "medium"
     },
     "explore": {
-      "model": "openai/gpt-5.4-mini-fast"
+      "model": "openai/gpt-5.4-mini-fast",
+      "prompt_append": "Navigate the codebase quickly. Find concrete files, patterns, symbols, and conventions. Return concise, actionable findings."
     },
     "hephaestus": {
       "model": "openai/gpt-5.5",
-      "variant": "medium"
+      "variant": "medium",
+      "prompt_append": "You are the primary implementation agent. Own the codebase. Explore, decide, execute. Use LSP and AST-grep aggressively, then verify with focused tests.",
+      "permission": {
+        "bash": {
+          "git": "allow",
+          "test": "allow"
+        },
+        "edit": "allow"
+      }
     },
     "librarian": {
-      "model": "openai/gpt-5.4-mini-fast"
+      "model": "openai/gpt-5.4-mini-fast",
+      "prompt_append": "Prioritize official docs, source code, and real implementation examples. Keep answers focused on decisions that unblock coding work."
     },
     "metis": {
-      "model": "openai/gpt-5.5",
-      "variant": "high"
+      "model": "openai/gpt-5.4-mini-fast",
+      "prompt_append": "Keep pre-planning lightweight. Identify ambiguities, likely failure modes, and the smallest safe implementation path."
     },
     "momus": {
       "model": "openai/gpt-5.5",
-      "variant": "xhigh"
+      "variant": "high",
+      "prompt_append": "Focus on code quality, edge cases, regressions, and test coverage. Prefer concrete findings over broad commentary."
     },
     "multimodal-looker": {
       "fallback_models": [
@@ -37,16 +48,26 @@
       "variant": "high"
     },
     "prometheus": {
-      "model": "openai/gpt-5.5",
-      "variant": "high"
+      "model": "openai/gpt-5.4-mini-fast",
+      "prompt_append": "Keep plans concise. Focus on file structure, key decisions, parallelization opportunities, and verification steps."
     },
     "sisyphus": {
       "model": "openai/gpt-5.5",
-      "variant": "medium"
+      "variant": "medium",
+      "prompt_append": "Delegate heavily to hephaestus for implementation. Parallelize exploration. Keep coding sessions moving toward verified changes.",
+      "ultrawork": {
+        "model": "openai/gpt-5.5",
+        "variant": "high"
+      }
     },
     "sisyphus-junior": {
-      "model": "openai/gpt-5.5",
-      "variant": "medium"
+      "model": "openai/gpt-5.4-mini-fast"
+    }
+  },
+  "background_task": {
+    "defaultConcurrency": 5,
+    "providerConcurrency": {
+      "openai": 5
     }
   },
   "browser_automation_engine": {
@@ -62,18 +83,18 @@
       "variant": "medium"
     },
     "quick": {
-      "model": "openai/gpt-5.4-mini"
+      "model": "openai/gpt-5.4-mini-fast"
     },
     "ultrabrain": {
       "model": "openai/gpt-5.5",
       "variant": "xhigh"
     },
     "unspecified-high": {
-      "model": "openai/gpt-5.3-codex",
-      "variant": "medium"
+      "model": "openai/gpt-5.5",
+      "variant": "high"
     },
     "unspecified-low": {
-      "model": "openai/gpt-5.3-codex",
+      "model": "openai/gpt-5.5",
       "variant": "medium"
     },
     "visual-engineering": {
