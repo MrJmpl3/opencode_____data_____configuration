@@ -26,6 +26,9 @@ import { View } from './view.js';
 const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'];
 const COMPLETION_REFRESH_EVENTS = ['session.idle'];
 
+const hasExpiredQuotaLine = (items: readonly QuotaLine[], nowMs: number): boolean =>
+  items.some((line) => (line.kind === 'window' || line.kind === 'pace') && line.resetAtMs <= nowMs);
+
 export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Promise<void> => {
   const { slots, event: evt, lifecycle } = api;
   const [lines, setLines] = createSignal<QuotaLine[]>([]);
@@ -38,11 +41,16 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     const delayMs = 1000 - (Date.now() % 1000);
     clockTimer = setTimeout(() => {
       if (disposed) return;
-      setNowMs(Date.now());
+      const tickNowMs = Date.now();
+      setNowMs(tickNowMs);
+      if (hasExpiredQuotaLine(lines(), tickNowMs) && tickNowMs - lastExpiryRefreshAtMs >= expiryRefreshIntervalMs) {
+        lastExpiryRefreshAtMs = tickNowMs;
+        providerCache.clear();
+        requestRefresh('quota-window-expired', true);
+      }
       scheduleClockTick();
     }, delayMs);
   };
-  scheduleClockTick();
 
   const displayMode = getDisplayModeSetting(options);
   const visibleProviders = getVisibleProviders(options);
@@ -71,15 +79,18 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     DEFAULT_PROVIDER_ERROR_BACKOFF_MS,
     MIN_SAFE_CACHE_TTL_MS,
   );
+  const expiryRefreshIntervalMs = Math.max(minRefreshIntervalMs, providerCacheTtlMs);
   const { providerCache, getCachedProviderLines } = createQuotaProviderCache({
     providerCacheTtlMs,
     providerErrorBackoffMs,
     fetchProviderLines: (providerId, goConfig) => fetchProviderLines(providerId, goConfig, displayMode, setNowMs),
   });
+  scheduleClockTick();
   let refreshPromise: Promise<void> | undefined;
   let pendingRefreshSource: string | undefined;
   let deferredRefreshTimer: ReturnType<typeof setTimeout> | undefined;
   let lastRefreshStartedAtMs = 0;
+  let lastExpiryRefreshAtMs = 0;
 
   const refresh = async (_source?: string) => {
     if (disposed) return;

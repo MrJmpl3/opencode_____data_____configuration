@@ -2,6 +2,8 @@ import type { QuotaDisplayMode } from './options.js';
 
 export const WEEK_SECONDS = 7 * 24 * 60 * 60;
 
+const DAY_SECONDS = 24 * 60 * 60;
+
 const parseBackoffDelayMs = (message: string, pattern: RegExp): number => {
   const match = message.match(pattern);
   if (!match) return 0;
@@ -64,8 +66,10 @@ export const formatResponsibleUsagePace = (
   const totalSec = Math.max(1, windowSeconds);
   const usedPct = Math.max(0, Math.min(100, window.usedPct));
   const remainingSec = Math.max(0, Math.min(totalSec, window.resetSec));
-  const responsibleRemainingPct = (remainingSec / totalSec) * 100;
-  const responsibleUsedPct = 100 - responsibleRemainingPct;
+  const elapsedSec = totalSec - remainingSec;
+  const totalDayCount = Math.max(1, Math.ceil(totalSec / DAY_SECONDS));
+  const startedDayCount = Math.min(totalDayCount, Math.floor(elapsedSec / DAY_SECONDS) + 1);
+  const responsibleUsedPct = (startedDayCount / totalDayCount) * 100;
   const deltaPct = usedPct - responsibleUsedPct;
   const absDelta = Math.abs(deltaPct).toFixed(2);
 

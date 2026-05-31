@@ -167,20 +167,34 @@ describe('quota tui plugin', () => {
     }
   });
 
-  it('formats weekly responsible usage pace', () => {
+  it('formats weekly responsible usage pace with accumulated daily budget', () => {
     expect(
       formatResponsibleWeeklyUsage({
-        usedPct: 20,
+        usedPct: 4,
+        resetSec: 6 * 24 * 60 * 60 + 18 * 60 * 60,
+      }),
+    ).toBe('✓ ok · 10.29% below');
+
+    expect(
+      formatResponsibleWeeklyUsage({
+        usedPct: 50,
         resetSec: 4 * 24 * 60 * 60,
       }),
-    ).toBe('✓ ok · 22.86% below');
+    ).toBe('✓ ok · 7.14% below');
 
     expect(
       formatResponsibleWeeklyUsage({
         usedPct: 60,
         resetSec: 4 * 24 * 60 * 60,
       }),
-    ).toBe('⚠ high · 17.14% over');
+    ).toBe('⚠ high · 2.86% over');
+
+    expect(
+      formatResponsibleWeeklyUsage({
+        usedPct: 20,
+        resetSec: 6 * 24 * 60 * 60,
+      }),
+    ).toBe('✓ ok · 8.57% below');
   });
 
   it('formats durations including minutes and seconds', () => {
