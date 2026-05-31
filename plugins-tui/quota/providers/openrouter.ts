@@ -49,13 +49,9 @@ export const fetchOpenRouterQuota = async (): Promise<OpenRouterResult | null | 
   }
 
   const totalCredits =
-    typeof data.total_credits === 'number' && Number.isFinite(data.total_credits)
-      ? data.total_credits
-      : null;
+    typeof data.total_credits === 'number' && Number.isFinite(data.total_credits) ? data.total_credits : null;
   const totalUsage =
-    typeof data.total_usage === 'number' && Number.isFinite(data.total_usage)
-      ? data.total_usage
-      : null;
+    typeof data.total_usage === 'number' && Number.isFinite(data.total_usage) ? data.total_usage : null;
 
   if (totalCredits !== null && totalCredits > 0) {
     const usage = totalUsage ?? 0;

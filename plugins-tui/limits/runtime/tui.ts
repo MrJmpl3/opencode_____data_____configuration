@@ -1,7 +1,6 @@
 export type UnknownRecord = Record<string, unknown>;
 
-export const isRecord = (value: unknown): value is UnknownRecord =>
-  typeof value === 'object' && value !== null;
+export const isRecord = (value: unknown): value is UnknownRecord => typeof value === 'object' && value !== null;
 
 export const formatCompactNumber = (n: number): string => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;

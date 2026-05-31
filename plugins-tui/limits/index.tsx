@@ -2,7 +2,14 @@
 import { createSignal, Show } from 'solid-js';
 import type { TuiPluginModule, TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { detailLine, eventProperties, eventSessionId, formatCompactNumber, isRecord, slotSessionId } from './runtime/tui.js';
+import {
+  detailLine,
+  eventProperties,
+  eventSessionId,
+  formatCompactNumber,
+  isRecord,
+  slotSessionId,
+} from './runtime/tui.js';
 import { getModelFromMessages, readModelRecord, readString, resolveModel } from './runtime/model.js';
 import type { ProviderRecord } from './runtime/model.js';
 
@@ -91,7 +98,9 @@ const plugin: TuiPluginModule & { id: string } = {
     };
 
     const applyModel = (providerId: string | undefined, modelId: string) => {
-      const resolved = providerId ? resolveModel(providerId, modelId, api.state.provider as readonly ProviderRecord[]) : undefined;
+      const resolved = providerId
+        ? resolveModel(providerId, modelId, api.state.provider as readonly ProviderRecord[])
+        : undefined;
       setModelLabel(resolved?.name || modelId);
       setContextLimit(resolved?.context ?? 0);
       setOutputLimit(resolved?.output ?? 0);

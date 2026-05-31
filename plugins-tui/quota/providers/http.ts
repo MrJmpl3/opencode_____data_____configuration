@@ -1,6 +1,10 @@
 import { FETCH_TIMEOUT_MS } from './constants.js';
 
-export const fetchWithTimeout = async (url: string, opts: RequestInit, ms: number = FETCH_TIMEOUT_MS): Promise<Response> => {
+export const fetchWithTimeout = async (
+  url: string,
+  opts: RequestInit,
+  ms: number = FETCH_TIMEOUT_MS,
+): Promise<Response> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
 

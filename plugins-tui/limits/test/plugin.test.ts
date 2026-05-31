@@ -97,7 +97,9 @@ describe('limits tui plugin', () => {
       },
       state: {
         config: { model: '' },
-        provider: [{ id: 'openai', models: { 'gpt-5': { name: 'GPT-5', limit: { context: 400_000, output: 128_000 } } } }],
+        provider: [
+          { id: 'openai', models: { 'gpt-5': { name: 'GPT-5', limit: { context: 400_000, output: 128_000 } } } },
+        ],
         session: { messages },
       },
       theme: { current: { text: 'white', textMuted: 'gray' } },

@@ -2,13 +2,7 @@
 import { createSignal, Show } from 'solid-js';
 import type { TuiPluginModule, TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import {
-  detailLine,
-  eventSessionId,
-  formatCompactNumber,
-  formatPercentRatio,
-  slotSessionId,
-} from './runtime/tui.js';
+import { detailLine, eventSessionId, formatCompactNumber, formatPercentRatio, slotSessionId } from './runtime/tui.js';
 import { summarizeCacheMessages } from './runtime/summary.js';
 
 // Cache sidebar plugin for OpenCode TUI.
