@@ -1,4 +1,5 @@
-import { isRecord } from '../../shared/tui.js';
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
 
 export const getNested = (obj: unknown, path: readonly string[]): unknown => {
   let v: unknown = obj;

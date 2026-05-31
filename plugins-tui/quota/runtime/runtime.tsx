@@ -3,7 +3,6 @@ import { createSignal } from 'solid-js';
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 import { readGoConfig } from '../providers.js';
-import { slotSessionId } from '../../shared/tui.js';
 import { createRefreshScheduler } from './refresh-scheduler.js';
 import { createQuotaProviderCache } from './cache.js';
 import { fetchProviderLines } from './provider-results.js';
@@ -22,6 +21,7 @@ import {
   MIN_SAFE_REFRESH_INTERVAL_MS,
 } from './options.js';
 import type { ProviderSpec, QuotaProviderId } from './options.js';
+import { slotSessionId } from './tui.js';
 import { View } from './view.js';
 
 const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'];
@@ -47,11 +47,16 @@ export const refreshQuotaProviders = async ({
   shouldContinue: () => boolean;
   onUpdate: () => void;
 }): Promise<void> => {
-  await Promise.all(
+  await Promise.allSettled(
     visibleProviders
       .filter((provider) => results.has(provider.id))
       .map(async (provider) => {
-        const result = await getCachedProviderLines(provider.id, goConfig);
+        let result: ProviderFetchResult;
+        try {
+          result = await getCachedProviderLines(provider.id, goConfig);
+        } catch (error: unknown) {
+          result = errorMessage(error);
+        }
         if (!shouldContinue()) return;
 
         if (result === undefined) {
@@ -213,7 +218,12 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
   };
 
   const scheduler = createRefreshScheduler({
-    subscribe: (eventName, handler) => evt.on(eventName as never, handler),
+    subscribe: (eventName, handler) => {
+      if (eventName === 'tui.session.select') return evt.on('tui.session.select', handler);
+      if (eventName === 'session.idle') return evt.on('session.idle', handler);
+
+      return () => {};
+    },
     onRefresh: requestRefresh,
     immediateEvents: IMMEDIATE_REFRESH_EVENTS,
     completionEvents: COMPLETION_REFRESH_EVENTS,

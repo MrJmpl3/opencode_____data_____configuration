@@ -1,17 +1,20 @@
 import { FETCH_TIMEOUT_MS } from './constants.js';
 
-export const fetchWithTimeout = (url: string, opts: RequestInit, ms: number = FETCH_TIMEOUT_MS): Promise<Response> => {
+export const fetchWithTimeout = async (url: string, opts: RequestInit, ms: number = FETCH_TIMEOUT_MS): Promise<Response> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
-  return fetch(url, { ...opts, signal: controller.signal })
-    .catch((error: unknown) => {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error(`Request to ${url} timed out after ${ms}ms`);
-      }
 
-      throw error;
-    })
-    .finally(() => clearTimeout(timer));
+  try {
+    return await fetch(url, { ...opts, signal: controller.signal });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`Request to ${url} timed out after ${ms}ms`);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
 export const httpErrorMessage = (label: string, res: Response, body?: string): string => {

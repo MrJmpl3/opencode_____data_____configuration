@@ -4,7 +4,7 @@ import os from 'os';
 
 import { OPENROUTER_CREDITS_URL } from './constants.js';
 import { fetchWithTimeout, httpErrorMessage, readJsonResponse } from './http.js';
-import { isRecord } from '../../shared/tui.js';
+import { isRecord } from './shared.js';
 import type { OpenRouterResult } from './types.js';
 
 export const readOpenRouterKey = (): string | null => {

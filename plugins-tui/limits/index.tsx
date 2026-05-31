@@ -2,91 +2,9 @@
 import { createSignal, Show } from 'solid-js';
 import type { TuiPluginModule, TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { detailLine, eventProperties, eventSessionId, formatCompactNumber, isRecord, slotSessionId } from '../shared/tui.js';
-
-type MessageModel = {
-  modelId: string;
-  providerId?: string;
-};
-
-type ModelLimits = {
-  name?: string;
-  context: number;
-  output: number;
-};
-
-type ProviderModelRecord = {
-  name?: unknown;
-  limit?: unknown;
-};
-
-type ProviderRecord = {
-  id?: unknown;
-  models?: unknown;
-};
-
-const readString = (record: Record<string, unknown>, key: string): string | undefined => {
-  const value = record[key];
-
-  return typeof value === 'string' ? value : undefined;
-};
-
-const readModelRecord = (provider: ProviderRecord, modelId: string): ProviderModelRecord | undefined => {
-  if (!isRecord(provider.models)) return undefined;
-
-  const model = provider.models[modelId];
-
-  return isRecord(model) ? model : undefined;
-};
-
-const readLimitValue = (model: ProviderModelRecord, key: string): number => {
-  if (!isRecord(model.limit)) return 0;
-
-  const value = model.limit[key];
-
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
-};
-
-// --- extract model info from the last message that carries it ---
-export const getModelFromMessages = (msgs: readonly unknown[]): MessageModel | null => {
-  for (let i = msgs.length - 1; i >= 0; i--) {
-    const msg = msgs[i];
-    if (!isRecord(msg)) continue;
-
-    if (msg.role === 'user' && isRecord(msg.model)) {
-      const modelId = readString(msg.model, 'modelID');
-      const providerId = readString(msg.model, 'providerID');
-      if (modelId) return { modelId, providerId };
-    }
-
-    if (msg.role === 'assistant') {
-      const modelId = readString(msg, 'modelID');
-      const providerId = readString(msg, 'providerID');
-      if (modelId) return { modelId, providerId };
-    }
-  }
-  return null;
-};
-
-// --- look up model definition in the provider registry ---
-export const resolveModel = (
-  providerId: string,
-  modelId: string,
-  providers: readonly ProviderRecord[],
-): ModelLimits => {
-  for (const p of providers) {
-    if (p.id === providerId) {
-      const m = readModelRecord(p, modelId);
-      if (m)
-        return {
-          name: typeof m.name === 'string' ? m.name : undefined,
-          context: readLimitValue(m, 'context'),
-          output: readLimitValue(m, 'output'),
-        };
-    }
-  }
-  return { context: 0, output: 0 };
-};
+import { detailLine, eventProperties, eventSessionId, formatCompactNumber, isRecord, slotSessionId } from './runtime/tui.js';
+import { getModelFromMessages, readModelRecord, readString, resolveModel } from './runtime/model.js';
+import type { ProviderRecord } from './runtime/model.js';
 
 // --- View ---
 const View = (props: {
@@ -265,10 +183,11 @@ const plugin: TuiPluginModule & { id: string } = {
       }
     };
 
-    const unsubModelSwitch = evt.on('session.next.model.switched' as never, (event: unknown) => {
+    const unsubModelSwitch = evt.on('session.next.model.switched', (event) => {
       const props = eventProperties(event);
       const m = props.model;
-      const sid = eventSessionId(event, currentSessionId);
+      const sid = eventSessionId(event);
+      if (!sid) return;
       if (isRecord(m) && typeof m.id === 'string' && typeof m.providerID === 'string') {
         currentSessionId = sid;
         applyModel(m.providerID, m.id);
@@ -282,7 +201,7 @@ const plugin: TuiPluginModule & { id: string } = {
       if (sid) refresh(sid).catch(() => {});
     };
     for (const eventName of REFRESH_EVENTS) {
-      unsubs.push(evt.on(eventName as never, onRefresh));
+      unsubs.push(evt.on(eventName, onRefresh));
     }
 
     lifecycle.onDispose(() => {

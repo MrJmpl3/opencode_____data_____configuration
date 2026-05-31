@@ -1,7 +1,7 @@
 import { OPENAI_USAGE_URL } from './constants.js';
 import { readOauthAccessToken, readOpenAIAccountId } from './auth.js';
 import { fetchWithTimeout, httpErrorMessage, readJsonResponse } from './http.js';
-import { firstDefined, readBooleanField, readNumericField, readStringField } from './shared.js';
+import { firstDefined, isRecord, readBooleanField, readNumericField, readStringField } from './shared.js';
 import type { OpenAIAdditionalRateLimit, OpenAIResult, OpenAIWindow } from './types.js';
 
 export const readOpenAIToken = (): string | null => {
@@ -88,15 +88,12 @@ const parseWindowFromAliases = (
 };
 
 export const parseAdditionalRateLimits = (value: unknown): OpenAIAdditionalRateLimit[] => {
-  if (!value || typeof value !== 'object') return [];
+  if (!isRecord(value) && !Array.isArray(value)) return [];
 
   const parseEntry = (key: string, item: unknown): OpenAIAdditionalRateLimit | null => {
-    if (!item || typeof item !== 'object') return null;
-    const record = item as Record<string, unknown>;
-    const rateLimitRecord =
-      record.rate_limit && typeof record.rate_limit === 'object'
-        ? (record.rate_limit as Record<string, unknown>)
-        : undefined;
+    if (!isRecord(item)) return null;
+    const record = item;
+    const rateLimitRecord = isRecord(record.rate_limit) ? record.rate_limit : undefined;
 
     const label = cleanLimitLabel(
       findFirstString(record, [
@@ -133,14 +130,16 @@ export const parseAdditionalRateLimits = (value: unknown): OpenAIAdditionalRateL
       .filter((entry): entry is OpenAIAdditionalRateLimit => Boolean(entry));
   }
 
-  return Object.entries(value as Record<string, unknown>)
+  if (!isRecord(value)) return [];
+
+  return Object.entries(value)
     .map(([key, item]) => parseEntry(key, item))
     .filter((entry): entry is OpenAIAdditionalRateLimit => Boolean(entry));
 };
 
 const parseOpenAIWindow = (value: unknown): OpenAIWindow | undefined => {
-  if (!value || typeof value !== 'object') return undefined;
-  const record = value as Record<string, unknown>;
+  if (!isRecord(value)) return undefined;
+  const record = value;
   const usedPercentCandidate = firstDefined(
     readNumericField(record, 'used_percent'),
     readNumericField(record, 'used_pct'),
@@ -218,20 +217,15 @@ export const fetchOpenAIQuota = async (): Promise<OpenAIResult | null | { error:
   if ('error' in bodyResult) return bodyResult;
 
   const body: unknown = bodyResult.data;
-  if (!body || typeof body !== 'object') {
+  if (!isRecord(body)) {
     return { error: 'OpenAI did not return a valid usage payload' };
   }
 
-  const data = body as Record<string, unknown>;
-  const rateLimit =
-    data.rate_limit && typeof data.rate_limit === 'object' ? (data.rate_limit as Record<string, unknown>) : undefined;
+  const data = body;
+  const rateLimit = isRecord(data.rate_limit) ? data.rate_limit : undefined;
   const additionalRateLimits = parseAdditionalRateLimits(data.additional_rate_limits);
-  const codeReviewRateLimit =
-    data.code_review_rate_limit && typeof data.code_review_rate_limit === 'object'
-      ? (data.code_review_rate_limit as Record<string, unknown>)
-      : undefined;
-  const credits =
-    data.credits && typeof data.credits === 'object' ? (data.credits as Record<string, unknown>) : undefined;
+  const codeReviewRateLimit = isRecord(data.code_review_rate_limit) ? data.code_review_rate_limit : undefined;
+  const credits = isRecord(data.credits) ? data.credits : undefined;
 
   const result: OpenAIResult = {
     planType: readStringField(data, 'plan_type') || readStringField(data, 'planType'),

@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 
+import type { TuiPluginApi, TuiPluginMeta } from '@opencode-ai/plugin/tui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as quotaIndex from '../index.tsx';
@@ -25,6 +26,19 @@ const createAuthFixture = (entries: Record<string, unknown>): string => {
   mkdirSync(authDir, { recursive: true });
   writeFileSync(join(authDir, 'auth.json'), JSON.stringify(entries), 'utf8');
   return root;
+};
+
+const pluginMeta: TuiPluginMeta = {
+  id: 'quota',
+  source: 'file',
+  spec: 'quota',
+  target: 'quota',
+  first_time: 0,
+  last_time: 0,
+  time_changed: 0,
+  load_count: 1,
+  fingerprint: 'test',
+  state: 'first',
 };
 
 describe('quota tui plugin', () => {
@@ -57,6 +71,49 @@ describe('quota tui plugin', () => {
     expect(typeof quotaProviders.fetchOpenRouterQuota).toBe('function');
     expect(typeof quotaProviders.fmtDuration).toBe('function');
     expect(typeof quotaProviders.parseAdditionalRateLimits).toBe('function');
+  });
+
+  it('registers a sidebar slot, responds to session changes, and disposes timers/events', async () => {
+    const events = new Map<string, () => void>();
+    const disposers: (() => void)[] = [];
+    const slotRegistrations: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }[] = [];
+
+    const api = {
+      event: {
+        on: (eventName: string, handler: () => void) => {
+          events.set(eventName, handler);
+          return () => events.delete(eventName);
+        },
+      },
+      lifecycle: {
+        onDispose: (handler: () => void) => disposers.push(handler),
+      },
+      slots: {
+        register: (registration: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }) => {
+          slotRegistrations.push(registration);
+        },
+      },
+      theme: { current: { text: 'white', textMuted: 'gray' } },
+    } as unknown as TuiPluginApi;
+
+    await plugin.tui(
+      api,
+      {
+        minRefreshIntervalMs: 60_000,
+        pollIntervalMs: 0,
+        providerCacheTtlMs: 60_000,
+        visibleProviders: ['openrouter'],
+      },
+      pluginMeta,
+    );
+
+    expect(slotRegistrations).toHaveLength(1);
+    expect(events.has('tui.session.select')).toBe(true);
+    expect(events.has('session.idle')).toBe(true);
+
+    disposers.forEach((dispose) => dispose());
+    expect(events.size).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
   });
 
   it('coalesces repeated immediate refresh events before execution', () => {

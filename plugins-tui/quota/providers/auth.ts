@@ -2,6 +2,8 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import os from 'os';
 
+import { isRecord } from './shared.js';
+
 const xdgDataHome = (): string => {
   return process.env.XDG_DATA_HOME || join(os.homedir(), '.local', 'share');
 };
@@ -14,7 +16,9 @@ const readAuthJson = (): Record<string, unknown> | null => {
   for (const path of authJsonPaths()) {
     if (!existsSync(path)) continue;
     try {
-      return JSON.parse(readFileSync(path, 'utf-8')) as Record<string, unknown>;
+      const parsed: unknown = JSON.parse(readFileSync(path, 'utf-8'));
+
+      return isRecord(parsed) ? parsed : null;
     } catch {
       continue;
     }
@@ -27,8 +31,8 @@ export const readOauthAccessToken = (keys: readonly string[]): string | null => 
   if (!auth) return null;
   for (const key of keys) {
     const entry = auth[key];
-    if (!entry || typeof entry !== 'object') continue;
-    const oauthEntry = entry as Record<string, unknown>;
+    if (!isRecord(entry)) continue;
+    const oauthEntry = entry;
     if (oauthEntry.type !== 'oauth') continue;
     const access = oauthEntry.access;
     if (typeof access === 'string' && access.trim()) return access.trim();
@@ -41,8 +45,8 @@ const readOauthAccountId = (keys: readonly string[]): string | null => {
   if (!auth) return null;
   for (const key of keys) {
     const entry = auth[key];
-    if (!entry || typeof entry !== 'object') continue;
-    const oauthEntry = entry as Record<string, unknown>;
+    if (!isRecord(entry)) continue;
+    const oauthEntry = entry;
     if (oauthEntry.type !== 'oauth') continue;
     const accountId = oauthEntry.account_id ?? oauthEntry.accountId;
     if (typeof accountId === 'string' && accountId.trim()) return accountId.trim();
@@ -56,8 +60,8 @@ const parseJwtPayload = (token: string): Record<string, unknown> | null => {
   try {
     const payload = Buffer.from(parts[1], 'base64url').toString('utf-8');
     const parsed: unknown = JSON.parse(payload);
-    if (!parsed || typeof parsed !== 'object') return null;
-    return parsed as Record<string, unknown>;
+
+    return isRecord(parsed) ? parsed : null;
   } catch {
     return null;
   }

@@ -1,6 +1,6 @@
 import { fmtDuration } from '../providers.js';
-import { detailLine } from '../../shared/tui.js';
 import { formatResponsibleUsagePace } from './format.js';
+import { detailLine } from './tui.js';
 
 export type PercentWindow = {
   usedPct: number;
