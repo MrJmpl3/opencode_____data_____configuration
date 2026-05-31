@@ -4,6 +4,7 @@ import os from 'os';
 
 import { OPENROUTER_CREDITS_URL } from './constants.js';
 import { fetchWithTimeout, httpErrorMessage, readJsonResponse } from './http.js';
+import { isRecord } from '../../shared/tui.js';
 import type { OpenRouterResult } from './types.js';
 
 export const readOpenRouterKey = (): string | null => {
@@ -13,9 +14,10 @@ export const readOpenRouterKey = (): string | null => {
   try {
     const path = join(os.homedir(), '.config', 'opencode', 'openrouter-auth.json');
     if (existsSync(path)) {
-      const raw: Record<string, unknown> = JSON.parse(readFileSync(path, 'utf-8'));
+      const parsed: unknown = JSON.parse(readFileSync(path, 'utf-8'));
+      if (!isRecord(parsed)) return null;
       for (const k of ['apiKey', 'api_key', 'token', 'openrouterApiKey'] as const) {
-        const value = raw[k];
+        const value = parsed[k];
         if (value && typeof value === 'string') return value.trim();
       }
     }
@@ -40,18 +42,19 @@ export const fetchOpenRouterQuota = async (): Promise<OpenRouterResult | null | 
   const bodyResult = await readJsonResponse('OpenRouter', res);
   if ('error' in bodyResult) return bodyResult;
 
-  const body: unknown = bodyResult.data;
-  const d = (body as Record<string, unknown>)?.data ?? body;
+  const body = bodyResult.data;
+  const data = isRecord(body) && isRecord(body.data) ? body.data : body;
+  if (!isRecord(data)) {
+    return { error: 'OpenRouter did not return expected credit data' };
+  }
 
   const totalCredits =
-    typeof (d as Record<string, unknown>).total_credits === 'number' &&
-    Number.isFinite((d as Record<string, unknown>).total_credits)
-      ? ((d as Record<string, unknown>).total_credits as number)
+    typeof data.total_credits === 'number' && Number.isFinite(data.total_credits)
+      ? data.total_credits
       : null;
   const totalUsage =
-    typeof (d as Record<string, unknown>).total_usage === 'number' &&
-    Number.isFinite((d as Record<string, unknown>).total_usage)
-      ? ((d as Record<string, unknown>).total_usage as number)
+    typeof data.total_usage === 'number' && Number.isFinite(data.total_usage)
+      ? data.total_usage
       : null;
 
   if (totalCredits !== null && totalCredits > 0) {

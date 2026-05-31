@@ -7,12 +7,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as quotaIndex from '../index.tsx';
 import plugin, { formatResponsibleWeeklyUsage, isQuotaRateLimitError, retryAfterMsFromMessage } from '../index.tsx';
 import { createRefreshScheduler } from '../runtime/refresh-scheduler.ts';
+import { refreshQuotaProviders } from '../runtime/runtime.tsx';
 import * as quotaProviders from '../providers.ts';
 import {
   fetchCopilotQuota,
+  fetchWithTimeout,
   fetchOpenAIQuota,
   fetchOpenRouterQuota,
   fmtDuration,
+  normalizeCopilotResetAtMs,
   parseAdditionalRateLimits,
 } from '../providers.ts';
 
@@ -86,6 +89,49 @@ describe('quota tui plugin', () => {
     scheduler.dispose();
   });
 
+  it('starts provider refreshes in parallel and applies each result as it settles', async () => {
+    const started: string[] = [];
+    const resolvers: Record<string, (value: string) => void> = {};
+    const results = new Map([
+      ['copilot' as const, null],
+      ['openrouter' as const, null],
+    ]);
+    const onUpdate = vi.fn();
+
+    const refreshPromise = refreshQuotaProviders({
+      visibleProviders: [
+        { id: 'copilot', label: 'GitHub Copilot' },
+        { id: 'openrouter', label: 'OpenRouter' },
+      ],
+      results,
+      goConfig: null,
+      getCachedProviderLines: (providerId) => {
+        started.push(providerId);
+
+        return new Promise((resolve) => {
+          resolvers[providerId] = resolve;
+        });
+      },
+      shouldContinue: () => true,
+      onUpdate,
+    });
+
+    expect(started).toEqual(['copilot', 'openrouter']);
+
+    resolvers.openrouter?.('openrouter-ready');
+    await Promise.resolve();
+
+    expect(results.get('openrouter')).toBe('openrouter-ready');
+    expect(results.get('copilot')).toBeNull();
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+
+    resolvers.copilot?.('copilot-ready');
+    await refreshPromise;
+
+    expect(results.get('copilot')).toBe('copilot-ready');
+    expect(onUpdate).toHaveBeenCalledTimes(2);
+  });
+
   it('recognizes rate-limit errors and ignores plain parse errors', () => {
     expect(isQuotaRateLimitError('Request failed with status code 429: Too Many Requests')).toBe(true);
     expect(isQuotaRateLimitError('Rate limit exceeded while processing request')).toBe(true);
@@ -95,6 +141,37 @@ describe('quota tui plugin', () => {
   it('honors retry-after details even when an error body follows', () => {
     expect(retryAfterMsFromMessage('OpenAI HTTP 429; retry-after=3600; body: slow down')).toBe(3_600_000);
     expect(retryAfterMsFromMessage('OpenRouter HTTP 429; retry-after 120: slow down')).toBe(120_000);
+  });
+
+  it('normalizes Copilot reset_at values in seconds and milliseconds', () => {
+    expect(normalizeCopilotResetAtMs(1_700_000_000)).toBe(1_700_000_000_000);
+    expect(normalizeCopilotResetAtMs(1_700_000_000_000)).toBe(1_700_000_000_000);
+  });
+
+  it('returns a clear timeout error from fetchWithTimeout', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) => {
+      return new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          const error = new Error('aborted');
+          error.name = 'AbortError';
+          reject(error);
+        });
+      });
+    });
+
+    const request = fetchWithTimeout('https://example.test/slow', {}, 250);
+    vi.advanceTimersByTime(250);
+
+    await expect(request).rejects.toThrow('Request to https://example.test/slow timed out after 250ms');
+  });
+
+  it('returns a stable error for malformed OpenRouter credit payloads', async () => {
+    vi.stubEnv('OPENROUTER_API_KEY', 'openrouter-token');
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('null', { status: 200 }));
+
+    await expect(fetchOpenRouterQuota()).resolves.toEqual({
+      error: 'OpenRouter did not return expected credit data',
+    });
   });
 
   it('sanitizes html and invalid-json responses from provider endpoints', async () => {

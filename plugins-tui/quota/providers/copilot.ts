@@ -91,6 +91,9 @@ const COPILOT_TIER_LIMITS: Record<string, number> = {
   enterprise: 1000,
 };
 
+export const normalizeCopilotResetAtMs = (resetAt: number): number =>
+  resetAt > 1_000_000_000_000 ? resetAt : resetAt * 1000;
+
 export const fetchCopilotQuota = async (): Promise<CopilotResult | null | { error: string }> => {
   const token = readCopilotToken();
   if (!token) return null;
@@ -128,7 +131,7 @@ export const fetchCopilotQuota = async (): Promise<CopilotResult | null | { erro
 
   const resetAt = findNumber(data, COPILOT_RESET_PATHS);
   const resetTimeIso = resetAt
-    ? new Date(resetAt).toISOString()
+    ? new Date(normalizeCopilotResetAtMs(resetAt)).toISOString()
     : new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString();
   const resetSec = Math.max(0, Math.floor((new Date(resetTimeIso).getTime() - Date.now()) / 1000));
 

@@ -2,24 +2,99 @@
 import { createSignal, Show } from 'solid-js';
 import type { TuiPluginModule, TuiPluginApi } from '@opencode-ai/plugin/tui';
 
+import {
+  detailLine,
+  eventSessionId,
+  finiteNumber,
+  formatCompactNumber,
+  formatPercentRatio,
+  hasOwn,
+  isRecord,
+  slotSessionId,
+} from '../shared/tui.js';
+
 // Cache sidebar plugin for OpenCode TUI.
 // Shows hit ratio, tokens saved by reads, input/output totals,
 // and cache writes (when the provider reports them).
-// --- number formatting helpers ---
-const fmt = (n: number): string => {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-  if (n >= 10_000) return Math.round(n / 1_000) + 'K';
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
-  return String(n);
+export type CacheSummary = {
+  hasData: boolean;
+  hasWriteData: boolean;
+  input: number;
+  output: number;
+  ratio: number;
+  read: number;
+  write: number;
 };
 
-const detailLine = (text: string): string => `  ${text}`;
+const readTokens = (value: unknown): Record<string, unknown> | undefined => {
+  if (!isRecord(value)) return undefined;
 
-// Coerce unknown to a finite number, defaulting to 0.
-const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+  const tokens = value.tokens;
 
-// Clamp ratio to [0,1] and show as integer percentage.
-const pct = (ratio: number): string => Math.round(Math.max(0, Math.min(1, ratio)) * 100) + '%';
+  return isRecord(tokens) ? tokens : undefined;
+};
+
+const readCacheTokens = (tokens: Record<string, unknown> | undefined): Record<string, unknown> | undefined => {
+  if (!tokens) return undefined;
+
+  const cache = tokens.cache;
+
+  return isRecord(cache) ? cache : undefined;
+};
+
+export const summarizeCacheMessages = (
+  messages: readonly unknown[],
+  partsForMessage: (messageId: string) => readonly unknown[] = () => [],
+): CacheSummary => {
+  let input = 0;
+  let output = 0;
+  let read = 0;
+  let write = 0;
+  let hasCacheData = false;
+  let hasWriteData = false;
+
+  for (const message of messages) {
+    if (!isRecord(message) || message.role !== 'assistant') continue;
+
+    const tokens = readTokens(message);
+    const cache = readCacheTokens(tokens);
+
+    input += finiteNumber(tokens?.input);
+    output += finiteNumber(tokens?.output);
+
+    if (cache && hasOwn(cache, 'read')) {
+      hasCacheData = true;
+      read += finiteNumber(cache.read);
+    }
+
+    if (cache && hasOwn(cache, 'write')) {
+      hasCacheData = true;
+      hasWriteData = true;
+      write += finiteNumber(cache.write);
+    }
+
+    if (typeof message.id !== 'string') continue;
+
+    for (const part of partsForMessage(message.id)) {
+      const partCache = readCacheTokens(readTokens(part));
+      if (!partCache || !hasOwn(partCache, 'write')) continue;
+
+      hasCacheData = true;
+      hasWriteData = true;
+      write += finiteNumber(partCache.write);
+    }
+  }
+
+  return {
+    hasData: hasCacheData,
+    hasWriteData,
+    input,
+    output,
+    ratio: read + input > 0 ? read / (read + input) : 0,
+    read,
+    write,
+  };
+};
 
 // --- View: renders cache stats in the sidebar ---
 const View = (props: {
@@ -27,15 +102,16 @@ const View = (props: {
   ratio: () => number;
   read: () => number;
   write: () => number;
+  hasWriteData: () => boolean;
   input: () => number;
   output: () => number;
   api: TuiPluginApi;
 }) => {
   const theme = () => props.api.theme.current;
-  const usageLine = () => `Hit ${pct(props.ratio())} · Save ${fmt(props.read())}`;
+  const usageLine = () => `Hit ${formatPercentRatio(props.ratio())} · Save ${formatCompactNumber(props.read())}`;
   const trafficLines = () => {
-    const lines = [`Input ${fmt(props.input())} · Output ${fmt(props.output())}`];
-    if (props.write() > 0) lines.push(`Write ${fmt(props.write())}`);
+    const lines = [`Input ${formatCompactNumber(props.input())} · Output ${formatCompactNumber(props.output())}`];
+    if (props.hasWriteData()) lines.push(`Write ${formatCompactNumber(props.write())}`);
     return lines;
   };
   return (
@@ -82,11 +158,12 @@ const plugin: TuiPluginModule & { id: string } = {
     const [ratio, setRatio] = createSignal(0);
     const [read, setRead] = createSignal(0);
     const [write, setWrite] = createSignal(0);
+    const [hasWriteData, setHasWriteData] = createSignal(false);
     const [output, setOutput] = createSignal(0);
     const [inp, setInp] = createSignal(0);
     let disposed = false;
     let currentSessionId = '';
-    let retryTimer: any = null;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let inFlightVersion = 0;
     // Refresh immediately on session switch; re-accumulate on session idle
     const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'];
@@ -102,6 +179,7 @@ const plugin: TuiPluginModule & { id: string } = {
         setRatio(0);
         setRead(0);
         setWrite(0);
+        setHasWriteData(false);
         return;
       }
 
@@ -111,69 +189,42 @@ const plugin: TuiPluginModule & { id: string } = {
       // Discard stale responses from earlier concurrent calls
       if (currentVersion !== inFlightVersion) return;
 
-      let inpAcc = 0;
-      let outAcc = 0;
-      let r = 0;
-      let w = 0;
+      const summary = summarizeCacheMessages(msgs, (messageId) => api.state.part(messageId) as readonly unknown[]);
 
-      // Sum cache and token metrics across assistant messages
-      for (const msg of msgs) {
-        if (msg.role !== 'assistant') continue;
-        inpAcc += num(msg.tokens?.input);
-        outAcc += num(msg.tokens?.output);
-        r += num(msg.tokens?.cache?.read);
-        w += num(msg.tokens?.cache?.write);
-      }
-
-      // Fallback: step-finish parts may carry cache.write that message.tokens lacks.
-      // Some providers report write tokens only on the final streaming part, not on
-      // the aggregated message object. This loop catches that edge case.
-      if (w === 0 && r > 0) {
-        for (const msg of msgs) {
-          if (msg.role !== 'assistant') continue;
-          for (const part of api.state.part(msg.id)) {
-            if ((part as any).tokens?.cache?.write) {
-              w += num((part as any).tokens.cache.write);
-            }
-          }
-        }
-      }
       // No cache data at all: keep the plugin invisible
-      if (r === 0 && w === 0) {
+      if (!summary.hasData) {
         setHasData(false);
         setRatio(0);
         setRead(0);
         setWrite(0);
+        setHasWriteData(false);
         setInp(0);
         setOutput(0);
         // Retry when TUI loads messages into memory
         if (!retryTimer && msgs.length === 0) {
           retryTimer = setTimeout(() => {
-            retryTimer = null;
+            retryTimer = undefined;
             if (!disposed) refresh(sid);
           }, 1500);
         }
         return;
       }
 
-      // Ratio = r / (r + input): what fraction of total input was served from cache
-      const ratioVal = r + inpAcc > 0 ? r / (r + inpAcc) : 0;
-
       setHasData(true);
-      setRatio(ratioVal);
-      setRead(r);
-      setWrite(w);
-      setInp(inpAcc);
-      setOutput(outAcc);
+      setRatio(summary.ratio);
+      setRead(summary.read);
+      setWrite(summary.write);
+      setHasWriteData(summary.hasWriteData);
+      setInp(summary.input);
+      setOutput(summary.output);
     };
 
     // --- subscribe to events that trigger refresh ---
     const unsubs: (() => void)[] = [];
     for (const eventName of [...IMMEDIATE_REFRESH_EVENTS, ...COMPLETION_REFRESH_EVENTS]) {
       unsubs.push(
-        evt.on(eventName as any, (event: any) => {
-          const props = event.properties || event;
-          const sid = props.sessionID || currentSessionId;
+        evt.on(eventName as never, (event: unknown) => {
+          const sid = eventSessionId(event, currentSessionId);
           if (sid) refresh(sid);
         }),
       );
@@ -190,18 +241,27 @@ const plugin: TuiPluginModule & { id: string } = {
     slots.register({
       order: 140,
       slots: {
-        sidebar_content: (_ctx: any, slotInput: any) => {
-          const sid: string = slotInput?.session_id ?? '';
+        sidebar_content: (_ctx: unknown, slotInput: unknown) => {
+          const sid = slotSessionId(slotInput);
           if (sid && sid !== currentSessionId) {
             clearTimeout(retryTimer);
-            retryTimer = null;
+            retryTimer = undefined;
             currentSessionId = sid;
             refresh(sid);
           } else if (sid && !hasData()) {
             refresh(sid);
           }
           return (
-            <View hasData={hasData} ratio={ratio} read={read} write={write} input={inp} output={output} api={api} />
+            <View
+              hasData={hasData}
+              ratio={ratio}
+              read={read}
+              write={write}
+              hasWriteData={hasWriteData}
+              input={inp}
+              output={output}
+              api={api}
+            />
           );
         },
       },

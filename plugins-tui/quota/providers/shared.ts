@@ -1,8 +1,10 @@
+import { isRecord } from '../../shared/tui.js';
+
 export const getNested = (obj: unknown, path: readonly string[]): unknown => {
   let v: unknown = obj;
   for (const k of path) {
-    if (v == null || typeof v !== 'object') return undefined;
-    v = (v as Record<string, unknown>)[k];
+    if (!isRecord(v)) return undefined;
+    v = v[k];
   }
   return v;
 };

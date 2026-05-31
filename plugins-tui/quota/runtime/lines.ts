@@ -1,4 +1,5 @@
 import { fmtDuration } from '../providers.js';
+import { detailLine } from '../../shared/tui.js';
 import { formatResponsibleUsagePace } from './format.js';
 
 export type PercentWindow = {
@@ -12,8 +13,6 @@ export type QuotaLine =
   | { kind: 'detail'; text: string }
   | { kind: 'window'; label: string; value: string; resetAtMs: number }
   | { kind: 'pace'; usedPct: number; resetAtMs: number; windowSeconds: number };
-
-const detailLine = (text: string): string => `  ${text}`;
 
 const resetAtMsFromSeconds = (resetSec: number, capturedAtMs: number): number =>
   capturedAtMs + Math.max(0, Math.floor(resetSec)) * 1000;

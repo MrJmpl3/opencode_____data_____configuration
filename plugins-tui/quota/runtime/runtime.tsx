@@ -3,10 +3,11 @@ import { createSignal } from 'solid-js';
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 import { readGoConfig } from '../providers.js';
+import { slotSessionId } from '../../shared/tui.js';
 import { createRefreshScheduler } from './refresh-scheduler.js';
 import { createQuotaProviderCache } from './cache.js';
 import { fetchProviderLines } from './provider-results.js';
-import type { ProviderResult } from './provider-results.js';
+import type { GoConfig, ProviderFetchResult, ProviderResult } from './provider-results.js';
 import { detailTextLine, headingLine } from './lines.js';
 import type { QuotaLine } from './lines.js';
 import {
@@ -20,7 +21,7 @@ import {
   MIN_SAFE_CACHE_TTL_MS,
   MIN_SAFE_REFRESH_INTERVAL_MS,
 } from './options.js';
-import type { QuotaProviderId } from './options.js';
+import type { ProviderSpec, QuotaProviderId } from './options.js';
 import { View } from './view.js';
 
 const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'];
@@ -28,6 +29,41 @@ const COMPLETION_REFRESH_EVENTS = ['session.idle'];
 
 const hasExpiredQuotaLine = (items: readonly QuotaLine[], nowMs: number): boolean =>
   items.some((line) => (line.kind === 'window' || line.kind === 'pace') && line.resetAtMs <= nowMs);
+
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
+export const refreshQuotaProviders = async ({
+  visibleProviders,
+  results,
+  goConfig,
+  getCachedProviderLines,
+  shouldContinue,
+  onUpdate,
+}: {
+  visibleProviders: readonly ProviderSpec[];
+  results: Map<QuotaProviderId, ProviderResult>;
+  goConfig: GoConfig;
+  getCachedProviderLines: (providerId: QuotaProviderId, goConfig: GoConfig) => Promise<ProviderFetchResult>;
+  shouldContinue: () => boolean;
+  onUpdate: () => void;
+}): Promise<void> => {
+  await Promise.all(
+    visibleProviders
+      .filter((provider) => results.has(provider.id))
+      .map(async (provider) => {
+        const result = await getCachedProviderLines(provider.id, goConfig);
+        if (!shouldContinue()) return;
+
+        if (result === undefined) {
+          results.delete(provider.id);
+        } else {
+          results.set(provider.id, result);
+        }
+
+        onUpdate();
+      }),
+  );
+};
 
 export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Promise<void> => {
   const { slots, event: evt, lifecycle } = api;
@@ -125,17 +161,14 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     setNowMs(Date.now());
     setLines(buildLines());
 
-    for (const provider of visibleProviders) {
-      if (!results.has(provider.id)) continue;
-      const result = await getCachedProviderLines(provider.id, goConfig);
-      if (disposed || currentVersion !== inFlightVersion) return;
-      if (result === undefined) {
-        results.delete(provider.id);
-      } else {
-        results.set(provider.id, result);
-      }
-      setLines(buildLines());
-    }
+    await refreshQuotaProviders({
+      visibleProviders,
+      results,
+      goConfig,
+      getCachedProviderLines,
+      shouldContinue: () => !disposed && currentVersion === inFlightVersion,
+      onUpdate: () => setLines(buildLines()),
+    });
   };
 
   const scheduleDeferredRefresh = (source?: string, delayMs: number = minRefreshIntervalMs) => {
@@ -175,8 +208,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
         requestRefresh(queuedSource);
       })
       .catch((error: unknown) => {
-        const ignoredError = error;
-        void ignoredError;
+        console.warn(`[quota] unexpected refresh failure: ${errorMessage(error)}`);
       });
   };
 
@@ -200,7 +232,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     order: 180,
     slots: {
       sidebar_content: (_ctx, slotInput) => {
-        const sid = slotInput.session_id ?? '';
+        const sid = slotSessionId(slotInput);
         if (sid && sid !== currentSessionId) {
           currentSessionId = sid;
           requestRefresh(`session:${sid}`);
