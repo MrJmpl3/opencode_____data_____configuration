@@ -1,5 +1,8 @@
 {
   "$schema": "https://opencode.ai/tui.json",
+  "attention": {
+    "enabled": true
+  },
   "plugin": [
     "./plugins-tui/limits",
     [
@@ -9,8 +12,7 @@
       }
     ],
     "./plugins-tui/cache",
-    "opencode-quotes-plugin@latest",
-    "oh-my-opencode-slim@latest"
+    "opencode-quotes-plugin@latest"
   ],
   "theme": "opencode"
 }
