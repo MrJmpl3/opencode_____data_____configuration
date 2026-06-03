@@ -4,15 +4,15 @@
     "enabled": true
   },
   "plugin": [
-    "./plugins-tui/limits",
-    [
-      "./plugins-tui/quota",
-      {
-        "visibleProviders": ["opencode-go", "openai", "ollama-cloud", "github-copilot", "openrouter"]
-      }
-    ],
-    "./plugins-tui/cache",
-    "opencode-quotes-plugin@latest"
+    "/home/mrjmpl3/.config/opencode/tui-plugins/limits",
+    "/home/mrjmpl3/.config/opencode/tui-plugins/cache",
+     "/home/mrjmpl3/.config/opencode/tui-plugins/quota",
+    "opencode-quotes-plugin@latest",
+    "opencode-subagent-statusline@latest",
+    "opencode-sdd-engram-manage@latest",
+    "opencode-sdd-engram-manage",
+    "opencode-subagent-statusline",
+    "/home/mrjmpl3/.config/opencode/tui-plugins/gentle-logo.tsx"
   ],
   "theme": "opencode"
 }
