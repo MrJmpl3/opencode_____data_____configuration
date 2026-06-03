@@ -6,7 +6,12 @@
   "plugin": [
     "/home/mrjmpl3/.config/opencode/tui-plugins/limits",
     "/home/mrjmpl3/.config/opencode/tui-plugins/cache",
-    "/home/mrjmpl3/.config/opencode/tui-plugins/quota",
+    [
+      "/home/mrjmpl3/.config/opencode/tui-plugins/quota",
+      {
+        "visibleProviders": ["opencode-go", "openai", "ollama-cloud", "github-copilot", "openrouter"]
+      }
+    ],
     "opencode-quotes-plugin@latest",
     "opencode-subagent-statusline@latest",
     "opencode-sdd-engram-manage@latest",
