@@ -1,11 +1,11 @@
 schema: spec-driven
 
 context: |
-  Tech stack: OpenCode config repo with ESM TypeScript/TSX, Bun runtime APIs, and nested npm-based TUI plugin packages.
-  Architecture: Plugin-oriented config; root `plugins/` holds OpenCode plugins, and `tui-plugins/{cache,limits,quota,mrjmpl3-subagent-status}` contain Solid/TSX packages with runtime helpers and tests.
+  Tech stack: OpenCode configuration repository with ESM TypeScript/TSX, nested npm-based TUI plugin packages, and package-lock-managed dependencies.
+  Architecture: Agent- and MCP-oriented config at the root; `tui-plugins/{cache,limits,quota,mrjmpl3-subagent-status}` are small Solid/TSX plugin packages split into pure helpers plus TUI entrypoints.
   Testing: Vitest unit tests exist in all four TUI plugin packages with matching `test` and `typecheck` scripts; no integration, E2E, or coverage suite was detected.
-  Style: 2-space indentation, LF endings, final newline, and a root Prettier config; no repo lint config was detected.
-  Note: This is the OpenCode configuration repository, not an application repo.
+  Style: 2-space indentation, LF endings, final newline, a root Prettier config, and a root .editorconfig; no repo lint config was detected.
+  Note: This repo is operational/configuration code for OpenCode, not a product application.
 
 strict_tdd: true
 
