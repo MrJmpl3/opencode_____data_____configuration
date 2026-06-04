@@ -1,0 +1,225 @@
+import { mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import plugin, { buildTuiSnapshot, elapsedMs, navigateToChildSession, persistSnapshot } from './tui.tsx';
+import type { SubagentChild, SubagentState } from './types.ts';
+
+function createChild(
+  overrides: Partial<SubagentChild> & Pick<SubagentChild, 'id' | 'title' | 'parentID'>,
+): SubagentChild {
+  return {
+    id: overrides.id,
+    title: overrides.title,
+    parentID: overrides.parentID,
+    status: overrides.status ?? 'running',
+    startedAt: overrides.startedAt ?? '2026-06-04T11:50:00.000Z',
+    updatedAt: overrides.updatedAt ?? '2026-06-04T11:55:00.000Z',
+    endedAt: overrides.endedAt,
+    source: overrides.source,
+    targetSessionID: overrides.targetSessionID,
+    messageID: overrides.messageID,
+    agentName: overrides.agentName,
+    summary: overrides.summary,
+    color: overrides.color,
+    elapsedMs: overrides.elapsedMs,
+    tokens: overrides.tokens,
+  };
+}
+
+function createState(children: SubagentChild[], totalExecuted = children.length): SubagentState {
+  return {
+    children: Object.fromEntries(children.map((child) => [child.id, child])),
+    countedChildIDs: Object.fromEntries(children.map((child) => [child.id, true])),
+    totalExecuted,
+    updatedAt: '2026-06-04T12:00:00.000Z',
+  };
+}
+
+describe('tui elapsed time', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('freezes terminal elapsed time at completion', () => {
+    const child: SubagentChild = {
+      id: 'ses_1',
+      title: 'Runner',
+      parentID: 'ses_parent',
+      status: 'done',
+      startedAt: '2026-06-04T11:50:00.000Z',
+      updatedAt: '2026-06-04T11:55:00.000Z',
+      endedAt: '2026-06-04T11:55:00.000Z',
+    };
+
+    expect(elapsedMs(child, Date.parse('2026-06-04T12:00:00.000Z'))).toBe(5 * 60 * 1000);
+    expect(elapsedMs(child, Date.parse('2026-06-04T13:00:00.000Z'))).toBe(5 * 60 * 1000);
+  });
+
+  it('builds visible counts from clickable child rows and produces persisted status text', () => {
+    const doneSession = createChild({
+      id: 'ses_child_done',
+      title: 'Implement sidebar sync',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      messageID: 'msg-active',
+      endedAt: '2026-06-04T11:57:00.000Z',
+      updatedAt: '2026-06-04T11:57:00.000Z',
+      elapsedMs: 2 * 60 * 1000,
+      tokens: { total: 420, contextPercent: 58 },
+    });
+    const runningSession = createChild({
+      id: 'ses_child_running',
+      title: 'Review tokens',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      messageID: 'msg-active',
+      updatedAt: '2026-06-04T11:59:30.000Z',
+      elapsedMs: 30 * 1000,
+    });
+    const erroredSession = createChild({
+      id: 'ses_child_error',
+      title: 'Handle failure',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'error',
+      endedAt: '2026-06-04T11:58:00.000Z',
+      updatedAt: '2026-06-04T11:58:00.000Z',
+      elapsedMs: 60 * 1000,
+    });
+
+    const snapshot = buildTuiSnapshot(
+      createState([doneSession, runningSession, erroredSession], 3),
+      Date.parse('2026-06-04T12:00:00.000Z'),
+    );
+
+    expect(snapshot.counts).toEqual({ running: 1, done: 1, error: 1 });
+    expect(snapshot.visibleChildren.map((child) => child.id)).toHaveLength(3);
+    expect(snapshot.visibleChildren.map((child) => child.id)).toEqual(
+      expect.arrayContaining(['ses_child_running', 'ses_child_error', 'ses_child_done']),
+    );
+    expect(snapshot.statusLine).toContain('Subagents: 1 run · 1 done · 1 err · Σ 3');
+    expect(snapshot.statusLine).toContain('Implement sidebar sync');
+    expect(snapshot.statusLine).toContain('420 ctx 58%');
+  });
+
+  it('keeps completed rows visible without token metadata when the current snapshot has no token data', () => {
+    const doneSession = createChild({
+      id: 'ses_child_done_no_tokens',
+      title: 'Done without tokens',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      endedAt: '2026-06-04T11:57:30.000Z',
+      updatedAt: '2026-06-04T11:57:30.000Z',
+      elapsedMs: 90 * 1000,
+    });
+
+    const snapshot = buildTuiSnapshot(createState([doneSession], 1), Date.parse('2026-06-04T12:00:00.000Z'));
+
+    expect(snapshot.counts).toEqual({ running: 0, done: 1, error: 0 });
+    expect(snapshot.visibleChildren.map((child) => child.id)).toEqual(['ses_child_done_no_tokens']);
+    expect(snapshot.statusLine).toContain('Done without tokens');
+    expect(snapshot.statusLine).not.toContain('ctx');
+  });
+
+  it('persists the rendered status line for the current visible snapshot', async () => {
+    const statePath = join(mkdtempSync(join(tmpdir(), 'mrjmpl3-subagent-status-')), 'state.json');
+    const textPath = join(statePath, '..', 'status.txt');
+    const state = createState(
+      [
+        createChild({
+          id: 'ses_child_done',
+          title: 'Persist me',
+          parentID: 'ses_parent',
+          source: 'session',
+          status: 'done',
+          endedAt: '2026-06-04T11:57:00.000Z',
+          updatedAt: '2026-06-04T11:57:00.000Z',
+          elapsedMs: 2 * 60 * 1000,
+          tokens: { total: 64 },
+        }),
+      ],
+      1,
+    );
+
+    await persistSnapshot(statePath, textPath, state);
+
+    expect(readFileSync(textPath, 'utf8')).toBe(buildTuiSnapshot(state).statusLine);
+  });
+
+  it('navigates only to clickable child sessions and keeps keyboard behavior unavailable', async () => {
+    const navigate = vi.fn();
+    const eventNames: string[] = [];
+    const disposers: Array<() => void> = [];
+    const slotRegistrations: Array<{ slots: Record<string, (...args: unknown[]) => unknown> }> = [];
+
+    const api = {
+      client: {
+        session: {
+          children: vi.fn(async () => ({ data: [] })),
+          status: vi.fn(async () => ({ data: {} })),
+          messages: vi.fn(async () => ({ data: [] })),
+        },
+      },
+      event: {
+        on: (eventName: string, handler: (event: unknown) => void) => {
+          eventNames.push(eventName);
+          return () => handler;
+        },
+      },
+      lifecycle: {
+        onDispose: (handler: () => void) => {
+          disposers.push(handler);
+        },
+      },
+      route: { navigate },
+      slots: {
+        register: (registration: { slots: Record<string, (...args: unknown[]) => unknown> }) => {
+          slotRegistrations.push(registration);
+        },
+      },
+      state: {
+        path: { directory: '/tmp' },
+        session: {
+          children: vi.fn(async () => ({ data: [] })),
+          messages: vi.fn(() => []),
+          status: vi.fn(() => undefined),
+        },
+      },
+      theme: {
+        current: { text: 'white', textMuted: 'gray', warning: 'yellow', success: 'green', error: 'red' },
+      },
+    } as unknown as TuiPluginApi;
+
+    expect(
+      navigateToChildSession(api, createChild({ id: 'ses_clickable', title: 'Clickable', parentID: 'ses_parent' })),
+    ).toBe(true);
+    expect(navigate).toHaveBeenCalledWith('session', { sessionID: 'ses_clickable' });
+    expect(
+      navigateToChildSession(
+        api,
+        createChild({ id: 'tool:1', title: 'Not clickable', parentID: 'ses_parent', targetSessionID: 'task_1' }),
+      ),
+    ).toBe(false);
+    expect(navigate).toHaveBeenCalledTimes(1);
+
+    await plugin.tui(api, undefined, undefined as never);
+
+    expect(slotRegistrations).toHaveLength(1);
+    expect(slotRegistrations[0]?.slots.home_bottom).toBeTypeOf('function');
+    expect(eventNames).not.toEqual(expect.arrayContaining(['keypress', 'keydown', 'keyup', 'focus', 'blur']));
+    expect(eventNames.every((eventName) => !/(key|keyboard|focus|command)/i.test(eventName))).toBe(true);
+
+    disposers.forEach((dispose) => dispose());
+  });
+});

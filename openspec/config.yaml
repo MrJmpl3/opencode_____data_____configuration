@@ -2,8 +2,8 @@ schema: spec-driven
 
 context: |
   Tech stack: OpenCode config repo with ESM TypeScript/TSX, Bun runtime APIs, and nested npm-based TUI plugin packages.
-  Architecture: Plugin-oriented config; root `plugins/` holds OpenCode plugins, and `tui-plugins/` contains Solid/TSX TUI packages with runtime helpers and tests.
-  Testing: Vitest unit tests exist in `tui-plugins/{cache,limits,quota}` with matching `test` and `typecheck` scripts; no integration, E2E, or coverage suite was detected.
+  Architecture: Plugin-oriented config; root `plugins/` holds OpenCode plugins, and `tui-plugins/{cache,limits,quota,mrjmpl3-subagent-status}` contain Solid/TSX packages with runtime helpers and tests.
+  Testing: Vitest unit tests exist in all four TUI plugin packages with matching `test` and `typecheck` scripts; no integration, E2E, or coverage suite was detected.
   Style: 2-space indentation, LF endings, final newline, and a root Prettier config; no repo lint config was detected.
   Note: This is the OpenCode configuration repository, not an application repo.
 
@@ -17,6 +17,7 @@ testing:
       - tui-plugins/cache
       - tui-plugins/limits
       - tui-plugins/quota
+      - tui-plugins/mrjmpl3-subagent-status
   layers:
     unit: true
     integration: false
@@ -35,6 +36,7 @@ testing:
         - tui-plugins/cache
         - tui-plugins/limits
         - tui-plugins/quota
+        - tui-plugins/mrjmpl3-subagent-status
     formatter:
       available: false
       command: null
