@@ -77,7 +77,7 @@
       "description": "Implement code changes from task definitions",
       "hidden": true,
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini",
+      "model": "openai/gpt-5.3-codex",
       "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-apply.md}",
       "tools": {
         "bash": true,
@@ -105,7 +105,7 @@
       "description": "Create technical design from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini",
+      "model": "openai/gpt-5.4",
       "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-design.md}",
       "tools": {
         "bash": true,
@@ -147,7 +147,7 @@
       "description": "Guide user through a complete SDD cycle using their real codebase",
       "hidden": true,
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini",
+      "model": "openai/gpt-5.4",
       "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-onboard.md}",
       "tools": {
         "bash": true,
@@ -175,7 +175,7 @@
       "description": "Write detailed specifications from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini",
+      "model": "openai/gpt-5.4",
       "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-spec.md}",
       "tools": {
         "bash": true,
