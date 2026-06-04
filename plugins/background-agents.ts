@@ -69,6 +69,10 @@ class TimeoutError extends Error {
   }
 }
 
+class PermissionGateError extends Error {
+  readonly name = 'PermissionGateError' as const;
+}
+
 async function withTimeout<T>(promise: Promise<T>, ms: number, message = 'Operation timed out'): Promise<T> {
   if (typeof ms !== 'number' || ms < 0)
     throw new Error(`withTimeout: timeout must be a non-negative number, got ${ms}`);
@@ -405,16 +409,84 @@ async function parseAgentMode(
  * Matches CLI schema: z.union([z.enum(["ask", "allow", "deny"]), z.record(z.enum(...))])
  */
 type PermissionEntry = 'ask' | 'allow' | 'deny' | Record<string, 'ask' | 'allow' | 'deny'>;
+type PermissionAction = 'ask' | 'allow' | 'deny';
+
+interface PermissionConfig {
+  permission?: Record<string, PermissionEntry>;
+}
+
+interface OpencodePermissionConfig {
+  permission?: Record<string, PermissionEntry>;
+  agent?: Record<string, PermissionConfig>;
+}
+
+function wildcardPatternToRegExp(pattern: string): RegExp {
+  const escapedPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+
+  return new RegExp(`^${escapedPattern}$`);
+}
+
+function matchesPermissionPattern(pattern: string, value: string): boolean {
+  if (pattern === '*') return true;
+
+  return wildcardPatternToRegExp(pattern).test(value);
+}
+
+function resolvePermissionAction(entry: PermissionEntry | undefined, value: string): PermissionAction | undefined {
+  if (entry === undefined) return undefined;
+  if (typeof entry === 'string') return entry;
+
+  let resolvedAction: PermissionAction | undefined;
+
+  for (const [pattern, action] of Object.entries(entry)) {
+    if (matchesPermissionPattern(pattern, value)) {
+      resolvedAction = action;
+    }
+  }
+
+  return resolvedAction;
+}
 
 /**
  * Check if a permission entry denies access (Law 4: Fail Fast).
  * Handles both simple values ("deny") and pattern objects ({ "*": "deny" }).
  */
 function isPermissionDenied(entry: PermissionEntry | undefined): boolean {
-  if (entry === undefined) return false;
-  if (entry === 'deny') return true;
-  if (typeof entry === 'object' && entry['*'] === 'deny') return true;
-  return false;
+  return resolvePermissionAction(entry, '*') === 'deny';
+}
+
+async function assertDelegateAllowedByTaskPermission(
+  client: OpencodeClient,
+  parentAgent: string,
+  targetAgent: string,
+  log: Logger,
+): Promise<void> {
+  try {
+    const config = await client.config.get();
+    const configData = config.data as OpencodePermissionConfig | undefined;
+    const parentTaskPermission = configData?.agent?.[parentAgent]?.permission?.task ?? configData?.permission?.task;
+    const taskPermissionAction = resolvePermissionAction(parentTaskPermission, targetAgent);
+
+    if (taskPermissionAction === 'deny') {
+      throw new PermissionGateError(
+        `Agent "${parentAgent}" is not allowed to delegate to "${targetAgent}" by permission.task.`,
+      );
+    }
+
+    if (taskPermissionAction === 'ask') {
+      throw new PermissionGateError(
+        `Agent "${parentAgent}" requires permission approval to delegate to "${targetAgent}", but background delegate cannot prompt for task permission. Configure permission.task for this target as "allow" or use the native task tool.`,
+      );
+    }
+  } catch (error) {
+    if (error instanceof PermissionGateError) {
+      throw error;
+    }
+
+    log.warn(
+      `Config fetch failed while checking task permission for "${parentAgent}" → "${targetAgent}": ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }
 
 /**
@@ -596,6 +668,8 @@ class DelegationManager {
 
       throw new Error(`Agent "${input.agent}" not found.\n\nAvailable agents:\n${available || '(none)'}`);
     }
+
+    await assertDelegateAllowedByTaskPermission(this.client, input.parentAgent, input.agent, this.log);
 
     // NOTE: Read-only restriction removed — any sub-agent can use delegate.
     // Background delegations run in isolated sessions outside OpenCode's session tree.
