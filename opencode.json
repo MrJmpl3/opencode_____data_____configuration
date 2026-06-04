@@ -33,46 +33,14 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "jd-fix-agent": {
       "description": "Surgical fix agent for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
+      "model": "openai/gpt-5.3-codex",
       "prompt": "You are a judgment-day surgical fix agent. Execute the fix instructions provided in the delegate prompt exactly. Do NOT delegate further. Fix ONLY the confirmed issues listed — do NOT refactor beyond what is strictly needed.",
-      "tools": {
-        "bash": true,
-        "edit": true,
-        "read": true,
-        "write": true
-      }
-    },
-    "jd-judge-a": {
-      "description": "Adversarial code reviewer — blind judge A for judgment-day protocol",
-      "hidden": true,
-      "mode": "subagent",
-      "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the delegate prompt exactly. Do NOT delegate further. Do NOT modify any code — your job is ONLY to find problems.",
-      "tools": {
-        "bash": true,
-        "read": true
-      }
-    },
-    "jd-judge-b": {
-      "description": "Adversarial code reviewer — blind judge B for judgment-day protocol",
-      "hidden": true,
-      "mode": "subagent",
-      "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the delegate prompt exactly. Do NOT delegate further. Do NOT modify any code — your job is ONLY to find problems.",
-      "tools": {
-        "bash": true,
-        "read": true
-      }
-    },
-    "sdd-apply": {
-      "description": "Implement code changes from task definitions",
-      "hidden": true,
-      "mode": "subagent",
-      "model": "openai/gpt-5.4",
-      "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-apply.md}",
       "tools": {
         "bash": true,
         "edit": true,
@@ -80,6 +48,44 @@
         "write": true
       },
       "variant": "xhigh"
+    },
+    "jd-judge-a": {
+      "description": "Adversarial code reviewer — blind judge A for judgment-day protocol",
+      "hidden": true,
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the delegate prompt exactly. Do NOT delegate further. Do NOT modify any code — your job is ONLY to find problems.",
+      "tools": {
+        "bash": true,
+        "read": true
+      },
+      "variant": "medium"
+    },
+    "jd-judge-b": {
+      "description": "Adversarial code reviewer — blind judge B for judgment-day protocol",
+      "hidden": true,
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the delegate prompt exactly. Do NOT delegate further. Do NOT modify any code — your job is ONLY to find problems.",
+      "tools": {
+        "bash": true,
+        "read": true
+      },
+      "variant": "medium"
+    },
+    "sdd-apply": {
+      "description": "Implement code changes from task definitions",
+      "hidden": true,
+      "mode": "subagent",
+      "model": "openai/gpt-5.4-mini",
+      "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-apply.md}",
+      "tools": {
+        "bash": true,
+        "edit": true,
+        "read": true,
+        "write": true
+      },
+      "variant": "medium"
     },
     "sdd-archive": {
       "description": "Archive completed change artifacts",
@@ -93,13 +99,13 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-design": {
       "description": "Create technical design from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "openai/gpt-5.4",
+      "model": "openai/gpt-5.4-mini",
       "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-design.md}",
       "tools": {
         "bash": true,
@@ -107,7 +113,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-explore": {
       "description": "Investigate codebase and think through ideas",
@@ -121,7 +127,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-init": {
       "description": "Bootstrap SDD context and project configuration",
@@ -135,7 +141,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-onboard": {
       "description": "Guide user through a complete SDD cycle using their real codebase",
@@ -149,7 +155,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-propose": {
       "description": "Create change proposals from explorations",
@@ -163,13 +169,13 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-spec": {
       "description": "Write detailed specifications from proposals",
       "hidden": true,
       "mode": "subagent",
-      "model": "openai/gpt-5.4",
+      "model": "openai/gpt-5.4-mini",
       "prompt": "{file:/home/mrjmpl3/.config/opencode/prompts/sdd/sdd-spec.md}",
       "tools": {
         "bash": true,
@@ -177,7 +183,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-tasks": {
       "description": "Break down specs and designs into implementation tasks",
@@ -191,7 +197,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "sdd-verify": {
       "description": "Validate implementation against specs",
@@ -205,7 +211,7 @@
         "read": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     }
   },
   "lsp": {
