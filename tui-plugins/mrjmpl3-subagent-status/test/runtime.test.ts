@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createEmptyState } from './state.ts';
-import type { SubagentState } from './types.ts';
+import { createEmptyState } from '../state/state.ts';
+import type { SubagentState } from '../state/types.ts';
 
 async function waitForCondition(predicate: () => boolean, attempts = 20): Promise<void> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -32,8 +32,8 @@ describe('refresh runtime', () => {
 
     let capturedOnEvent: ((event: unknown) => void) | undefined;
 
-    vi.doMock('./events.ts', async () => {
-      const actual = await vi.importActual<typeof import('./events.ts')>('./events.ts');
+    vi.doMock('../sources/events.ts', async () => {
+      const actual = await vi.importActual<typeof import('../sources/events.ts')>('../sources/events.ts');
 
       return {
         ...actual,
@@ -46,8 +46,8 @@ describe('refresh runtime', () => {
       };
     });
 
-    vi.doMock('./persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('./persistence.ts')>('./persistence.ts');
+    vi.doMock('../storage/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
 
       return {
         ...actual,
@@ -59,7 +59,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('./refresh.ts');
+    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -161,8 +161,8 @@ describe('refresh runtime', () => {
       { encoding: 'utf8' },
     );
 
-    vi.doMock('./persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('./persistence.ts')>('./persistence.ts');
+    vi.doMock('../storage/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
 
       return {
         ...actual,
@@ -189,7 +189,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('./refresh.ts');
+    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -255,8 +255,8 @@ describe('refresh runtime', () => {
   it('keeps children running when idle is the only evidence during refresh', async () => {
     vi.resetModules();
 
-    vi.doMock('./persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('./persistence.ts')>('./persistence.ts');
+    vi.doMock('../storage/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
 
       return {
         ...actual,
@@ -268,7 +268,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('./refresh.ts');
+    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -334,8 +334,8 @@ describe('refresh runtime', () => {
   it('marks children done once explicit completion evidence arrives during refresh', async () => {
     vi.resetModules();
 
-    vi.doMock('./persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('./persistence.ts')>('./persistence.ts');
+    vi.doMock('../storage/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
 
       return {
         ...actual,
@@ -347,7 +347,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('./refresh.ts');
+    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';

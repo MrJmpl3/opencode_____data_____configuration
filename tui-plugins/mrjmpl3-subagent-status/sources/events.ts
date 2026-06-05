@@ -1,8 +1,9 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
+import { markChildStatus, upsertChildDetails, upsertRunningChild } from '../state/state.ts';
+import type { SubagentState } from '../state/types.ts';
+
 import { deriveOpenCodeSessionStatus } from './reconcile.ts';
-import { markChildStatus, upsertChildDetails, upsertRunningChild } from './state.ts';
-import type { SubagentState } from './types.ts';
 
 const RELEVANT_EVENTS = new Set([
   'tui.session.select',

@@ -1,11 +1,7 @@
-import type { SubagentChild, SubagentCounts, SubagentState } from './types.ts';
+import type { SubagentChild, SubagentCounts, SubagentState } from '../state/types.ts';
 
-import {
-  buildSubagentSnapshotView,
-  renderStatusLine,
-  renderStatusSnapshotLine,
-  statusColor as resolveRenderStatusColor,
-} from './render.ts';
+import { statusColor as resolveRenderStatusColor } from './format.ts';
+import { buildSubagentSnapshotView, renderStatusLine, renderStatusSnapshotLine } from './view-model.ts';
 
 export interface TuiSnapshot {
   counts: SubagentCounts;

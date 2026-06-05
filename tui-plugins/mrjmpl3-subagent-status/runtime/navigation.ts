@@ -1,6 +1,6 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import type { SubagentChild } from './types.ts';
+import type { SubagentChild } from '../state/types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;

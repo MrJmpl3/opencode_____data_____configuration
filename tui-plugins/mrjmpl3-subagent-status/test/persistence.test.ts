@@ -4,9 +4,9 @@ import { tmpdir } from 'node:os';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { RecoveryContext, RecoverySource } from './recovery.ts';
-import { loadState, saveState } from './persistence.ts';
-import type { SubagentState } from './types.ts';
+import type { RecoveryContext, RecoverySource } from '../sources/recovery.ts';
+import type { SubagentState } from '../state/types.ts';
+import { loadState, saveState } from '../storage/persistence.ts';
 
 describe('persistence recovery', () => {
   const tempDirs: string[] = [];

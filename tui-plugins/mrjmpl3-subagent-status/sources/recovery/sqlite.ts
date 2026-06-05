@@ -3,9 +3,10 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'node:os';
 
+import type { SubagentChild, SubagentState, SubagentTokens } from '../../state/types.ts';
+
 import { applyRecoveredChildren } from '../recovery.ts';
 import type { RecoveryContext, RecoveryResult, RecoverySource } from '../recovery.ts';
-import type { SubagentChild, SubagentState, SubagentTokens } from '../types.ts';
 
 type SQLiteRecoveryRow = {
   id: string;

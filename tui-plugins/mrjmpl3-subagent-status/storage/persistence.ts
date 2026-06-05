@@ -3,11 +3,10 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import os from 'node:os';
 
-import type { SubagentState } from './types.ts';
+import type { SubagentState } from '../state/types.ts';
 
-import { hydrateStateFromRecoverySources, type RecoveryContext, type RecoverySource } from './recovery.ts';
-import { buildTuiSnapshot, type TuiSnapshot } from './snapshot.ts';
-import { createSerializedTaskQueue } from './queue.ts';
+import { hydrateStateFromRecoverySources, type RecoveryContext, type RecoverySource } from '../sources/recovery.ts';
+import { createSerializedTaskQueue } from '../shared/queue.ts';
 import {
   createEmptyState,
   clearPurgedSession,
@@ -17,7 +16,8 @@ import {
   rekeyCountedExecution,
   resolveExecutionCountIdentity,
   syncExecutionState,
-} from './state.ts';
+} from '../state/state.ts';
+import { buildTuiSnapshot, type TuiSnapshot } from '../runtime/snapshot.ts';
 
 const STATUS_DIRNAME = 'mrjmpl3-subagent-status';
 const STATUS_FILENAME = 'state.json';

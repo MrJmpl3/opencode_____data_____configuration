@@ -3,12 +3,11 @@ import { describe, expect, it } from 'vitest';
 import {
   buildSubagentSnapshotView,
   collapseSubagentWorkItems,
-  formatContextCompact,
   renderStatusLine,
-  statusColor,
   visibleSubagentWorkItems,
-} from './render.ts';
-import type { SubagentChild, SubagentState } from './types.ts';
+} from '../runtime/view-model.ts';
+import { formatContextCompact, statusColor } from '../runtime/format.ts';
+import type { SubagentChild, SubagentState } from '../state/types.ts';
 
 function child(overrides: Partial<SubagentChild> = {}): SubagentChild {
   return {

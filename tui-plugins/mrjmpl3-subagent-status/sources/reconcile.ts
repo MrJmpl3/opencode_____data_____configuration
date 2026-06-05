@@ -4,8 +4,8 @@ import {
   pruneOrphanedSyntheticRunningChildren,
   pruneTerminalChildren,
   upsertRunningChild,
-} from './state.ts';
-import type { SubagentChild, SubagentState, SubagentTokens } from './types.ts';
+} from '../state/state.ts';
+import type { SubagentChild, SubagentState, SubagentTokens } from '../state/types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;

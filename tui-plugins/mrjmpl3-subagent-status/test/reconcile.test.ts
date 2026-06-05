@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createEmptyState } from './state.ts';
-import { normalizeChildrenResponse, reconcileChildrenState } from './reconcile.ts';
+import { normalizeChildrenResponse, reconcileChildrenState } from '../sources/reconcile.ts';
+import { createEmptyState } from '../state/state.ts';
 
 describe('reconcile', () => {
   it('normalizes session children responses', () => {

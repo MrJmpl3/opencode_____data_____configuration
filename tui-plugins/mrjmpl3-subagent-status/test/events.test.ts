@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { applySubagentEvent, extractTaskToolEvidence } from './events.ts';
-import { createEmptyState } from './state.ts';
+import { applySubagentEvent, extractTaskToolEvidence } from '../sources/events.ts';
+import { createEmptyState } from '../state/state.ts';
 
 const CREATED_AT = '2026-06-05T10:00:00.000Z';
 const IDLE_AT = '2026-06-05T10:01:00.000Z';

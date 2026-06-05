@@ -24,8 +24,8 @@ describe('tui bootstrap buffering', () => {
     let bridgeDisposeCount = 0;
     const lifecycleDisposers: Array<() => void> = [];
 
-    vi.doMock('./events.ts', async () => {
-      const actual = await vi.importActual<typeof import('./events.ts')>('./events.ts');
+    vi.doMock('../sources/events.ts', async () => {
+      const actual = await vi.importActual<typeof import('../sources/events.ts')>('../sources/events.ts');
 
       return {
         ...actual,
@@ -41,8 +41,8 @@ describe('tui bootstrap buffering', () => {
       };
     });
 
-    vi.doMock('./persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('./persistence.ts')>('./persistence.ts');
+    vi.doMock('../storage/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
       const saveState = vi.fn(async (_path: string, state: { children: Record<string, unknown> }) => {
         saveStateCount += 1;
         saveStateCalls.push({ children: Object.keys(state.children) });
@@ -70,7 +70,7 @@ describe('tui bootstrap buffering', () => {
       };
     });
 
-    const { default: plugin } = await import('./tui.tsx');
+    const { default: plugin } = await import('../index.tsx');
 
     const api = {
       client: {

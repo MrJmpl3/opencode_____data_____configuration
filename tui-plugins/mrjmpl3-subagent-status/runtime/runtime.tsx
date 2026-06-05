@@ -1,22 +1,26 @@
+/** @jsxImportSource @opentui/solid */
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
+import { createMemo, createRoot, createSignal } from 'solid-js';
 
-import { applySubagentEvent, extractSessionID, installEventBridge } from './events.ts';
-import { hydrateDoneChildTokens } from './logs.ts';
-import { createBufferedTaskQueue, createCoalescedTaskRunner } from './queue.ts';
-import { hydrateStateFromRecoverySources } from './recovery.ts';
-import { createSQLiteRecoverySource } from './recovery/sqlite.ts';
-import { resolveNavigationSessionID, resolveSessionSlotTransition } from './session.ts';
-import { reconcileChildrenState } from './reconcile.ts';
-import { createEmptyState, mergeChildDetails, pruneTerminalChildren } from './state.ts';
+import { applySubagentEvent, extractSessionID, installEventBridge } from '../sources/events.ts';
+import { hydrateDoneChildTokens } from '../sources/logs.ts';
+import { reconcileChildrenState } from '../sources/reconcile.ts';
+import { hydrateStateFromRecoverySources } from '../sources/recovery.ts';
+import { createSQLiteRecoverySource } from '../sources/recovery/sqlite.ts';
+import { createBufferedTaskQueue, createCoalescedTaskRunner } from '../shared/queue.ts';
+import { createEmptyState, mergeChildDetails, pruneTerminalChildren } from '../state/state.ts';
+import type { SubagentChild, SubagentState } from '../state/types.ts';
 import {
   createPersistQueue,
   loadState,
   resolveStatePath,
   resolveTextPath,
   shouldPreserveStateOnStartup,
-} from './persistence.ts';
-import type { PersistSnapshotMeta } from './persistence.ts';
-import type { SubagentChild, SubagentState } from './types.ts';
+} from '../storage/persistence.ts';
+import type { PersistSnapshotMeta } from '../storage/persistence.ts';
+import { resolveNavigationSessionID, resolveSessionSlotTransition } from './navigation.ts';
+import { buildTuiSnapshot } from './snapshot.ts';
+import { HomeBottomView, SidebarView } from './view.tsx';
 
 type SessionClient = {
   status?: (input: { directory: string }) => Promise<{ data?: Record<string, unknown> } | undefined>;
@@ -477,3 +481,48 @@ export function createTuiRuntime(
     dispose,
   };
 }
+
+export const registerSubagentStatusTui = async (api: TuiPluginApi): Promise<void> => {
+  createRoot((disposeRoot) => {
+    const { slots } = api;
+    const [state, setState] = createSignal<SubagentState>(createEmptyState());
+    const [sessionId, setSessionId] = createSignal('');
+    const [expanded, setExpanded] = createSignal(true);
+    const [nowMs, setNowMs] = createSignal(Date.now());
+    const snapshot = createMemo(() => buildTuiSnapshot(state(), nowMs()));
+    const runtime = createTuiRuntime(api, {
+      getState: state,
+      setState,
+      getSessionId: sessionId,
+      setSessionId,
+      setNowMs,
+    });
+
+    api.lifecycle.onDispose(() => {
+      runtime.dispose();
+      disposeRoot();
+    });
+
+    slots.register({
+      order: 120,
+      slots: {
+        sidebar_content: (_ctx: unknown, slotInput: unknown) => {
+          runtime.refreshFromSlot(slotInput);
+
+          return (
+            <SidebarView
+              api={api}
+              snapshot={snapshot}
+              totalExecuted={() => state().totalExecuted}
+              expanded={expanded()}
+              onToggle={() => setExpanded((value) => !value)}
+            />
+          );
+        },
+        home_bottom: () => <HomeBottomView api={api} snapshot={snapshot} totalExecuted={() => state().totalExecuted} />,
+      },
+    });
+
+    void runtime.bootstrap();
+  });
+};

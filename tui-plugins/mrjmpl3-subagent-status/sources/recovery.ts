@@ -4,8 +4,8 @@ import {
   mergeChildDetails,
   syncExecutionState,
   upsertRunningChild,
-} from './state.ts';
-import type { SubagentChild, SubagentState } from './types.ts';
+} from '../state/state.ts';
+import type { SubagentChild, SubagentState } from '../state/types.ts';
 
 export type RecoveryContext = {
   directory: string;
