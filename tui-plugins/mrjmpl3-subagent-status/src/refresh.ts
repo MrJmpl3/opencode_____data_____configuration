@@ -98,8 +98,7 @@ function deriveClientSessionStatus(value: unknown): SubagentChild['status'] | un
 
   const status = source.trim().toLowerCase();
   if (status === 'busy' || status === 'retry' || status === 'running' || status === 'pending') return 'running';
-  if (status === 'done' || status === 'completed' || status === 'complete' || status === 'success')
-    return 'done';
+  if (status === 'done' || status === 'completed' || status === 'complete' || status === 'success') return 'done';
   if (
     status === 'error' ||
     status === 'failed' ||
@@ -380,13 +379,18 @@ export function createTuiRuntime(
         if (disposed || sessionToken !== activeSessionToken) return;
 
         const { changed, nextState } = reconcileChildrenState(input.getState(), response);
-        const recovered = await hydrateStateFromRecoverySources(nextState, { directory, parentSessionID: sid }, recoverySources);
+        const recovered = await hydrateStateFromRecoverySources(
+          nextState,
+          { directory, parentSessionID: sid },
+          recoverySources,
+        );
         const tuiStatusHydrated = hydrateChildStatusesFromTuiState(api, nextState);
         const clientStatusHydrated = await hydrateChildStatusesFromClient(api, nextState);
         const hydrated = hydrateChildTokensFromLogs(nextState);
         const pruned = pruneTerminalChildren(nextState);
         if (disposed || sessionToken !== activeSessionToken) return;
-        if (!changed && !recovered.changed && !tuiStatusHydrated && !clientStatusHydrated && !hydrated && !pruned) return;
+        if (!changed && !recovered.changed && !tuiStatusHydrated && !clientStatusHydrated && !hydrated && !pruned)
+          return;
 
         await syncState(nextState, { source: 'refresh', lastEventType, bufferedEventCount: bufferedEvents.size() });
       } catch {

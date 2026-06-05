@@ -34,20 +34,20 @@ Keep the current TUI entrypoint and update the pure state/reconcile/persistence 
 
 ## Affected Areas
 
-| Area | Impact | Description |
-| --- | --- | --- |
-| `tui-plugins/mrjmpl3-subagent-status/src/state.ts` | Modified | Terminal-preserving state transitions, execution counting, pruning rules |
-| `tui-plugins/mrjmpl3-subagent-status/src/reconcile.ts` | Modified | Incoming event normalization and child-state reconciliation |
-| `tui-plugins/mrjmpl3-subagent-status/src/persistence.ts` | Modified | State load/save and recovery hydration path |
-| `tui-plugins/mrjmpl3-subagent-status/src/*.test.ts` | Modified | Regression coverage for stale-state, completion, and recovery cases |
+| Area                                                     | Impact   | Description                                                              |
+| -------------------------------------------------------- | -------- | ------------------------------------------------------------------------ |
+| `tui-plugins/mrjmpl3-subagent-status/src/state.ts`       | Modified | Terminal-preserving state transitions, execution counting, pruning rules |
+| `tui-plugins/mrjmpl3-subagent-status/src/reconcile.ts`   | Modified | Incoming event normalization and child-state reconciliation              |
+| `tui-plugins/mrjmpl3-subagent-status/src/persistence.ts` | Modified | State load/save and recovery hydration path                              |
+| `tui-plugins/mrjmpl3-subagent-status/src/*.test.ts`      | Modified | Regression coverage for stale-state, completion, and recovery cases      |
 
 ## Risks
 
-| Risk | Likelihood | Mitigation |
-| --- | --- | --- |
-| Over-pruning hides useful history | Med | Keep retention bounded and test retention edge cases |
-| Recovery fallback is not portable | Med | Treat SQLite/recovery support as optional and guarded |
-| Counting semantics shift unexpectedly | Med | Add explicit regression tests for delegation/task/subtask cases |
+| Risk                                  | Likelihood | Mitigation                                                      |
+| ------------------------------------- | ---------- | --------------------------------------------------------------- |
+| Over-pruning hides useful history     | Med        | Keep retention bounded and test retention edge cases            |
+| Recovery fallback is not portable     | Med        | Treat SQLite/recovery support as optional and guarded           |
+| Counting semantics shift unexpectedly | Med        | Add explicit regression tests for delegation/task/subtask cases |
 
 ## Rollback Plan
 

@@ -2,14 +2,14 @@
 
 ## Review Workload Forecast
 
-| Field | Value |
-| --- | --- |
-| Estimated changed lines | 520-680 |
-| 400-line budget risk | High |
-| Chained PRs recommended | Yes |
-| Suggested split | PR 1 → PR 2 → PR 3 |
-| Delivery strategy | ask-always |
-| Chain strategy | pending |
+| Field                   | Value              |
+| ----------------------- | ------------------ |
+| Estimated changed lines | 520-680            |
+| 400-line budget risk    | High               |
+| Chained PRs recommended | Yes                |
+| Suggested split         | PR 1 → PR 2 → PR 3 |
+| Delivery strategy       | ask-always         |
+| Chain strategy          | pending            |
 
 Decision needed before apply: Yes
 Chained PRs recommended: Yes
@@ -18,11 +18,11 @@ Chain strategy: pending
 
 ### Suggested Work Units
 
-| Unit | Goal | Likely PR | Notes |
-| --- | --- | --- | --- |
-| 1 | Terminal-state and counting semantics | PR 1 | Base = tracker branch; include `state.ts`, `reconcile.ts`, and matching tests. |
-| 2 | Recovery hydration, including SQLite | PR 2 | Base = PR 1 branch; add `src/recovery.ts`/`src/recovery/sqlite.ts` and refresh wiring. |
-| 3 | Persistence hardening and prune safety | PR 3 | Base = PR 2 branch; keep JSON compatibility and non-resurrection guarantees. |
+| Unit | Goal                                   | Likely PR | Notes                                                                                  |
+| ---- | -------------------------------------- | --------- | -------------------------------------------------------------------------------------- |
+| 1    | Terminal-state and counting semantics  | PR 1      | Base = tracker branch; include `state.ts`, `reconcile.ts`, and matching tests.         |
+| 2    | Recovery hydration, including SQLite   | PR 2      | Base = PR 1 branch; add `src/recovery.ts`/`src/recovery/sqlite.ts` and refresh wiring. |
+| 3    | Persistence hardening and prune safety | PR 3      | Base = PR 2 branch; keep JSON compatibility and non-resurrection guarantees.           |
 
 ## Phase 1: Foundation / Recovery
 

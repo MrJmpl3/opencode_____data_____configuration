@@ -22,19 +22,19 @@
 
 ## TDD Cycle Evidence
 
-| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
-| ---- | --------- | ----- | ---------- | --- | ----- | ----------- | -------- |
-| 1.1 | `src/recovery.test.ts`, `src/refresh.test.ts` | Unit | ✅ `src/refresh.test.ts` 1/1 | ✅ Written | ✅ Passed | ✅ 3 cases | ✅ Clean |
-| 1.2 | `src/persistence.test.ts` | Unit | N/A (new) | ✅ Written | ✅ Passed | ✅ 2 cases | ✅ Clean |
-| 2.1 | `src/state.test.ts` | Unit | ✅ 9/9 | ✅ Written | ✅ Passed | ✅ 2 cases | ✅ Clean |
-| 2.2 | `src/reconcile.test.ts`, `src/state.test.ts` | Unit | ✅ `src/reconcile.test.ts` 6/6 | ✅ Written | ✅ Passed | ✅ 5 cases | ✅ Clean |
-| 2.3 | `src/refresh.test.ts` | Unit | ✅ 1/1 | ✅ Written | ✅ Passed | ✅ 4 cases | ✅ Clean |
-| 3.1 | `src/state.test.ts` | Unit | ✅ 9/9 | ✅ Written | ✅ Passed | ✅ 2 cases | ✅ Clean |
-| 3.2 | `src/reconcile.test.ts` | Unit | ✅ 6/6 | ✅ Written | ✅ Passed | ✅ 5 cases | ✅ Clean |
-| 3.3 | `src/recovery.test.ts`, `src/refresh.test.ts` | Unit | ✅ `src/refresh.test.ts` 1/1 | ✅ Written | ✅ Passed | ✅ 4 cases | ✅ Clean |
-| 3.4 | `src/persistence.test.ts` | Unit | N/A (new) | ✅ Written | ✅ Passed | ✅ 2 cases | ✅ Clean |
-| 4.1 | `src/recovery.test.ts`, `src/persistence.test.ts` | Unit | ✅ existing targeted suites green | ✅ Written | ✅ Passed | ✅ 2 cases | ✅ Clean |
-| remediation | `src/reconcile.test.ts`, `src/refresh.test.ts` | Unit | ✅ 10/10 | ✅ Written | ✅ Passed | ✅ 3 cases | ✅ Clean |
+| Task        | Test File                                         | Layer | Safety Net                        | RED        | GREEN     | TRIANGULATE | REFACTOR |
+| ----------- | ------------------------------------------------- | ----- | --------------------------------- | ---------- | --------- | ----------- | -------- |
+| 1.1         | `src/recovery.test.ts`, `src/refresh.test.ts`     | Unit  | ✅ `src/refresh.test.ts` 1/1      | ✅ Written | ✅ Passed | ✅ 3 cases  | ✅ Clean |
+| 1.2         | `src/persistence.test.ts`                         | Unit  | N/A (new)                         | ✅ Written | ✅ Passed | ✅ 2 cases  | ✅ Clean |
+| 2.1         | `src/state.test.ts`                               | Unit  | ✅ 9/9                            | ✅ Written | ✅ Passed | ✅ 2 cases  | ✅ Clean |
+| 2.2         | `src/reconcile.test.ts`, `src/state.test.ts`      | Unit  | ✅ `src/reconcile.test.ts` 6/6    | ✅ Written | ✅ Passed | ✅ 5 cases  | ✅ Clean |
+| 2.3         | `src/refresh.test.ts`                             | Unit  | ✅ 1/1                            | ✅ Written | ✅ Passed | ✅ 4 cases  | ✅ Clean |
+| 3.1         | `src/state.test.ts`                               | Unit  | ✅ 9/9                            | ✅ Written | ✅ Passed | ✅ 2 cases  | ✅ Clean |
+| 3.2         | `src/reconcile.test.ts`                           | Unit  | ✅ 6/6                            | ✅ Written | ✅ Passed | ✅ 5 cases  | ✅ Clean |
+| 3.3         | `src/recovery.test.ts`, `src/refresh.test.ts`     | Unit  | ✅ `src/refresh.test.ts` 1/1      | ✅ Written | ✅ Passed | ✅ 4 cases  | ✅ Clean |
+| 3.4         | `src/persistence.test.ts`                         | Unit  | N/A (new)                         | ✅ Written | ✅ Passed | ✅ 2 cases  | ✅ Clean |
+| 4.1         | `src/recovery.test.ts`, `src/persistence.test.ts` | Unit  | ✅ existing targeted suites green | ✅ Written | ✅ Passed | ✅ 2 cases  | ✅ Clean |
+| remediation | `src/reconcile.test.ts`, `src/refresh.test.ts`    | Unit  | ✅ 10/10                          | ✅ Written | ✅ Passed | ✅ 3 cases  | ✅ Clean |
 
 ## Test Summary
 

@@ -110,9 +110,12 @@ function resolveRecoveredStatus(latestPart: unknown): {
   }
 
   const part = latestPart as Record<string, unknown>;
-  const rawTokens = typeof part.tokens === 'object' && part.tokens !== null ? (part.tokens as SubagentTokens) : undefined;
+  const rawTokens =
+    typeof part.tokens === 'object' && part.tokens !== null ? (part.tokens as SubagentTokens) : undefined;
   const endedAtMs =
-    typeof part.time === 'object' && part.time !== null && typeof (part.time as Record<string, unknown>).end === 'number'
+    typeof part.time === 'object' &&
+    part.time !== null &&
+    typeof (part.time as Record<string, unknown>).end === 'number'
       ? ((part.time as Record<string, unknown>).end as number)
       : undefined;
 
@@ -127,7 +130,8 @@ function resolveRecoveredStatus(latestPart: unknown): {
   }
 
   if (part.type === 'tool') {
-    const state = typeof part.state === 'object' && part.state !== null ? (part.state as Record<string, unknown>) : undefined;
+    const state =
+      typeof part.state === 'object' && part.state !== null ? (part.state as Record<string, unknown>) : undefined;
     const status = typeof state?.status === 'string' ? state.status : undefined;
     if (status === 'error') {
       const endedAt = endedAtMs ? toISOString(endedAtMs) : undefined;

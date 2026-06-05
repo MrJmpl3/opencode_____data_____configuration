@@ -310,7 +310,10 @@ function resolveSessionIdentity(
   return sanitizeTargetSessionID(child.targetSessionID);
 }
 
-function rememberPurgedSession(state: SubagentState, child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>): void {
+function rememberPurgedSession(
+  state: SubagentState,
+  child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
+): void {
   const sessionID = resolveSessionIdentity(child);
   if (!sessionID) return;
   state.purgedSessionIDs[sessionID] = true;
@@ -504,7 +507,7 @@ export function replaceChildren(state: SubagentState, nextChildren: SubagentChil
 
   for (const child of nextChildren) {
     upsertRunningChild(nextState, child);
-  if (child.status === 'done' || child.status === 'error') {
+    if (child.status === 'done' || child.status === 'error') {
       markChildStatus(nextState, child.id, child.status, child.endedAt ?? child.updatedAt);
     }
   }

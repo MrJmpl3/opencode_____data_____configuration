@@ -1,4 +1,10 @@
-import { clearPurgedSession, markChildStatus, mergeChildDetails, syncExecutionState, upsertRunningChild } from './state.ts';
+import {
+  clearPurgedSession,
+  markChildStatus,
+  mergeChildDetails,
+  syncExecutionState,
+  upsertRunningChild,
+} from './state.ts';
 import type { SubagentChild, SubagentState } from './types.ts';
 
 export type RecoveryContext = {
@@ -12,10 +18,15 @@ export type RecoveryResult = {
 };
 
 export interface RecoverySource {
-  hydrateState(state: SubagentState, context: RecoveryContext): Promise<RecoveryResult | undefined> | RecoveryResult | undefined;
+  hydrateState(
+    state: SubagentState,
+    context: RecoveryContext,
+  ): Promise<RecoveryResult | undefined> | RecoveryResult | undefined;
 }
 
-function resolveSessionIdentity(child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>): string | undefined {
+function resolveSessionIdentity(
+  child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
+): string | undefined {
   if (child.id.startsWith('ses_')) return child.id;
   return child.targetSessionID;
 }
