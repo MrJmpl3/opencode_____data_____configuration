@@ -1,4 +1,4 @@
-import { markChildStatus, pruneTerminalChildren, upsertRunningChild } from './state.ts';
+import { markChildStatus, pruneOrphanedSyntheticRunningChildren, pruneTerminalChildren, upsertRunningChild } from './state.ts';
 import type { SubagentChild, SubagentState, SubagentTokens } from './types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -182,12 +182,13 @@ export function reconcileChildrenState(
 
   const pruneReferenceMs = Date.parse(nextState.updatedAt);
   const pruned = pruneTerminalChildren(nextState, Number.isNaN(pruneReferenceMs) ? Date.now() : pruneReferenceMs);
-  if (changed || pruned) {
+  const prunedSynthetic = pruneOrphanedSyntheticRunningChildren(nextState);
+  if (changed || pruned || prunedSynthetic) {
     nextState.updatedAt = new Date().toISOString();
   }
 
   return {
-    changed: changed || pruned,
+    changed: changed || pruned || prunedSynthetic,
     nextState,
   };
 }

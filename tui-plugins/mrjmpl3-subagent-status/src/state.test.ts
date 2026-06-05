@@ -8,6 +8,7 @@ import {
   createEmptyState,
   getCounts,
   loadState,
+  pruneOrphanedSyntheticRunningChildren,
   replaceChildren,
   resolveStatePath,
   saveState,
@@ -142,7 +143,7 @@ describe('state', () => {
     ).toBe(false);
   });
 
-  it('prunes old terminal children when loading persisted state', async () => {
+  it('prunes old terminal children and orphaned synthetic running rows when loading persisted state', async () => {
     const state = createEmptyState();
     state.children = {
       ses_old: {
@@ -171,6 +172,15 @@ describe('state', () => {
         startedAt: '2026-06-04T11:55:00.000Z',
         updatedAt: '2026-06-04T11:55:00.000Z',
       },
+      'tool:part_1': {
+        id: 'tool:part_1',
+        title: 'Stale tool',
+        parentID: 'ses_missing',
+        source: 'tool',
+        status: 'running',
+        startedAt: '2026-06-04T11:52:00.000Z',
+        updatedAt: '2026-06-04T11:52:00.000Z',
+      },
     };
     state.countedChildIDs = {
       ses_old: true,
@@ -194,6 +204,35 @@ describe('state', () => {
     });
     expect(loaded.totalExecuted).toBe(3);
     expect(getCounts(loaded)).toEqual({ running: 1, done: 1, error: 0 });
+  });
+
+  it('prunes orphaned synthetic running rows that are no longer anchored to an active session', () => {
+    const state = createEmptyState();
+    state.children = {
+      ses_parent: {
+        id: 'ses_parent',
+        title: 'Parent runner',
+        parentID: 'ses_root',
+        source: 'session',
+        status: 'done',
+        startedAt: '2026-06-04T11:40:00.000Z',
+        updatedAt: '2026-06-04T11:45:00.000Z',
+        endedAt: '2026-06-04T11:45:00.000Z',
+      },
+      'subtask:part_1': {
+        id: 'subtask:part_1',
+        title: 'Detached fallback',
+        parentID: 'ses_parent',
+        source: 'subtask',
+        status: 'running',
+        startedAt: '2026-06-04T11:50:00.000Z',
+        updatedAt: '2026-06-04T11:50:00.000Z',
+      },
+    };
+
+    expect(pruneOrphanedSyntheticRunningChildren(state)).toBe(true);
+    expect(state.children['subtask:part_1']).toBeUndefined();
+    expect(state.children.ses_parent).toBeDefined();
   });
 
   it('drops stale counted ids when replacing children with a pruned snapshot', () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  buildSubagentSnapshotView,
   collapseSubagentWorkItems,
   formatContextCompact,
   renderStatusLine,
@@ -75,7 +76,8 @@ describe('render', () => {
   });
 
   it('formats compact token/context text and aggregate statusline output', () => {
-    const recentEndedAt = new Date(Date.now() - 60_000).toISOString();
+    const nowMs = Date.parse('2026-06-04T12:00:00.000Z');
+    const recentEndedAt = new Date(nowMs - 60_000).toISOString();
 
     const doneChild = child({
       id: 'ses_done',
@@ -106,8 +108,31 @@ describe('render', () => {
     };
 
     expect(formatContextCompact(doneChild)).toBe('1.5k ctx 42%');
-    expect(renderStatusLine(state)).toContain('Subagents: 1 run · 1 done · 0 err · Σ 2');
-    expect(renderStatusLine(state)).toContain('Summarize results 02:00 1.5k ctx 42%');
+    expect(renderStatusLine(state, nowMs)).toContain('Subagents: 1 run · 1 done · 0 err · Σ 2');
+    expect(renderStatusLine(state, nowMs)).toContain('Summarize results 1:59:00 1.5k ctx 42%');
+  });
+
+  it('keeps tracked totals honest when visible rows are pruned', () => {
+    const nowMs = Date.parse('2026-06-04T10:20:00.000Z');
+    const recentDone = child({
+      id: 'done_recent',
+      status: 'done',
+      color: 'green',
+      endedAt: '2026-06-04T10:15:00.000Z',
+    });
+    const staleDone = child({
+      id: 'done_old',
+      status: 'done',
+      color: 'green',
+      endedAt: '2026-06-04T09:30:00.000Z',
+    });
+
+    const view = buildSubagentSnapshotView([recentDone, staleDone], nowMs);
+
+    expect(view.trackedCounts).toEqual({ running: 0, done: 2, error: 0 });
+    expect(view.visibleCounts).toEqual({ running: 0, done: 1, error: 0 });
+    expect(view.visibleChildren.map((item) => item.id)).toEqual(['done_recent']);
+    expect(renderStatusLine({ children: { done_recent: recentDone, done_old: staleDone }, countedChildIDs: {}, totalExecuted: 2, updatedAt: '2026-06-04T10:20:00.000Z' }, nowMs)).toContain('2 done');
   });
 
   it('maps statuses to the expected color keys', () => {

@@ -123,8 +123,17 @@ describe('reconcile', () => {
     expect(second.nextState.countedChildIDs['subtask:part_1']).toBeUndefined();
   });
 
-  it('preserves synthetic rows while updating stale running sessions to terminal status', () => {
+  it('prunes synthetic running rows once their session anchor is no longer active', () => {
     const initial = createEmptyState();
+    initial.children.ses_parent = {
+      id: 'ses_parent',
+      title: 'Parent session',
+      parentID: 'ses_root',
+      source: 'session',
+      status: 'running',
+      startedAt: '2026-06-04T11:50:00.000Z',
+      updatedAt: '2026-06-04T11:55:00.000Z',
+    };
     initial.children['subtask:part_1'] = {
       id: 'subtask:part_1',
       title: 'Synthetic fallback',
@@ -151,9 +160,9 @@ describe('reconcile', () => {
     const result = reconcileChildrenState(initial, {
       data: [
         {
-          id: 'ses_child',
+          id: 'ses_parent',
           parentID: 'ses_parent',
-          title: 'Real child',
+          title: 'Parent session',
           status: 'idle',
           startedAt: '2026-06-04T11:50:00.000Z',
           updatedAt: '2026-06-04T12:00:00.000Z',
@@ -162,8 +171,8 @@ describe('reconcile', () => {
     });
 
     expect(result.changed).toBe(true);
-    expect(result.nextState.children['subtask:part_1']).toBeDefined();
-    expect(result.nextState.children.ses_child).toMatchObject({
+    expect(result.nextState.children['subtask:part_1']).toBeUndefined();
+    expect(result.nextState.children.ses_parent).toMatchObject({
       status: 'done',
       endedAt: '2026-06-04T12:00:00.000Z',
     });

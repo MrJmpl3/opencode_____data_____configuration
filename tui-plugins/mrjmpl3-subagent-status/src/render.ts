@@ -1,4 +1,4 @@
-import type { SubagentChild, SubagentState } from './types.ts';
+import type { SubagentChild, SubagentCounts, SubagentState } from './types.ts';
 
 const RECENT_DONE_VISIBLE_MS = 10 * 60 * 1000;
 
@@ -249,21 +249,84 @@ export function visibleSubagentWorkItems(children: SubagentChild[], nowMs = Date
   });
 }
 
-export function renderStatusLine(state: SubagentState, nowMs = Date.now()): string {
-  const children = visibleSubagentWorkItems(Object.values(state.children), nowMs).sort(byPriority);
-  const running = children.filter((child) => child.status === 'running').length;
-  const done = children.filter((child) => child.status === 'done').length;
-  const error = children.filter((child) => child.status === 'error').length;
-  const aggregate = `Subagents: ${running} run · ${done} done · ${error} err · Σ ${formatNumber(state.totalExecuted)}`;
+function countsFromChildren(children: readonly SubagentChild[]): SubagentCounts {
+  return children.reduce<SubagentCounts>(
+    (counts, child) => {
+      counts[child.status] += 1;
+      return counts;
+    },
+    { running: 0, done: 0, error: 0 },
+  );
+}
 
-  if (children.length === 0) return aggregate;
+function resolveElapsedMs(child: Pick<SubagentChild, 'startedAt' | 'updatedAt' | 'endedAt' | 'status'>, nowMs: number): number {
+  const startedMs = Date.parse(child.startedAt);
+  if (Number.isNaN(startedMs)) return 0;
 
-  const details = children
+  const endMs = child.status === 'running' ? nowMs : Date.parse(child.endedAt ?? child.updatedAt);
+  if (Number.isNaN(endMs)) return 0;
+
+  return Math.max(0, endMs - startedMs);
+}
+
+function hydrateSnapshotChild(child: SubagentChild, nowMs: number): SubagentChild {
+  return {
+    ...child,
+    elapsedMs: resolveElapsedMs(child, nowMs),
+  };
+}
+
+export interface SubagentSnapshotView {
+  trackedChildren: SubagentChild[];
+  visibleChildren: SubagentChild[];
+  trackedCounts: SubagentCounts;
+  visibleCounts: SubagentCounts;
+}
+
+export function buildSubagentSnapshotView(children: readonly SubagentChild[], nowMs = Date.now()): SubagentSnapshotView {
+  const hydratedChildren = [...children].map((child) => hydrateSnapshotChild(child, nowMs)).sort(byPriority);
+  const trackedChildren = collapseSubagentWorkItems(hydratedChildren).sort(byPriority);
+  const visibleChildren = visibleSubagentWorkItems(hydratedChildren, nowMs).sort(byPriority);
+
+  return {
+    trackedChildren,
+    visibleChildren,
+    trackedCounts: countsFromChildren(trackedChildren),
+    visibleCounts: countsFromChildren(visibleChildren),
+  };
+}
+
+function renderAggregate(counts: SubagentCounts): string {
+  return `Subagents: ${counts.running} run · ${counts.done} done · ${counts.error} err`;
+}
+
+function renderSnapshotAggregate(counts: SubagentCounts): string {
+  return renderAggregate(counts).replace(/^Subagents: /, 'Subagents snapshot: ');
+}
+
+function renderStatusDetails(children: readonly SubagentChild[]): string {
+  if (children.length === 0) return '';
+
+  return children
     .map((child) => {
       const context = formatContextCompact(child);
       return [child.title, formatDuration(child.elapsedMs), context].filter((part) => part.length > 0).join(' ');
     })
     .join(' · ');
+}
 
-  return `${aggregate} · ${details}`;
+export function renderStatusLine(state: SubagentState, nowMs = Date.now()): string {
+  const view = buildSubagentSnapshotView(Object.values(state.children), nowMs);
+  const aggregate = `${renderAggregate(view.trackedCounts)} · Σ ${formatNumber(state.totalExecuted)}`;
+  const details = renderStatusDetails(view.visibleChildren);
+
+  return details.length > 0 ? `${aggregate} · ${details}` : aggregate;
+}
+
+export function renderStatusSnapshotLine(state: SubagentState, nowMs = Date.now()): string {
+  const view = buildSubagentSnapshotView(Object.values(state.children), nowMs);
+  const aggregate = `${renderSnapshotAggregate(view.trackedCounts)} · Σ ${formatNumber(state.totalExecuted)}`;
+  const details = renderStatusDetails(view.visibleChildren);
+
+  return details.length > 0 ? `${aggregate} · ${details}` : aggregate;
 }

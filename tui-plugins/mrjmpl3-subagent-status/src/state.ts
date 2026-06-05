@@ -340,6 +340,10 @@ export function resolveTextPath(statePath: string): string {
   return join(dirname(statePath), 'status.txt');
 }
 
+export function resolveDebugPath(statePath: string): string {
+  return join(dirname(statePath), 'debug.json');
+}
+
 export function shouldPreserveStateOnStartup(): boolean {
   return process.env.MRJMPL3_SUBAGENT_STATUS_PRESERVE_STATE === '1';
 }
@@ -361,6 +365,29 @@ export function pruneTerminalChildren(state: SubagentState, now = Date.now()): b
   let changed = false;
   for (const child of terminalChildren) {
     if (keepIDs.has(child.id)) continue;
+    delete state.children[child.id];
+    changed = true;
+  }
+
+  changed = pruneStaleCountedChildIDs(state) || changed;
+
+  return changed;
+}
+
+export function pruneOrphanedSyntheticRunningChildren(state: SubagentState): boolean {
+  const realSessionChildren = Object.values(state.children).filter((child) => isRealSessionChild(child));
+  if (realSessionChildren.length === 0) return false;
+
+  const activeSessionIDs = new Set(realSessionChildren.filter((child) => child.status === 'running').map((child) => child.id));
+
+  let changed = false;
+  for (const child of Object.values(state.children)) {
+    if (child.status !== 'running') continue;
+    if (!isSyntheticToolWrapper(child) && !isSubtaskFallback(child)) continue;
+
+    const anchoredToActiveSession = activeSessionIDs.has(child.parentID) || activeSessionIDs.has(child.targetSessionID ?? '');
+    if (anchoredToActiveSession) continue;
+
     delete state.children[child.id];
     changed = true;
   }
@@ -432,7 +459,9 @@ export async function loadState(statePath: string): Promise<SubagentState> {
     }
 
     normalizeExecutionCounters(state);
-    if (pruneTerminalChildren(state, Date.now())) {
+    const prunedTerminalChildren = pruneTerminalChildren(state, Date.now());
+    const prunedOrphanedSyntheticChildren = pruneOrphanedSyntheticRunningChildren(state);
+    if (prunedTerminalChildren || prunedOrphanedSyntheticChildren) {
       state.updatedAt = new Date().toISOString();
     }
 
@@ -444,6 +473,10 @@ export async function loadState(statePath: string): Promise<SubagentState> {
 
 export async function saveStatusText(textPath: string, contents: string): Promise<void> {
   await writeLocalFile(textPath, contents);
+}
+
+export async function saveDebugSnapshot(debugPath: string, contents: string): Promise<void> {
+  await writeLocalFile(debugPath, contents);
 }
 
 export async function saveState(statePath: string, state: SubagentState): Promise<void> {

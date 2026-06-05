@@ -3,7 +3,7 @@
   "plugin": [
     "/home/mrjmpl3/.config/opencode/tui-plugins/mrjmpl3-subagent-status",
     [
-      "/home/mrjmpl3/.config/opencode/tui-plugins/quota",
+      "/home/mrjmpl3/.config/opencode/tui-plugins/mrjmpl3-quota",
       {
         "visibleProviders": ["opencode-go", "openai", "ollama-cloud", "github-copilot", "openrouter"]
       }

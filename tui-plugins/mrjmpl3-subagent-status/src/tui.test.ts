@@ -192,8 +192,10 @@ describe('tui elapsed time', () => {
   });
 
   it('persists the rendered status line for the current visible snapshot', async () => {
+    vi.setSystemTime(new Date('2026-06-04T12:00:00.000Z'));
     const statePath = join(await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-')), 'state.json');
     const textPath = join(statePath, '..', 'status.txt');
+    const debugPath = join(statePath, '..', 'debug.json');
     const state = createState(
       [
         createChild({
@@ -213,7 +215,71 @@ describe('tui elapsed time', () => {
 
     await persistSnapshot(statePath, textPath, state);
 
-    expect(readFileSync(textPath, 'utf8')).toBe(buildTuiSnapshot(state).statusLine);
+    const snapshot = buildTuiSnapshot(state);
+    expect(readFileSync(textPath, 'utf8')).toBe(snapshot.statusSnapshotLine);
+    expect(JSON.parse(readFileSync(debugPath, 'utf8'))).toMatchObject({
+      source: 'load',
+      snapshotSemantics: 'snapshot',
+      trackedCounts: { running: 0, done: 1, error: 0 },
+      visibleCounts: { running: 0, done: 1, error: 0 },
+    });
+  });
+
+  it('reports tracked totals even when some terminal rows are hidden from view', () => {
+    const recentDone = createChild({
+      id: 'ses_recent',
+      title: 'Recent done child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      endedAt: '2026-06-04T11:57:00.000Z',
+      updatedAt: '2026-06-04T11:57:00.000Z',
+    });
+    const staleDone = createChild({
+      id: 'ses_stale',
+      title: 'Stale done child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      endedAt: '2026-06-04T11:00:00.000Z',
+      updatedAt: '2026-06-04T11:00:00.000Z',
+    });
+
+    const snapshot = buildTuiSnapshot(createState([recentDone, staleDone], 2), Date.parse('2026-06-04T12:00:00.000Z'));
+
+    expect(snapshot.counts).toEqual({ running: 0, done: 2, error: 0 });
+    expect(snapshot.visibleCounts).toEqual({ running: 0, done: 1, error: 0 });
+    expect(snapshot.visibleChildren.map((child) => child.id)).toEqual(['ses_recent']);
+    expect(snapshot.statusLine).toContain('2 done');
+  });
+
+  it('captures persistence diagnostics for refresh reconciliation', async () => {
+    vi.setSystemTime(new Date('2026-06-04T12:00:00.000Z'));
+    const statePath = join(await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-')), 'state.json');
+    const textPath = join(statePath, '..', 'status.txt');
+    const debugPath = join(statePath, '..', 'debug.json');
+    const state = createState([
+      createChild({
+        id: 'ses_child_running',
+        title: 'Running child',
+        parentID: 'ses_parent',
+        source: 'session',
+        status: 'running',
+      }),
+    ]);
+
+    await persistSnapshot(statePath, textPath, state, {
+      source: 'refresh',
+      lastEventType: 'session.updated',
+      bufferedEventCount: 3,
+    });
+
+    expect(JSON.parse(readFileSync(debugPath, 'utf8'))).toMatchObject({
+      source: 'refresh',
+      lastEventType: 'session.updated',
+      bufferedEventCount: 3,
+      snapshotSemantics: 'snapshot',
+    });
   });
 
   it('navigates only to clickable child sessions and keeps keyboard behavior unavailable', async () => {

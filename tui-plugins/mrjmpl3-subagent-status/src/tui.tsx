@@ -2,19 +2,21 @@
 import type { TuiPluginApi, TuiPluginModule, TuiThemeCurrent } from '@opencode-ai/plugin/tui';
 import { For, Show, createMemo, createRoot, createSignal } from 'solid-js';
 
-import { applySubagentEvent, installEventBridge } from './events.ts';
+import { applySubagentEvent, extractSessionID, installEventBridge } from './events.ts';
 import { hydrateDoneChildTokens } from './logs.ts';
 import { reconcileChildrenState } from './reconcile.ts';
 import {
+  buildSubagentSnapshotView,
   byPriority,
   formatContextCompact,
   formatDuration,
   renderStatusLine,
+  renderStatusSnapshotLine,
   statusColor as resolveRenderStatusColor,
-  visibleSubagentWorkItems,
 } from './render.ts';
 import {
   createEmptyState,
+  resolveDebugPath,
   loadState,
   mergeChildDetails,
   pruneTerminalChildren,
@@ -22,6 +24,7 @@ import {
   resolveTextPath,
   saveState,
   saveStatusText,
+  saveDebugSnapshot,
   shouldPreserveStateOnStartup,
 } from './state.ts';
 import type { SubagentChild, SubagentCounts, SubagentState } from './types.ts';
@@ -38,6 +41,35 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function slotSessionId(slotInput: unknown, fallback = ''): string {
   if (!isRecord(slotInput)) return fallback;
   return typeof slotInput.session_id === 'string' ? slotInput.session_id : fallback;
+}
+
+export function resolveSessionSlotTransition(
+  currentSessionID: string,
+  slotInput: unknown,
+  hasTrackedChildren: boolean,
+): { nextSessionID: string; resetState: boolean; shouldRefresh: boolean } {
+  const nextSessionID = slotSessionId(slotInput);
+  if (!nextSessionID) {
+    return {
+      nextSessionID: '',
+      resetState: currentSessionID !== '' || hasTrackedChildren,
+      shouldRefresh: false,
+    };
+  }
+
+  if (nextSessionID !== currentSessionID) {
+    return {
+      nextSessionID,
+      resetState: true,
+      shouldRefresh: true,
+    };
+  }
+
+  return {
+    nextSessionID,
+    resetState: false,
+    shouldRefresh: !hasTrackedChildren,
+  };
 }
 
 export function elapsedMs(child: SubagentChild, now: number): number {
@@ -90,40 +122,45 @@ export function navigateToChildSession(
   return true;
 }
 
-function countsFromChildren(children: readonly SubagentChild[]): SubagentCounts {
-  return children.reduce<SubagentCounts>(
-    (counts, child) => {
-      counts[child.status] += 1;
-      return counts;
-    },
-    { running: 0, done: 0, error: 0 },
-  );
-}
-
 export function buildTuiSnapshot(
   state: SubagentState,
   nowMs = Date.now(),
 ): {
   counts: SubagentCounts;
+  visibleCounts: SubagentCounts;
   statusLine: string;
+  statusSnapshotLine: string;
   visibleChildren: SubagentChild[];
+  debug: {
+    snapshotSemantics: 'snapshot';
+    trackedChildren: number;
+    visibleChildren: number;
+    hiddenChildren: number;
+    trackedCounts: SubagentCounts;
+    visibleCounts: SubagentCounts;
+  };
 } {
   const hydratedChildren = Object.values(state.children).map((child) => ({
     ...child,
     color: child.color ?? resolveRenderStatusColor(child.status),
     elapsedMs: elapsedMs(child, nowMs),
   }));
-  const visibleChildren = visibleSubagentWorkItems(hydratedChildren, nowMs).sort(byPriority);
-  const counts = countsFromChildren(visibleChildren);
-  const statusState: SubagentState = {
-    ...state,
-    children: Object.fromEntries(visibleChildren.map((child) => [child.id, child])),
-  };
+  const snapshotView = buildSubagentSnapshotView(hydratedChildren, nowMs);
 
   return {
-    counts,
-    statusLine: renderStatusLine(statusState, nowMs),
-    visibleChildren,
+    counts: snapshotView.trackedCounts,
+    visibleCounts: snapshotView.visibleCounts,
+    statusLine: renderStatusLine(state, nowMs),
+    statusSnapshotLine: renderStatusSnapshotLine(state, nowMs),
+    visibleChildren: snapshotView.visibleChildren,
+    debug: {
+      snapshotSemantics: 'snapshot',
+      trackedChildren: snapshotView.trackedChildren.length,
+      visibleChildren: snapshotView.visibleChildren.length,
+      hiddenChildren: Math.max(0, snapshotView.trackedChildren.length - snapshotView.visibleChildren.length),
+      trackedCounts: snapshotView.trackedCounts,
+      visibleCounts: snapshotView.visibleCounts,
+    },
   };
 }
 
@@ -360,13 +397,165 @@ export function hydrateChildTokensFromLogs(state: SubagentState): boolean {
   return changed;
 }
 
-export async function persistSnapshot(statePath: string, textPath: string, state: SubagentState): Promise<void> {
+export function createSerializedTaskQueue<T>(task: (value: T) => Promise<void>): (value: T) => Promise<void> {
+  let chain = Promise.resolve();
+
+  return (value: T): Promise<void> => {
+    chain = chain.then(() => task(value)).catch(() => undefined);
+    return chain;
+  };
+}
+
+export function createCoalescedTaskRunner<T>(task: (value: T) => Promise<void>): (value: T) => Promise<void> {
+  let inFlight = false;
+  let hasPending = false;
+  let pendingValue: T;
+  let currentBatch: Promise<void> | undefined;
+
+  const schedule = async (value: T): Promise<void> => {
+    pendingValue = value;
+    hasPending = true;
+    if (inFlight) return currentBatch ?? Promise.resolve();
+
+    inFlight = true;
+    currentBatch = (async () => {
+      try {
+        while (hasPending) {
+          const current = pendingValue;
+          hasPending = false;
+          await task(current);
+        }
+      } finally {
+        inFlight = false;
+        if (hasPending) {
+          const next = pendingValue;
+          hasPending = false;
+          await schedule(next);
+        }
+        currentBatch = undefined;
+      }
+    })();
+
+    return currentBatch;
+  };
+
+  return schedule;
+}
+
+type BufferedTaskQueueOptions = {
+  maxSize?: number;
+  maxAgeMs?: number;
+};
+
+export function createBufferedTaskQueue<T>(task: (value: T) => Promise<void>, options: BufferedTaskQueueOptions = {}) {
+  const maxSize = options.maxSize ?? 512;
+  const maxAgeMs = options.maxAgeMs ?? 15_000;
+  const queue: Array<{ value: T; enqueuedAt: number }> = [];
+  let ready = false;
+  let draining = false;
+  let truncated = false;
+
+  const compactIfStale = (now: number): void => {
+    if (queue.length === 0) return;
+    if (now - queue[0].enqueuedAt < maxAgeMs) return;
+
+    queue.length = 0;
+    truncated = true;
+  };
+
+  const drain = async (): Promise<void> => {
+    if (!ready || draining) return;
+
+    draining = true;
+    try {
+      while (queue.length > 0) {
+        const entry = queue.shift();
+        if (!entry) continue;
+
+        await task(entry.value);
+      }
+    } finally {
+      draining = false;
+    }
+  };
+
+  return {
+    push(value: T): void {
+      const now = Date.now();
+      compactIfStale(now);
+      queue.push({ value, enqueuedAt: now });
+
+      if (queue.length > maxSize) {
+        queue.splice(0, queue.length - maxSize);
+        truncated = true;
+      }
+
+      if (ready) void drain();
+    },
+    size(): number {
+      return queue.length;
+    },
+    wasTruncated(): boolean {
+      return truncated;
+    },
+    markReady(): Promise<void> {
+      ready = true;
+      return drain();
+    },
+  };
+}
+
+type SnapshotPersistenceSource = 'startup' | 'event' | 'load' | 'refresh';
+
+type PersistSnapshotMeta = {
+  source: SnapshotPersistenceSource;
+  lastEventType?: string;
+  bufferedEventCount?: number;
+};
+
+function serializeDebugSnapshot(
+  state: SubagentState,
+  snapshot: ReturnType<typeof buildTuiSnapshot>,
+  meta: PersistSnapshotMeta,
+): string {
+  return JSON.stringify(
+    {
+      persistedAt: new Date().toISOString(),
+      source: meta.source,
+      lastEventType: meta.lastEventType,
+      bufferedEventCount: meta.bufferedEventCount ?? 0,
+      stateUpdatedAt: state.updatedAt,
+      totalExecuted: state.totalExecuted,
+      ...snapshot.debug,
+    },
+    null,
+    2,
+  );
+}
+
+export async function persistSnapshot(
+  statePath: string,
+  textPath: string,
+  state: SubagentState,
+  meta: PersistSnapshotMeta = { source: 'load' },
+): Promise<void> {
   try {
+    const snapshot = buildTuiSnapshot(state);
     await saveState(statePath, state);
-    await saveStatusText(textPath, buildTuiSnapshot(state).statusLine);
+    await saveStatusText(textPath, snapshot.statusSnapshotLine);
+    await saveDebugSnapshot(resolveDebugPath(statePath), serializeDebugSnapshot(state, snapshot, meta));
   } catch {
     // Persistence is best-effort.
   }
+}
+
+function createPersistQueue(statePath: string, textPath: string) {
+  const enqueue = createSerializedTaskQueue(async (payload: { state: SubagentState; meta: PersistSnapshotMeta }) => {
+    await persistSnapshot(statePath, textPath, payload.state, payload.meta);
+  });
+
+  return (state: SubagentState, meta: PersistSnapshotMeta): Promise<void> =>
+    enqueue({ state: structuredClone(state) as SubagentState, meta });
 }
 
 const plugin: TuiPluginModule & { id: string } = {
@@ -382,60 +571,91 @@ const plugin: TuiPluginModule & { id: string } = {
 
       const statePath = resolveStatePath(api.state.path.directory);
       const textPath = resolveTextPath(statePath);
+      const persistQueuedSnapshot = createPersistQueue(statePath, textPath);
+      const bufferedEvents = createBufferedTaskQueue(async (event: unknown) => {
+        await mergeEventState(event);
+      });
 
       let disposed = false;
       let tickTimer: ReturnType<typeof setInterval> | undefined;
       let reconcileTimer: ReturnType<typeof setInterval> | undefined;
-      let refreshInFlight = false;
+      let lastEventType: string | undefined;
+      let activeSessionToken = 0;
 
-      const syncState = async (nextState: SubagentState): Promise<void> => {
+      const invalidateSessionScope = (): number => {
+        activeSessionToken += 1;
+        return activeSessionToken;
+      };
+
+      const resetSessionScope = (): void => {
+        invalidateSessionScope();
+        setSessionId('');
+        setState(createEmptyState());
+      };
+
+      const beginSessionScope = (sid: string): number => {
+        const token = invalidateSessionScope();
+        setSessionId(sid);
+        setState(createEmptyState());
+        return token;
+      };
+
+      const syncState = async (nextState: SubagentState, meta: PersistSnapshotMeta): Promise<void> => {
         if (disposed) return;
         setState(nextState);
-        void persistSnapshot(statePath, textPath, nextState);
+        await persistQueuedSnapshot(nextState, meta);
       };
 
       const mergeEventState = async (event: unknown): Promise<void> => {
         if (disposed) return;
+
+        const eventSessionID = extractSessionID(event as Parameters<typeof extractSessionID>[0]);
+        if (sessionId() && eventSessionID && eventSessionID !== sessionId()) return;
+        if (!sessionId() && eventSessionID) return;
 
         const nextState = structuredClone(state()) as SubagentState;
         const changed = applySubagentEvent(nextState, event);
         if (!changed) return;
 
         pruneTerminalChildren(nextState);
-        await syncState(nextState);
+        await syncState(nextState, { source: 'event', lastEventType, bufferedEventCount: bufferedEvents.size() });
       };
 
-      const refresh = async (sid = sessionId()): Promise<void> => {
-        if (disposed) return;
-        if (refreshInFlight) return;
-        refreshInFlight = true;
+      const refreshRunner = createCoalescedTaskRunner(async (request: { sessionID: string; sessionToken: number }): Promise<void> => {
+        const { sessionID: sid, sessionToken } = request;
+        if (disposed || sessionToken !== activeSessionToken) return;
 
         try {
           if (!sid) {
+            if (sessionToken !== activeSessionToken) return;
             const emptyState = createEmptyState();
-            await syncState(emptyState);
+            await syncState(emptyState, { source: 'startup', bufferedEventCount: bufferedEvents.size() });
             return;
           }
 
           const directory = api.state.path.directory;
           const response = await api.client.session?.children?.({ sessionID: sid, directory });
-          if (disposed) return;
+          if (disposed || sessionToken !== activeSessionToken) return;
 
           const { changed, nextState } = reconcileChildrenState(state(), response);
           const tuiStatusHydrated = hydrateChildStatusesFromTuiState(api, nextState);
           const clientStatusHydrated = await hydrateChildStatusesFromClient(api, nextState);
           const hydrated = hydrateChildTokensFromLogs(nextState);
           const pruned = pruneTerminalChildren(nextState);
+          if (disposed || sessionToken !== activeSessionToken) return;
           if (!changed && !tuiStatusHydrated && !clientStatusHydrated && !hydrated && !pruned) return;
 
-          await syncState(nextState);
-        } finally {
-          refreshInFlight = false;
+          await syncState(nextState, { source: 'refresh', lastEventType, bufferedEventCount: bufferedEvents.size() });
+        } catch {
+          // Refresh is best-effort.
         }
-      };
+      });
+
+      const refresh = (sid = sessionId()): Promise<void> => refreshRunner({ sessionID: sid, sessionToken: activeSessionToken });
 
       installEventBridge(api, refresh, (event) => {
-        void mergeEventState(event);
+        lastEventType = isRecord(event) && typeof event.type === 'string' ? event.type : undefined;
+        bufferedEvents.push(event);
       });
 
       tickTimer = setInterval(() => {
@@ -456,15 +676,27 @@ const plugin: TuiPluginModule & { id: string } = {
       });
 
       const refreshFromSlot = (slotInput: unknown): void => {
-        const sid = slotSessionId(slotInput);
-        if (sid && sid !== sessionId()) {
-          setSessionId(sid);
-          void refresh(sid);
+        const transition = resolveSessionSlotTransition(
+          sessionId(),
+          slotInput,
+          Object.keys(state().children).length > 0,
+        );
+
+        if (!transition.nextSessionID) {
+          if (transition.resetState) {
+            resetSessionScope();
+          }
           return;
         }
 
-        if (sid && Object.keys(state().children).length === 0) {
-          void refresh(sid);
+        if (transition.resetState) {
+          beginSessionScope(transition.nextSessionID);
+          void refresh(transition.nextSessionID);
+          return;
+        }
+
+        if (transition.shouldRefresh) {
+          void refresh(transition.nextSessionID);
         }
       };
 
@@ -580,13 +812,20 @@ const plugin: TuiPluginModule & { id: string } = {
       });
 
       void (async () => {
-        if (!shouldPreserveStateOnStartup()) {
-          await syncState(createEmptyState());
-        } else {
-          await syncState(await loadState(statePath));
-        }
+        try {
+          if (!shouldPreserveStateOnStartup()) {
+            await syncState(createEmptyState(), { source: 'startup', bufferedEventCount: bufferedEvents.size() });
+          } else {
+            await syncState(await loadState(statePath), { source: 'load', bufferedEventCount: bufferedEvents.size() });
+          }
 
-        void refresh(sessionId());
+          await refresh(sessionId());
+        } finally {
+          await bufferedEvents.markReady();
+          if (bufferedEvents.wasTruncated()) {
+            void refresh();
+          }
+        }
       })();
     });
   },
