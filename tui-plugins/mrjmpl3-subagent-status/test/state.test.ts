@@ -11,8 +11,8 @@ import {
   pruneTerminalChildren,
   replaceChildren,
   upsertRunningChild,
-} from '../state/state.ts';
-import { loadState, resolveStatePath, saveState } from '../storage/persistence.ts';
+} from '../src/domain/state.ts';
+import { loadState, resolveStatePath, saveState } from '../src/infrastructure/persistence.ts';
 
 describe('state', () => {
   const tempDirs: string[] = [];

@@ -2,25 +2,26 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { createMemo, createRoot, createSignal } from 'solid-js';
 
-import { applySubagentEvent, extractSessionID, installEventBridge } from '../sources/events.ts';
-import { hydrateDoneChildTokens } from '../sources/logs.ts';
-import { reconcileChildrenState } from '../sources/reconcile.ts';
-import { hydrateStateFromRecoverySources } from '../sources/recovery.ts';
-import { createSQLiteRecoverySource } from '../sources/recovery/sqlite.ts';
-import { createBufferedTaskQueue, createCoalescedTaskRunner } from '../shared/queue.ts';
-import { createEmptyState, mergeChildDetails, pruneTerminalChildren } from '../state/state.ts';
-import type { SubagentChild, SubagentState } from '../state/types.ts';
+import { applySubagentEvent, extractSessionID, installEventBridge } from './events.ts';
+import { registerSubagentCommands } from './commands.ts';
+import { hydrateDoneChildTokens } from '../infrastructure/logs.ts';
+import { reconcileChildrenState } from '../domain/reconcile.ts';
+import { hydrateStateFromRecoverySources } from '../infrastructure/recovery.ts';
+import { createSQLiteRecoverySource } from '../infrastructure/recovery/sqlite.ts';
+import { createBufferedTaskQueue, createCoalescedTaskRunner } from './queue.ts';
+import { createEmptyState, mergeChildDetails, pruneTerminalChildren } from '../domain/state.ts';
+import type { SubagentChild, SubagentState } from '../domain/types.ts';
 import {
   createPersistQueue,
   loadState,
   resolveStatePath,
   resolveTextPath,
   shouldPreserveStateOnStartup,
-} from '../storage/persistence.ts';
-import type { PersistSnapshotMeta } from '../storage/persistence.ts';
+} from '../infrastructure/persistence.ts';
+import type { PersistSnapshotMeta } from '../infrastructure/persistence.ts';
 import { resolveNavigationSessionID, resolveSessionSlotTransition } from './navigation.ts';
 import { buildTuiSnapshot } from './snapshot.ts';
-import { HomeBottomView, SidebarView } from './view.tsx';
+import { HomeBottomView, SidebarView } from '../ui/view.tsx';
 
 type SessionClient = {
   status?: (input: { directory: string }) => Promise<{ data?: Record<string, unknown> } | undefined>;
@@ -101,14 +102,26 @@ function deriveClientSessionStatus(value: unknown): SubagentChild['status'] | un
   if (typeof source !== 'string') return undefined;
 
   const status = source.trim().toLowerCase();
-  if (status === 'busy' || status === 'retry' || status === 'running' || status === 'pending') return 'running';
-  if (status === 'done' || status === 'completed' || status === 'complete' || status === 'success') return 'done';
+  if (
+    status === 'busy' ||
+    status === 'retry' ||
+    status === 'running' ||
+    status === 'pending' ||
+    status === 'queued' ||
+    status === 'in_progress' ||
+    status === 'working' ||
+    status === 'compacting'
+  )
+    return 'running';
+  if (status === 'done' || status === 'completed' || status === 'complete' || status === 'success' || status === 'succeeded')
+    return 'done';
   if (
     status === 'error' ||
     status === 'failed' ||
     status === 'failure' ||
     status === 'cancelled' ||
-    status === 'canceled'
+    status === 'canceled' ||
+    status === 'aborted'
   )
     return 'error';
 
@@ -215,7 +228,16 @@ function hydrateChildStatusesFromTuiState(api: TuiPluginApi, state: SubagentStat
     const rawStatus = api.state.session.status(sessionID)?.type;
     const status = typeof rawStatus === 'string' ? rawStatus.trim().toLowerCase() : undefined;
 
-    if (status === 'busy' || status === 'retry') {
+    if (
+      status === 'busy' ||
+      status === 'retry' ||
+      status === 'running' ||
+      status === 'pending' ||
+      status === 'queued' ||
+      status === 'in_progress' ||
+      status === 'working' ||
+      status === 'compacting'
+    ) {
       if (isTerminalStatus(child.status)) {
         continue;
       }
@@ -229,7 +251,14 @@ function hydrateChildStatusesFromTuiState(api: TuiPluginApi, state: SubagentStat
       continue;
     }
 
-    if (status === 'done' || status === 'completed' || status === 'complete' || status === 'success' || completedAt) {
+    if (
+      status === 'done' ||
+      status === 'completed' ||
+      status === 'complete' ||
+      status === 'success' ||
+      status === 'succeeded' ||
+      completedAt
+    ) {
       const endedAt = completedAt ?? latestActivityAt ?? child.endedAt ?? child.updatedAt;
       if (child.status !== 'done' || child.endedAt !== endedAt) {
         child.status = 'done';
@@ -501,6 +530,16 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi): Promise<void
     api.lifecycle.onDispose(() => {
       runtime.dispose();
       disposeRoot();
+    });
+
+    const disposeCommands = registerSubagentCommands({
+      api: api as typeof api & Parameters<typeof registerSubagentCommands>[0]['api'],
+      sectionEnabled: expanded,
+      setSectionEnabled: (enabled) => setExpanded(enabled),
+    });
+
+    api.lifecycle.onDispose(() => {
+      disposeCommands();
     });
 
     slots.register({

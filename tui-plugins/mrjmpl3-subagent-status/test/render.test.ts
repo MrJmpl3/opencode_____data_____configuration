@@ -5,9 +5,9 @@ import {
   collapseSubagentWorkItems,
   renderStatusLine,
   visibleSubagentWorkItems,
-} from '../runtime/view-model.ts';
-import { formatContextCompact, statusColor } from '../runtime/format.ts';
-import type { SubagentChild, SubagentState } from '../state/types.ts';
+} from '../src/ui/view-model.ts';
+import { formatContextCompact, statusColor } from '../src/ui/format.ts';
+import type { SubagentChild, SubagentState } from '../src/domain/types.ts';
 
 function child(overrides: Partial<SubagentChild> = {}): SubagentChild {
   return {
@@ -53,6 +53,36 @@ describe('render', () => {
         targetSessionID: 'ses_child',
         elapsedMs: 240_000,
       }),
+    ]);
+  });
+
+  it('does not hide a real running session when a stale synthetic wrapper fails to match it', () => {
+    const staleSynthetic = child({
+      id: 'tool:stale_delegate',
+      title: 'delegate',
+      parentID: 'ses_other_parent',
+      messageID: 'msg_stale',
+      source: 'tool',
+      targetSessionID: 'ses_child',
+      status: 'done',
+      color: 'green',
+      endedAt: '2026-06-04T10:00:30.000Z',
+      updatedAt: '2026-06-04T10:00:30.000Z',
+    });
+    const runningSession = child({
+      id: 'ses_child',
+      title: 'Investigate flaky tests',
+      parentID: 'ses_parent',
+      messageID: 'msg_1',
+      source: 'session',
+      status: 'running',
+      color: 'yellow',
+      targetSessionID: 'ses_child',
+    });
+
+    expect(collapseSubagentWorkItems([staleSynthetic, runningSession]).map((item) => item.id)).toEqual([
+      'tool:stale_delegate',
+      'ses_child',
     ]);
   });
 

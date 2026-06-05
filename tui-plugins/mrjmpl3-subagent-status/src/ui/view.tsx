@@ -2,10 +2,11 @@
 import type { TuiPluginApi, TuiThemeCurrent } from '@opencode-ai/plugin/tui';
 import { For, Show, createMemo } from 'solid-js';
 
-import type { SubagentChild } from '../state/types.ts';
-import type { TuiSnapshot } from './snapshot.ts';
+import type { SubagentChild } from '../domain/types.ts';
+import type { TuiSnapshot } from '../runtime/snapshot.ts';
+import { t } from '../runtime/i18n.ts';
 import { formatContextCompact, formatDuration, statusColor as resolveRenderStatusColor } from './format.ts';
-import { navigateToChildSession, resolveNavigationSessionID } from './navigation.ts';
+import { navigateToChildSession, resolveNavigationSessionID } from '../runtime/navigation.ts';
 
 const CLOCK_ICON = '';
 const TOKEN_ICON = '';
@@ -28,7 +29,7 @@ function themeStatusColor(
 }
 
 function formatChildTitle(child: SubagentChild): string {
-  const base = child.summary?.trim() || child.title?.trim() || child.id || 'Subagent';
+  const base = child.summary?.trim() || child.title?.trim() || child.id || t('subagents');
   return child.agentName ? `${base} (${child.agentName})` : base;
 }
 
@@ -92,15 +93,15 @@ export const SidebarView = (props: {
     <box flexDirection="column">
       <box flexDirection="row">
         <text fg={props.api.theme.current.text} selectable={false} onMouseDown={props.onToggle}>
-          {`${props.expanded ? SIDEBAR_ARROW_EXPANDED : SIDEBAR_ARROW_COLLAPSED} Subagents`}
+          {`${props.expanded ? SIDEBAR_ARROW_EXPANDED : SIDEBAR_ARROW_COLLAPSED} ${t('subagents')}`}
         </text>
       </box>
       <box flexDirection="row" paddingRight={1}>
-        <text fg={props.api.theme.current.warning}>{`● ${counts().running} run`}</text>
+        <text fg={props.api.theme.current.warning}>{`● ${counts().running} ${t('run')}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.success}>{`✓ ${counts().done} done`}</text>
+        <text fg={props.api.theme.current.success}>{`✓ ${counts().done} ${t('done')}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.error}>{`✕ ${counts().error} err`}</text>
+        <text fg={props.api.theme.current.error}>{`✕ ${counts().error} ${t('err')}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
         <text fg={props.api.theme.current.text}>{`Σ ${props.totalExecuted()}`}</text>
       </box>
@@ -109,7 +110,7 @@ export const SidebarView = (props: {
         <box flexDirection="column">
           <Show
             when={currentSnapshot().visibleChildren.length > 0}
-            fallback={<text fg={props.api.theme.current.textMuted}>No subagents yet</text>}
+            fallback={<text fg={props.api.theme.current.textMuted}>{t('noSubagentsYet')}</text>}
           >
             <For each={currentSnapshot().visibleChildren}>{(child) => <ChildRow api={props.api} child={child} />}</For>
           </Show>

@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createSQLiteRecoverySource } from '../sources/recovery/sqlite.ts';
-import { createEmptyState } from '../state/state.ts';
+import { createSQLiteRecoverySource } from '../src/infrastructure/recovery/sqlite.ts';
+import { createEmptyState } from '../src/domain/state.ts';
 
 async function createSQLiteRecoveryDatabase(path: string, script: string): Promise<void> {
   execFileSync('python3', ['-c', script, path], { encoding: 'utf8' });

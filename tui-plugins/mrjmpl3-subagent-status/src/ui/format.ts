@@ -1,4 +1,4 @@
-import type { SubagentChild } from '../state/types.ts';
+import type { SubagentChild } from '../domain/types.ts';
 
 export function formatDuration(elapsedMs: number | undefined): string {
   const totalSeconds = Math.max(0, Math.floor((elapsedMs ?? 0) / 1000));

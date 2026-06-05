@@ -1,4 +1,4 @@
-import type { SubagentChild, SubagentCounts, SubagentState } from '../state/types.ts';
+import type { SubagentChild, SubagentCounts, SubagentState } from '../domain/types.ts';
 
 import { formatContextCompact, formatDuration, statusColor } from './format.ts';
 
@@ -85,8 +85,6 @@ export function collapseSubagentWorkItems(children: SubagentChild[]): SubagentCh
   const syntheticChildren: SubagentChild[] = [];
   const syntheticByParentID = new Map<string, SubagentChild[]>();
   const sessionCandidatesByParentID = new Map<string, SubagentChild[]>();
-  const hiddenTargetSessionIDs = new Set<string>();
-  const hiddenMessageKeys = new Set<string>();
 
   for (const child of children) {
     const isSynthetic = child.source === 'tool' || child.source === 'subtask';
@@ -98,9 +96,6 @@ export function collapseSubagentWorkItems(children: SubagentChild[]): SubagentCh
       } else {
         syntheticByParentID.set(child.parentID, [child]);
       }
-
-      if (child.targetSessionID) hiddenTargetSessionIDs.add(child.targetSessionID);
-      if (child.messageID) hiddenMessageKeys.add(messageKey(child.parentID, child.messageID));
     }
 
     if (child.source === 'session' || child.id.startsWith('ses_')) {
@@ -129,6 +124,7 @@ export function collapseSubagentWorkItems(children: SubagentChild[]): SubagentCh
 
     if (bestSession) {
       sessionBySyntheticID.set(synthetic.id, bestSession);
+      if (bestSession.source === 'session') hiddenMatchedSessionIDs.add(bestSession.id);
     }
   }
 
@@ -154,11 +150,7 @@ export function collapseSubagentWorkItems(children: SubagentChild[]): SubagentCh
   return children
     .filter((child) => {
       if (child.source === 'session') {
-        return !(
-          hiddenTargetSessionIDs.has(child.id) ||
-          (child.messageID && hiddenMessageKeys.has(messageKey(child.parentID, child.messageID))) ||
-          hiddenMatchedSessionIDs.has(child.id)
-        );
+        return !hiddenMatchedSessionIDs.has(child.id);
       }
 
       if (child.source !== 'tool') return true;

@@ -17,7 +17,7 @@ vi.mock('node:fs', async () => {
 
 import { readdirSync } from 'node:fs';
 
-import { hydrateDoneChildTokens, readOpenCodeLogFileIfSmall } from '../sources/logs.ts';
+import { hydrateDoneChildTokens, readOpenCodeLogFileIfSmall } from '../src/infrastructure/logs.ts';
 
 describe('logs', () => {
   const tempDirs: string[] = [];

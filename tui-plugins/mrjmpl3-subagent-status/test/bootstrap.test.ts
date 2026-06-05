@@ -24,8 +24,8 @@ describe('tui bootstrap buffering', () => {
     let bridgeDisposeCount = 0;
     const lifecycleDisposers: Array<() => void> = [];
 
-    vi.doMock('../sources/events.ts', async () => {
-      const actual = await vi.importActual<typeof import('../sources/events.ts')>('../sources/events.ts');
+    vi.doMock('../src/runtime/events.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/runtime/events.ts')>('../src/runtime/events.ts');
 
       return {
         ...actual,
@@ -41,8 +41,8 @@ describe('tui bootstrap buffering', () => {
       };
     });
 
-    vi.doMock('../storage/persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>('../src/infrastructure/persistence.ts');
       const saveState = vi.fn(async (_path: string, state: { children: Record<string, unknown> }) => {
         saveStateCount += 1;
         saveStateCalls.push({ children: Object.keys(state.children) });

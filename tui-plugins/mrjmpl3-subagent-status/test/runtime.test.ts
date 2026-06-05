@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createEmptyState } from '../state/state.ts';
-import type { SubagentState } from '../state/types.ts';
+import { createEmptyState } from '../src/domain/state.ts';
+import type { SubagentState } from '../src/domain/types.ts';
 
 async function waitForCondition(predicate: () => boolean, attempts = 20): Promise<void> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -32,8 +32,8 @@ describe('refresh runtime', () => {
 
     let capturedOnEvent: ((event: unknown) => void) | undefined;
 
-    vi.doMock('../sources/events.ts', async () => {
-      const actual = await vi.importActual<typeof import('../sources/events.ts')>('../sources/events.ts');
+    vi.doMock('../src/runtime/events.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/runtime/events.ts')>('../src/runtime/events.ts');
 
       return {
         ...actual,
@@ -46,8 +46,8 @@ describe('refresh runtime', () => {
       };
     });
 
-    vi.doMock('../storage/persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>('../src/infrastructure/persistence.ts');
 
       return {
         ...actual,
@@ -59,7 +59,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
+    const { createTuiRuntime } = await import('../src/runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -161,8 +161,8 @@ describe('refresh runtime', () => {
       { encoding: 'utf8' },
     );
 
-    vi.doMock('../storage/persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>('../src/infrastructure/persistence.ts');
 
       return {
         ...actual,
@@ -189,7 +189,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
+    const { createTuiRuntime } = await import('../src/runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -255,8 +255,8 @@ describe('refresh runtime', () => {
   it('keeps children running when idle is the only evidence during refresh', async () => {
     vi.resetModules();
 
-    vi.doMock('../storage/persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>('../src/infrastructure/persistence.ts');
 
       return {
         ...actual,
@@ -268,7 +268,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
+    const { createTuiRuntime } = await import('../src/runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -334,8 +334,8 @@ describe('refresh runtime', () => {
   it('marks children done once explicit completion evidence arrives during refresh', async () => {
     vi.resetModules();
 
-    vi.doMock('../storage/persistence.ts', async () => {
-      const actual = await vi.importActual<typeof import('../storage/persistence.ts')>('../storage/persistence.ts');
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>('../src/infrastructure/persistence.ts');
 
       return {
         ...actual,
@@ -347,7 +347,7 @@ describe('refresh runtime', () => {
       };
     });
 
-    const { createTuiRuntime } = await import('../runtime/runtime.tsx');
+    const { createTuiRuntime } = await import('../src/runtime/runtime.tsx');
 
     let state: SubagentState = createEmptyState();
     let sessionID = '';
@@ -423,6 +423,85 @@ describe('refresh runtime', () => {
     expect(state.children.ses_child).toMatchObject({
       status: 'done',
       endedAt: '2026-06-04T12:00:00.000Z',
+    });
+
+    runtime.dispose();
+  });
+
+  it('treats queued client status as running during refresh hydration', async () => {
+    vi.resetModules();
+
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>('../src/infrastructure/persistence.ts');
+
+      return {
+        ...actual,
+        resolveStatePath: vi.fn(() => '/tmp/mrjmpl3-subagent-status-state.json'),
+        resolveTextPath: vi.fn(() => '/tmp/mrjmpl3-subagent-status-status.txt'),
+        loadState: vi.fn(async () => createEmptyState()),
+        shouldPreserveStateOnStartup: vi.fn(() => false),
+        createPersistQueue: vi.fn(() => async () => undefined),
+      };
+    });
+
+    const { createTuiRuntime } = await import('../src/runtime/runtime.tsx');
+
+    let state: SubagentState = createEmptyState();
+    let sessionID = '';
+    const api = {
+      client: {
+        session: {
+          children: vi.fn(async () => ({
+            data: [
+              {
+                id: 'ses_child',
+                parentID: 'ses_parent',
+                title: 'Queued child',
+                source: 'session',
+                status: 'running',
+                startedAt: '2026-06-04T11:55:00.000Z',
+                updatedAt: '2026-06-04T11:59:00.000Z',
+              },
+            ],
+          })),
+          status: vi.fn(async () => ({ data: { ses_child: { type: 'queued' } } })),
+          messages: vi.fn(async () => ({ data: [] })),
+        },
+      },
+      event: {},
+      lifecycle: {
+        onDispose: vi.fn(),
+      },
+      state: {
+        path: {
+          directory: '/tmp/workspace',
+        },
+        session: {
+          messages: vi.fn(() => []),
+          status: vi.fn(() => ({ type: 'queued' })),
+        },
+      },
+    } as unknown as TuiPluginApi;
+
+    const runtime = createTuiRuntime(api, {
+      getState: () => state,
+      setState: (nextState) => {
+        state = nextState;
+      },
+      getSessionId: () => sessionID,
+      setSessionId: (nextSessionID) => {
+        sessionID = nextSessionID;
+      },
+      setNowMs: vi.fn(),
+    });
+
+    await runtime.bootstrap();
+    runtime.refreshFromSlot({ session_id: 'ses_parent' });
+    await waitForCondition(() => state.children.ses_child !== undefined);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      endedAt: undefined,
     });
 
     runtime.dispose();

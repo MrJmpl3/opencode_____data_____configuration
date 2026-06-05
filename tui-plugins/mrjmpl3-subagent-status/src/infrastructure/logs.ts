@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'node:os';
 
-import type { SubagentTokens } from '../state/types.ts';
+import type { SubagentTokens } from '../domain/types.ts';
 
 const MAX_SYNC_LOG_READ_BYTES = 1024 * 1024;
 const DONE_TOKEN_REHYDRATE_THROTTLE_MS = 2000;

@@ -7,11 +7,11 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import plugin from '../index.tsx';
-import { buildTuiSnapshot, elapsedMs } from '../runtime/snapshot.ts';
-import { navigateToChildSession, resolveNavigationSessionID } from '../runtime/navigation.ts';
-import { hydrateChildTokensFromLogs } from '../runtime/runtime.tsx';
-import type { SubagentChild, SubagentState } from '../state/types.ts';
-import { persistSnapshot } from '../storage/persistence.ts';
+import { buildTuiSnapshot, elapsedMs } from '../src/runtime/snapshot.ts';
+import { navigateToChildSession, resolveNavigationSessionID } from '../src/runtime/navigation.ts';
+import { hydrateChildTokensFromLogs } from '../src/runtime/runtime.tsx';
+import type { SubagentChild, SubagentState } from '../src/domain/types.ts';
+import { persistSnapshot } from '../src/infrastructure/persistence.ts';
 
 function createChild(
   overrides: Partial<SubagentChild> & Pick<SubagentChild, 'id' | 'title' | 'parentID'>,
@@ -358,7 +358,7 @@ describe('tui elapsed time', () => {
   });
 
   it('binds row navigation to mouse release instead of mouse press', () => {
-    const source = readFileSync(new URL('../runtime/view.tsx', import.meta.url), 'utf8');
+    const source = readFileSync(new URL('../src/ui/view.tsx', import.meta.url), 'utf8');
 
     expect(source).toMatch(/onMouseUp=\{[\s\S]*navigateToChildSession\(props\.api, props\.child\)/);
     expect(source).not.toMatch(/onMouseDown=\{[\s\S]*navigateToChildSession\(props\.api, props\.child\)/);
