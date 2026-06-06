@@ -1,4 +1,4 @@
-export const createSerializedTaskQueue = <T>(task: (value: T) => Promise<void>): (value: T) => Promise<void> => {
+export const createSerializedTaskQueue = <T>(task: (value: T) => Promise<void>): ((value: T) => Promise<void>) => {
   const queue: T[] = [];
   let active = false;
 
@@ -23,7 +23,7 @@ export const createSerializedTaskQueue = <T>(task: (value: T) => Promise<void>):
   };
 };
 
-export const createCoalescedTaskRunner = <T>(task: (value: T) => Promise<void>): (value: T) => Promise<void> => {
+export const createCoalescedTaskRunner = <T>(task: (value: T) => Promise<void>): ((value: T) => Promise<void>) => {
   let inFlight = false;
   let hasPending = false;
   let pendingValue: T;
@@ -64,7 +64,10 @@ type BufferedTaskQueueOptions = {
   maxAgeMs?: number;
 };
 
-export const createBufferedTaskQueue = <T>(task: (value: T) => Promise<void>, options: BufferedTaskQueueOptions = {}) => {
+export const createBufferedTaskQueue = <T>(
+  task: (value: T) => Promise<void>,
+  options: BufferedTaskQueueOptions = {},
+) => {
   const maxSize = options.maxSize ?? 512;
   const maxAgeMs = options.maxAgeMs ?? 15_000;
   const queue: Array<{ value: T; enqueuedAt: number }> = [];

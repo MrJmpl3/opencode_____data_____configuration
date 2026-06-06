@@ -1,7 +1,4 @@
-import type {
-  OpenAIAdditionalRateLimit,
-  QuotaDisplayMode,
-} from './types.ts';
+import type { OpenAIAdditionalRateLimit, QuotaDisplayMode } from './types.ts';
 
 export const WEEK_SECONDS = 7 * 24 * 60 * 60;
 
@@ -83,7 +80,9 @@ export const formatOpenAIRateLimitStatus = (limit: {
   return undefined;
 };
 
-export const isOpenAISparkRateLimit = (limit: Pick<OpenAIAdditionalRateLimit, 'label' | 'limitName' | 'meteredFeature'>): boolean => {
+export const isOpenAISparkRateLimit = (
+  limit: Pick<OpenAIAdditionalRateLimit, 'label' | 'limitName' | 'meteredFeature'>,
+): boolean => {
   const haystack = [limit.label, limit.limitName, limit.meteredFeature]
     .filter((value): value is string => Boolean(value))
     .join(' ')

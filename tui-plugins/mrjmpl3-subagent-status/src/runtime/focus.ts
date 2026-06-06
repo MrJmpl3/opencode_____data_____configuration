@@ -49,7 +49,10 @@ export const resolveSidebarReturnFocusAction = (input: {
   return 'none';
 };
 
-export const focusPromptWithDeferredRetry = (tryFocusPrompt: () => boolean, schedule: (callback: () => void) => void = scheduleDeferred): void => {
+export const focusPromptWithDeferredRetry = (
+  tryFocusPrompt: () => boolean,
+  schedule: (callback: () => void) => void = scheduleDeferred,
+): void => {
   schedule(() => {
     if (tryFocusPrompt()) return;
     schedule(() => {
@@ -75,14 +78,11 @@ export const createPromptFocusController = (schedule: (callback: () => void) => 
   };
 
   const focusActivePrompt = (): void => {
-    focusPromptWithDeferredRetry(
-      () => {
-        if (!activePromptRef) return false;
-        activePromptRef.focus();
-        return true;
-      },
-      schedule,
-    );
+    focusPromptWithDeferredRetry(() => {
+      if (!activePromptRef) return false;
+      activePromptRef.focus();
+      return true;
+    }, schedule);
   };
 
   const handleRouteChange = (routeSessionID: string | undefined): void => {

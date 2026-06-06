@@ -1,12 +1,7 @@
 import type { SubagentChild, SubagentState } from '../types.ts';
 
 import { toNonNegativeInteger } from './helpers.ts';
-import {
-  isDelegationLikeChild,
-  isRealSessionChild,
-  isSubtaskFallback,
-  isSyntheticToolWrapper,
-} from './child-kind.ts';
+import { isDelegationLikeChild, isRealSessionChild, isSubtaskFallback, isSyntheticToolWrapper } from './child-kind.ts';
 
 const normalizeExecutionCounters = (state: SubagentState): void => {
   state.totalExecuted = Math.max(
@@ -19,9 +14,7 @@ const matchingCorrelation = (
   left: Pick<SubagentChild, 'parentID'> & Partial<Pick<SubagentChild, 'messageID'>>,
   right: Pick<SubagentChild, 'parentID'> & Partial<Pick<SubagentChild, 'messageID'>>,
 ): boolean =>
-  Boolean(
-    left.messageID && right.messageID && left.parentID === right.parentID && left.messageID === right.messageID,
-  );
+  Boolean(left.messageID && right.messageID && left.parentID === right.parentID && left.messageID === right.messageID);
 
 const findMatchingCountedSessionID = (
   state: SubagentState,

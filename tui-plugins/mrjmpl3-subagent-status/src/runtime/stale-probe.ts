@@ -13,7 +13,12 @@ export const nextStaleRunningBackoffMs = (attempts: number, policy: StaleRunning
   return Math.min(policy.baseBackoffMs * 2 ** Math.max(0, attempts - 1), policy.maxBackoffMs);
 };
 
-export const resolveStaleRunningProbeTargets = (state: SubagentState, probeStateBySessionId: Map<string, StaleRunningProbeState>, policy: StaleRunningProbePolicy, nowMs: number): string[] => {
+export const resolveStaleRunningProbeTargets = (
+  state: SubagentState,
+  probeStateBySessionId: Map<string, StaleRunningProbeState>,
+  policy: StaleRunningProbePolicy,
+  nowMs: number,
+): string[] => {
   const activeRunningSessionIds = new Set<string>();
   const targetSessionIds: string[] = [];
 
@@ -54,7 +59,13 @@ export const resolveStaleRunningProbeTargets = (state: SubagentState, probeState
   return targetSessionIds;
 };
 
-export const settleStaleRunningProbeTargets = (state: SubagentState, probeStateBySessionId: Map<string, StaleRunningProbeState>, sessionIds: string[], policy: StaleRunningProbePolicy, nowMs: number): void => {
+export const settleStaleRunningProbeTargets = (
+  state: SubagentState,
+  probeStateBySessionId: Map<string, StaleRunningProbeState>,
+  sessionIds: string[],
+  policy: StaleRunningProbePolicy,
+  nowMs: number,
+): void => {
   for (const sessionId of sessionIds) {
     const child = Object.values(state.children).find(
       (candidate) => isRealSessionRow(candidate) && resolveSessionRowSessionId(candidate) === sessionId,

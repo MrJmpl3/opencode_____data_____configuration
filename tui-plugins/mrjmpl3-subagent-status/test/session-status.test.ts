@@ -29,7 +29,9 @@ describe('session status classification', () => {
 
   it('keeps error precedence when payloads contain contradictory signals', () => {
     expect(deriveSessionStatus({ status: 'completed', error: { message: 'boom' }, busy: true })).toBe('error');
-    expect(deriveTerminalSessionStatus({ phase: 'queued', result: 'complete', error: { message: 'boom' } })).toBe('error');
+    expect(deriveTerminalSessionStatus({ phase: 'queued', result: 'complete', error: { message: 'boom' } })).toBe(
+      'error',
+    );
   });
 
   it('ignores running-only hints when deriving terminal-only status', () => {

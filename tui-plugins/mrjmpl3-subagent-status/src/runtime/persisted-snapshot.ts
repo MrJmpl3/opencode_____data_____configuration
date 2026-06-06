@@ -27,7 +27,10 @@ const serializeDebugSnapshot = (state: SubagentState, snapshot: TuiSnapshot, met
   );
 };
 
-export const formatPersistedSnapshot = (state: SubagentState, meta: PersistSnapshotMeta): PersistedSnapshotArtifacts => {
+export const formatPersistedSnapshot = (
+  state: SubagentState,
+  meta: PersistSnapshotMeta,
+): PersistedSnapshotArtifacts => {
   const snapshot = buildTuiSnapshot(state);
 
   return {

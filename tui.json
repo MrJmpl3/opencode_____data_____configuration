@@ -7,7 +7,7 @@
       {
         "visibleProviders": ["opencode-go", "openai", "ollama-cloud", "github-copilot", "openrouter"]
       }
-    ],
+    ]
   ],
   "theme": "opencode"
 }

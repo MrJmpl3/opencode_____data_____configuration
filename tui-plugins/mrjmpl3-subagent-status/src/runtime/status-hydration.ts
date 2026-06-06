@@ -108,7 +108,11 @@ export const summarizeMessages = (messages: readonly unknown[]): { status?: 'don
   return {};
 };
 
-export const hydrateChildStatusesFromClient = async (api: TuiPluginApi, state: SubagentState, targetSessionIDs: readonly string[]): Promise<boolean> => {
+export const hydrateChildStatusesFromClient = async (
+  api: TuiPluginApi,
+  state: SubagentState,
+  targetSessionIDs: readonly string[],
+): Promise<boolean> => {
   const sessionClient = api.client.session as unknown as SessionClient | undefined;
   if (!sessionClient) return false;
 
@@ -147,11 +151,12 @@ export const hydrateChildStatusesFromClient = async (api: TuiPluginApi, state: S
         messageSummary = {};
       }
 
-      const nextStatus = clientStatus === 'running' ? 'running' : clientTerminalStatus ?? messageSummary.status;
+      const nextStatus = clientStatus === 'running' ? 'running' : (clientTerminalStatus ?? messageSummary.status);
       if (!nextStatus) return;
 
       if (nextStatus === 'running') {
-        changed = markChildRunning(state, child.id, latestSessionActivityAt(api, sessionId) ?? child.updatedAt) || changed;
+        changed =
+          markChildRunning(state, child.id, latestSessionActivityAt(api, sessionId) ?? child.updatedAt) || changed;
         return;
       }
 
@@ -170,7 +175,11 @@ export const hydrateChildStatusesFromClient = async (api: TuiPluginApi, state: S
   return changed;
 };
 
-export const hydrateChildStatusesFromTuiState = (api: TuiPluginApi, state: SubagentState, targetSessionIDs: readonly string[]): boolean => {
+export const hydrateChildStatusesFromTuiState = (
+  api: TuiPluginApi,
+  state: SubagentState,
+  targetSessionIDs: readonly string[],
+): boolean => {
   if (targetSessionIDs.length === 0) return false;
 
   let changed = false;
@@ -202,7 +211,11 @@ export const hydrateChildStatusesFromTuiState = (api: TuiPluginApi, state: Subag
     const nextStatus = terminalStatus ?? messageSummary.status;
     if (nextStatus) {
       const endedAt =
-        sessionStatusEndedAt(sessionStatus) ?? messageSummary.endedAt ?? latestActivityAt ?? child.endedAt ?? child.updatedAt;
+        sessionStatusEndedAt(sessionStatus) ??
+        messageSummary.endedAt ??
+        latestActivityAt ??
+        child.endedAt ??
+        child.updatedAt;
       changed = markChildStatus(state, child.id, nextStatus, endedAt) || changed;
     }
   }

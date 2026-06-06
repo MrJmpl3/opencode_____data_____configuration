@@ -40,7 +40,8 @@ export const pruneOrphanedSyntheticRunningChildren = (
   options: { pruneWhenNoRealSessionChildren?: boolean } = {},
 ): boolean => {
   const realSessionChildren = Object.values(state.children).filter((child) => isRealSessionChild(child));
-  const pruneToolWrappersWithoutRealSessions = realSessionChildren.length === 0 && !options.pruneWhenNoRealSessionChildren;
+  const pruneToolWrappersWithoutRealSessions =
+    realSessionChildren.length === 0 && !options.pruneWhenNoRealSessionChildren;
 
   const activeSessionIDs = new Set(
     realSessionChildren.filter((child) => child.status === 'running').map((child) => child.id),

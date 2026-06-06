@@ -21,7 +21,10 @@ type SQLiteRecoveryRow = {
   tokens?: SubagentTokens;
 };
 
-const mergeTokens = (existing: SubagentTokens | undefined, incoming: SubagentTokens | undefined): SubagentTokens | undefined => {
+const mergeTokens = (
+  existing: SubagentTokens | undefined,
+  incoming: SubagentTokens | undefined,
+): SubagentTokens | undefined => {
   if (!existing && !incoming) return undefined;
 
   return {
@@ -109,7 +112,9 @@ const resolveOpenCodeDatabasePath = (): string => {
   return join(baseDir, 'opencode', 'opencode.db');
 };
 
-const resolveRecoveredStatus = (latestPart: unknown): {
+const resolveRecoveredStatus = (
+  latestPart: unknown,
+): {
   status: SubagentChild['status'];
   endedAt?: string;
   updatedAt?: string;

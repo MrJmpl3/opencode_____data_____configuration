@@ -1,4 +1,12 @@
-import { formatCountQuota, formatCreditQuota, formatOpenAIRateLimitStatus, formatPercentQuota, formatUsedPercentQuota, isOpenAISparkRateLimit, WEEK_SECONDS } from './format.ts';
+import {
+  formatCountQuota,
+  formatCreditQuota,
+  formatOpenAIRateLimitStatus,
+  formatPercentQuota,
+  formatUsedPercentQuota,
+  isOpenAISparkRateLimit,
+  WEEK_SECONDS,
+} from './format.ts';
 import { detailTextLine, headingLine, paceLine, windowLine } from './lines.ts';
 import type { QuotaLine } from './lines.ts';
 import type { PercentWindow, QuotaDisplayMode, QuotaProviderId } from './types.ts';

@@ -1,4 +1,5 @@
-export const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
 
 export const asString = (value: unknown): string | undefined =>
   typeof value === 'string' && value.trim().length > 0 ? value : undefined;

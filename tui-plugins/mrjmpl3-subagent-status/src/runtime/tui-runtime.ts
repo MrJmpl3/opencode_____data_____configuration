@@ -2,15 +2,18 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 import { installEventBridge } from './events/bridge.ts';
 import { createBufferedTaskQueue } from './queue.ts';
-import {
-  normalizeSubagentStatusPluginOptions,
-  type ResolvedSubagentStatusPluginOptions,
-} from './options.ts';
+import { normalizeSubagentStatusPluginOptions, type ResolvedSubagentStatusPluginOptions } from './options.ts';
 import { resolveSessionSlotTransition } from './navigation.ts';
 import { createRuntimeSessionScopeHelpers } from './session-scope.ts';
 import { createEmptyState } from '../domain/state.ts';
 import type { SubagentState } from '../domain/types.ts';
-import { createPersistQueue, loadState, resolveStatePath, resolveTextPath, shouldPreserveStateOnStartup } from '../infrastructure/persistence.ts';
+import {
+  createPersistQueue,
+  loadState,
+  resolveStatePath,
+  resolveTextPath,
+  shouldPreserveStateOnStartup,
+} from '../infrastructure/persistence.ts';
 import { createRecoverySources } from '../infrastructure/recovery-sources.ts';
 import { formatPersistedSnapshot, type PersistSnapshotMeta } from './persisted-snapshot.ts';
 import { createTuiRuntimeRefresh } from './tui-runtime-refresh.ts';

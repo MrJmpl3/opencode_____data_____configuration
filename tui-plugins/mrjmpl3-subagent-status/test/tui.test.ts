@@ -15,7 +15,9 @@ import { hydrateChildTokensFromLogs } from '../src/runtime/status-hydration.ts';
 import type { SubagentChild, SubagentState } from '../src/domain/types.ts';
 import { persistSnapshot } from '../src/infrastructure/persistence.ts';
 
-const createChild = (overrides: Partial<SubagentChild> & Pick<SubagentChild, 'id' | 'title' | 'parentID'>): SubagentChild => {
+const createChild = (
+  overrides: Partial<SubagentChild> & Pick<SubagentChild, 'id' | 'title' | 'parentID'>,
+): SubagentChild => {
   return {
     id: overrides.id,
     title: overrides.title,

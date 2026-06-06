@@ -47,7 +47,9 @@ const writeLocalFile = async (path: string, contents: string): Promise<void> => 
   }
 };
 
-export const resolveStatePath = (input: string | { workspaceDirectory?: string; statePath?: string } = process.cwd()): string => {
+export const resolveStatePath = (
+  input: string | { workspaceDirectory?: string; statePath?: string } = process.cwd(),
+): string => {
   if (
     typeof input === 'object' &&
     input !== null &&
@@ -77,10 +79,13 @@ export const shouldPreserveStateOnStartup = (input?: { preserveStateOnStartup?: 
   return input?.preserveStateOnStartup === true;
 };
 
-export const loadState = async (statePath: string, options: {
+export const loadState = async (
+  statePath: string,
+  options: {
     recoveryContext?: RecoveryContext;
     recoverySources?: RecoverySource[];
-  } = {}): Promise<SubagentState> => {
+  } = {},
+): Promise<SubagentState> => {
   try {
     const raw = await readFile(statePath, 'utf8');
     const parsed = safeReadJSON(raw);
@@ -199,7 +204,12 @@ export const saveState = async (statePath: string, state: SubagentState): Promis
   await writeLocalFile(statePath, JSON.stringify(state, null, 2));
 };
 
-export const persistSnapshot = async (statePath: string, textPath: string, state: SubagentState, artifacts: PersistedSnapshotArtifacts): Promise<void> => {
+export const persistSnapshot = async (
+  statePath: string,
+  textPath: string,
+  state: SubagentState,
+  artifacts: PersistedSnapshotArtifacts,
+): Promise<void> => {
   try {
     await saveState(statePath, state);
     await saveStatusText(textPath, artifacts.statusText);
@@ -209,7 +219,11 @@ export const persistSnapshot = async (statePath: string, textPath: string, state
   }
 };
 
-export const createPersistQueue = <TMeta>(statePath: string, textPath: string, formatArtifacts: (state: SubagentState, meta: TMeta) => PersistedSnapshotArtifacts) => {
+export const createPersistQueue = <TMeta>(
+  statePath: string,
+  textPath: string,
+  formatArtifacts: (state: SubagentState, meta: TMeta) => PersistedSnapshotArtifacts,
+) => {
   const enqueue = createSerializedTaskQueue(async (payload: { state: SubagentState; meta: TMeta }) => {
     await persistSnapshot(statePath, textPath, payload.state, formatArtifacts(payload.state, payload.meta));
   });

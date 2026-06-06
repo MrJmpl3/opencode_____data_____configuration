@@ -42,7 +42,10 @@ const taskStatusMarker = (status: SubagentChild['status']): string => {
   return '●';
 };
 
-const themeStatusColor = (status: SubagentChild['status'], theme: Pick<TuiThemeCurrent, 'success' | 'error' | 'warning'>): TuiThemeCurrent['success'] => {
+const themeStatusColor = (
+  status: SubagentChild['status'],
+  theme: Pick<TuiThemeCurrent, 'success' | 'error' | 'warning'>,
+): TuiThemeCurrent['success'] => {
   if (resolveRenderStatusColor(status) === 'green') return theme.success;
   if (resolveRenderStatusColor(status) === 'red') return theme.error;
   return theme.warning;

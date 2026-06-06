@@ -15,7 +15,11 @@ const slotSessionId = (slotInput: unknown, fallback = ''): string => {
   return fallback;
 };
 
-export const resolveSessionSlotTransition = (currentSessionId: string, slotInput: unknown, hasTrackedChildren: boolean): { nextSessionId: string; resetState: boolean; shouldRefresh: boolean } => {
+export const resolveSessionSlotTransition = (
+  currentSessionId: string,
+  slotInput: unknown,
+  hasTrackedChildren: boolean,
+): { nextSessionId: string; resetState: boolean; shouldRefresh: boolean } => {
   const nextSessionId = slotSessionId(slotInput);
   if (!nextSessionId) {
     return {
@@ -42,11 +46,16 @@ export const resolveSessionSlotTransition = (currentSessionId: string, slotInput
 
 export { isSessionTarget } from './session-target.ts';
 
-export const resolveNavigationSessionId = (child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>): string | undefined => {
+export const resolveNavigationSessionId = (
+  child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
+): string | undefined => {
   return resolveChildSessionId(child);
 };
 
-export const navigateToChildSession = (api: Pick<TuiPluginApi, 'route'>, child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>): boolean => {
+export const navigateToChildSession = (
+  api: Pick<TuiPluginApi, 'route'>,
+  child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
+): boolean => {
   const sessionId = resolveNavigationSessionId(child);
   if (!sessionId) return false;
 

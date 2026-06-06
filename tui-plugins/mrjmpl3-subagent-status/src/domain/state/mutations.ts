@@ -93,14 +93,14 @@ export const upsertRunningChild = (
   const staleEvidence = Boolean(existing && incomingEvidenceMs < existingEvidenceMs);
   const reopenTerminal = Boolean(
     existing &&
-      isTerminalStatus(existing.status) &&
-      incomingStatus === 'running' &&
-      options.allowTerminalReopen === true &&
-      incomingEvidenceMs > existingEvidenceMs,
+    isTerminalStatus(existing.status) &&
+    incomingStatus === 'running' &&
+    options.allowTerminalReopen === true &&
+    incomingEvidenceMs > existingEvidenceMs,
   );
   const preserveExistingTiming = Boolean(
     existing &&
-      (staleEvidence || (isTerminalStatus(existing.status) && incomingStatus === 'running' && !reopenTerminal)),
+    (staleEvidence || (isTerminalStatus(existing.status) && incomingStatus === 'running' && !reopenTerminal)),
   );
   const status = preserveExistingTiming ? existing!.status : incomingStatus;
   const nextUpdatedAt = preserveExistingTiming ? existing!.updatedAt : observedUpdatedAt;
@@ -267,7 +267,10 @@ export const markChildRunning = (state: SubagentState, childID: string, updatedA
 
     const currentEvidenceMs = childEvidenceTimestampMs(child);
     const reopeningTerminal = isTerminalStatus(child.status);
-    if ((reopeningTerminal && nextEvidenceMs <= currentEvidenceMs) || (!reopeningTerminal && nextEvidenceMs < currentEvidenceMs)) {
+    if (
+      (reopeningTerminal && nextEvidenceMs <= currentEvidenceMs) ||
+      (!reopeningTerminal && nextEvidenceMs < currentEvidenceMs)
+    ) {
       continue;
     }
 

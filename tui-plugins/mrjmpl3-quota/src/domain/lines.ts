@@ -40,7 +40,9 @@ export const renderQuotaLine = (line: QuotaLine, nowMs: number): string => {
     case 'detail':
       return indentQuotaLine(line.text);
     case 'window':
-      return indentQuotaLine(`${line.label} · ${line.value} · ${fmtDuration(remainingSeconds(line.resetAtMs, nowMs))} left`);
+      return indentQuotaLine(
+        `${line.label} · ${line.value} · ${fmtDuration(remainingSeconds(line.resetAtMs, nowMs))} left`,
+      );
     case 'pace':
       return indentQuotaLine(
         `Usage pace · ${formatResponsibleUsagePace(

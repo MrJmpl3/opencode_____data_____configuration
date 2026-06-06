@@ -164,7 +164,11 @@ export const formatSidebarRunningMeta = (child: SubagentChild): { primary: strin
 
 export const formatSidebarTerminalMeta = (child: SubagentChild, nowMs = Date.now()): string => {
   return joinCompactParts(
-    [formatRelativeRecency(child.endedAt ?? child.updatedAt, nowMs), formatSidebarUsageCompact(child), formatDuration(child.elapsedMs)],
+    [
+      formatRelativeRecency(child.endedAt ?? child.updatedAt, nowMs),
+      formatSidebarUsageCompact(child),
+      formatDuration(child.elapsedMs),
+    ],
     SIDEBAR_TERMINAL_META_MAX,
   );
 };

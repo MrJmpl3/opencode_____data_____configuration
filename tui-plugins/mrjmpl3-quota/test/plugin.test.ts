@@ -12,10 +12,7 @@ import { refreshQuotaProviders } from '../src/runtime/runtime.tsx';
 import { fetchCopilotQuota, normalizeCopilotResetAtMs } from '../src/infrastructure/providers/copilot.ts';
 import { fmtDuration } from '../src/infrastructure/providers/format.ts';
 import { fetchWithTimeout } from '../src/infrastructure/providers/http.ts';
-import {
-  fetchOpenAIQuota,
-  parseAdditionalRateLimits,
-} from '../src/infrastructure/providers/openai.ts';
+import { fetchOpenAIQuota, parseAdditionalRateLimits } from '../src/infrastructure/providers/openai.ts';
 import { fetchOpenRouterQuota as fetchOpenRouterQuotaFromOpenRouter } from '../src/infrastructure/providers/openrouter.ts';
 import { fetchOpenAIQuota as fetchOpenAIQuotaFromOpenAI } from '../src/infrastructure/providers/openai.ts';
 import { fetchOpenRouterQuota } from '../src/infrastructure/providers/openrouter.ts';

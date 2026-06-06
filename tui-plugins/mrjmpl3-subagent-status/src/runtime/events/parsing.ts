@@ -294,7 +294,9 @@ export const extractToolChild = (event: EventLike): SyntheticChild | null => {
   };
 };
 
-export const extractChildDetails = (event: EventLike): {
+export const extractChildDetails = (
+  event: EventLike,
+): {
   title?: string;
   summary?: string;
   agentName?: string;
@@ -310,7 +312,10 @@ export const extractChildDetails = (event: EventLike): {
       asString(event.properties?.title) ??
       asString(event.title) ??
       asString(event.name),
-    summary: firstDistinctSummary([input?.prompt, input?.description, part?.description, state?.description], undefined),
+    summary: firstDistinctSummary(
+      [input?.prompt, input?.description, part?.description, state?.description],
+      undefined,
+    ),
     agentName:
       asString(input?.subagent_type) ??
       asString(input?.agent) ??

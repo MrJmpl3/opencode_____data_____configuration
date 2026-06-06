@@ -7,9 +7,8 @@ export const isTerminalStatus = (
   status: SubagentChild['status'],
 ): status is Exclude<SubagentChild['status'], 'running'> => status === 'done' || status === 'error';
 
-export const childEvidenceTimestampMs = (
-  child: Pick<SubagentChild, 'startedAt' | 'updatedAt' | 'endedAt'>,
-): number => timestampMs(child.endedAt ?? child.updatedAt ?? child.startedAt);
+export const childEvidenceTimestampMs = (child: Pick<SubagentChild, 'startedAt' | 'updatedAt' | 'endedAt'>): number =>
+  timestampMs(child.endedAt ?? child.updatedAt ?? child.startedAt);
 
 export const sanitizeSummary = (value: unknown, title: string): string | undefined => {
   if (typeof value !== 'string') return undefined;

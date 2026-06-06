@@ -3,7 +3,11 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { applySubagentEvent } from './events/handling.ts';
 import { extractSessionId } from './events/parsing.ts';
 import { createCoalescedTaskRunner } from './queue.ts';
-import { hydrateChildStatusesFromClient, hydrateChildStatusesFromTuiState, hydrateChildTokensFromLogs } from './status-hydration.ts';
+import {
+  hydrateChildStatusesFromClient,
+  hydrateChildStatusesFromTuiState,
+  hydrateChildTokensFromLogs,
+} from './status-hydration.ts';
 import {
   resolveStaleRunningProbeTargets,
   settleStaleRunningProbeTargets,
@@ -119,7 +123,12 @@ export const createTuiRuntimeRefresh = (
   ): Promise<void> => {
     await refreshRunner({ sessionId, sessionToken });
     if (isInactiveSessionToken(sessionToken)) return;
-    await input.sessionScope.replayDeferredStartupScopedEvents(sessionId, sessionToken, mergeEventState, input.isDisposed);
+    await input.sessionScope.replayDeferredStartupScopedEvents(
+      sessionId,
+      sessionToken,
+      mergeEventState,
+      input.isDisposed,
+    );
   };
 
   return {

@@ -98,7 +98,10 @@ const sameChild = (left: SubagentChild | undefined, right: SubagentChild | undef
   return JSON.stringify(left) === JSON.stringify(right);
 };
 
-export const reconcileChildrenState = (state: SubagentState, response: unknown): { changed: boolean; nextState: SubagentState } => {
+export const reconcileChildrenState = (
+  state: SubagentState,
+  response: unknown,
+): { changed: boolean; nextState: SubagentState } => {
   const nextState = cloneState(state);
   const incomingChildren = normalizeChildrenResponse(response);
   const incomingIDs = new Set(incomingChildren.map((child) => child.id));

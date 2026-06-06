@@ -24,7 +24,9 @@ export interface RecoverySource {
   ): Promise<RecoveryResult | undefined> | RecoveryResult | undefined;
 }
 
-const resolveSessionIdentity = (child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>): string | undefined => {
+const resolveSessionIdentity = (
+  child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
+): string | undefined => {
   if (child.id.startsWith('ses_')) return child.id;
   return child.targetSessionID;
 };
@@ -38,7 +40,12 @@ export const inferParentSessionID = (state: SubagentState): string | undefined =
   return parentIDs.size === 1 ? [...parentIDs][0] : undefined;
 };
 
-export const applyRecoveredChildren = (state: SubagentState, children: SubagentChild[], authoritativeSessionIDs: string[], parentSessionID?: string): RecoveryResult => {
+export const applyRecoveredChildren = (
+  state: SubagentState,
+  children: SubagentChild[],
+  authoritativeSessionIDs: string[],
+  parentSessionID?: string,
+): RecoveryResult => {
   let changed = false;
   const authoritativeSet = new Set(authoritativeSessionIDs);
 
@@ -79,7 +86,11 @@ export const applyRecoveredChildren = (state: SubagentState, children: SubagentC
   };
 };
 
-export const hydrateStateFromRecoverySources = async (state: SubagentState, context: RecoveryContext, recoverySources: RecoverySource[]): Promise<RecoveryResult> => {
+export const hydrateStateFromRecoverySources = async (
+  state: SubagentState,
+  context: RecoveryContext,
+  recoverySources: RecoverySource[],
+): Promise<RecoveryResult> => {
   let changed = false;
   const authoritativeSessionIDs = new Set<string>();
 

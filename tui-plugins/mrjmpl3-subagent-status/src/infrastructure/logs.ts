@@ -49,7 +49,10 @@ const normalizePercent = (value: number): number => {
   return value;
 };
 
-const mergeTokens = (existing: SubagentTokens | undefined, incoming: SubagentTokens | undefined): SubagentTokens | undefined => {
+const mergeTokens = (
+  existing: SubagentTokens | undefined,
+  incoming: SubagentTokens | undefined,
+): SubagentTokens | undefined => {
   if (!existing && !incoming) return undefined;
   return {
     input: incoming?.input ?? existing?.input,
@@ -186,7 +189,10 @@ export const readOpenCodeLogFileIfSmall = (path: string): string | undefined => 
   return safeRead(() => readFileSync(path, 'utf8'));
 };
 
-export const hydrateDoneChildTokens = (sessionId: string, logDir = resolveOpenCodeLogDir()): SubagentTokens | undefined => {
+export const hydrateDoneChildTokens = (
+  sessionId: string,
+  logDir = resolveOpenCodeLogDir(),
+): SubagentTokens | undefined => {
   if (!sessionId.startsWith('ses_')) return undefined;
 
   const nowMs = Date.now();
