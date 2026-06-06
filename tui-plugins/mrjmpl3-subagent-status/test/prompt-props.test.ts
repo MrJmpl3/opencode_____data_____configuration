@@ -67,4 +67,18 @@ describe('prompt prop normalization', () => {
     expect(promptProps.right).toBe('generated-right');
     expect(promptProps.ref).toBe(composedRef);
   });
+
+  it('preserves falsey right values and only falls back for nullish ones', () => {
+    const composePromptRef = vi.fn((slotRef) => slotRef);
+
+    expect(normalizeSessionPromptProps({ right: '' }, composePromptRef, 'fallback-right').right).toBe('');
+    expect(normalizeSessionPromptProps({ right: false }, composePromptRef, 'fallback-right').right).toBe(false);
+    expect(normalizeSessionPromptProps({ right: 0 }, composePromptRef, 'fallback-right').right).toBe(0);
+    expect(normalizeSessionPromptProps({ right: undefined }, composePromptRef, 'fallback-right').right).toBe(
+      'fallback-right',
+    );
+    expect(normalizeSessionPromptProps({ right: null }, composePromptRef, 'fallback-right').right).toBe(
+      'fallback-right',
+    );
+  });
 });

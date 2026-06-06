@@ -156,6 +156,54 @@ describe('events', () => {
     expect(state.children['subtask:part_1']?.endedAt).toBeUndefined();
   });
 
+  it('does not mark the only running subtask as failed when task tool evidence cannot be correlated', () => {
+    const state = createEmptyState();
+
+    applySubagentEvent(state, {
+      type: 'message.part.updated',
+      properties: {
+        sessionID: 'ses_parent',
+        part: {
+          type: 'subtask',
+          id: 'part_1',
+          sessionID: 'ses_parent',
+          messageID: 'msg_1',
+          description: 'Execute migration slice',
+        },
+      },
+    });
+
+    expect(
+      applySubagentEvent(state, {
+        type: 'message.part.updated',
+        properties: {
+          sessionID: 'ses_parent',
+          part: {
+            type: 'tool',
+            tool: 'task',
+            id: 'tool_1',
+            sessionID: 'ses_parent',
+            messageID: 'msg_2',
+            state: {
+              status: 'error',
+              input: { description: 'Different delegated task' },
+              time: { end: '2026-06-04T12:10:00.000Z' },
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+
+    expect(state.children['tool:tool_1']).toMatchObject({
+      status: 'error',
+      endedAt: '2026-06-04T12:10:00.000Z',
+    });
+    expect(state.children['subtask:part_1']).toMatchObject({
+      status: 'running',
+      endedAt: undefined,
+    });
+  });
+
   it('keeps an existing child running when only session.idle arrives', () => {
     const state = seedChildSession();
 

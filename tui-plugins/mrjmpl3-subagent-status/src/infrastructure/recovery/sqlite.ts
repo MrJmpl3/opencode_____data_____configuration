@@ -20,6 +20,17 @@ type SQLiteRecoveryRow = {
   tokens?: SubagentTokens;
 };
 
+function mergeTokens(existing: SubagentTokens | undefined, incoming: SubagentTokens | undefined): SubagentTokens | undefined {
+  if (!existing && !incoming) return undefined;
+
+  return {
+    input: incoming?.input ?? existing?.input,
+    output: incoming?.output ?? existing?.output,
+    total: incoming?.total ?? existing?.total,
+    contextPercent: incoming?.contextPercent ?? existing?.contextPercent,
+  };
+}
+
 const READ_SQLITE_RECOVERY_SCRIPT = `
 import json, sqlite3, sys
 
@@ -67,7 +78,7 @@ for row in rows:
     tokens = {
         "input": row[6],
         "output": row[7],
-        "total": sum(value or 0 for value in row[6:11]) or None,
+        "total": None,
     }
     if tokens["input"] is None and tokens["output"] is None and tokens["total"] is None:
         tokens = None
@@ -182,8 +193,18 @@ function readSQLiteRecoveryRows(databasePath: string, parentSessionID: string): 
   }
 }
 
+function safeParseLatestPart(value: string | undefined): unknown {
+  if (!value) return undefined;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return undefined;
+  }
+}
+
 function mapRecoveredChild(row: SQLiteRecoveryRow): SubagentChild {
-  const latestPart = row.latestPart ? JSON.parse(row.latestPart) : undefined;
+  const latestPart = safeParseLatestPart(row.latestPart);
   const resolved = resolveRecoveredStatus(latestPart);
   const updatedAt = resolved.updatedAt ?? toISOString(row.updatedAtMs);
 
@@ -198,7 +219,7 @@ function mapRecoveredChild(row: SQLiteRecoveryRow): SubagentChild {
     startedAt: toISOString(row.startedAtMs),
     updatedAt,
     endedAt: resolved.endedAt,
-    tokens: resolved.tokens ?? row.tokens,
+    tokens: mergeTokens(row.tokens, resolved.tokens),
   };
 }
 

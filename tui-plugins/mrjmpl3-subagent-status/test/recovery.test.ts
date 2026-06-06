@@ -140,6 +140,85 @@ describe('sqlite recovery source', () => {
     });
   });
 
+  it('keeps SQLite fallback token counts semantically partial instead of inventing totals', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        "cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ('ses_child', 'ses_parent', 'Recovered child', 'sdd-apply', 1780550100000, 1780550400000, 10, 5, 7, 100, 50))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    const source = createSQLiteRecoverySource({ databasePath });
+
+    await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      tokens: { input: 10, output: 5 },
+    });
+    expect(state.children.ses_child?.tokens?.total).toBeUndefined();
+  });
+
+  it('merges SQLite row token counts with partial latest-part usage details', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import json, sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        "cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ('ses_child', 'ses_parent', 'Recovered child', 'sdd-apply', 1780550100000, 1780550400000, 12, 8, 0, 0, 0))",
+        'payload = json.dumps({"type": "step-finish", "reason": "stop", "tokens": {"contextPercent": 42.5}, "time": {"end": 1780550400000}})',
+        "cur.execute('INSERT INTO part VALUES (?, ?, ?, ?, ?)', ('prt_1', 'ses_child', 1780550399000, 1780550400000, payload))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      startedAt: '2026-06-04T05:15:00.000Z',
+      updatedAt: '2026-06-04T05:19:00.000Z',
+    };
+
+    const source = createSQLiteRecoverySource({ databasePath });
+    await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      endedAt: '2026-06-04T05:20:00.000Z',
+      tokens: { input: 12, output: 8, contextPercent: 42.5 },
+    });
+  });
+
   it('purges non-authoritative rows that are absent from SQLite recovery', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
     tempDirs.push(dir);
@@ -265,5 +344,84 @@ describe('sqlite recovery source', () => {
       updatedAt: '2026-06-04T12:01:00.000Z',
     });
     expect(state.purgedSessionIDs.ses_live).toBeUndefined();
+  });
+
+  it('ignores malformed latest-part payloads instead of aborting SQLite recovery', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        "cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ('ses_child', 'ses_parent', 'Recovered child', 'sdd-apply', 1780550100000, 1780550400000, 12, 8, 0, 0, 0))",
+        "cur.execute('INSERT INTO part VALUES (?, ?, ?, ?, ?)', ('prt_1', 'ses_child', 1780550399000, 1780550400000, '{bad json'))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    const source = createSQLiteRecoverySource({ databasePath });
+
+    const result = await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(result).toEqual({
+      authoritativeSessionIDs: ['ses_child'],
+      changed: true,
+    });
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: undefined,
+      tokens: { input: 12, output: 8 },
+    });
+    expect(state.children.ses_child?.tokens?.total).toBeUndefined();
+  });
+
+  it('falls back to session updatedAt when terminal recovery payload omits terminal time fields', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import json, sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        "cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ('ses_child', 'ses_parent', 'Recovered child', 'sdd-apply', 1780550100000, 1780550400000, 12, 8, 0, 0, 0))",
+        'payload = json.dumps({"type": "session.status", "state": {"status": "completed"}})',
+        "cur.execute('INSERT INTO part VALUES (?, ?, ?, ?, ?)', ('prt_1', 'ses_child', 1780550399000, 1780550400000, payload))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    const source = createSQLiteRecoverySource({ databasePath });
+
+    await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
+      tokens: { input: 12, output: 8 },
+    });
+    expect(state.children.ses_child?.tokens?.total).toBeUndefined();
   });
 });

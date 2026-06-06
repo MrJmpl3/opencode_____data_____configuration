@@ -131,7 +131,7 @@ describe('tui elapsed time', () => {
     );
     expect(snapshot.statusLine).toContain('Subagents: 1 run · 1 done · 1 err · Σ 3');
     expect(snapshot.statusLine).toContain('Implement sidebar sync');
-    expect(snapshot.statusLine).toContain('420 ctx 58%');
+    expect(snapshot.statusLine).toContain('420 tok 58%');
   });
 
   it('keeps completed rows visible without token metadata when the current snapshot has no token data', () => {
@@ -186,6 +186,42 @@ describe('tui elapsed time', () => {
       input: 12,
       output: 8,
       total: 20,
+      contextPercent: 42.5,
+    });
+  });
+
+  it('backfills missing context usage even when token totals were already persisted', async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-data-'));
+    tempDirs.push(dataDir);
+    const logDir = join(dataDir, 'opencode', 'log');
+    const logPath = join(logDir, '2026-06-04.log');
+
+    vi.stubEnv('XDG_DATA_HOME', dataDir);
+    await mkdir(logDir, { recursive: true });
+    await writeFile(
+      logPath,
+      '2026-06-04T00:00:00.000Z session=ses_partial_row {"tokens":{"input":12,"output":8,"total":20,"contextPercent":42.5}}',
+      'utf8',
+    );
+
+    const row = createChild({
+      id: 'ses_partial_row',
+      title: 'Persisted total only',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      endedAt: '2026-06-04T11:57:00.000Z',
+      updatedAt: '2026-06-04T11:57:00.000Z',
+      elapsedMs: 2 * 60 * 1000,
+      tokens: { total: 20 },
+    });
+    const state = createState([row], 1);
+
+    expect(hydrateChildTokensFromLogs(state)).toBe(true);
+    expect(state.children[row.id]?.tokens).toEqual({
+      total: 20,
+      input: 12,
+      output: 8,
       contextPercent: 42.5,
     });
   });
@@ -280,6 +316,32 @@ describe('tui elapsed time', () => {
       bufferedEventCount: 3,
       snapshotSemantics: 'snapshot',
     });
+  });
+
+  it('formats persisted snapshots with stable default debug metadata', () => {
+    const state = createState([
+      createChild({
+        id: 'ses_child_running',
+        title: 'Running child',
+        parentID: 'ses_parent',
+        source: 'session',
+        status: 'running',
+      }),
+    ]);
+
+    const persistedSnapshot = formatPersistedSnapshot(state, { source: 'startup' });
+    const debug = JSON.parse(persistedSnapshot.debugSnapshot) as Record<string, unknown>;
+
+    expect(persistedSnapshot.statusText).toContain('Subagents snapshot: 1 run · 0 done · 0 err · Σ 1');
+    expect(debug).toMatchObject({
+      source: 'startup',
+      bufferedEventCount: 0,
+      stateUpdatedAt: '2026-06-04T12:00:00.000Z',
+      totalExecuted: 1,
+      snapshotSemantics: 'snapshot',
+    });
+    expect(debug.lastEventType).toBeUndefined();
+    expect(debug.persistedAt).toEqual(expect.any(String));
   });
 
   it('navigates only to clickable child sessions and keeps keyboard behavior unavailable', async () => {

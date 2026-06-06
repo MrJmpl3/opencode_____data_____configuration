@@ -164,6 +164,33 @@ describe('tui runtime helpers', () => {
     }
   });
 
+  it('drops expired buffered events when the queue becomes ready after a long startup delay', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+
+    try {
+      const calls: string[] = [];
+      const buffered = createBufferedTaskQueue(
+        async (value: string) => {
+          calls.push(value);
+        },
+        { maxSize: 10, maxAgeMs: 1_000 },
+      );
+
+      buffered.push('stale');
+      vi.setSystemTime(5_000);
+
+      await buffered.markReady();
+      await Promise.resolve();
+
+      expect(calls).toEqual([]);
+      expect(buffered.size()).toBe(0);
+      expect(buffered.wasTruncated()).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('resets state when switching session routes', () => {
     expect(resolveSessionSlotTransition('ses_old', { session_id: 'ses_new' }, true)).toEqual({
       nextSessionID: 'ses_new',

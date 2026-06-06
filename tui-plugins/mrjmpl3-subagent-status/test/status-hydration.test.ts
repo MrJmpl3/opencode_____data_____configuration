@@ -1,10 +1,15 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
-import { describe, expect, it, vi } from 'vitest';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createEmptyState } from '../src/domain/state.ts';
 import {
+  hydrateChildTokensFromLogs,
   hydrateChildStatusesFromClient,
   hydrateChildStatusesFromTuiState,
+  summarizeMessages,
 } from '../src/runtime/status-hydration.ts';
 
 function createApi(input: {
@@ -33,6 +38,19 @@ function createApi(input: {
 }
 
 describe('status hydration', () => {
+  const tempDirs: string[] = [];
+
+  afterEach(async () => {
+    vi.unstubAllEnvs();
+
+    while (tempDirs.length > 0) {
+      const dir = tempDirs.pop();
+      if (dir) {
+        await rm(dir, { recursive: true, force: true });
+      }
+    }
+  });
+
   it('reopens a done row from newer TUI running evidence', () => {
     const state = createEmptyState();
     state.children.ses_child = {
@@ -171,5 +189,78 @@ describe('status hydration', () => {
       updatedAt: '2026-06-04T12:00:00.000Z',
     });
     expect(state.children.ses_child).not.toHaveProperty('endedAt');
+  });
+
+  it('prefers strict done evidence when error and done arrive with the same terminal timestamp', () => {
+    expect(
+      summarizeMessages([
+        {
+          type: 'step-finish',
+          reason: 'stop',
+          time: { end: '2026-06-04T12:01:30.000Z' },
+        },
+        {
+          type: 'session.error',
+          error: { message: 'boom' },
+          time: { ended: '2026-06-04T12:01:30.000Z' },
+        },
+      ]),
+    ).toEqual({
+      status: 'done',
+      endedAt: '2026-06-04T12:01:30.000Z',
+    });
+  });
+
+  it('prefers later error evidence over earlier strict done evidence', () => {
+    expect(
+      summarizeMessages([
+        {
+          type: 'session.status',
+          state: { status: 'completed' },
+          time: { completed: '2026-06-04T12:01:00.000Z' },
+        },
+        {
+          type: 'session.error',
+          error: { message: 'boom' },
+          time: { ended: '2026-06-04T12:01:30.000Z' },
+        },
+      ]),
+    ).toEqual({
+      status: 'error',
+      endedAt: '2026-06-04T12:01:30.000Z',
+    });
+  });
+
+  it('re-reads logs for done rows with partial token hydration so context can be backfilled', async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-data-'));
+    tempDirs.push(dataDir);
+    const logDir = join(dataDir, 'opencode', 'log');
+    const logPath = join(logDir, '2026-06-04.log');
+
+    vi.stubEnv('XDG_DATA_HOME', dataDir);
+    await mkdir(logDir, { recursive: true });
+    await writeFile(
+      logPath,
+      '2026-06-04T00:00:00.000Z session=ses_child {"tokens":{"total":20,"contextPercent":42.5}}',
+      'utf8',
+    );
+
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_child',
+      status: 'done',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+      tokens: { total: 20 },
+    };
+
+    expect(hydrateChildTokensFromLogs(state)).toBe(true);
+    expect(state.children.ses_child?.tokens).toEqual({ total: 20, contextPercent: 42.5 });
   });
 });

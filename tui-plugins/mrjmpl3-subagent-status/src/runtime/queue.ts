@@ -116,6 +116,7 @@ export function createBufferedTaskQueue<T>(task: (value: T) => Promise<void>, op
       return truncated;
     },
     markReady(): Promise<void> {
+      compactIfStale(Date.now());
       ready = true;
       return drain();
     },

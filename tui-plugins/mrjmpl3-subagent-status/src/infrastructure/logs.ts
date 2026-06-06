@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import os from 'node:os';
 
+import { hasCompleteUsageMetrics } from '../domain/tokens.ts';
 import type { SubagentTokens } from '../domain/types.ts';
 
 const MAX_SYNC_LOG_READ_BYTES = 1024 * 1024;
@@ -209,16 +210,16 @@ export function hydrateDoneChildTokens(
   const nowMs = Date.now();
   pruneDoneTokenCache(nowMs);
   const cached = doneTokenCache.get(sessionID);
-  if (cached?.tokens) {
+  if (cached?.tokens && hasCompleteUsageMetrics(cached.tokens)) {
     doneTokenCache.delete(sessionID);
     doneTokenCache.set(sessionID, { ...cached, checkedAtMs: nowMs });
     return cached.tokens;
   }
-  if (cached && cached.attempts >= DONE_TOKEN_REHYDRATE_MAX_ATTEMPTS) {
+  if (cached && cached.attempts >= DONE_TOKEN_REHYDRATE_MAX_ATTEMPTS && !cached.tokens) {
     return undefined;
   }
   if (cached && nowMs - cached.checkedAtMs < DONE_TOKEN_REHYDRATE_THROTTLE_MS) {
-    return undefined;
+    return cached.tokens;
   }
 
   const files = safeRead(() =>
@@ -230,7 +231,7 @@ export function hydrateDoneChildTokens(
   );
   if (!files) return undefined;
 
-  let tokens: SubagentTokens | undefined;
+  let tokens = cached?.tokens;
   for (const file of files) {
     const contents = readOpenCodeLogFileIfSmall(join(logDir, file));
     if (!contents || !contents.includes(sessionID)) continue;

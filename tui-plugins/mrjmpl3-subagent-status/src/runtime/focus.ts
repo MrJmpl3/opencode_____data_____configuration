@@ -104,7 +104,9 @@ export function createPromptFocusController(
       pendingSidebarRefocus = undefined;
     }
 
-    previousRouteSessionID = routeSessionID;
+    if (routeSessionID !== undefined) {
+      previousRouteSessionID = routeSessionID;
+    }
   };
 
   return {

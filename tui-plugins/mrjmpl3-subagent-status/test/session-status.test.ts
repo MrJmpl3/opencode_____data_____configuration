@@ -20,4 +20,20 @@ describe('session status classification', () => {
     expect(deriveTerminalSessionStatus({ state: 'error' })).toBe('error');
     expect(deriveTerminalSessionStatus({ type: 'queued' })).toBeUndefined();
   });
+
+  it('normalizes whitespace, casing, and boolean running hints', () => {
+    expect(deriveSessionStatus('  Completed  ')).toBe('done');
+    expect(deriveSessionStatus({ running: true })).toBe('running');
+    expect(deriveSessionStatus({ busy: true, status: ' idle ' })).toBe('running');
+  });
+
+  it('keeps error precedence when payloads contain contradictory signals', () => {
+    expect(deriveSessionStatus({ status: 'completed', error: { message: 'boom' }, busy: true })).toBe('error');
+    expect(deriveTerminalSessionStatus({ phase: 'queued', result: 'complete', error: { message: 'boom' } })).toBe('error');
+  });
+
+  it('ignores running-only hints when deriving terminal-only status', () => {
+    expect(deriveTerminalSessionStatus({ running: true, phase: 'queued', status: 'idle' })).toBeUndefined();
+    expect(deriveTerminalSessionStatus({ busy: true, type: 'running' })).toBeUndefined();
+  });
 });

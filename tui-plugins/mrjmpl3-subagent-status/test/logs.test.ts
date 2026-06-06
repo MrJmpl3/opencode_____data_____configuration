@@ -136,4 +136,31 @@ describe('logs', () => {
     expect(hydrateDoneChildTokens('ses_cache_000', logDir)).toEqual({ total: 1 });
     expect(mockedReaddirSync).toHaveBeenCalledTimes(66);
   });
+
+  it('continues rehydrating partial cached usage so missing context can be backfilled later', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-logs-'));
+    tempDirs.push(dir);
+    const logDir = join(dir, 'log');
+    const logPath = join(logDir, '2026-06-08.log');
+
+    await mkdir(logDir, { recursive: true });
+    await writeFile(logPath, '2026-06-08T00:00:00.000Z session=ses_partial {"tokens":{"total":20}}', 'utf8');
+
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-08T00:00:00.000Z'));
+
+    expect(hydrateDoneChildTokens('ses_partial', logDir)).toEqual({ total: 20 });
+
+    await writeFile(
+      logPath,
+      '2026-06-08T00:00:00.000Z session=ses_partial {"tokens":{"total":20,"contextPercent":42.5}}',
+      'utf8',
+    );
+
+    vi.advanceTimersByTime(2_001);
+
+    expect(hydrateDoneChildTokens('ses_partial', logDir)).toEqual({ total: 20, contextPercent: 42.5 });
+
+    vi.useRealTimers();
+  });
 });

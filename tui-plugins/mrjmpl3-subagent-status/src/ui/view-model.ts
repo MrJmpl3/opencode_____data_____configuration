@@ -1,6 +1,6 @@
 import type { SubagentChild, SubagentCounts, SubagentState } from '../domain/types.ts';
 
-import { formatContextCompact, formatDuration, statusColor } from './format.ts';
+import { formatDuration, formatUsageCompact, statusColor } from './format.ts';
 
 const RECENT_DONE_VISIBLE_MS = 10 * 60 * 1000;
 
@@ -119,7 +119,6 @@ export function collapseSubagentWorkItems(children: SubagentChild[]): SubagentCh
       if (!sessionMatchesSynthetic(candidate, synthetic)) continue;
 
       bestSession = betterPriority(bestSession, candidate);
-      if (candidate.source === 'session') hiddenMatchedSessionIDs.add(candidate.id);
     }
 
     if (bestSession) {
@@ -268,8 +267,8 @@ function renderStatusDetails(children: readonly SubagentChild[]): string {
 
   return children
     .map((child) => {
-      const context = formatContextCompact(child);
-      return [child.title, formatDuration(child.elapsedMs), context].filter((part) => part.length > 0).join(' ');
+      const usage = formatUsageCompact(child);
+      return [child.title, formatDuration(child.elapsedMs), usage].filter((part) => part.length > 0).join(' ');
     })
     .join(' · ');
 }

@@ -3,6 +3,7 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { deriveSessionStatus, deriveTerminalSessionStatus } from '../domain/session-status.ts';
 import { markChildRunning, markChildStatus, mergeChildDetails } from '../domain/state.ts';
 import type { SubagentState } from '../domain/types.ts';
+import { hasCompleteUsageMetrics } from '../domain/tokens.ts';
 import { hydrateDoneChildTokens } from '../infrastructure/logs.ts';
 
 import { isRealSessionRow, resolveSessionRowSessionID } from './session-row.ts';
@@ -246,7 +247,7 @@ export function hydrateChildTokensFromLogs(state: SubagentState): boolean {
 
   for (const child of Object.values(state.children)) {
     if (child.status !== 'done') continue;
-    if (child.tokens?.total !== undefined || child.tokens?.input !== undefined || child.tokens?.output !== undefined) {
+    if (hasCompleteUsageMetrics(child.tokens)) {
       continue;
     }
 

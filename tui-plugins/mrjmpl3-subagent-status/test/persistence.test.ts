@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { RecoveryContext, RecoverySource } from '../src/infrastructure/recovery.ts';
 import type { SubagentState } from '../src/domain/types.ts';
-import { loadState, saveState } from '../src/infrastructure/persistence.ts';
+import { createPersistQueue, loadState, saveState } from '../src/infrastructure/persistence.ts';
 
 describe('persistence recovery', () => {
   const tempDirs: string[] = [];
@@ -122,5 +122,50 @@ describe('persistence recovery', () => {
 
     expect(loaded.children.ses_stale).toBeUndefined();
     expect(loaded.purgedSessionIDs.ses_stale).toBe(true);
+  });
+
+  it('clones state snapshots at enqueue time before later mutations', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const statePath = join(dir, 'state.json');
+    const textPath = join(dir, 'status.txt');
+    const state: SubagentState = {
+      children: {
+        ses_original: {
+          id: 'ses_original',
+          title: 'Original child',
+          parentID: 'ses_parent',
+          source: 'session',
+          status: 'running',
+          startedAt: '2026-06-04T11:55:00.000Z',
+          updatedAt: '2026-06-04T11:59:00.000Z',
+        },
+      },
+      countedChildIDs: { ses_original: true },
+      purgedSessionIDs: {},
+      totalExecuted: 1,
+      updatedAt: '2026-06-04T11:59:00.000Z',
+    };
+
+    const persist = createPersistQueue(statePath, textPath, (snapshot, meta: { source: string }) => ({
+      statusText: `${meta.source}:${Object.keys(snapshot.children).join(',')}`,
+      debugSnapshot: JSON.stringify({ source: meta.source, childIDs: Object.keys(snapshot.children) }),
+    }));
+
+    const write = persist(state, { source: 'refresh' });
+    state.children.ses_mutated = {
+      id: 'ses_mutated',
+      title: 'Mutated child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      startedAt: '2026-06-04T11:56:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    await write;
+
+    const loaded = await loadState(statePath);
+    expect(Object.keys(loaded.children)).toEqual(['ses_original']);
   });
 });

@@ -400,7 +400,7 @@ function mapTaskToolToSubtaskID(
   const byAgent = task.agentName ? scoped.filter((child) => sameDisplayText(child.agentName, task.agentName)) : [];
   if (byAgent.length === 1) return byAgent[0].id;
 
-  return scoped.length === 1 ? scoped[0].id : undefined;
+  return undefined;
 }
 
 export function installEventBridge(

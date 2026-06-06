@@ -511,6 +511,85 @@ describe('state', () => {
     expect(state.children.ses_child).not.toHaveProperty('endedAt');
   });
 
+  it('allows equal-timestamp terminal evidence to close a running row', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      color: 'yellow',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    expect(markChildStatus(state, 'ses_child', 'done', '2026-06-04T12:00:00.000Z')).toBe(true);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      color: 'green',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
+  it('lets equal-timestamp terminal evidence replace an older terminal classification', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    expect(markChildStatus(state, 'ses_child', 'error', '2026-06-04T12:00:00.000Z')).toBe(true);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'error',
+      color: 'red',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
+  it('keeps a terminal row closed when equal-timestamp running evidence is replayed through upsert', () => {
+    const state = createEmptyState();
+
+    upsertRunningChild(state, {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+
+    expect(
+      upsertRunningChild(state, {
+        id: 'ses_child',
+        title: 'Recovered child',
+        parentID: 'ses_parent',
+        source: 'session',
+        status: 'running',
+        startedAt: '2026-06-04T11:55:00.000Z',
+        updatedAt: '2026-06-04T12:00:00.000Z',
+      }),
+    ).toBe(false);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
   it('does not let older detail updates roll timestamps backwards', () => {
     const state = createEmptyState();
 

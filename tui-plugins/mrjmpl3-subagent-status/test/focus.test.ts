@@ -116,4 +116,27 @@ describe('runtime focus helpers', () => {
     expect(scheduled).toHaveLength(0);
     expect(focus).not.toHaveBeenCalled();
   });
+
+  it('restores prompt focus after an intermediate non-session route hop', () => {
+    const scheduled: Array<() => void> = [];
+    const controller = createPromptFocusController((callback) => {
+      scheduled.push(callback);
+    });
+    const focus = vi.fn();
+
+    controller.composePromptRef(undefined)({ focus } as never);
+    controller.rememberSidebarChildNavigation({
+      parentSessionID: 'ses_parent',
+      childSessionID: 'ses_child',
+      childRowID: 'tool:delegate_1',
+    });
+
+    controller.handleRouteChange('ses_child');
+    controller.handleRouteChange(undefined);
+    controller.handleRouteChange('ses_parent');
+
+    expect(scheduled).toHaveLength(1);
+    scheduled.shift()?.();
+    expect(focus).toHaveBeenCalledTimes(1);
+  });
 });

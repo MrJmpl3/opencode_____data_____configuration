@@ -1,5 +1,7 @@
 import type { SubagentChild } from '../domain/types.ts';
 
+import { hasContextUsage, resolveTokenTotal } from '../domain/tokens.ts';
+
 const ELLIPSIS = '…';
 const SIDEBAR_TITLE_MAX = 28;
 const SIDEBAR_RUNNING_META_PRIMARY_MAX = 22;
@@ -55,26 +57,11 @@ export function truncateLabel(value: string, maxChars: number): string {
   return `${normalized.slice(0, maxChars - 1).trimEnd()}${ELLIPSIS}`;
 }
 
-function resolveTokenTotal(child: SubagentChild): number | undefined {
-  const total = child.tokens?.total;
-  if (typeof total === 'number' && Number.isFinite(total)) {
-    return total;
-  }
-
-  const input = child.tokens?.input;
-  const output = child.tokens?.output;
-  if (typeof input === 'number' || typeof output === 'number') {
-    return (input ?? 0) + (output ?? 0);
-  }
-
-  return undefined;
-}
-
 function formatCompactTokenCount(total: number): string {
   const value = Math.max(0, total);
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M ctx`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k ctx`;
-  return `${Math.round(value)} ctx`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M tok`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k tok`;
+  return `${Math.round(value)} tok`;
 }
 
 function formatSidebarTokenCount(total: number): string {
@@ -116,36 +103,48 @@ function joinCompactParts(parts: readonly string[], maxChars: number): string {
   return result;
 }
 
-export function formatContextCompact(child: SubagentChild): string {
-  const total = resolveTokenTotal(child);
-  const percent = child.tokens?.contextPercent;
-
-  const hasTotal = typeof total === 'number' && Number.isFinite(total);
-  const hasPercent = typeof percent === 'number' && Number.isFinite(percent);
-
-  if (hasTotal && hasPercent) {
-    return `${formatCompactTokenCount(total)} ${formatCompactPercentUsed(percent)}`;
+export function formatTokenCompact(child: SubagentChild): string {
+  const total = resolveTokenTotal(child.tokens);
+  if (typeof total === 'number' && Number.isFinite(total)) {
+    return formatCompactTokenCount(total);
   }
 
-  if (hasTotal) return formatCompactTokenCount(total);
-  if (hasPercent) return formatCompactPercentUsed(percent);
+  return '';
+}
+
+export function formatContextCompact(child: SubagentChild): string {
+  if (hasContextUsage(child.tokens)) {
+    return formatCompactPercentUsed(child.tokens?.contextPercent ?? 0);
+  }
+
+  return '';
+}
+
+export function formatUsageCompact(child: SubagentChild): string {
+  return [formatTokenCompact(child), formatContextCompact(child)].filter((part) => part.length > 0).join(' ');
+}
+
+function formatSidebarTokenCompact(child: SubagentChild): string {
+  const total = resolveTokenTotal(child.tokens);
+  if (typeof total === 'number' && Number.isFinite(total)) {
+    return formatSidebarTokenCount(total);
+  }
+
   return '';
 }
 
 function formatSidebarContextCompact(child: SubagentChild): string {
-  const total = resolveTokenTotal(child);
-  const percent = child.tokens?.contextPercent;
-
-  const hasTotal = typeof total === 'number' && Number.isFinite(total);
-  const hasPercent = typeof percent === 'number' && Number.isFinite(percent);
-
-  if (hasTotal && hasPercent) {
-    return `${formatSidebarTokenCount(total)} ${formatCompactPercentUsed(percent)}`;
+  if (hasContextUsage(child.tokens)) {
+    return formatCompactPercentUsed(child.tokens?.contextPercent ?? 0);
   }
 
-  if (hasTotal) return formatSidebarTokenCount(total);
-  if (hasPercent) return formatCompactPercentUsed(percent);
   return '';
+}
+
+function formatSidebarUsageCompact(child: SubagentChild): string {
+  return [formatSidebarTokenCompact(child), formatSidebarContextCompact(child)]
+    .filter((part) => part.length > 0)
+    .join(' ');
 }
 
 export function formatSidebarTitle(child: SubagentChild): string {
@@ -159,13 +158,13 @@ export function formatSidebarRunningMeta(child: SubagentChild): { primary: strin
       [formatDuration(child.elapsedMs), formatAgentCompact(child.agentName)],
       SIDEBAR_RUNNING_META_PRIMARY_MAX,
     ),
-    secondary: truncateLabel(formatSidebarContextCompact(child), SIDEBAR_RUNNING_META_SECONDARY_MAX),
+    secondary: truncateLabel(formatSidebarUsageCompact(child), SIDEBAR_RUNNING_META_SECONDARY_MAX),
   };
 }
 
 export function formatSidebarTerminalMeta(child: SubagentChild, nowMs = Date.now()): string {
   return joinCompactParts(
-    [formatRelativeRecency(child.endedAt ?? child.updatedAt, nowMs), formatSidebarContextCompact(child), formatDuration(child.elapsedMs)],
+    [formatRelativeRecency(child.endedAt ?? child.updatedAt, nowMs), formatSidebarUsageCompact(child), formatDuration(child.elapsedMs)],
     SIDEBAR_TERMINAL_META_MAX,
   );
 }
