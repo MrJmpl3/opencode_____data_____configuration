@@ -2,6 +2,8 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 import type { SubagentChild } from '../domain/types.ts';
 
+import { isSessionTarget, resolveChildSessionID } from './session-target.ts';
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -40,16 +42,12 @@ export function resolveSessionSlotTransition(
   };
 }
 
-export function isSessionTarget(value: unknown): value is string {
-  return typeof value === 'string' && value.startsWith('ses_');
-}
+export { isSessionTarget } from './session-target.ts';
 
 export function resolveNavigationSessionID(
   child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
 ): string | undefined {
-  if (isSessionTarget(child.targetSessionID)) return child.targetSessionID;
-  if (isSessionTarget(child.id)) return child.id;
-  return undefined;
+  return resolveChildSessionID(child);
 }
 
 export function navigateToChildSession(

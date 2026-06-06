@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createSQLiteRecoverySource } from '../src/infrastructure/recovery/sqlite.ts';
 import { createEmptyState } from '../src/domain/state.ts';
+import { applyRecoveredChildren } from '../src/infrastructure/recovery.ts';
 
 async function createSQLiteRecoveryDatabase(path: string, script: string): Promise<void> {
   execFileSync('python3', ['-c', script, path], { encoding: 'utf8' });
@@ -59,8 +60,8 @@ describe('sqlite recovery source', () => {
       parentID: 'ses_parent',
       source: 'session',
       status: 'running',
-      startedAt: '2026-06-04T11:55:00.000Z',
-      updatedAt: '2026-06-04T11:59:00.000Z',
+      startedAt: '2026-06-04T05:15:00.000Z',
+      updatedAt: '2026-06-04T05:19:00.000Z',
     };
     state.children['tool:ses_child'] = {
       id: 'tool:ses_child',
@@ -69,8 +70,8 @@ describe('sqlite recovery source', () => {
       source: 'tool',
       targetSessionID: 'ses_child',
       status: 'running',
-      startedAt: '2026-06-04T11:55:00.000Z',
-      updatedAt: '2026-06-04T11:59:00.000Z',
+      startedAt: '2026-06-04T05:15:00.000Z',
+      updatedAt: '2026-06-04T05:19:00.000Z',
     };
 
     const source = createSQLiteRecoverySource({ databasePath });
@@ -91,6 +92,51 @@ describe('sqlite recovery source', () => {
     expect(state.children['tool:ses_child']).toMatchObject({
       status: 'done',
       endedAt: '2026-06-04T05:20:00.000Z',
+    });
+  });
+
+  it('treats session.status completion parts as terminal recovery evidence', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import json, sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        "cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ('ses_child', 'ses_parent', 'Recovered child', 'sdd-apply', 1780550100000, 1780550400000, 12, 8, 0, 0, 0))",
+        'payload = json.dumps({"type": "session.status", "state": {"status": "completed"}, "tokens": {"input": 12, "output": 8, "total": 20}, "time": {"completed": 1780550400000}})',
+        "cur.execute('INSERT INTO part VALUES (?, ?, ?, ?, ?)', ('prt_1', 'ses_child', 1780550399000, 1780550400000, payload))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      startedAt: '2026-06-04T05:15:00.000Z',
+      updatedAt: '2026-06-04T05:19:00.000Z',
+    };
+
+    const source = createSQLiteRecoverySource({ databasePath });
+    await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      endedAt: '2026-06-04T05:20:00.000Z',
+      tokens: { input: 12, output: 8, total: 20 },
     });
   });
 
@@ -119,9 +165,10 @@ describe('sqlite recovery source', () => {
       title: 'Stale child',
       parentID: 'ses_parent',
       source: 'session',
-      status: 'running',
-      startedAt: '2026-06-04T11:55:00.000Z',
-      updatedAt: '2026-06-04T11:59:00.000Z',
+      status: 'done',
+      startedAt: '2026-06-04T05:00:00.000Z',
+      updatedAt: '2026-06-04T05:05:00.000Z',
+      endedAt: '2026-06-04T05:05:00.000Z',
     };
 
     const source = createSQLiteRecoverySource({ databasePath });
@@ -136,5 +183,87 @@ describe('sqlite recovery source', () => {
       status: 'running',
       title: 'Kept child',
     });
+  });
+
+  it('keeps newer live running evidence when recovered terminal state is older', () => {
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Live child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      color: 'yellow',
+    };
+
+    const result = applyRecoveredChildren(
+      state,
+      [
+        {
+          id: 'ses_child',
+          title: 'Recovered child',
+          parentID: 'ses_parent',
+          source: 'session',
+          targetSessionID: 'ses_child',
+          status: 'done',
+          startedAt: '2026-06-04T11:55:00.000Z',
+          updatedAt: '2026-06-04T12:00:00.000Z',
+          endedAt: '2026-06-04T12:00:00.000Z',
+        },
+      ],
+      ['ses_child'],
+      'ses_parent',
+    );
+
+    expect(result.changed).toBe(true);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      endedAt: undefined,
+      title: 'Recovered child',
+    });
+  });
+
+  it('does not purge newer live running rows missing from provisional recovery results', () => {
+    const state = createEmptyState();
+    state.children.ses_live = {
+      id: 'ses_live',
+      title: 'Live child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_live',
+      status: 'running',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      color: 'yellow',
+    };
+
+    applyRecoveredChildren(
+      state,
+      [
+        {
+          id: 'ses_recovered',
+          title: 'Recovered child',
+          parentID: 'ses_parent',
+          source: 'session',
+          targetSessionID: 'ses_recovered',
+          status: 'done',
+          startedAt: '2026-06-04T11:40:00.000Z',
+          updatedAt: '2026-06-04T11:50:00.000Z',
+          endedAt: '2026-06-04T11:50:00.000Z',
+        },
+      ],
+      ['ses_recovered'],
+      'ses_parent',
+    );
+
+    expect(state.children.ses_live).toMatchObject({
+      status: 'running',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+    });
+    expect(state.purgedSessionIDs.ses_live).toBeUndefined();
   });
 });

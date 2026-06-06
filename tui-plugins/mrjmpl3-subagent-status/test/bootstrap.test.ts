@@ -62,7 +62,7 @@ describe('tui bootstrap buffering', () => {
         saveState,
         saveStatusText,
         createPersistQueue: vi.fn(
-          (..._args: [string, string]) =>
+          (..._args: [string, string, unknown]) =>
             async (state: { children: Record<string, unknown> }, _meta: unknown) => {
               await saveState('/tmp/mrjmpl3-subagent-status-state.json', state);
               await saveStatusText('/tmp/mrjmpl3-subagent-status-status.txt', '');

@@ -32,6 +32,16 @@ function safeTimestamp(input: unknown, fallback: string): string {
   return Number.isNaN(Date.parse(input)) ? fallback : input;
 }
 
+function timestampMs(input: string | undefined): number {
+  if (!input) return 0;
+  const parsed = Date.parse(input);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function childEvidenceTimestampMs(child: Pick<SubagentChild, 'startedAt' | 'updatedAt' | 'endedAt'>): number {
+  return timestampMs(child.endedAt ?? child.updatedAt ?? child.startedAt);
+}
+
 function sanitizeSummary(value: unknown, title: string): string | undefined {
   if (typeof value !== 'string') return undefined;
   const summary = value.replace(/\s+/g, ' ').trim();
@@ -360,7 +370,7 @@ export function pruneOrphanedSyntheticRunningChildren(
   options: { pruneWhenNoRealSessionChildren?: boolean } = {},
 ): boolean {
   const realSessionChildren = Object.values(state.children).filter((child) => isRealSessionChild(child));
-  if (realSessionChildren.length === 0 && !options.pruneWhenNoRealSessionChildren) return false;
+  const pruneToolWrappersWithoutRealSessions = realSessionChildren.length === 0 && !options.pruneWhenNoRealSessionChildren;
 
   const activeSessionIDs = new Set(
     realSessionChildren.filter((child) => child.status === 'running').map((child) => child.id),
@@ -370,6 +380,10 @@ export function pruneOrphanedSyntheticRunningChildren(
   for (const child of Object.values(state.children)) {
     if (child.status !== 'running') continue;
     if (!isSyntheticToolWrapper(child) && !isSubtaskFallback(child)) continue;
+
+    if (pruneToolWrappersWithoutRealSessions && isSubtaskFallback(child)) {
+      continue;
+    }
 
     const anchoredToActiveSession =
       activeSessionIDs.has(child.parentID) || activeSessionIDs.has(child.targetSessionID ?? '');
@@ -413,7 +427,7 @@ export function upsertRunningChild(
         | 'endedAt'
       >
     >,
-  options: { allowPurgedSessionRestore?: boolean } = {},
+  options: { allowPurgedSessionRestore?: boolean; allowTerminalReopen?: boolean } = {},
 ): boolean {
   const now = new Date().toISOString();
   const existing = state.children[input.id];
@@ -437,10 +451,23 @@ export function upsertRunningChild(
     clearPurgedSession(state, sessionIdentity);
   }
 
-  const preserveTerminal = Boolean(existing && isTerminalStatus(existing.status) && incomingStatus === 'running');
-  const status = preserveTerminal ? existing!.status : incomingStatus;
-  const nextUpdatedAt = preserveTerminal ? existing!.updatedAt : observedUpdatedAt;
-  const nextEndedAt = preserveTerminal
+  const existingEvidenceMs = existing ? childEvidenceTimestampMs(existing) : 0;
+  const incomingEvidenceMs = timestampMs(input.endedAt ?? observedUpdatedAt ?? observedStartedAt);
+  const staleEvidence = Boolean(existing && incomingEvidenceMs < existingEvidenceMs);
+  const reopenTerminal = Boolean(
+    existing &&
+      isTerminalStatus(existing.status) &&
+      incomingStatus === 'running' &&
+      options.allowTerminalReopen === true &&
+      incomingEvidenceMs > existingEvidenceMs,
+  );
+  const preserveExistingTiming = Boolean(
+    existing &&
+      (staleEvidence || (isTerminalStatus(existing.status) && incomingStatus === 'running' && !reopenTerminal)),
+  );
+  const status = preserveExistingTiming ? existing!.status : incomingStatus;
+  const nextUpdatedAt = preserveExistingTiming ? existing!.updatedAt : observedUpdatedAt;
+  const nextEndedAt = preserveExistingTiming
     ? existing!.endedAt
     : status === 'running'
       ? undefined
@@ -549,7 +576,9 @@ export function upsertChildDetails(
     input.targetSessionID ?? existing.targetSessionID,
     existing.id.startsWith('ses_') ? existing.id : undefined,
   );
-  const nextUpdatedAt = safeTimestamp(input.updatedAt, new Date().toISOString());
+  const candidateUpdatedAt = safeTimestamp(input.updatedAt, existing.updatedAt ?? new Date().toISOString());
+  const nextUpdatedAt =
+    timestampMs(candidateUpdatedAt) >= childEvidenceTimestampMs(existing) ? candidateUpdatedAt : existing.updatedAt;
 
   if (
     nextTitle === existing.title &&
@@ -593,6 +622,51 @@ export function mergeChildDetails(
   return upsertChildDetails(state, childID, input);
 }
 
+export function markChildRunning(state: SubagentState, childID: string, updatedAt?: string): boolean {
+  const resolvedUpdatedAt = safeTimestamp(updatedAt, new Date().toISOString());
+  const nextEvidenceMs = timestampMs(resolvedUpdatedAt);
+  let changed = false;
+
+  for (const child of Object.values(state.children)) {
+    if (child.id !== childID && child.targetSessionID !== childID) continue;
+
+    const currentEvidenceMs = childEvidenceTimestampMs(child);
+    const reopeningTerminal = isTerminalStatus(child.status);
+    if ((reopeningTerminal && nextEvidenceMs <= currentEvidenceMs) || (!reopeningTerminal && nextEvidenceMs < currentEvidenceMs)) {
+      continue;
+    }
+
+    const normalized = normalizeChild(
+      {
+        ...child,
+        status: 'running',
+        updatedAt: resolvedUpdatedAt,
+        endedAt: undefined,
+      },
+      Date.parse(resolvedUpdatedAt),
+    );
+
+    if (
+      child.status === normalized.status &&
+      child.updatedAt === normalized.updatedAt &&
+      child.endedAt === normalized.endedAt &&
+      child.color === normalized.color &&
+      child.elapsedMs === normalized.elapsedMs
+    ) {
+      continue;
+    }
+
+    clearPurgedSession(state, resolveSessionIdentity(child) ?? childID);
+    state.children[child.id] = normalized;
+    changed = true;
+  }
+
+  if (!changed) return false;
+
+  state.updatedAt = resolvedUpdatedAt;
+  return true;
+}
+
 export function markChildStatus(
   state: SubagentState,
   childID: string,
@@ -601,9 +675,11 @@ export function markChildStatus(
 ): boolean {
   let changed = false;
   const resolvedEndedAt = safeTimestamp(endedAt, new Date().toISOString());
+  const nextEvidenceMs = timestampMs(resolvedEndedAt);
 
   for (const child of Object.values(state.children)) {
     if (child.id !== childID && child.targetSessionID !== childID) continue;
+    if (nextEvidenceMs < childEvidenceTimestampMs(child)) continue;
     if (child.status === status && child.endedAt === resolvedEndedAt && child.updatedAt === resolvedEndedAt) {
       continue;
     }

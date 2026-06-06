@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import os from 'node:os';
 
 import type { SubagentChild, SubagentState, SubagentTokens } from '../../domain/types.ts';
+import { deriveTerminalSessionStatus } from '../../domain/session-status.ts';
 
 import { applyRecoveredChildren } from '../recovery.ts';
 import type { RecoveryContext, RecoveryResult, RecoverySource } from '../recovery.ts';
@@ -91,6 +92,24 @@ function toISOString(timestampMs: number): string {
   return new Date(timestampMs).toISOString();
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function timestampFromUnknown(value: unknown): string | undefined {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    const millis = value < 10_000_000_000 ? value * 1000 : value;
+    return toISOString(millis);
+  }
+
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? undefined : new Date(parsed).toISOString();
+  }
+
+  return undefined;
+}
+
 function resolveOpenCodeDatabasePath(): string {
   const baseDir = process.env.XDG_DATA_HOME ?? join(os.homedir(), '.local', 'share');
   return join(baseDir, 'opencode', 'opencode.db');
@@ -102,22 +121,25 @@ function resolveRecoveredStatus(latestPart: unknown): {
   updatedAt?: string;
   tokens?: SubagentTokens;
 } {
-  if (!latestPart || typeof latestPart !== 'object') {
+  if (!isRecord(latestPart)) {
     return { status: 'running', updatedAt: undefined, endedAt: undefined, tokens: undefined };
   }
 
-  const part = latestPart as Record<string, unknown>;
+  const part = latestPart;
+  const state = isRecord(part.state) ? part.state : undefined;
   const rawTokens =
     typeof part.tokens === 'object' && part.tokens !== null ? (part.tokens as SubagentTokens) : undefined;
-  const endedAtMs =
-    typeof part.time === 'object' &&
-    part.time !== null &&
-    typeof (part.time as Record<string, unknown>).end === 'number'
-      ? ((part.time as Record<string, unknown>).end as number)
-      : undefined;
+  const time = isRecord(part.time) ? part.time : undefined;
+  const endedAt =
+    timestampFromUnknown(time?.end) ??
+    timestampFromUnknown(time?.ended) ??
+    timestampFromUnknown(time?.completed) ??
+    timestampFromUnknown(time?.updated);
+  const terminalStatus =
+    deriveTerminalSessionStatus(state?.status ?? part.status ?? state ?? part) ??
+    (part.error || state?.error ? 'error' : undefined);
 
   if (part.type === 'step-finish' && part.reason === 'stop') {
-    const endedAt = endedAtMs ? toISOString(endedAtMs) : undefined;
     return {
       status: 'done',
       updatedAt: endedAt,
@@ -126,19 +148,13 @@ function resolveRecoveredStatus(latestPart: unknown): {
     };
   }
 
-  if (part.type === 'tool') {
-    const state =
-      typeof part.state === 'object' && part.state !== null ? (part.state as Record<string, unknown>) : undefined;
-    const status = typeof state?.status === 'string' ? state.status : undefined;
-    if (status === 'error') {
-      const endedAt = endedAtMs ? toISOString(endedAtMs) : undefined;
-      return {
-        status: 'error',
-        updatedAt: endedAt,
-        endedAt,
-        tokens: rawTokens,
-      };
-    }
+  if (terminalStatus) {
+    return {
+      status: terminalStatus,
+      updatedAt: endedAt,
+      endedAt,
+      tokens: rawTokens,
+    };
   }
 
   return {

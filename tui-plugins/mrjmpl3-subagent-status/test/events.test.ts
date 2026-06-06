@@ -251,4 +251,82 @@ describe('events', () => {
       endedAt: ERROR_AT,
     });
   });
+
+  it('reopens a done child when explicit session.status running evidence arrives', () => {
+    const state = seedChildSession();
+    state.children.ses_child.status = 'done';
+    state.children.ses_child.color = 'green';
+    state.children.ses_child.updatedAt = DONE_AT;
+    state.children.ses_child.endedAt = DONE_AT;
+    state.children['tool:ses_child'] = {
+      id: 'tool:ses_child',
+      title: 'Delegated child',
+      parentID: 'ses_parent',
+      source: 'tool',
+      targetSessionID: 'ses_child',
+      status: 'done',
+      color: 'green',
+      startedAt: CREATED_AT,
+      updatedAt: DONE_AT,
+      endedAt: DONE_AT,
+    };
+
+    expect(
+      applySubagentEvent(state, {
+        type: 'session.status',
+        properties: {
+          sessionID: 'ses_child',
+          status: 'running',
+          info: {
+            time: {
+              updated: '2026-06-05T10:05:00.000Z',
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-05T10:05:00.000Z',
+      endedAt: undefined,
+    });
+    expect(state.children['tool:ses_child']).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-05T10:05:00.000Z',
+      endedAt: undefined,
+    });
+  });
+
+  it('does not reopen a terminal child from stale session.status running evidence', () => {
+    const state = seedChildSession();
+    state.children.ses_child.status = 'error';
+    state.children.ses_child.color = 'red';
+    state.children.ses_child.updatedAt = ERROR_AT;
+    state.children.ses_child.endedAt = ERROR_AT;
+
+    expect(
+      applySubagentEvent(state, {
+        type: 'session.status',
+        properties: {
+          sessionID: 'ses_child',
+          status: 'running',
+          info: {
+            time: {
+              updated: IDLE_AT,
+            },
+          },
+        },
+      }),
+    ).toBe(false);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'error',
+      color: 'red',
+      updatedAt: ERROR_AT,
+      endedAt: ERROR_AT,
+    });
+  });
 });

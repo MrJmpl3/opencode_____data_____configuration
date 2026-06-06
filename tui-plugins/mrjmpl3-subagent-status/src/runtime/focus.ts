@@ -1,4 +1,21 @@
+import type { TuiPromptRef } from '@opencode-ai/plugin/tui';
+
 export type SidebarReturnFocusAction = 'none' | 'clear-pending' | 'focus-prompt';
+
+export type PendingSidebarRefocus = {
+  parentSessionID: string;
+  childSessionID: string;
+  childRowID: string;
+};
+
+export type PromptRefProp =
+  | ((ref: TuiPromptRef | undefined) => void)
+  | { current?: TuiPromptRef | undefined }
+  | undefined;
+
+const scheduleDeferred = (callback: () => void): void => {
+  setTimeout(callback, 0);
+};
 
 export function resolveSidebarReturnFocusAction(input: {
   pendingSidebarRefocus?: {
@@ -21,6 +38,10 @@ export function resolveSidebarReturnFocusAction(input: {
     return 'focus-prompt';
   }
 
+  if (routeSessionID === undefined) {
+    return 'none';
+  }
+
   if (routeSessionID !== pendingSidebarRefocus.childSessionID) {
     return 'clear-pending';
   }
@@ -30,9 +51,7 @@ export function resolveSidebarReturnFocusAction(input: {
 
 export function focusPromptWithDeferredRetry(
   tryFocusPrompt: () => boolean,
-  schedule: (callback: () => void) => void = (callback) => {
-    setTimeout(callback, 0);
-  },
+  schedule: (callback: () => void) => void = scheduleDeferred,
 ): void {
   schedule(() => {
     if (tryFocusPrompt()) return;
@@ -40,4 +59,59 @@ export function focusPromptWithDeferredRetry(
       void tryFocusPrompt();
     });
   });
+}
+
+export function createPromptFocusController(
+  schedule: (callback: () => void) => void = scheduleDeferred,
+) {
+  let previousRouteSessionID: string | undefined;
+  let pendingSidebarRefocus: PendingSidebarRefocus | undefined;
+  let activePromptRef: TuiPromptRef | undefined;
+
+  const composePromptRef = (slotRef: PromptRefProp) => {
+    return (ref: TuiPromptRef | undefined): void => {
+      activePromptRef = ref;
+      if (typeof slotRef === 'function') {
+        slotRef(ref);
+      } else if (slotRef && 'current' in slotRef) {
+        slotRef.current = ref;
+      }
+    };
+  };
+
+  const focusActivePrompt = (): void => {
+    focusPromptWithDeferredRetry(
+      () => {
+        if (!activePromptRef) return false;
+        activePromptRef.focus();
+        return true;
+      },
+      schedule,
+    );
+  };
+
+  const handleRouteChange = (routeSessionID: string | undefined): void => {
+    const sidebarReturnAction = resolveSidebarReturnFocusAction({
+      pendingSidebarRefocus,
+      previousRouteSessionID,
+      routeSessionID,
+    });
+
+    if (sidebarReturnAction === 'focus-prompt') {
+      pendingSidebarRefocus = undefined;
+      focusActivePrompt();
+    } else if (sidebarReturnAction === 'clear-pending') {
+      pendingSidebarRefocus = undefined;
+    }
+
+    previousRouteSessionID = routeSessionID;
+  };
+
+  return {
+    composePromptRef,
+    handleRouteChange,
+    rememberSidebarChildNavigation: (input: PendingSidebarRefocus): void => {
+      pendingSidebarRefocus = input;
+    },
+  };
 }

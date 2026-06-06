@@ -9,7 +9,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import plugin from '../index.tsx';
 import { buildTuiSnapshot, elapsedMs } from '../src/runtime/snapshot.ts';
 import { navigateToChildSession, resolveNavigationSessionID } from '../src/runtime/navigation.ts';
-import { hydrateChildTokensFromLogs } from '../src/runtime/runtime.tsx';
+import { formatPersistedSnapshot } from '../src/runtime/persisted-snapshot.ts';
+import { hydrateChildTokensFromLogs } from '../src/runtime/status-hydration.ts';
 import type { SubagentChild, SubagentState } from '../src/domain/types.ts';
 import { persistSnapshot } from '../src/infrastructure/persistence.ts';
 
@@ -211,7 +212,7 @@ describe('tui elapsed time', () => {
       1,
     );
 
-    await persistSnapshot(statePath, textPath, state);
+    await persistSnapshot(statePath, textPath, state, formatPersistedSnapshot(state, { source: 'load' }));
 
     const snapshot = buildTuiSnapshot(state);
     expect(readFileSync(textPath, 'utf8')).toBe(snapshot.statusSnapshotLine);
@@ -265,12 +266,13 @@ describe('tui elapsed time', () => {
         status: 'running',
       }),
     ]);
-
-    await persistSnapshot(statePath, textPath, state, {
+    const persistedSnapshot = formatPersistedSnapshot(state, {
       source: 'refresh',
       lastEventType: 'session.updated',
       bufferedEventCount: 3,
     });
+
+    await persistSnapshot(statePath, textPath, state, persistedSnapshot);
 
     expect(JSON.parse(readFileSync(debugPath, 'utf8'))).toMatchObject({
       source: 'refresh',

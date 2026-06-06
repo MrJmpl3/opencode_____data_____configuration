@@ -214,7 +214,26 @@ describe('reconcile', () => {
     expect(result.nextState.totalExecuted).toBe(1);
   });
 
-  it('keeps a terminal child closed when a later snapshot reports it as running', () => {
+  it('drops synthetic tool wrappers when no real session anchor remains in the snapshot', () => {
+    const initial = createEmptyState();
+    initial.children['tool:delegate_1'] = {
+      id: 'tool:delegate_1',
+      title: 'Delegation wrapper',
+      parentID: 'ses_parent',
+      source: 'tool',
+      targetSessionID: 'ses_child',
+      status: 'running',
+      startedAt: '2026-06-04T11:50:00.000Z',
+      updatedAt: '2026-06-04T11:55:00.000Z',
+    };
+
+    const result = reconcileChildrenState(initial, { data: [] });
+
+    expect(result.changed).toBe(true);
+    expect(result.nextState.children['tool:delegate_1']).toBeUndefined();
+  });
+
+  it('keeps a terminal child closed when an older running snapshot reports it as running', () => {
     const initial = createEmptyState();
     initial.children.ses_child = {
       id: 'ses_child',
@@ -237,7 +256,7 @@ describe('reconcile', () => {
           source: 'session',
           status: 'running',
           startedAt: '2026-06-04T11:55:00.000Z',
-          updatedAt: '2026-06-04T12:00:00.000Z',
+          updatedAt: '2026-06-04T11:55:30.000Z',
         },
       ],
     });
@@ -245,6 +264,79 @@ describe('reconcile', () => {
     expect(result.nextState.children.ses_child).toMatchObject({
       status: 'done',
       endedAt: '2026-06-04T11:56:00.000Z',
+    });
+  });
+
+  it('reopens a done child when a newer live snapshot reports it as running', () => {
+    const initial = createEmptyState();
+    initial.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T11:56:00.000Z',
+      endedAt: '2026-06-04T11:56:00.000Z',
+      elapsedMs: 60_000,
+    };
+
+    const result = reconcileChildrenState(initial, {
+      data: [
+        {
+          id: 'ses_child',
+          parentID: 'ses_parent',
+          title: 'Recovered child',
+          source: 'session',
+          status: 'running',
+          startedAt: '2026-06-04T11:55:00.000Z',
+          updatedAt: '2026-06-04T12:00:00.000Z',
+        },
+      ],
+    });
+
+    expect(result.nextState.children.ses_child).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: undefined,
+    });
+  });
+
+  it('reopens an errored child when a newer live snapshot reports it as running', () => {
+    const initial = createEmptyState();
+    initial.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T11:56:00.000Z',
+      endedAt: '2026-06-04T11:56:00.000Z',
+    };
+
+    const result = reconcileChildrenState(initial, {
+      data: [
+        {
+          id: 'ses_child',
+          parentID: 'ses_parent',
+          title: 'Recovered child',
+          source: 'session',
+          status: 'running',
+          startedAt: '2026-06-04T11:55:00.000Z',
+          updatedAt: '2026-06-04T12:00:00.000Z',
+        },
+      ],
+    });
+
+    expect(result.nextState.children.ses_child).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: undefined,
     });
   });
 

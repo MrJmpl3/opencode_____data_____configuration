@@ -134,7 +134,7 @@ export function reconcileChildrenState(
 
   for (const child of incomingChildren) {
     const before = nextState.children[child.id];
-    changed = upsertRunningChild(nextState, child) || changed;
+    changed = upsertRunningChild(nextState, child, { allowTerminalReopen: true }) || changed;
     if (child.status === 'done' || child.status === 'error') {
       changed = markChildStatus(nextState, child.id, child.status, child.endedAt ?? child.updatedAt) || changed;
     }

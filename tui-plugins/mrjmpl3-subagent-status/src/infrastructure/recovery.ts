@@ -31,6 +31,10 @@ function resolveSessionIdentity(
   return child.targetSessionID;
 }
 
+function isRealSessionChild(child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'source'>>): boolean {
+  return child.source === 'session' || child.id.startsWith('ses_');
+}
+
 export function inferParentSessionID(state: SubagentState): string | undefined {
   const parentIDs = new Set(Object.values(state.children).map((child) => child.parentID));
   return parentIDs.size === 1 ? [...parentIDs][0] : undefined;
@@ -67,6 +71,7 @@ export function applyRecoveredChildren(
 
     const sessionID = resolveSessionIdentity(child);
     if (!sessionID || authoritativeSet.has(sessionID)) continue;
+    if (isRealSessionChild(child) && child.status === 'running') continue;
 
     delete state.children[child.id];
     state.purgedSessionIDs[sessionID] = true;

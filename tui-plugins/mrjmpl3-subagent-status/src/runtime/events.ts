@@ -1,6 +1,6 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { markChildStatus, upsertChildDetails, upsertRunningChild } from '../domain/state.ts';
+import { markChildRunning, markChildStatus, upsertChildDetails, upsertRunningChild } from '../domain/state.ts';
 import type { SubagentState } from '../domain/types.ts';
 
 import { deriveOpenCodeSessionStatus } from '../domain/session-status.ts';
@@ -445,6 +445,8 @@ export function applySubagentEvent(state: SubagentState, event: unknown): boolea
       ...created,
       source: 'session',
       targetSessionID: created.id,
+    }, {
+      allowTerminalReopen: true,
     });
   }
 
@@ -473,13 +475,16 @@ export function applySubagentEvent(state: SubagentState, event: unknown): boolea
     if (!status) return false;
 
     let changed = false;
-    if (status !== 'running') {
+    const eventUpdatedAt = extractEventTimestamp(candidate, ['completed', 'end', 'ended', 'updated', 'created', 'started']);
+    if (status === 'running') {
+      changed = markChildRunning(state, sessionID, eventUpdatedAt) || changed;
+    } else {
       changed =
         markChildStatus(
           state,
           sessionID,
           status,
-          extractEventTimestamp(candidate, ['completed', 'end', 'ended', 'updated']),
+          eventUpdatedAt,
         ) || changed;
     }
 

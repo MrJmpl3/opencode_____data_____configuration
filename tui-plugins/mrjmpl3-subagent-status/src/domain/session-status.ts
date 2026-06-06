@@ -1,5 +1,7 @@
 import type { SubagentStatus } from './types.ts';
 
+export type TerminalSubagentStatus = Exclude<SubagentStatus, 'running'>;
+
 const RUNNING_SESSION_STATUS_VALUES = new Set([
   'busy',
   'running',
@@ -44,6 +46,14 @@ export function deriveSessionStatus(value: unknown): SubagentStatus | undefined 
   const statuses = collectSessionStatusValues(value);
   if (statuses.some((status) => ERROR_SESSION_STATUS_VALUES.has(status))) return 'error';
   if (statuses.some((status) => RUNNING_SESSION_STATUS_VALUES.has(status))) return 'running';
+  if (statuses.some((status) => DONE_SESSION_STATUS_VALUES.has(status))) return 'done';
+
+  return undefined;
+}
+
+export function deriveTerminalSessionStatus(value: unknown): TerminalSubagentStatus | undefined {
+  const statuses = collectSessionStatusValues(value);
+  if (statuses.some((status) => ERROR_SESSION_STATUS_VALUES.has(status))) return 'error';
   if (statuses.some((status) => DONE_SESSION_STATUS_VALUES.has(status))) return 'done';
 
   return undefined;

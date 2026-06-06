@@ -7,9 +7,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createEmptyState,
   getCounts,
+  markChildRunning,
+  markChildStatus,
   pruneOrphanedSyntheticRunningChildren,
   pruneTerminalChildren,
   replaceChildren,
+  upsertChildDetails,
   upsertRunningChild,
 } from '../src/domain/state.ts';
 import { loadState, resolveStatePath, saveState } from '../src/infrastructure/persistence.ts';
@@ -216,6 +219,34 @@ describe('state', () => {
     expect(state.children.ses_parent).toBeDefined();
   });
 
+  it('prunes synthetic tool wrappers even when no real session anchor remains', () => {
+    const state = createEmptyState();
+    state.children['tool:delegate_1'] = {
+      id: 'tool:delegate_1',
+      title: 'Detached wrapper',
+      parentID: 'ses_parent',
+      source: 'tool',
+      targetSessionID: 'ses_child',
+      status: 'running',
+      startedAt: '2026-06-04T11:50:00.000Z',
+      updatedAt: '2026-06-04T11:50:00.000Z',
+    };
+    state.children['subtask:part_1'] = {
+      id: 'subtask:part_1',
+      title: 'Fallback row',
+      parentID: 'ses_parent',
+      source: 'subtask',
+      targetSessionID: 'ses_child',
+      status: 'running',
+      startedAt: '2026-06-04T11:50:00.000Z',
+      updatedAt: '2026-06-04T11:50:00.000Z',
+    };
+
+    expect(pruneOrphanedSyntheticRunningChildren(state)).toBe(true);
+    expect(state.children['tool:delegate_1']).toBeUndefined();
+    expect(state.children['subtask:part_1']).toBeDefined();
+  });
+
   it('drops stale counted ids when replacing children with a pruned snapshot', () => {
     const state = createEmptyState();
     state.children = {
@@ -359,6 +390,47 @@ describe('state', () => {
     });
   });
 
+  it('reopens matching rows with running color and cleared terminal markers', () => {
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T11:56:00.000Z',
+      endedAt: '2026-06-04T11:56:00.000Z',
+    };
+    state.children['tool:ses_child'] = {
+      id: 'tool:ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'tool',
+      targetSessionID: 'ses_child',
+      status: 'done',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T11:56:00.000Z',
+      endedAt: '2026-06-04T11:56:00.000Z',
+    };
+
+    expect(markChildRunning(state, 'ses_child', '2026-06-04T12:00:00.000Z')).toBe(true);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: undefined,
+    });
+    expect(state.children['tool:ses_child']).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: undefined,
+    });
+  });
+
   it('does not resurrect a terminal session after retention pruning', () => {
     const state = createEmptyState();
 
@@ -390,5 +462,80 @@ describe('state', () => {
     ).toBe(false);
 
     expect(state.children.ses_pruned).toBeUndefined();
+  });
+
+  it('does not reopen a terminal row from stale running evidence', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    expect(markChildRunning(state, 'ses_child', '2026-06-04T11:59:59.000Z')).toBe(false);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+      color: 'green',
+    });
+  });
+
+  it('does not let older terminal evidence override a newer running row', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      color: 'yellow',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+    };
+
+    expect(markChildStatus(state, 'ses_child', 'error', '2026-06-04T12:00:00.000Z')).toBe(false);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      color: 'yellow',
+    });
+    expect(state.children.ses_child).not.toHaveProperty('endedAt');
+  });
+
+  it('does not let older detail updates roll timestamps backwards', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'running',
+      color: 'yellow',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+    };
+
+    expect(
+      upsertChildDetails(state, 'ses_child', {
+        summary: 'Recovered from older source',
+        updatedAt: '2026-06-04T12:00:00.000Z',
+      }),
+    ).toBe(true);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      summary: 'Recovered from older source',
+    });
   });
 });

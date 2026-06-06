@@ -5,11 +5,7 @@ import os from 'node:os';
 
 import type { SubagentState } from '../domain/types.ts';
 
-import {
-  hydrateStateFromRecoverySources,
-  type RecoveryContext,
-  type RecoverySource,
-} from '../infrastructure/recovery.ts';
+import { hydrateStateFromRecoverySources, type RecoveryContext, type RecoverySource } from './recovery.ts';
 import { createSerializedTaskQueue } from '../runtime/queue.ts';
 import {
   createEmptyState,
@@ -21,7 +17,6 @@ import {
   resolveExecutionCountIdentity,
   syncExecutionState,
 } from '../domain/state.ts';
-import { buildTuiSnapshot, type TuiSnapshot } from '../runtime/snapshot.ts';
 
 const STATUS_DIRNAME = 'mrjmpl3-subagent-status';
 const STATUS_FILENAME = 'state.json';
@@ -227,51 +222,35 @@ export async function saveState(statePath: string, state: SubagentState): Promis
   await writeLocalFile(statePath, JSON.stringify(state, null, 2));
 }
 
-export type SnapshotPersistenceSource = 'startup' | 'event' | 'load' | 'refresh';
-
-export type PersistSnapshotMeta = {
-  source: SnapshotPersistenceSource;
-  lastEventType?: string;
-  bufferedEventCount?: number;
+export type PersistedSnapshotArtifacts = {
+  statusText: string;
+  debugSnapshot: string;
 };
-
-function serializeDebugSnapshot(state: SubagentState, snapshot: TuiSnapshot, meta: PersistSnapshotMeta): string {
-  return JSON.stringify(
-    {
-      persistedAt: new Date().toISOString(),
-      source: meta.source,
-      lastEventType: meta.lastEventType,
-      bufferedEventCount: meta.bufferedEventCount ?? 0,
-      stateUpdatedAt: state.updatedAt,
-      totalExecuted: state.totalExecuted,
-      ...snapshot.debug,
-    },
-    null,
-    2,
-  );
-}
 
 export async function persistSnapshot(
   statePath: string,
   textPath: string,
   state: SubagentState,
-  meta: PersistSnapshotMeta = { source: 'load' },
+  artifacts: PersistedSnapshotArtifacts,
 ): Promise<void> {
   try {
-    const snapshot = buildTuiSnapshot(state);
     await saveState(statePath, state);
-    await saveStatusText(textPath, snapshot.statusSnapshotLine);
-    await saveDebugSnapshot(resolveDebugPath(statePath), serializeDebugSnapshot(state, snapshot, meta));
+    await saveStatusText(textPath, artifacts.statusText);
+    await saveDebugSnapshot(resolveDebugPath(statePath), artifacts.debugSnapshot);
   } catch {
     // Persistence is best-effort.
   }
 }
 
-export function createPersistQueue(statePath: string, textPath: string) {
-  const enqueue = createSerializedTaskQueue(async (payload: { state: SubagentState; meta: PersistSnapshotMeta }) => {
-    await persistSnapshot(statePath, textPath, payload.state, payload.meta);
+export function createPersistQueue<TMeta>(
+  statePath: string,
+  textPath: string,
+  formatArtifacts: (state: SubagentState, meta: TMeta) => PersistedSnapshotArtifacts,
+) {
+  const enqueue = createSerializedTaskQueue(async (payload: { state: SubagentState; meta: TMeta }) => {
+    await persistSnapshot(statePath, textPath, payload.state, formatArtifacts(payload.state, payload.meta));
   });
 
-  return (state: SubagentState, meta: PersistSnapshotMeta): Promise<void> =>
+  return (state: SubagentState, meta: TMeta): Promise<void> =>
     enqueue({ state: structuredClone(state) as SubagentState, meta });
 }
