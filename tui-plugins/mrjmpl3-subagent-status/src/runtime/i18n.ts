@@ -3,6 +3,8 @@ export type Locale = 'en' | 'es';
 const translations = {
   en: {
     subagents: 'Subagents',
+    active: 'Active',
+    recent: 'Recent',
     noSubagentsYet: 'No subagents yet',
     run: 'run',
     done: 'done',
@@ -15,6 +17,8 @@ const translations = {
   },
   es: {
     subagents: 'Subagentes',
+    active: 'Activos',
+    recent: 'Recientes',
     noSubagentsYet: 'Todavía no hay subagentes',
     run: 'act',
     done: 'listo',

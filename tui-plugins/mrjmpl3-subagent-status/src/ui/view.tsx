@@ -1,5 +1,6 @@
 /** @jsxImportSource @opentui/solid */
 import type { TuiPluginApi, TuiThemeCurrent } from '@opencode-ai/plugin/tui';
+import type { JSX } from 'solid-js';
 import { For, Show, createMemo } from 'solid-js';
 
 import type { SubagentChild } from '../domain/types.ts';
@@ -13,10 +14,27 @@ import {
   statusColor as resolveRenderStatusColor,
 } from './format.ts';
 import { navigateToChildSession, resolveNavigationSessionID } from '../runtime/navigation.ts';
+import { splitSidebarVisibleSections } from './view-model.ts';
 
 const SIDEBAR_ARROW_EXPANDED = '▼';
 const SIDEBAR_ARROW_COLLAPSED = '▶';
 const ROW_NAVIGATION_HINT = '›';
+
+const SidebarSection = (props: {
+  api: TuiPluginApi;
+  label: string;
+  count: number;
+  tone: TuiThemeCurrent['text'];
+  children: JSX.Element;
+}) => (
+  <box flexDirection="column">
+    <box flexDirection="row">
+      <text fg={props.tone}>{props.label}</text>
+      <text fg={props.api.theme.current.textMuted}>{` · ${formatCount(props.count)}`}</text>
+    </box>
+    <box flexDirection="column">{props.children}</box>
+  </box>
+);
 
 function taskStatusMarker(status: SubagentChild['status']): string {
   if (status === 'done') return '✓';
@@ -50,6 +68,10 @@ const ChildRow = (props: {
   const titleColor = createMemo(() => {
     if (props.child.status === 'done') return props.api.theme.current.textMuted;
     return props.api.theme.current.text;
+  });
+  const metaColor = createMemo(() => {
+    if (props.child.status === 'error') return props.api.theme.current.error;
+    return props.api.theme.current.textMuted;
   });
 
   return (
@@ -86,7 +108,7 @@ const ChildRow = (props: {
         when={props.child.status === 'running'}
         fallback={
           <Show when={terminalMeta().length > 0}>
-            <text fg={props.api.theme.current.textMuted}>{`  ${terminalMeta()}`}</text>
+            <text fg={metaColor()}>{`  ${terminalMeta()}`}</text>
           </Show>
         }
       >
@@ -113,6 +135,7 @@ export const SidebarView = (props: {
 }) => {
   const currentSnapshot = () => props.snapshot();
   const counts = () => currentSnapshot().counts;
+  const sections = createMemo(() => splitSidebarVisibleSections(currentSnapshot().visibleChildren));
 
   return (
     <box flexDirection="column">
@@ -137,9 +160,30 @@ export const SidebarView = (props: {
             when={currentSnapshot().visibleChildren.length > 0}
             fallback={<text fg={props.api.theme.current.textMuted}>{t('noSubagentsYet')}</text>}
           >
-            <For each={currentSnapshot().visibleChildren}>
-              {(child) => <ChildRow api={props.api} child={child} onNavigateToChild={props.onNavigateToChild} />}
-            </For>
+            <Show when={sections().active.length > 0}>
+              <SidebarSection
+                api={props.api}
+                label={t('active')}
+                count={sections().active.length}
+                tone={props.api.theme.current.warning}
+              >
+                <For each={sections().active}>
+                  {(child) => <ChildRow api={props.api} child={child} onNavigateToChild={props.onNavigateToChild} />}
+                </For>
+              </SidebarSection>
+            </Show>
+            <Show when={sections().recent.length > 0}>
+              <SidebarSection
+                api={props.api}
+                label={t('recent')}
+                count={sections().recent.length}
+                tone={props.api.theme.current.textMuted}
+              >
+                <For each={sections().recent}>
+                  {(child) => <ChildRow api={props.api} child={child} onNavigateToChild={props.onNavigateToChild} />}
+                </For>
+              </SidebarSection>
+            </Show>
           </Show>
         </box>
       </Show>

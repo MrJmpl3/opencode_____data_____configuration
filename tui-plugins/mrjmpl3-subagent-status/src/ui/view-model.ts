@@ -219,6 +219,26 @@ export interface SubagentSnapshotView {
   visibleCounts: SubagentCounts;
 }
 
+export interface SidebarVisibleSections {
+  active: SubagentChild[];
+  recent: SubagentChild[];
+}
+
+export function splitSidebarVisibleSections(children: readonly SubagentChild[]): SidebarVisibleSections {
+  return children.reduce<SidebarVisibleSections>(
+    (sections, child) => {
+      if (child.status === 'running') {
+        sections.active.push(child);
+      } else {
+        sections.recent.push(child);
+      }
+
+      return sections;
+    },
+    { active: [], recent: [] },
+  );
+}
+
 export function buildSubagentSnapshotView(
   children: readonly SubagentChild[],
   nowMs = Date.now(),

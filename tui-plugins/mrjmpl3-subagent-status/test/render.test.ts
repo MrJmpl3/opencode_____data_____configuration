@@ -4,11 +4,13 @@ import {
   buildSubagentSnapshotView,
   collapseSubagentWorkItems,
   renderStatusLine,
+  splitSidebarVisibleSections,
   visibleSubagentWorkItems,
 } from '../src/ui/view-model.ts';
 import {
   formatContextCompact,
   formatCount,
+  formatRelativeRecency,
   formatSidebarRunningMeta,
   formatSidebarTerminalMeta,
   formatSidebarTitle,
@@ -163,6 +165,7 @@ describe('render', () => {
   });
 
   it('formats running and terminal sidebar metadata in compact fixed-width friendly chunks', () => {
+    const nowMs = Date.parse('2026-06-04T10:06:00.000Z');
     const runningChild = child({
       title: 'Review width handling',
       agentName: 'render-specialist',
@@ -171,6 +174,8 @@ describe('render', () => {
     });
     const doneChild = child({
       status: 'done',
+      endedAt: '2026-06-04T10:04:00.000Z',
+      updatedAt: '2026-06-04T10:04:00.000Z',
       elapsedMs: 4 * 60 * 1000,
       tokens: { total: 1530, contextPercent: 42.3 },
     });
@@ -179,8 +184,20 @@ describe('render', () => {
       primary: '01:01 · @render-spec…',
       secondary: '1.5k 42%',
     });
-    expect(formatSidebarTerminalMeta(doneChild)).toBe('04:00 · 1.5k 42%');
+    expect(formatRelativeRecency(doneChild.endedAt, nowMs)).toBe('2m ago');
+    expect(formatSidebarTerminalMeta(doneChild, nowMs)).toBe('2m ago · 1.5k 42%');
     expect(formatCount(1200)).toBe('1,200');
+  });
+
+  it('splits visible sidebar rows into active and recent sections without reordering within each group', () => {
+    const runningChild = child({ id: 'ses_running' });
+    const errorChild = child({ id: 'ses_error', status: 'error', color: 'red' });
+    const doneChild = child({ id: 'ses_done', status: 'done', color: 'green' });
+
+    const sections = splitSidebarVisibleSections([runningChild, errorChild, doneChild]);
+
+    expect(sections.active.map((item) => item.id)).toEqual(['ses_running']);
+    expect(sections.recent.map((item) => item.id)).toEqual(['ses_error', 'ses_done']);
   });
 
   it('keeps tracked totals honest when visible rows are pruned', () => {

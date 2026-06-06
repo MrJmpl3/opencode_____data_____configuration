@@ -7,6 +7,28 @@ const SIDEBAR_RUNNING_META_SECONDARY_MAX = 20;
 const SIDEBAR_TERMINAL_META_MAX = 20;
 const SIDEBAR_AGENT_MAX = 12;
 
+export function formatRelativeRecency(timestamp: string | undefined, nowMs = Date.now()): string {
+  if (!timestamp) return '';
+
+  const targetMs = Date.parse(timestamp);
+  if (Number.isNaN(targetMs)) return '';
+
+  const diffMs = Math.max(0, nowMs - targetMs);
+  const diffSeconds = Math.floor(diffMs / 1000);
+
+  if (diffSeconds < 5) return 'now';
+  if (diffSeconds < 60) return `${diffSeconds}s ago`;
+
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays}d ago`;
+}
+
 export function formatDuration(elapsedMs: number | undefined): string {
   const totalSeconds = Math.max(0, Math.floor((elapsedMs ?? 0) / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -141,9 +163,9 @@ export function formatSidebarRunningMeta(child: SubagentChild): { primary: strin
   };
 }
 
-export function formatSidebarTerminalMeta(child: SubagentChild): string {
+export function formatSidebarTerminalMeta(child: SubagentChild, nowMs = Date.now()): string {
   return joinCompactParts(
-    [formatDuration(child.elapsedMs), formatSidebarContextCompact(child)],
+    [formatRelativeRecency(child.endedAt ?? child.updatedAt, nowMs), formatSidebarContextCompact(child), formatDuration(child.elapsedMs)],
     SIDEBAR_TERMINAL_META_MAX,
   );
 }

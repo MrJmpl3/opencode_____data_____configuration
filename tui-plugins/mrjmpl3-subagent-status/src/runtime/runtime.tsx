@@ -11,7 +11,7 @@ import { reconcileChildrenState } from '../domain/reconcile.ts';
 import { hydrateStateFromRecoverySources } from '../infrastructure/recovery.ts';
 import { createSQLiteRecoverySource } from '../infrastructure/recovery/sqlite.ts';
 import {
-  resolveSubagentStatusPluginOptions,
+  normalizeSubagentStatusPluginOptions,
   type ResolvedSubagentStatusPluginOptions,
   type StaleRunningProbePolicy,
 } from './options.ts';
@@ -415,7 +415,7 @@ export function createTuiRuntime(
     setSessionId: (sessionID: string) => void;
     setNowMs: (nowMs: number) => void;
   },
-  options: ResolvedSubagentStatusPluginOptions = resolveSubagentStatusPluginOptions(undefined),
+  options: ResolvedSubagentStatusPluginOptions = normalizeSubagentStatusPluginOptions(undefined),
 ): TuiRuntime {
   const statePath = resolveStatePath({
     workspaceDirectory: api.state.path.directory,
@@ -637,7 +637,9 @@ export function createTuiRuntime(
 }
 
 export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unknown): Promise<void> => {
-  const resolvedOptions = resolveSubagentStatusPluginOptions(options);
+  // El contrato del loader expone `options` como unknown; la normalizacion vive
+  // en un solo borde para que todo el runtime consuma una forma explicita.
+  const resolvedOptions = normalizeSubagentStatusPluginOptions(options);
 
   createRoot((disposeRoot) => {
     const { slots } = api;

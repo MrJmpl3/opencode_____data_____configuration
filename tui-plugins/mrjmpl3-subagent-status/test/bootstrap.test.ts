@@ -151,4 +151,111 @@ describe('tui bootstrap buffering', () => {
     await Promise.resolve();
     expect(saveStateCalls).toEqual([{ children: [] }]);
   });
+
+  it('accepts explicit plugin tuple options and normalizes them before bootstrap', async () => {
+    vi.resetModules();
+
+    const resolveStatePath = vi.fn(() => '/tmp/custom-subagent-status.json');
+    const resolveTextPath = vi.fn(() => '/tmp/custom-subagent-status.txt');
+    const loadState = vi.fn(async () => ({
+      children: {},
+      countedChildIDs: {},
+      purgedSessionIDs: {},
+      totalExecuted: 0,
+      updatedAt: '2026-06-04T12:00:00.000Z',
+    }));
+    const shouldPreserveStateOnStartup = vi.fn(({ preserveStateOnStartup }: { preserveStateOnStartup?: boolean }) =>
+      preserveStateOnStartup === true,
+    );
+    const createSQLiteRecoverySource = vi.fn(() => ({
+      id: 'sqlite',
+      hydrate: vi.fn(async () => ({ changed: false })),
+    }));
+
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>(
+        '../src/infrastructure/persistence.ts',
+      );
+
+      return {
+        ...actual,
+        resolveStatePath,
+        resolveTextPath,
+        loadState,
+        shouldPreserveStateOnStartup,
+        createPersistQueue: vi.fn(() => async () => undefined),
+      };
+    });
+
+    vi.doMock('../src/infrastructure/recovery/sqlite.ts', () => ({
+      createSQLiteRecoverySource,
+    }));
+
+    const { default: plugin, DEFAULT_STALE_RUNNING_PROBE_POLICY } = await import('../index.tsx');
+
+    const api = {
+      client: {
+        session: {
+          children: vi.fn(async () => ({ data: [] })),
+        },
+      },
+      lifecycle: {
+        onDispose: vi.fn(),
+      },
+      route: {
+        navigate: vi.fn(),
+        current: { name: 'home' },
+      },
+      slots: {
+        register: vi.fn(),
+      },
+      state: {
+        path: {
+          directory: '/tmp/workspace',
+        },
+        session: {
+          messages: vi.fn(() => []),
+          status: vi.fn(() => undefined),
+        },
+      },
+      theme: {
+        current: {
+          error: 'red',
+          success: 'green',
+          text: 'white',
+          textMuted: 'gray',
+          warning: 'yellow',
+        },
+      },
+    } as unknown as TuiPluginApi;
+
+    await plugin.tui(
+      api,
+      {
+        staleRunningProbePolicy: {
+          baseBackoffMs: 10,
+          maxBackoffMs: 20,
+          maxAttempts: 2,
+          refreshIntervalMs: 30,
+        },
+        persistence: {
+          statePath: ' /tmp/from-options.json ',
+          preserveStateOnStartup: true,
+        },
+        recovery: {
+          sqliteDatabasePath: ' /tmp/opencode.db ',
+        },
+      },
+      undefined as never,
+    );
+
+    expect(resolveStatePath).toHaveBeenCalledWith({
+      workspaceDirectory: '/tmp/workspace',
+      statePath: '/tmp/from-options.json',
+    });
+    expect(shouldPreserveStateOnStartup).toHaveBeenCalledWith({ preserveStateOnStartup: true });
+    expect(loadState).toHaveBeenCalledWith('/tmp/custom-subagent-status.json');
+    expect(createSQLiteRecoverySource).toHaveBeenCalledWith({ databasePath: '/tmp/opencode.db' });
+    expect(DEFAULT_STALE_RUNNING_PROBE_POLICY.baseBackoffMs).toBe(60_000);
+  });
 });
