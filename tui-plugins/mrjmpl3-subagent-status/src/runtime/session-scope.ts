@@ -4,7 +4,7 @@ import type { PersistSnapshotMeta } from './persisted-snapshot.ts';
 
 export function createRuntimeSessionScopeHelpers(input: {
   getSessionId: () => string;
-  setSessionId: (sessionID: string) => void;
+  setSessionId: (sessionId: string) => void;
   syncState: (state: SubagentState, meta: PersistSnapshotMeta) => Promise<void>;
   createRefreshMeta: () => PersistSnapshotMeta;
 }) {
@@ -29,38 +29,38 @@ export function createRuntimeSessionScopeHelpers(input: {
     persistEmptyScopedState();
   };
 
-  const beginSessionScope = (sessionID: string): number => {
+  const beginSessionScope = (sessionId: string): number => {
     const token = invalidateSessionScope();
-    input.setSessionId(sessionID);
+    input.setSessionId(sessionId);
     persistEmptyScopedState();
     return token;
   };
 
-  const bufferStartupScopedEvent = (sessionID: string, event: unknown): void => {
-    const events = deferredStartupScopedEvents.get(sessionID);
+  const bufferStartupScopedEvent = (sessionId: string, event: unknown): void => {
+    const events = deferredStartupScopedEvents.get(sessionId);
     if (events) {
       events.push(event);
       return;
     }
 
-    deferredStartupScopedEvents.set(sessionID, [event]);
+    deferredStartupScopedEvents.set(sessionId, [event]);
   };
 
   const replayDeferredStartupScopedEvents = async (
-    sessionID: string,
+    sessionId: string,
     sessionToken: number,
     replayEvent: (event: unknown) => Promise<void>,
     isDisposed: () => boolean,
   ): Promise<void> => {
-    if (!sessionID) return;
+    if (!sessionId) return;
 
-    const events = deferredStartupScopedEvents.get(sessionID);
+    const events = deferredStartupScopedEvents.get(sessionId);
     if (!events || events.length === 0) return;
 
-    deferredStartupScopedEvents.delete(sessionID);
+    deferredStartupScopedEvents.delete(sessionId);
 
     for (const event of events) {
-      if (isDisposed() || sessionToken !== activeSessionToken || input.getSessionId() !== sessionID) return;
+      if (isDisposed() || sessionToken !== activeSessionToken || input.getSessionId() !== sessionId) return;
       await replayEvent(event);
     }
   };

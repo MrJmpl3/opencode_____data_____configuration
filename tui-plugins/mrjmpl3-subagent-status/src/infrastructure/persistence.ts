@@ -4,6 +4,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import os from 'node:os';
 
 import type { SubagentState } from '../domain/types.ts';
+import type { PersistedSnapshotArtifacts } from '../shared/persisted-artifacts.ts';
 
 import { hydrateStateFromRecoverySources, type RecoveryContext, type RecoverySource } from './recovery.ts';
 import { createSerializedTaskQueue } from '../runtime/queue.ts';
@@ -17,31 +18,12 @@ import {
   resolveExecutionCountIdentity,
   syncExecutionState,
 } from '../domain/state.ts';
+import { isRecord, toFiniteNumber, toNonNegativeInteger } from '../shared/coercion.ts';
 
 const STATUS_DIRNAME = 'mrjmpl3-subagent-status';
 const STATUS_FILENAME = 'state.json';
 const STATUS_DIR_MODE = 0o700;
 const STATUS_FILE_MODE = 0o600;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function toFiniteNumber(value: unknown): number | undefined {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim().length > 0) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-
-  return undefined;
-}
-
-function toNonNegativeInteger(value: unknown): number | undefined {
-  const parsed = toFiniteNumber(value);
-  if (parsed === undefined) return undefined;
-  return Math.max(0, Math.floor(parsed));
-}
 
 function safeReadJSON(value: string): unknown {
   try {
@@ -221,11 +203,6 @@ export async function saveDebugSnapshot(debugPath: string, contents: string): Pr
 export async function saveState(statePath: string, state: SubagentState): Promise<void> {
   await writeLocalFile(statePath, JSON.stringify(state, null, 2));
 }
-
-export type PersistedSnapshotArtifacts = {
-  statusText: string;
-  debugSnapshot: string;
-};
 
 export async function persistSnapshot(
   statePath: string,

@@ -6,7 +6,7 @@ export function isSessionTarget(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('ses_');
 }
 
-export function resolveChildSessionID(child: SessionTargetLike): string | undefined {
+export function resolveChildSessionId(child: SessionTargetLike): string | undefined {
   if (isSessionTarget(child.targetSessionID)) return child.targetSessionID;
   if (isSessionTarget(child.id)) return child.id;
   return undefined;

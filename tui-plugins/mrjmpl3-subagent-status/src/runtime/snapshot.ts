@@ -1,7 +1,9 @@
 import type { SubagentChild, SubagentCounts, SubagentState } from '../domain/types.ts';
 
+import { resolveElapsedMs } from '../domain/state.ts';
 import { statusColor as resolveRenderStatusColor } from '../ui/format.ts';
-import { buildSubagentSnapshotView, renderStatusLine, renderStatusSnapshotLine } from '../ui/view-model.ts';
+import { buildSubagentSnapshotView } from '../ui/view-model/snapshot-view.ts';
+import { renderStatusLine, renderStatusSnapshotLine } from '../ui/view-model/status-line.ts';
 
 export interface TuiSnapshot {
   counts: SubagentCounts;
@@ -19,24 +21,11 @@ export interface TuiSnapshot {
   };
 }
 
-export function elapsedMs(child: SubagentChild, now: number): number {
-  const startedAt = Date.parse(child.startedAt);
-  if (Number.isNaN(startedAt)) return 0;
-
-  if (child.status === 'running') {
-    return Math.max(0, now - startedAt);
-  }
-
-  const endedAt = Date.parse(child.endedAt ?? child.updatedAt);
-  if (Number.isNaN(endedAt)) return 0;
-  return Math.max(0, endedAt - startedAt);
-}
-
 function hydrateSnapshotChild(child: SubagentChild, nowMs: number): SubagentChild {
   return {
     ...child,
     color: child.color ?? resolveRenderStatusColor(child.status),
-    elapsedMs: elapsedMs(child, nowMs),
+    elapsedMs: resolveElapsedMs(child, nowMs),
   };
 }
 

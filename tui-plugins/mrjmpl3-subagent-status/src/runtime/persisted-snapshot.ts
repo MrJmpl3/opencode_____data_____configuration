@@ -1,4 +1,5 @@
 import type { SubagentState } from '../domain/types.ts';
+import type { PersistedSnapshotArtifacts } from '../shared/persisted-artifacts.ts';
 
 import { buildTuiSnapshot, type TuiSnapshot } from './snapshot.ts';
 
@@ -8,11 +9,6 @@ export type PersistSnapshotMeta = {
   source: SnapshotPersistenceSource;
   lastEventType?: string;
   bufferedEventCount?: number;
-};
-
-export type PersistedSnapshotArtifacts = {
-  statusText: string;
-  debugSnapshot: string;
 };
 
 function serializeDebugSnapshot(state: SubagentState, snapshot: TuiSnapshot, meta: PersistSnapshotMeta): string {

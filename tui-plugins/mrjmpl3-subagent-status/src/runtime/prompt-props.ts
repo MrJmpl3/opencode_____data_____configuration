@@ -11,6 +11,7 @@ export type HomePromptProps = {
 
 export type SessionPromptProps = {
   sessionID?: string;
+  sessionId?: string;
   session_id?: string;
   right?: unknown;
   visible?: boolean;
@@ -51,6 +52,7 @@ export function normalizeSessionPromptProps(
   return {
     ...props,
     ...(props.sessionID === undefined && props.session_id !== undefined ? { sessionID: props.session_id } : {}),
+    ...(props.sessionID === undefined && props.sessionId !== undefined ? { sessionID: props.sessionId } : {}),
     ...(props.onSubmit === undefined && props.on_submit !== undefined ? { onSubmit: props.on_submit } : {}),
     right: props.right ?? fallbackRight,
     ref: composePromptRef(props.ref),

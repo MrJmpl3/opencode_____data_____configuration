@@ -24,8 +24,10 @@ describe('tui bootstrap buffering', () => {
     let bridgeDisposeCount = 0;
     const lifecycleDisposers: Array<() => void> = [];
 
-    vi.doMock('../src/runtime/events.ts', async () => {
-      const actual = await vi.importActual<typeof import('../src/runtime/events.ts')>('../src/runtime/events.ts');
+    vi.doMock('../src/runtime/events/bridge.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/runtime/events/bridge.ts')>(
+        '../src/runtime/events/bridge.ts',
+      );
 
       return {
         ...actual,

@@ -17,10 +17,15 @@ import { HomeBottomView, SidebarView } from '../ui/view.tsx';
 import { normalizeSubagentStatusPluginOptions } from './options.ts';
 import { createTuiRuntime } from './tui-runtime.ts';
 
-function resolveRouteSessionID(api: TuiPluginApi): string | undefined {
-  return api.route.current.name === 'session' && typeof api.route.current.params?.sessionID === 'string'
-    ? api.route.current.params.sessionID
-    : undefined;
+function resolveRouteSessionId(api: TuiPluginApi): string | undefined {
+  if (api.route.current.name !== 'session') return undefined;
+
+  const params = api.route.current.params as Record<string, unknown> | undefined;
+  if (typeof params?.sessionID === 'string') return params.sessionID;
+  if (typeof params?.session_id === 'string') return params.session_id;
+  if (typeof params?.sessionId === 'string') return params.sessionId;
+
+  return undefined;
 }
 
 export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unknown): Promise<void> => {
@@ -66,7 +71,7 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unkn
 
     createEffect(() => {
       void api.route.current;
-      promptFocusController.handleRouteChange(resolveRouteSessionID(api));
+      promptFocusController.handleRouteChange(resolveRouteSessionId(api));
     });
 
     slots.register({
@@ -77,11 +82,11 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unkn
           return <api.ui.Prompt {...promptProps} />;
         },
         session_prompt(_ctx: TuiSlotContext, props: SessionPromptProps) {
-          const nextSessionID = props.sessionID ?? props.session_id;
+          const nextSessionId = props.sessionID ?? props.session_id ?? props.sessionId;
           const promptProps = normalizeSessionPromptProps(
             props,
             promptFocusController.composePromptRef,
-            nextSessionID ? <api.ui.Slot name="session_prompt_right" session_id={nextSessionID} /> : undefined,
+            nextSessionId ? <api.ui.Slot name="session_prompt_right" session_id={nextSessionId} /> : undefined,
           );
           return <api.ui.Prompt {...promptProps} />;
         },

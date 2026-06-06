@@ -69,12 +69,12 @@ export function applyRecoveredChildren(
   for (const child of Object.values(state.children)) {
     if (parentSessionID && child.parentID !== parentSessionID) continue;
 
-    const sessionID = resolveSessionIdentity(child);
-    if (!sessionID || authoritativeSet.has(sessionID)) continue;
+    const sessionId = resolveSessionIdentity(child);
+    if (!sessionId || authoritativeSet.has(sessionId)) continue;
     if (isRealSessionChild(child) && child.status === 'running') continue;
 
     delete state.children[child.id];
-    state.purgedSessionIDs[sessionID] = true;
+    state.purgedSessionIDs[sessionId] = true;
     changed = true;
   }
 
@@ -99,8 +99,8 @@ export async function hydrateStateFromRecoverySources(
     if (!result) continue;
 
     changed = result.changed || changed;
-    for (const sessionID of result.authoritativeSessionIDs) {
-      authoritativeSessionIDs.add(sessionID);
+    for (const sessionId of result.authoritativeSessionIDs) {
+      authoritativeSessionIDs.add(sessionId);
     }
   }
 

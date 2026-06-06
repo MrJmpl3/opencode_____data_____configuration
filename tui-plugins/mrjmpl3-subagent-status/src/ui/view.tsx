@@ -6,6 +6,7 @@ import { For, Show, createMemo } from 'solid-js';
 import type { SubagentChild } from '../domain/types.ts';
 import type { TuiSnapshot } from '../runtime/snapshot.ts';
 import { t } from '../runtime/i18n.ts';
+import { navigateToChildSession, resolveNavigationSessionId } from '../runtime/navigation.ts';
 import {
   formatCount,
   formatSidebarRunningMeta,
@@ -13,8 +14,7 @@ import {
   formatSidebarTitle,
   statusColor as resolveRenderStatusColor,
 } from './format.ts';
-import { navigateToChildSession, resolveNavigationSessionID } from '../runtime/navigation.ts';
-import { splitSidebarVisibleSections } from './view-model.ts';
+import { splitSidebarVisibleSections } from './view-model/visibility.ts';
 
 const SIDEBAR_ARROW_EXPANDED = '▼';
 const SIDEBAR_ARROW_COLLAPSED = '▶';
@@ -56,7 +56,7 @@ const ChildRow = (props: {
   child: SubagentChild;
   onNavigateToChild?: (input: { parentSessionID: string; childSessionID: string; childRowID: string }) => void;
 }) => {
-  const clickable = createMemo(() => resolveNavigationSessionID(props.child) !== undefined);
+  const clickable = createMemo(() => resolveNavigationSessionId(props.child) !== undefined);
   const opacity = createMemo(() => {
     if (props.child.status === 'running') return 1;
     if (props.child.status === 'error') return 0.88;
@@ -81,11 +81,11 @@ const ChildRow = (props: {
       onMouseUp={
         clickable()
           ? () => {
-              const childSessionID = resolveNavigationSessionID(props.child);
-              if (childSessionID) {
+              const childSessionId = resolveNavigationSessionId(props.child);
+              if (childSessionId) {
                 props.onNavigateToChild?.({
                   parentSessionID: props.child.parentID,
-                  childSessionID,
+                  childSessionID: childSessionId,
                   childRowID: props.child.id,
                 });
               }

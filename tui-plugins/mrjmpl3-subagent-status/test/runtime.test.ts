@@ -44,8 +44,10 @@ describe('refresh runtime', () => {
 
     let capturedOnEvent: ((event: unknown) => void) | undefined;
 
-    vi.doMock('../src/runtime/events.ts', async () => {
-      const actual = await vi.importActual<typeof import('../src/runtime/events.ts')>('../src/runtime/events.ts');
+    vi.doMock('../src/runtime/events/bridge.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/runtime/events/bridge.ts')>(
+        '../src/runtime/events/bridge.ts',
+      );
 
       return {
         ...actual,

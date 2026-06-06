@@ -5,36 +5,14 @@ import { markChildRunning, markChildStatus, mergeChildDetails } from '../domain/
 import type { SubagentState } from '../domain/types.ts';
 import { hasCompleteUsageMetrics } from '../domain/tokens.ts';
 import { hydrateDoneChildTokens } from '../infrastructure/logs.ts';
+import { isRecord, normalizedString, timestampFromUnknown } from '../shared/coercion.ts';
 
-import { isRealSessionRow, resolveSessionRowSessionID } from './session-row.ts';
+import { isRealSessionRow, resolveSessionRowSessionId } from './session-row.ts';
 
 type SessionClient = {
   status?: (input: { directory: string }) => Promise<{ data?: Record<string, unknown> } | undefined>;
   messages?: (input: { sessionID: string; directory: string }) => Promise<{ data?: unknown[] } | undefined>;
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function timestampFromUnknown(value: unknown): string | undefined {
-  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
-    const millis = value < 10_000_000_000 ? value * 1000 : value;
-    const parsed = new Date(millis);
-    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
-  }
-
-  if (typeof value === 'string' && value.trim().length > 0) {
-    const parsed = Date.parse(value);
-    return Number.isNaN(parsed) ? undefined : new Date(parsed).toISOString();
-  }
-
-  return undefined;
-}
-
-function normalizedString(value: unknown): string | undefined {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim().toLowerCase() : undefined;
-}
 
 function messageInfo(message: unknown): Record<string, unknown> | undefined {
   const record = isRecord(message) ? message : undefined;
@@ -69,10 +47,10 @@ function messageActivityAt(message: unknown): string | undefined {
   return messageTime(message, 'completed', 'updated', 'created');
 }
 
-export function latestSessionActivityAt(api: TuiPluginApi, sessionID: string): string | undefined {
+export function latestSessionActivityAt(api: TuiPluginApi, sessionId: string): string | undefined {
   try {
     let latestMs = 0;
-    for (const message of api.state.session.messages(sessionID)) {
+    for (const message of api.state.session.messages(sessionId)) {
       const timestamp = messageActivityAt(message);
       if (!timestamp) continue;
       latestMs = Math.max(latestMs, Date.parse(timestamp));
@@ -140,8 +118,8 @@ export async function hydrateChildStatusesFromClient(
 
   const targets = Object.values(state.children).filter((child) => {
     if (!isRealSessionRow(child)) return false;
-    const sessionID = resolveSessionRowSessionID(child);
-    return Boolean(sessionID && targetSessionIDs.includes(sessionID));
+    const sessionId = resolveSessionRowSessionId(child);
+    return Boolean(sessionId && targetSessionIDs.includes(sessionId));
   });
   if (targets.length === 0) return false;
 
@@ -158,16 +136,16 @@ export async function hydrateChildStatusesFromClient(
 
   await Promise.all(
     targets.map(async (child) => {
-      const sessionID = resolveSessionRowSessionID(child);
-      if (!sessionID) return;
+      const sessionId = resolveSessionRowSessionId(child);
+      if (!sessionId) return;
 
-      const clientSessionStatus = statusBySessionID[sessionID];
+      const clientSessionStatus = statusBySessionID[sessionId];
       const clientStatus = deriveSessionStatus(clientSessionStatus);
       const clientTerminalStatus = deriveTerminalSessionStatus(clientSessionStatus);
       let messageSummary: { status?: 'done' | 'error'; endedAt?: string } = {};
 
       try {
-        const messages = (await sessionClient.messages?.({ sessionID, directory }))?.data ?? [];
+        const messages = (await sessionClient.messages?.({ sessionID: sessionId, directory }))?.data ?? [];
         messageSummary = summarizeMessages(messages);
       } catch {
         messageSummary = {};
@@ -177,14 +155,14 @@ export async function hydrateChildStatusesFromClient(
       if (!nextStatus) return;
 
       if (nextStatus === 'running') {
-        changed = markChildRunning(state, child.id, latestSessionActivityAt(api, sessionID) ?? child.updatedAt) || changed;
+        changed = markChildRunning(state, child.id, latestSessionActivityAt(api, sessionId) ?? child.updatedAt) || changed;
         return;
       }
 
       const endedAt =
         sessionStatusEndedAt(clientSessionStatus) ??
         messageSummary.endedAt ??
-        latestSessionActivityAt(api, sessionID) ??
+        latestSessionActivityAt(api, sessionId) ??
         child.endedAt ??
         child.updatedAt;
       changed = markChildStatus(state, child.id, nextStatus, endedAt) || changed;
@@ -208,15 +186,15 @@ export function hydrateChildStatusesFromTuiState(
   for (const child of Object.values(state.children)) {
     if (!isRealSessionRow(child)) continue;
 
-    const sessionID = resolveSessionRowSessionID(child);
-    if (!sessionID) continue;
-    if (!targetSessionIDs.includes(sessionID)) continue;
+    const sessionId = resolveSessionRowSessionId(child);
+    if (!sessionId) continue;
+    if (!targetSessionIDs.includes(sessionId)) continue;
 
-    const latestActivityAt = latestSessionActivityAt(api, sessionID);
-    const sessionStatus = api.state.session.status(sessionID);
+    const latestActivityAt = latestSessionActivityAt(api, sessionId);
+    const sessionStatus = api.state.session.status(sessionId);
     const status = deriveSessionStatus(sessionStatus);
     const terminalStatus = deriveTerminalSessionStatus(sessionStatus);
-    const messageSummary = summarizeMessages(api.state.session.messages(sessionID));
+    const messageSummary = summarizeMessages(api.state.session.messages(sessionId));
 
     if (status === 'running') {
       changed = markChildRunning(state, child.id, latestActivityAt ?? child.updatedAt) || changed;
@@ -251,10 +229,10 @@ export function hydrateChildTokensFromLogs(state: SubagentState): boolean {
       continue;
     }
 
-    const sessionID = resolveSessionRowSessionID(child);
-    if (!sessionID) continue;
+    const sessionId = resolveSessionRowSessionId(child);
+    if (!sessionId) continue;
 
-    const tokens = hydrateDoneChildTokens(sessionID);
+    const tokens = hydrateDoneChildTokens(sessionId);
     if (!tokens) continue;
 
     changed = mergeChildDetails(state, child.id, { tokens }) || changed;

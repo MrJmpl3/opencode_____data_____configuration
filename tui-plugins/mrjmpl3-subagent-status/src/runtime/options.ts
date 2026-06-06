@@ -1,3 +1,5 @@
+import { isRecord } from '../shared/coercion.ts';
+
 export type StaleRunningProbePolicy = {
   baseBackoffMs: number;
   maxBackoffMs: number;
@@ -103,10 +105,6 @@ export const DEFAULT_STALE_RUNNING_PROBE_POLICY: StaleRunningProbePolicy = {
 const MIN_BACKOFF_MS = 1_000;
 const MIN_REFRESH_INTERVAL_MS = 1_000;
 const MAX_MAX_ATTEMPTS = 100;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
 
 function stringOption(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;

@@ -4,6 +4,7 @@ import os from 'node:os';
 
 import { hasCompleteUsageMetrics } from '../domain/tokens.ts';
 import type { SubagentTokens } from '../domain/types.ts';
+import { isRecord, toFiniteNumber } from '../shared/coercion.ts';
 
 const MAX_SYNC_LOG_READ_BYTES = 1024 * 1024;
 const DONE_TOKEN_REHYDRATE_THROTTLE_MS = 2000;
@@ -20,15 +21,15 @@ type DoneTokenCacheEntry = {
 const doneTokenCache = new Map<string, DoneTokenCacheEntry>();
 
 function pruneDoneTokenCache(nowMs: number): void {
-  for (const [sessionID, entry] of doneTokenCache) {
+  for (const [sessionId, entry] of doneTokenCache) {
     if (nowMs - entry.checkedAtMs <= DONE_TOKEN_CACHE_TTL_MS) continue;
-    doneTokenCache.delete(sessionID);
+    doneTokenCache.delete(sessionId);
   }
 
   while (doneTokenCache.size > DONE_TOKEN_CACHE_MAX_ENTRIES) {
-    const oldestSessionID = doneTokenCache.keys().next().value;
-    if (typeof oldestSessionID !== 'string') break;
-    doneTokenCache.delete(oldestSessionID);
+    const oldestSessionId = doneTokenCache.keys().next().value;
+    if (typeof oldestSessionId !== 'string') break;
+    doneTokenCache.delete(oldestSessionId);
   }
 }
 
@@ -38,19 +39,6 @@ function safeRead<T>(reader: () => T): T | undefined {
   } catch {
     return undefined;
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function toFiniteNumber(value: unknown): number | undefined {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim().length > 0) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : undefined;
-  }
-  return undefined;
 }
 
 function normalizePercent(value: number): number {
@@ -202,17 +190,17 @@ export function readOpenCodeLogFileIfSmall(path: string): string | undefined {
 }
 
 export function hydrateDoneChildTokens(
-  sessionID: string,
+  sessionId: string,
   logDir = resolveOpenCodeLogDir(),
 ): SubagentTokens | undefined {
-  if (!sessionID.startsWith('ses_')) return undefined;
+  if (!sessionId.startsWith('ses_')) return undefined;
 
   const nowMs = Date.now();
   pruneDoneTokenCache(nowMs);
-  const cached = doneTokenCache.get(sessionID);
+  const cached = doneTokenCache.get(sessionId);
   if (cached?.tokens && hasCompleteUsageMetrics(cached.tokens)) {
-    doneTokenCache.delete(sessionID);
-    doneTokenCache.set(sessionID, { ...cached, checkedAtMs: nowMs });
+    doneTokenCache.delete(sessionId);
+    doneTokenCache.set(sessionId, { ...cached, checkedAtMs: nowMs });
     return cached.tokens;
   }
   if (cached && cached.attempts >= DONE_TOKEN_REHYDRATE_MAX_ATTEMPTS && !cached.tokens) {
@@ -234,15 +222,15 @@ export function hydrateDoneChildTokens(
   let tokens = cached?.tokens;
   for (const file of files) {
     const contents = readOpenCodeLogFileIfSmall(join(logDir, file));
-    if (!contents || !contents.includes(sessionID)) continue;
+    if (!contents || !contents.includes(sessionId)) continue;
 
     for (const line of contents.split('\n')) {
-      if (!line.includes(sessionID)) continue;
+      if (!line.includes(sessionId)) continue;
       tokens = mergeTokens(tokens, extractTokensFromLine(line));
     }
   }
 
-  doneTokenCache.set(sessionID, {
+  doneTokenCache.set(sessionId, {
     attempts: (cached?.attempts ?? 0) + 1,
     checkedAtMs: nowMs,
     tokens,

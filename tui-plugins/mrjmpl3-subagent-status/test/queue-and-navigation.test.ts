@@ -43,8 +43,8 @@ describe('tui runtime helpers', () => {
   it('coalesces refresh requests into one rerun after completion', async () => {
     const firstGate = deferred<void>();
     const calls: string[] = [];
-    const refresh = createCoalescedTaskRunner(async (sessionID: string) => {
-      calls.push(sessionID);
+    const refresh = createCoalescedTaskRunner(async (sessionId: string) => {
+      calls.push(sessionId);
       if (calls.length === 1) {
         await firstGate.promise;
       }
@@ -193,7 +193,7 @@ describe('tui runtime helpers', () => {
 
   it('resets state when switching session routes', () => {
     expect(resolveSessionSlotTransition('ses_old', { session_id: 'ses_new' }, true)).toEqual({
-      nextSessionID: 'ses_new',
+      nextSessionId: 'ses_new',
       resetState: true,
       shouldRefresh: true,
     });
@@ -201,9 +201,23 @@ describe('tui runtime helpers', () => {
 
   it('clears state when leaving a session route', () => {
     expect(resolveSessionSlotTransition('ses_old', {}, true)).toEqual({
-      nextSessionID: '',
+      nextSessionId: '',
       resetState: true,
       shouldRefresh: false,
+    });
+  });
+
+  it('accepts camel and legacy session route aliases at the slot boundary', () => {
+    expect(resolveSessionSlotTransition('', { sessionID: 'ses_bridge' }, false)).toEqual({
+      nextSessionId: 'ses_bridge',
+      resetState: true,
+      shouldRefresh: true,
+    });
+
+    expect(resolveSessionSlotTransition('', { sessionId: 'ses_runtime' }, false)).toEqual({
+      nextSessionId: 'ses_runtime',
+      resetState: true,
+      shouldRefresh: true,
     });
   });
 });

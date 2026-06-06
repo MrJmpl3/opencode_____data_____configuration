@@ -1,7 +1,7 @@
 import type { SubagentState } from '../domain/types.ts';
 
 import type { StaleRunningProbePolicy } from './options.ts';
-import { isRealSessionRow, resolveSessionRowSessionID } from './session-row.ts';
+import { isRealSessionRow, resolveSessionRowSessionId } from './session-row.ts';
 
 export type StaleRunningProbeState = {
   attempts: number;
@@ -15,29 +15,29 @@ export function nextStaleRunningBackoffMs(attempts: number, policy: StaleRunning
 
 export function resolveStaleRunningProbeTargets(
   state: SubagentState,
-  probeStateBySessionID: Map<string, StaleRunningProbeState>,
+  probeStateBySessionId: Map<string, StaleRunningProbeState>,
   policy: StaleRunningProbePolicy,
   nowMs: number,
 ): string[] {
-  const activeRunningSessionIDs = new Set<string>();
-  const targetSessionIDs: string[] = [];
+  const activeRunningSessionIds = new Set<string>();
+  const targetSessionIds: string[] = [];
 
   for (const child of Object.values(state.children)) {
     if (!isRealSessionRow(child) || child.status !== 'running') continue;
 
-    const sessionID = resolveSessionRowSessionID(child);
-    if (!sessionID) continue;
+    const sessionId = resolveSessionRowSessionId(child);
+    if (!sessionId) continue;
 
-    activeRunningSessionIDs.add(sessionID);
-    const existing = probeStateBySessionID.get(sessionID);
+    activeRunningSessionIds.add(sessionId);
+    const existing = probeStateBySessionId.get(sessionId);
 
     if (!existing) {
-      targetSessionIDs.push(sessionID);
+      targetSessionIds.push(sessionId);
       continue;
     }
 
     if (existing.lastSeenUpdatedAt !== child.updatedAt) {
-      probeStateBySessionID.set(sessionID, {
+      probeStateBySessionId.set(sessionId, {
         attempts: 0,
         lastSeenUpdatedAt: child.updatedAt,
         nextProbeAtMs: nowMs + policy.baseBackoffMs,
@@ -47,39 +47,39 @@ export function resolveStaleRunningProbeTargets(
 
     if (existing.attempts >= policy.maxAttempts) continue;
     if (nowMs < existing.nextProbeAtMs) continue;
-    targetSessionIDs.push(sessionID);
+    targetSessionIds.push(sessionId);
   }
 
-  for (const sessionID of [...probeStateBySessionID.keys()]) {
-    if (!activeRunningSessionIDs.has(sessionID)) {
-      probeStateBySessionID.delete(sessionID);
+  for (const sessionId of [...probeStateBySessionId.keys()]) {
+    if (!activeRunningSessionIds.has(sessionId)) {
+      probeStateBySessionId.delete(sessionId);
     }
   }
 
-  return targetSessionIDs;
+  return targetSessionIds;
 }
 
 export function settleStaleRunningProbeTargets(
   state: SubagentState,
-  probeStateBySessionID: Map<string, StaleRunningProbeState>,
-  sessionIDs: string[],
+  probeStateBySessionId: Map<string, StaleRunningProbeState>,
+  sessionIds: string[],
   policy: StaleRunningProbePolicy,
   nowMs: number,
 ): void {
-  for (const sessionID of sessionIDs) {
+  for (const sessionId of sessionIds) {
     const child = Object.values(state.children).find(
-      (candidate) => isRealSessionRow(candidate) && resolveSessionRowSessionID(candidate) === sessionID,
+      (candidate) => isRealSessionRow(candidate) && resolveSessionRowSessionId(candidate) === sessionId,
     );
 
     if (!child || child.status !== 'running') {
-      probeStateBySessionID.delete(sessionID);
+      probeStateBySessionId.delete(sessionId);
       continue;
     }
 
-    const previous = probeStateBySessionID.get(sessionID);
+    const previous = probeStateBySessionId.get(sessionId);
     if (!previous || previous.lastSeenUpdatedAt !== child.updatedAt) {
       const attempts = 1;
-      probeStateBySessionID.set(sessionID, {
+      probeStateBySessionId.set(sessionId, {
         attempts,
         lastSeenUpdatedAt: child.updatedAt,
         nextProbeAtMs: nowMs + nextStaleRunningBackoffMs(attempts, policy),
@@ -88,7 +88,7 @@ export function settleStaleRunningProbeTargets(
     }
 
     const attempts = previous.attempts + 1;
-    probeStateBySessionID.set(sessionID, {
+    probeStateBySessionId.set(sessionId, {
       attempts,
       lastSeenUpdatedAt: child.updatedAt,
       nextProbeAtMs: nowMs + nextStaleRunningBackoffMs(attempts, policy),

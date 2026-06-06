@@ -1,42 +1,44 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 import type { SubagentChild } from '../domain/types.ts';
+import { isRecord } from '../shared/coercion.ts';
 
-import { isSessionTarget, resolveChildSessionID } from './session-target.ts';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
+import { resolveChildSessionId } from './session-target.ts';
 
 function slotSessionId(slotInput: unknown, fallback = ''): string {
   if (!isRecord(slotInput)) return fallback;
-  return typeof slotInput.session_id === 'string' ? slotInput.session_id : fallback;
+
+  if (typeof slotInput.session_id === 'string') return slotInput.session_id;
+  if (typeof slotInput.sessionID === 'string') return slotInput.sessionID;
+  if (typeof slotInput.sessionId === 'string') return slotInput.sessionId;
+
+  return fallback;
 }
 
 export function resolveSessionSlotTransition(
-  currentSessionID: string,
+  currentSessionId: string,
   slotInput: unknown,
   hasTrackedChildren: boolean,
-): { nextSessionID: string; resetState: boolean; shouldRefresh: boolean } {
-  const nextSessionID = slotSessionId(slotInput);
-  if (!nextSessionID) {
+): { nextSessionId: string; resetState: boolean; shouldRefresh: boolean } {
+  const nextSessionId = slotSessionId(slotInput);
+  if (!nextSessionId) {
     return {
-      nextSessionID: '',
-      resetState: currentSessionID !== '' || hasTrackedChildren,
+      nextSessionId: '',
+      resetState: currentSessionId !== '' || hasTrackedChildren,
       shouldRefresh: false,
     };
   }
 
-  if (nextSessionID !== currentSessionID) {
+  if (nextSessionId !== currentSessionId) {
     return {
-      nextSessionID,
+      nextSessionId,
       resetState: true,
       shouldRefresh: true,
     };
   }
 
   return {
-    nextSessionID,
+    nextSessionId,
     resetState: false,
     shouldRefresh: !hasTrackedChildren,
   };
@@ -44,19 +46,19 @@ export function resolveSessionSlotTransition(
 
 export { isSessionTarget } from './session-target.ts';
 
-export function resolveNavigationSessionID(
+export function resolveNavigationSessionId(
   child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
 ): string | undefined {
-  return resolveChildSessionID(child);
+  return resolveChildSessionId(child);
 }
 
 export function navigateToChildSession(
   api: Pick<TuiPluginApi, 'route'>,
   child: Pick<SubagentChild, 'id'> & Partial<Pick<SubagentChild, 'targetSessionID'>>,
 ): boolean {
-  const sessionID = resolveNavigationSessionID(child);
-  if (!sessionID) return false;
+  const sessionId = resolveNavigationSessionId(child);
+  if (!sessionId) return false;
 
-  api.route.navigate('session', { sessionID });
+  api.route.navigate('session', { sessionID: sessionId });
   return true;
 }

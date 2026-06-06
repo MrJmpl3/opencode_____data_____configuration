@@ -1,12 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  buildSubagentSnapshotView,
-  collapseSubagentWorkItems,
-  renderStatusLine,
-  splitSidebarVisibleSections,
-  visibleSubagentWorkItems,
-} from '../src/ui/view-model.ts';
+import { collapseSubagentWorkItems } from '../src/ui/view-model/collapse.ts';
+import { buildSubagentSnapshotView } from '../src/ui/view-model/snapshot-view.ts';
+import { renderStatusLine } from '../src/ui/view-model/status-line.ts';
+import { splitSidebarVisibleSections, visibleSubagentWorkItems } from '../src/ui/view-model/visibility.ts';
 import {
   formatContextCompact,
   formatCount,

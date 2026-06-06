@@ -1,34 +1,20 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { applySubagentEvent, extractSessionID, installEventBridge } from './events.ts';
-import { createBufferedTaskQueue, createCoalescedTaskRunner } from './queue.ts';
+import { installEventBridge } from './events/bridge.ts';
+import { createBufferedTaskQueue } from './queue.ts';
 import {
   normalizeSubagentStatusPluginOptions,
   type ResolvedSubagentStatusPluginOptions,
 } from './options.ts';
 import { resolveSessionSlotTransition } from './navigation.ts';
 import { createRuntimeSessionScopeHelpers } from './session-scope.ts';
-import {
-  hydrateChildStatusesFromClient,
-  hydrateChildStatusesFromTuiState,
-  hydrateChildTokensFromLogs,
-} from './status-hydration.ts';
-import {
-  resolveStaleRunningProbeTargets,
-  settleStaleRunningProbeTargets,
-  type StaleRunningProbeState,
-} from './stale-probe.ts';
-import { createEmptyState, pruneTerminalChildren } from '../domain/state.ts';
-import { reconcileChildrenState } from '../domain/reconcile.ts';
+import { createEmptyState } from '../domain/state.ts';
 import type { SubagentState } from '../domain/types.ts';
 import { createPersistQueue, loadState, resolveStatePath, resolveTextPath, shouldPreserveStateOnStartup } from '../infrastructure/persistence.ts';
-import { hydrateStateFromRecoverySources } from '../infrastructure/recovery.ts';
 import { createRecoverySources } from '../infrastructure/recovery-sources.ts';
 import { formatPersistedSnapshot, type PersistSnapshotMeta } from './persisted-snapshot.ts';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
+import { createTuiRuntimeRefresh } from './tui-runtime-refresh.ts';
+import { isRecord } from '../shared/coercion.ts';
 
 export type TuiRuntime = {
   bootstrap: () => Promise<void>;
@@ -36,17 +22,17 @@ export type TuiRuntime = {
   dispose: () => void;
 };
 
-export function createTuiRuntime(
+export const createTuiRuntime = (
   api: TuiPluginApi,
   input: {
     getState: () => SubagentState;
     setState: (state: SubagentState) => void;
     getSessionId: () => string;
-    setSessionId: (sessionID: string) => void;
+    setSessionId: (sessionId: string) => void;
     setNowMs: (nowMs: number) => void;
   },
   options: ResolvedSubagentStatusPluginOptions = normalizeSubagentStatusPluginOptions(undefined),
-): TuiRuntime {
+): TuiRuntime => {
   const statePath = resolveStatePath({
     workspaceDirectory: api.state.path.directory,
     statePath: options.persistence.statePath,
@@ -55,7 +41,6 @@ export function createTuiRuntime(
   const persistQueuedSnapshot = createPersistQueue(statePath, textPath, formatPersistedSnapshot);
   const recoverySources = createRecoverySources({ sqliteDatabasePath: options.recovery.sqliteDatabasePath });
   const staleRunningProbePolicy = options.staleRunningProbePolicy;
-  const staleRunningProbeStateBySessionID = new Map<string, StaleRunningProbeState>();
   const bufferedEvents = createBufferedTaskQueue(async (event: unknown) => {
     await mergeEventState(event);
   });
@@ -77,9 +62,6 @@ export function createTuiRuntime(
     await persistQueuedSnapshot(nextState, meta);
   };
 
-  const isInactiveSessionToken = (sessionToken: number): boolean =>
-    disposed || sessionToken !== sessionScope.currentSessionToken();
-
   const sessionScope = createRuntimeSessionScopeHelpers({
     getSessionId: input.getSessionId,
     setSessionId: input.setSessionId,
@@ -87,83 +69,19 @@ export function createTuiRuntime(
     createRefreshMeta: () => createPersistMeta('refresh'),
   });
 
-  const mergeEventState = async (event: unknown): Promise<void> => {
-    if (disposed) return;
-
-    const eventSessionID = extractSessionID(event as Parameters<typeof extractSessionID>[0]);
-    if (input.getSessionId() && eventSessionID && eventSessionID !== input.getSessionId()) return;
-    if (!input.getSessionId() && eventSessionID) {
-      if (sessionScope.isBufferingStartupScopedEvents()) {
-        sessionScope.bufferStartupScopedEvent(eventSessionID, event);
-      }
-      return;
-    }
-
-    const nextState = structuredClone(input.getState()) as SubagentState;
-    const changed = applySubagentEvent(nextState, event);
-    if (!changed) return;
-
-    pruneTerminalChildren(nextState);
-    await syncState(nextState, createPersistMeta('event'));
-  };
-
-  const refreshRunner = createCoalescedTaskRunner(
-    async (request: { sessionID: string; sessionToken: number }): Promise<void> => {
-      const { sessionID, sessionToken } = request;
-      if (isInactiveSessionToken(sessionToken)) return;
-
-      try {
-        if (!sessionID) {
-          if (isInactiveSessionToken(sessionToken)) return;
-          const emptyState = createEmptyState();
-          await syncState(emptyState, createPersistMeta('startup'));
-          return;
-        }
-
-        const directory = api.state.path.directory;
-        const response = await api.client.session?.children?.({ sessionID, directory });
-        if (isInactiveSessionToken(sessionToken)) return;
-
-        const { changed, nextState } = reconcileChildrenState(input.getState(), response);
-        const recovered = await hydrateStateFromRecoverySources(
-          nextState,
-          { directory, parentSessionID: sessionID },
-          recoverySources,
-        );
-        const staleRunningProbeTargets = resolveStaleRunningProbeTargets(
-          nextState,
-          staleRunningProbeStateBySessionID,
-          staleRunningProbePolicy,
-          Date.now(),
-        );
-        const tuiStatusHydrated = hydrateChildStatusesFromTuiState(api, nextState, staleRunningProbeTargets);
-        const clientStatusHydrated = await hydrateChildStatusesFromClient(api, nextState, staleRunningProbeTargets);
-        settleStaleRunningProbeTargets(
-          nextState,
-          staleRunningProbeStateBySessionID,
-          staleRunningProbeTargets,
-          staleRunningProbePolicy,
-          Date.now(),
-        );
-        const hydrated = hydrateChildTokensFromLogs(nextState);
-        const pruned = pruneTerminalChildren(nextState);
-        if (isInactiveSessionToken(sessionToken)) return;
-        if (!changed && !recovered.changed && !tuiStatusHydrated && !clientStatusHydrated && !hydrated && !pruned) {
-          return;
-        }
-
-        await syncState(nextState, createPersistMeta('refresh'));
-      } catch {
-        // Refresh is best-effort.
-      }
+  const { mergeEventState, refresh } = createTuiRuntimeRefresh(api, {
+    state: {
+      getState: input.getState,
+      getSessionId: input.getSessionId,
     },
-  );
-
-  const refresh = (sid = input.getSessionId(), sessionToken = sessionScope.currentSessionToken()): Promise<void> =>
-    refreshRunner({ sessionID: sid, sessionToken }).then(async () => {
-      if (isInactiveSessionToken(sessionToken)) return;
-      await sessionScope.replayDeferredStartupScopedEvents(sid, sessionToken, mergeEventState, () => disposed);
-    });
+    sessionScope,
+    recoverySources,
+    staleRunningProbePolicy,
+    staleRunningProbeStateBySessionId: new Map(),
+    createPersistMeta,
+    syncState,
+    isDisposed: () => disposed,
+  });
 
   const refreshFromSlot = (slotInput: unknown): void => {
     const transition = resolveSessionSlotTransition(
@@ -172,7 +90,7 @@ export function createTuiRuntime(
       Object.keys(input.getState().children).length > 0,
     );
 
-    if (!transition.nextSessionID) {
+    if (!transition.nextSessionId) {
       if (transition.resetState) {
         sessionScope.resetSessionScope();
       }
@@ -180,13 +98,13 @@ export function createTuiRuntime(
     }
 
     if (transition.resetState) {
-      sessionScope.beginSessionScope(transition.nextSessionID);
-      void refresh(transition.nextSessionID);
+      sessionScope.beginSessionScope(transition.nextSessionId);
+      void refresh(transition.nextSessionId);
       return;
     }
 
     if (transition.shouldRefresh) {
-      void refresh(transition.nextSessionID);
+      void refresh(transition.nextSessionId);
     }
   };
 
@@ -223,17 +141,17 @@ export function createTuiRuntime(
     }
   };
 
-  function dispose(): void {
+  const dispose = (): void => {
     if (disposed) return;
     disposed = true;
 
     if (tickTimer) clearInterval(tickTimer);
     if (reconcileTimer) clearInterval(reconcileTimer);
-  }
+  };
 
   return {
     bootstrap,
     refreshFromSlot,
     dispose,
   };
-}
+};

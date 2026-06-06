@@ -5,6 +5,7 @@ import os from 'node:os';
 
 import type { SubagentChild, SubagentState, SubagentTokens } from '../../domain/types.ts';
 import { deriveTerminalSessionStatus } from '../../domain/session-status.ts';
+import { isRecord, timestampFromUnknown } from '../../shared/coercion.ts';
 
 import { applyRecoveredChildren } from '../recovery.ts';
 import type { RecoveryContext, RecoveryResult, RecoverySource } from '../recovery.ts';
@@ -101,24 +102,6 @@ print(json.dumps(result))
 
 function toISOString(timestampMs: number): string {
   return new Date(timestampMs).toISOString();
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function timestampFromUnknown(value: unknown): string | undefined {
-  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
-    const millis = value < 10_000_000_000 ? value * 1000 : value;
-    return toISOString(millis);
-  }
-
-  if (typeof value === 'string' && value.trim().length > 0) {
-    const parsed = Date.parse(value);
-    return Number.isNaN(parsed) ? undefined : new Date(parsed).toISOString();
-  }
-
-  return undefined;
 }
 
 function resolveOpenCodeDatabasePath(): string {

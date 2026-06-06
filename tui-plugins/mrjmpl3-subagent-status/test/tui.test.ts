@@ -7,8 +7,9 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import plugin from '../index.tsx';
-import { buildTuiSnapshot, elapsedMs } from '../src/runtime/snapshot.ts';
-import { navigateToChildSession, resolveNavigationSessionID } from '../src/runtime/navigation.ts';
+import { resolveElapsedMs } from '../src/domain/state.ts';
+import { buildTuiSnapshot } from '../src/runtime/snapshot.ts';
+import { navigateToChildSession, resolveNavigationSessionId } from '../src/runtime/navigation.ts';
 import { formatPersistedSnapshot } from '../src/runtime/persisted-snapshot.ts';
 import { hydrateChildTokensFromLogs } from '../src/runtime/status-hydration.ts';
 import type { SubagentChild, SubagentState } from '../src/domain/types.ts';
@@ -81,8 +82,8 @@ describe('tui elapsed time', () => {
       endedAt: '2026-06-04T11:55:00.000Z',
     };
 
-    expect(elapsedMs(child, Date.parse('2026-06-04T12:00:00.000Z'))).toBe(5 * 60 * 1000);
-    expect(elapsedMs(child, Date.parse('2026-06-04T13:00:00.000Z'))).toBe(5 * 60 * 1000);
+    expect(resolveElapsedMs(child, Date.parse('2026-06-04T12:00:00.000Z'))).toBe(5 * 60 * 1000);
+    expect(resolveElapsedMs(child, Date.parse('2026-06-04T13:00:00.000Z'))).toBe(5 * 60 * 1000);
   });
 
   it('builds visible counts from clickable child rows and produces persisted status text', () => {
@@ -401,7 +402,7 @@ describe('tui elapsed time', () => {
     expect(navigate).toHaveBeenCalledTimes(1);
 
     expect(
-      resolveNavigationSessionID(
+      resolveNavigationSessionId(
         createChild({
           id: 'tool:2',
           title: 'Synthetic done row',

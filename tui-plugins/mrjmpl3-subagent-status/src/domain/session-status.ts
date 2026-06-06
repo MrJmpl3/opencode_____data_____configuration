@@ -1,5 +1,7 @@
 import type { SubagentStatus } from './types.ts';
 
+import { isRecord, normalizedString } from '../shared/coercion.ts';
+
 export type TerminalSubagentStatus = Exclude<SubagentStatus, 'running'>;
 
 const RUNNING_SESSION_STATUS_VALUES = new Set([
@@ -16,14 +18,6 @@ const RUNNING_SESSION_STATUS_VALUES = new Set([
 const DONE_SESSION_STATUS_VALUES = new Set(['done', 'completed', 'complete', 'success', 'succeeded']);
 
 const ERROR_SESSION_STATUS_VALUES = new Set(['error', 'failed', 'failure', 'cancelled', 'canceled', 'aborted']);
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function normalizedString(value: unknown): string | undefined {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim().toLowerCase() : undefined;
-}
 
 export function collectSessionStatusValues(value: unknown): string[] {
   const direct = normalizedString(value);

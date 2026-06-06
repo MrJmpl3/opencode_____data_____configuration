@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { applySubagentEvent, extractTaskToolEvidence } from '../src/runtime/events.ts';
 import { createEmptyState } from '../src/domain/state.ts';
+import { applySubagentEvent } from '../src/runtime/events/handling.ts';
+import { extractSessionId, extractTaskToolEvidence } from '../src/runtime/events/parsing.ts';
 
 const CREATED_AT = '2026-06-05T10:00:00.000Z';
 const IDLE_AT = '2026-06-05T10:01:00.000Z';
@@ -102,6 +103,24 @@ describe('events', () => {
         },
       })?.targetSessionID,
     ).toBeUndefined();
+  });
+
+  it('keeps event session parsing tolerant across session key aliases', () => {
+    expect(
+      extractSessionId({
+        session_id: 'ses_root',
+      }),
+    ).toBe('ses_root');
+
+    expect(
+      extractSessionId({
+        properties: {
+          info: {
+            sessionID: 'ses_child',
+          },
+        },
+      }),
+    ).toBe('ses_child');
   });
 
   it('keeps matching tool and subtask rows running until the delegated session finishes', () => {

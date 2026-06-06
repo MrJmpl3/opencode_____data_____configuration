@@ -68,6 +68,21 @@ describe('prompt prop normalization', () => {
     expect(promptProps.ref).toBe(composedRef);
   });
 
+  it('accepts sessionId aliases without breaking prompt normalization', () => {
+    const composePromptRef = vi.fn((slotRef) => slotRef);
+
+    const promptProps = normalizeSessionPromptProps(
+      {
+        sessionId: 'ses_alias',
+      },
+      composePromptRef,
+      'generated-right',
+    );
+
+    expect(promptProps.sessionID).toBe('ses_alias');
+    expect(promptProps.right).toBe('generated-right');
+  });
+
   it('preserves falsey right values and only falls back for nullish ones', () => {
     const composePromptRef = vi.fn((slotRef) => slotRef);
 
