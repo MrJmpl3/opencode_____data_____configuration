@@ -11,17 +11,7 @@ import { createQuotaProviderCache } from '../infrastructure/cache.ts';
 import { readGoConfig } from '../infrastructure/providers/go.ts';
 import { View } from '../ui/view.tsx';
 import { createRefreshScheduler } from './refresh-scheduler.ts';
-import {
-  DEFAULT_MIN_REFRESH_INTERVAL_MS,
-  DEFAULT_POLL_INTERVAL_MS,
-  DEFAULT_PROVIDER_CACHE_TTL_MS,
-  DEFAULT_PROVIDER_ERROR_BACKOFF_MS,
-  getDisplayModeSetting,
-  getNumberOption,
-  getVisibleProviders,
-  MIN_SAFE_CACHE_TTL_MS,
-  MIN_SAFE_REFRESH_INTERVAL_MS,
-} from './options.ts';
+import { resolveQuotaPluginOptions } from './options.ts';
 import type { ProviderSpec } from '../domain/types.ts';
 import { slotSessionId } from './session.ts';
 
@@ -80,33 +70,14 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
   let disposed = false;
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
 
-  const displayMode = getDisplayModeSetting(options);
-  const visibleProviders = getVisibleProviders(options);
-  const pollIntervalMs = getNumberOption(
-    options,
-    'pollIntervalMs',
-    DEFAULT_POLL_INTERVAL_MS,
-    MIN_SAFE_REFRESH_INTERVAL_MS,
-    true,
-  );
-  const minRefreshIntervalMs = getNumberOption(
-    options,
-    'minRefreshIntervalMs',
-    DEFAULT_MIN_REFRESH_INTERVAL_MS,
-    MIN_SAFE_REFRESH_INTERVAL_MS,
-  );
-  const providerCacheTtlMs = getNumberOption(
-    options,
-    'providerCacheTtlMs',
-    DEFAULT_PROVIDER_CACHE_TTL_MS,
-    MIN_SAFE_CACHE_TTL_MS,
-  );
-  const providerErrorBackoffMs = getNumberOption(
-    options,
-    'providerErrorBackoffMs',
-    DEFAULT_PROVIDER_ERROR_BACKOFF_MS,
-    MIN_SAFE_CACHE_TTL_MS,
-  );
+  const {
+    displayMode,
+    visibleProviders,
+    pollIntervalMs,
+    minRefreshIntervalMs,
+    providerCacheTtlMs,
+    providerErrorBackoffMs,
+  } = resolveQuotaPluginOptions(options);
   const expiryRefreshIntervalMs = Math.max(minRefreshIntervalMs, providerCacheTtlMs);
   const { providerCache, getCachedProviderLines } = createQuotaProviderCache({
     providerCacheTtlMs,

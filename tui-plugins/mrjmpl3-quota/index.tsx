@@ -4,6 +4,8 @@ import { formatResponsibleUsagePace, formatResponsibleWeeklyUsage } from './src/
 import { isQuotaRateLimitError, retryAfterMsFromMessage } from './src/infrastructure/retry-policy.ts';
 import { registerQuotaTui } from './src/runtime/runtime.tsx';
 
+export { resolveQuotaPluginOptions, normalizeQuotaPluginOptions } from './src/runtime/options.ts';
+export type { QuotaPluginConfigEntry, QuotaPluginOptions, ResolvedQuotaPluginOptions } from './src/runtime/options.ts';
 export { formatResponsibleUsagePace, formatResponsibleWeeklyUsage, isQuotaRateLimitError, retryAfterMsFromMessage };
 
 const plugin: TuiPluginModule & { id: string } = {

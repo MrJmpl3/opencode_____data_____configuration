@@ -6,7 +6,12 @@ import type { TuiPluginApi, TuiPluginMeta } from '@opencode-ai/plugin/tui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as quotaIndex from '../index.tsx';
-import plugin, { formatResponsibleWeeklyUsage, isQuotaRateLimitError, retryAfterMsFromMessage } from '../index.tsx';
+import plugin, {
+  formatResponsibleWeeklyUsage,
+  isQuotaRateLimitError,
+  resolveQuotaPluginOptions,
+  retryAfterMsFromMessage,
+} from '../index.tsx';
 import { createRefreshScheduler } from '../src/runtime/refresh-scheduler.ts';
 import { refreshQuotaProviders } from '../src/runtime/runtime.tsx';
 import { fetchCopilotQuota, normalizeCopilotResetAtMs } from '../src/infrastructure/providers/copilot.ts';
@@ -62,7 +67,49 @@ describe('quota tui plugin', () => {
     expect(typeof quotaIndex.formatResponsibleUsagePace).toBe('function');
     expect(typeof quotaIndex.formatResponsibleWeeklyUsage).toBe('function');
     expect(typeof quotaIndex.isQuotaRateLimitError).toBe('function');
+    expect(typeof quotaIndex.resolveQuotaPluginOptions).toBe('function');
     expect(typeof quotaIndex.retryAfterMsFromMessage).toBe('function');
+  });
+
+  it('returns defaults when plugin options are omitted', () => {
+    const options = resolveQuotaPluginOptions(undefined);
+
+    expect(options).toEqual({
+      displayMode: 'remaining',
+      visibleProviders: [
+        { id: 'go', label: 'OpenCode Go' },
+        { id: 'copilot', label: 'GitHub Copilot' },
+        { id: 'openrouter', label: 'OpenRouter' },
+      ],
+      pollIntervalMs: 600_000,
+      minRefreshIntervalMs: 120_000,
+      providerCacheTtlMs: 300_000,
+      providerErrorBackoffMs: 900_000,
+    });
+  });
+
+  it('normalizes explicit plugin options before runtime usage', () => {
+    const options = resolveQuotaPluginOptions({
+      displayMode: 'used',
+      visibleProviders: [' OR ', 'github-copilot', 'unknown', 'openai', 'openai'],
+      pollIntervalMs: 0,
+      minRefreshIntervalMs: 10,
+      providerCacheTtlMs: 20,
+      providerErrorBackoffMs: Number.NaN,
+    });
+
+    expect(options).toEqual({
+      displayMode: 'used',
+      visibleProviders: [
+        { id: 'copilot', label: 'GitHub Copilot' },
+        { id: 'openrouter', label: 'OpenRouter' },
+        { id: 'openai', label: 'OpenAI' },
+      ],
+      pollIntervalMs: 0,
+      minRefreshIntervalMs: 60_000,
+      providerCacheTtlMs: 60_000,
+      providerErrorBackoffMs: 900_000,
+    });
   });
 
   it('exposes provider adapters from their responsibility-based modules', () => {
