@@ -14,6 +14,8 @@ import {
   type StaleRunningProbeState,
 } from './stale-probe.ts';
 import type { PersistSnapshotMeta } from './persisted-snapshot.ts';
+import { normalizeEventPayload } from './boundaries/event-payload.ts';
+import { createSessionClientBoundary } from './boundaries/session-client.ts';
 import { pruneTerminalChildren } from '../domain/state.ts';
 import { reconcileChildrenState } from '../domain/reconcile.ts';
 import type { SubagentState } from '../domain/types.ts';
@@ -49,23 +51,28 @@ export const createTuiRuntimeRefresh = (
     isDisposed: () => boolean;
   },
 ) => {
+  const sessionClient = createSessionClientBoundary(api);
+
   const isInactiveSessionToken = (sessionToken: number): boolean =>
     input.isDisposed() || sessionToken !== input.sessionScope.currentSessionToken();
 
   const mergeEventState = async (event: unknown): Promise<void> => {
     if (input.isDisposed()) return;
 
-    const eventSessionId = extractSessionId(event as Parameters<typeof extractSessionId>[0]);
+    const normalizedEvent = normalizeEventPayload(event);
+    if (!normalizedEvent) return;
+
+    const eventSessionId = extractSessionId(normalizedEvent);
     if (input.state.getSessionId() && eventSessionId && eventSessionId !== input.state.getSessionId()) return;
     if (!input.state.getSessionId() && eventSessionId) {
       if (input.sessionScope.isBufferingStartupScopedEvents()) {
-        input.sessionScope.bufferStartupScopedEvent(eventSessionId, event);
+        input.sessionScope.bufferStartupScopedEvent(eventSessionId, normalizedEvent);
       }
       return;
     }
 
-    const nextState = structuredClone(input.state.getState()) as SubagentState;
-    const changed = applySubagentEvent(nextState, event);
+    const nextState = structuredClone(input.state.getState());
+    const changed = applySubagentEvent(nextState, normalizedEvent);
     if (!changed) return;
 
     pruneTerminalChildren(nextState);
@@ -79,16 +86,11 @@ export const createTuiRuntimeRefresh = (
     try {
       if (!sessionId) return;
 
-      const directory = api.state.path.directory;
-      const response = await api.client.session?.children?.({ sessionID: sessionId, directory });
+      const response = await sessionClient.listChildren(sessionId);
       if (isInactiveSessionToken(sessionToken)) return;
 
+      const directory = api.state.path.directory;
       const { changed, nextState } = reconcileChildrenState(input.state.getState(), response);
-      const recovered = await hydrateStateFromRecoverySources(
-        nextState,
-        { directory, parentSessionID: sessionId },
-        input.recoverySources,
-      );
       const staleRunningProbeTargets = resolveStaleRunningProbeTargets(
         nextState,
         input.staleRunningProbeStateBySessionId,
@@ -104,16 +106,44 @@ export const createTuiRuntimeRefresh = (
         input.staleRunningProbePolicy,
         Date.now(),
       );
-      const hydrated = hydrateChildTokensFromLogs(nextState);
       const pruned = pruneTerminalChildren(nextState);
       if (isInactiveSessionToken(sessionToken)) return;
-      if (!changed && !recovered.changed && !tuiStatusHydrated && !clientStatusHydrated && !hydrated && !pruned) {
+      if (!changed && !tuiStatusHydrated && !clientStatusHydrated && !pruned) {
         return;
       }
 
       await input.syncState(nextState, input.createPersistMeta('refresh'));
     } catch {
       // Refresh is best-effort.
+    }
+  });
+
+  const recoveryHydrationRunner = createCoalescedTaskRunner(async (request: RefreshRequest): Promise<void> => {
+    const { sessionId, sessionToken } = request;
+    if (isInactiveSessionToken(sessionToken)) return;
+
+    try {
+      if (!sessionId) return;
+
+      const nextState = structuredClone(input.state.getState());
+      const directory = api.state.path.directory;
+      const recovered = await hydrateStateFromRecoverySources(
+        nextState,
+        { directory, parentSessionID: sessionId },
+        input.recoverySources,
+      );
+      if (isInactiveSessionToken(sessionToken)) return;
+
+      const hydrated = await hydrateChildTokensFromLogs(nextState);
+      const pruned = pruneTerminalChildren(nextState);
+      if (isInactiveSessionToken(sessionToken)) return;
+      if (!recovered.changed && !hydrated && !pruned) {
+        return;
+      }
+
+      await input.syncState(nextState, input.createPersistMeta('refresh'));
+    } catch {
+      // Recovery hydration is best-effort.
     }
   });
 
@@ -129,6 +159,9 @@ export const createTuiRuntimeRefresh = (
       mergeEventState,
       input.isDisposed,
     );
+    if (isInactiveSessionToken(sessionToken)) return;
+
+    void recoveryHydrationRunner({ sessionId, sessionToken });
   };
 
   return {

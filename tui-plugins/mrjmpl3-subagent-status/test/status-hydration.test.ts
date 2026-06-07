@@ -260,7 +260,7 @@ describe('status hydration', () => {
       tokens: { total: 20 },
     };
 
-    expect(hydrateChildTokensFromLogs(state)).toBe(true);
+    expect(await hydrateChildTokensFromLogs(state)).toBe(true);
     expect(state.children.ses_child?.tokens).toEqual({ total: 20, contextPercent: 42.5 });
   });
 });

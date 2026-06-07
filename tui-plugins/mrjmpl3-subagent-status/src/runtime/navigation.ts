@@ -1,26 +1,16 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
 import type { SubagentChild } from '../domain/types.ts';
-import { isRecord } from '../shared/coercion.ts';
+import { resolveSlotSessionId } from './boundaries/slot-payload.ts';
 
 import { resolveChildSessionId } from './session-target.ts';
-
-const slotSessionId = (slotInput: unknown, fallback = ''): string => {
-  if (!isRecord(slotInput)) return fallback;
-
-  if (typeof slotInput.session_id === 'string') return slotInput.session_id;
-  if (typeof slotInput.sessionID === 'string') return slotInput.sessionID;
-  if (typeof slotInput.sessionId === 'string') return slotInput.sessionId;
-
-  return fallback;
-};
 
 export const resolveSessionSlotTransition = (
   currentSessionId: string,
   slotInput: unknown,
   hasTrackedChildren: boolean,
 ): { nextSessionId: string; resetState: boolean; shouldRefresh: boolean } => {
-  const nextSessionId = slotSessionId(slotInput);
+  const nextSessionId = resolveSlotSessionId(slotInput);
   if (!nextSessionId) {
     return {
       nextSessionId: '',

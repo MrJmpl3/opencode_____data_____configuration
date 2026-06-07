@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import os from 'node:os';
 
@@ -180,19 +180,19 @@ const extractTokensFromLine = (line: string): SubagentTokens | undefined => {
   return hasUsableTokens(tokens) ? tokens : undefined;
 };
 
-export const readOpenCodeLogFileIfSmall = (path: string): string | undefined => {
-  const stats = safeRead(() => statSync(path));
+export const readOpenCodeLogFileIfSmall = async (path: string): Promise<string | undefined> => {
+  const stats = await safeRead(() => stat(path));
   if (!stats?.isFile() || stats.size > MAX_SYNC_LOG_READ_BYTES) {
     return undefined;
   }
 
-  return safeRead(() => readFileSync(path, 'utf8'));
+  return safeRead(() => readFile(path, 'utf8'));
 };
 
-export const hydrateDoneChildTokens = (
+export const hydrateDoneChildTokens = async (
   sessionId: string,
   logDir = resolveOpenCodeLogDir(),
-): SubagentTokens | undefined => {
+): Promise<SubagentTokens | undefined> => {
   if (!sessionId.startsWith('ses_')) return undefined;
 
   const nowMs = Date.now();
@@ -210,8 +210,8 @@ export const hydrateDoneChildTokens = (
     return cached.tokens;
   }
 
-  const files = safeRead(() =>
-    readdirSync(logDir)
+  const files = await safeRead(async () =>
+    (await readdir(logDir))
       .filter((file) => file.endsWith('.log'))
       .sort()
       .reverse()
@@ -221,7 +221,7 @@ export const hydrateDoneChildTokens = (
 
   let tokens = cached?.tokens;
   for (const file of files) {
-    const contents = readOpenCodeLogFileIfSmall(join(logDir, file));
+    const contents = await readOpenCodeLogFileIfSmall(join(logDir, file));
     if (!contents || !contents.includes(sessionId)) continue;
 
     for (const line of contents.split('\n')) {

@@ -7,12 +7,8 @@ import { hasCompleteUsageMetrics } from '../domain/tokens.ts';
 import { hydrateDoneChildTokens } from '../infrastructure/logs.ts';
 import { isRecord, normalizedString, timestampFromUnknown } from '../shared/coercion.ts';
 
+import { createSessionClientBoundary } from './boundaries/session-client.ts';
 import { isRealSessionRow, resolveSessionRowSessionId } from './session-row.ts';
-
-type SessionClient = {
-  status?: (input: { directory: string }) => Promise<{ data?: Record<string, unknown> } | undefined>;
-  messages?: (input: { sessionID: string; directory: string }) => Promise<{ data?: unknown[] } | undefined>;
-};
 
 const messageInfo = (message: unknown): Record<string, unknown> | undefined => {
   const record = isRecord(message) ? message : undefined;
@@ -113,8 +109,7 @@ export const hydrateChildStatusesFromClient = async (
   state: SubagentState,
   targetSessionIDs: readonly string[],
 ): Promise<boolean> => {
-  const sessionClient = api.client.session as unknown as SessionClient | undefined;
-  if (!sessionClient) return false;
+  const sessionClient = createSessionClientBoundary(api);
 
   const targets = Object.values(state.children).filter((child) => {
     if (!isRealSessionRow(child)) return false;
@@ -123,11 +118,10 @@ export const hydrateChildStatusesFromClient = async (
   });
   if (targets.length === 0) return false;
 
-  const directory = api.state.path.directory;
   let statusBySessionID: Record<string, unknown> = {};
 
   try {
-    statusBySessionID = (await sessionClient.status?.({ directory }))?.data ?? {};
+    statusBySessionID = await sessionClient.readStatusMap();
   } catch {
     statusBySessionID = {};
   }
@@ -145,7 +139,7 @@ export const hydrateChildStatusesFromClient = async (
       let messageSummary: { status?: 'done' | 'error'; endedAt?: string } = {};
 
       try {
-        const messages = (await sessionClient.messages?.({ sessionID: sessionId, directory }))?.data ?? [];
+        const messages = await sessionClient.readMessages(sessionId);
         messageSummary = summarizeMessages(messages);
       } catch {
         messageSummary = {};
@@ -225,7 +219,7 @@ export const hydrateChildStatusesFromTuiState = (
   return changed;
 };
 
-export const hydrateChildTokensFromLogs = (state: SubagentState): boolean => {
+export const hydrateChildTokensFromLogs = async (state: SubagentState): Promise<boolean> => {
   let changed = false;
 
   for (const child of Object.values(state.children)) {
@@ -237,7 +231,7 @@ export const hydrateChildTokensFromLogs = (state: SubagentState): boolean => {
     const sessionId = resolveSessionRowSessionId(child);
     if (!sessionId) continue;
 
-    const tokens = hydrateDoneChildTokens(sessionId);
+    const tokens = await hydrateDoneChildTokens(sessionId);
     if (!tokens) continue;
 
     changed = mergeChildDetails(state, child.id, { tokens }) || changed;

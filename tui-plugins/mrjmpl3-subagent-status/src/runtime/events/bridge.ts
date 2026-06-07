@@ -17,10 +17,15 @@ export const installEventBridge = (
   onEvent?: (event: unknown) => void,
 ): (() => void) => {
   const unsubs: Array<() => void> = [];
+  const subscribe = api.event?.on;
+
+  if (typeof subscribe !== 'function') {
+    return () => undefined;
+  }
 
   for (const eventName of RELEVANT_EVENTS) {
     unsubs.push(
-      api.event.on(eventName as never, (event) => {
+      subscribe(eventName as never, (event) => {
         onEvent?.(event);
         void refresh();
       }),

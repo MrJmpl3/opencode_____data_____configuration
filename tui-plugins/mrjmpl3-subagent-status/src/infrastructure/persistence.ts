@@ -228,6 +228,5 @@ export const createPersistQueue = <TMeta>(
     await persistSnapshot(statePath, textPath, payload.state, formatArtifacts(payload.state, payload.meta));
   });
 
-  return (state: SubagentState, meta: TMeta): Promise<void> =>
-    enqueue({ state: structuredClone(state) as SubagentState, meta });
+  return (state: SubagentState, meta: TMeta): Promise<void> => enqueue({ state: structuredClone(state), meta });
 };

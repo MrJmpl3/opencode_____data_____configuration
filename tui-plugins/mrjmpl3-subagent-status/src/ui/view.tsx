@@ -151,7 +151,7 @@ export const SidebarView = (props: {
         <text fg={props.api.theme.current.textMuted}> · </text>
         <text fg={props.api.theme.current.error}>{`✕ ${formatCount(counts().error)} ${t('err')}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.text}>{`Σ${formatCount(props.totalExecuted())}`}</text>
+        <text fg={props.api.theme.current.text}>{`Σ ${formatCount(props.totalExecuted())}`}</text>
       </box>
 
       <Show when={props.expanded}>
@@ -208,7 +208,7 @@ export const HomeBottomView = (props: {
         <text fg={props.api.theme.current.textMuted}> · </text>
         <text fg={props.api.theme.current.error}>{`✕ ${formatCount(counts().error)}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.text}>{`Σ${formatCount(props.totalExecuted())}`}</text>
+        <text fg={props.api.theme.current.text}>{`Σ ${formatCount(props.totalExecuted())}`}</text>
       </box>
     </box>
   );

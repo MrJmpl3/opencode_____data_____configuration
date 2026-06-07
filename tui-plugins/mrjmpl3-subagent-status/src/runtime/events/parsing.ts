@@ -2,45 +2,7 @@ import type { SubagentState } from '../../domain/types.ts';
 
 import { conciseText, sameDisplayText } from '../../shared/display.ts';
 import { asString, isRecord, timestampFromUnknown } from '../../shared/coercion.ts';
-
-export type EventLike = {
-  type?: unknown;
-  title?: unknown;
-  name?: unknown;
-  sessionID?: unknown;
-  session_id?: unknown;
-  sessionId?: unknown;
-  status?: unknown;
-  state?: unknown;
-  parentID?: unknown;
-  properties?: {
-    id?: unknown;
-    sessionID?: unknown;
-    session_id?: unknown;
-    sessionId?: unknown;
-    title?: unknown;
-    name?: unknown;
-    parentID?: unknown;
-    status?: unknown;
-    state?: unknown;
-    info?: {
-      id?: unknown;
-      title?: unknown;
-      name?: unknown;
-      agent?: unknown;
-      subagent_type?: unknown;
-      sessionID?: unknown;
-      session_id?: unknown;
-      sessionId?: unknown;
-      parentID?: unknown;
-      status?: unknown;
-      state?: unknown;
-      time?: Record<string, unknown>;
-    };
-    part?: Record<string, unknown>;
-  };
-  [key: string]: unknown;
-};
+import type { EventLike } from '../boundaries/event-payload.ts';
 
 export type SyntheticChild = {
   id: string;

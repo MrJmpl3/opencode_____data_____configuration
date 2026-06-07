@@ -16,17 +16,7 @@ import { buildTuiSnapshot } from './snapshot.ts';
 import { HomeBottomView, SidebarView } from '../ui/view.tsx';
 import { normalizeSubagentStatusPluginOptions } from './options.ts';
 import { createTuiRuntime } from './tui-runtime.ts';
-
-const resolveRouteSessionId = (api: TuiPluginApi): string | undefined => {
-  if (api.route.current.name !== 'session') return undefined;
-
-  const params = api.route.current.params as Record<string, unknown> | undefined;
-  if (typeof params?.sessionID === 'string') return params.sessionID;
-  if (typeof params?.session_id === 'string') return params.session_id;
-  if (typeof params?.sessionId === 'string') return params.sessionId;
-
-  return undefined;
-};
+import { resolveRouteSessionId } from './boundaries/route-params.ts';
 
 export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unknown): Promise<void> => {
   // El contrato del loader expone `options` como unknown; la normalizacion vive
@@ -60,7 +50,7 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unkn
     });
 
     const disposeCommands = registerSubagentCommands({
-      api: api as typeof api & Parameters<typeof registerSubagentCommands>[0]['api'],
+      api,
       sectionEnabled: expanded,
       setSectionEnabled: (enabled) => setExpanded(enabled),
     });
@@ -71,7 +61,7 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unkn
 
     createEffect(() => {
       void api.route.current;
-      promptFocusController.handleRouteChange(resolveRouteSessionId(api));
+      promptFocusController.handleRouteChange(resolveRouteSessionId(api.route.current));
     });
 
     slots.register({

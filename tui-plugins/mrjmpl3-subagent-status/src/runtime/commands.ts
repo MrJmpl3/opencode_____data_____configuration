@@ -22,14 +22,8 @@ type KeymapCommand = {
   run: () => void;
 };
 
-type KeymapBinding = {
-  key: string;
-  cmd: string;
-};
-
 type KeymapLayer = {
   commands: KeymapCommand[];
-  bindings?: KeymapBinding[];
 };
 
 type KeymapApi = {
@@ -93,12 +87,6 @@ export const registerSubagentCommands = ({
     disposers.push(
       api.keymap.registerLayer({
         commands,
-        bindings: [
-          {
-            key: 'alt+b',
-            cmd: SHOW_SECTION_COMMAND,
-          },
-        ],
       }),
     );
   }

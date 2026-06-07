@@ -4,18 +4,18 @@ import { tmpdir } from 'node:os';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('node:fs', async () => {
-  const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+vi.mock('node:fs/promises', async () => {
+  const actual = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
 
   return {
     ...actual,
-    readFileSync: vi.fn(actual.readFileSync),
-    readdirSync: vi.fn(actual.readdirSync),
-    statSync: vi.fn(actual.statSync),
+    readFile: vi.fn(actual.readFile),
+    readdir: vi.fn(actual.readdir),
+    stat: vi.fn(actual.stat),
   };
 });
 
-import { readdirSync } from 'node:fs';
+import { readdir } from 'node:fs/promises';
 
 import { hydrateDoneChildTokens, readOpenCodeLogFileIfSmall } from '../src/infrastructure/logs.ts';
 
@@ -52,8 +52,8 @@ describe('logs', () => {
       'utf8',
     );
 
-    expect(readOpenCodeLogFileIfSmall(logPath)).toContain('session=ses_1');
-    expect(hydrateDoneChildTokens('ses_1', logDir)).toEqual({
+    await expect(readOpenCodeLogFileIfSmall(logPath)).resolves.toContain('session=ses_1');
+    await expect(hydrateDoneChildTokens('ses_1', logDir)).resolves.toEqual({
       input: 12,
       output: 8,
       total: 20,
@@ -74,7 +74,7 @@ describe('logs', () => {
       'utf8',
     );
 
-    expect(hydrateDoneChildTokens('ses_nested', logDir)).toEqual({
+    await expect(hydrateDoneChildTokens('ses_nested', logDir)).resolves.toEqual({
       input: 1200,
       output: 300,
       total: 1500,
@@ -99,7 +99,7 @@ describe('logs', () => {
       'utf8',
     );
 
-    expect(hydrateDoneChildTokens('ses_fallthrough', logDir)).toEqual({
+    await expect(hydrateDoneChildTokens('ses_fallthrough', logDir)).resolves.toEqual({
       input: 9,
       output: 4,
       total: 13,
@@ -112,7 +112,7 @@ describe('logs', () => {
     tempDirs.push(dir);
     const logDir = join(dir, 'log');
     const logPath = join(logDir, '2026-06-07.log');
-    const mockedReaddirSync = vi.mocked(readdirSync);
+    const mockedReaddir = vi.mocked(readdir);
 
     await mkdir(logDir, { recursive: true });
 
@@ -126,15 +126,15 @@ describe('logs', () => {
     );
 
     for (let index = 0; index < 65; index += 1) {
-      expect(hydrateDoneChildTokens(`ses_cache_${String(index).padStart(3, '0')}`, logDir)).toEqual({
+      await expect(hydrateDoneChildTokens(`ses_cache_${String(index).padStart(3, '0')}`, logDir)).resolves.toEqual({
         total: index + 1,
       });
     }
 
-    expect(mockedReaddirSync).toHaveBeenCalledTimes(65);
+    expect(mockedReaddir).toHaveBeenCalledTimes(65);
 
-    expect(hydrateDoneChildTokens('ses_cache_000', logDir)).toEqual({ total: 1 });
-    expect(mockedReaddirSync).toHaveBeenCalledTimes(66);
+    await expect(hydrateDoneChildTokens('ses_cache_000', logDir)).resolves.toEqual({ total: 1 });
+    expect(mockedReaddir).toHaveBeenCalledTimes(66);
   });
 
   it('continues rehydrating partial cached usage so missing context can be backfilled later', async () => {
@@ -149,7 +149,7 @@ describe('logs', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-08T00:00:00.000Z'));
 
-    expect(hydrateDoneChildTokens('ses_partial', logDir)).toEqual({ total: 20 });
+    await expect(hydrateDoneChildTokens('ses_partial', logDir)).resolves.toEqual({ total: 20 });
 
     await writeFile(
       logPath,
@@ -159,7 +159,7 @@ describe('logs', () => {
 
     vi.advanceTimersByTime(2_001);
 
-    expect(hydrateDoneChildTokens('ses_partial', logDir)).toEqual({ total: 20, contextPercent: 42.5 });
+    await expect(hydrateDoneChildTokens('ses_partial', logDir)).resolves.toEqual({ total: 20, contextPercent: 42.5 });
 
     vi.useRealTimers();
   });

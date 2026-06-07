@@ -12,8 +12,8 @@ import {
   mapTaskToolToSubtaskID,
   resolveSyntheticTargetSessionID,
 } from './parsing.ts';
-import type { EventLike } from './parsing.ts';
 import { asString } from '../../shared/coercion.ts';
+import { normalizeEventPayload, type EventLike } from '../boundaries/event-payload.ts';
 
 const handleSessionCreated = (state: SubagentState, event: EventLike): boolean => {
   const created = extractCreatedChild(event);
@@ -129,7 +129,9 @@ const handleMessagePartUpdated = (state: SubagentState, event: EventLike): boole
 };
 
 export const applySubagentEvent = (state: SubagentState, event: unknown): boolean => {
-  const candidate = (event ?? {}) as EventLike;
+  const candidate = normalizeEventPayload(event);
+  if (!candidate) return false;
+
   const type = asString(candidate.type);
   if (!type) return false;
 

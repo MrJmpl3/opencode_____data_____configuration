@@ -3,13 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { registerSubagentCommands } from '../src/runtime/commands.ts';
 
 describe('runtime commands', () => {
-  it('registers keymap and legacy commands and disposes them', () => {
+  it('registers command-palette commands without keybindings and disposes them', () => {
     const keymapDispose = vi.fn();
     const commandDispose = vi.fn();
-    const registerLayer = vi.fn<(layer: { commands: Array<{ run: () => void }>; bindings?: unknown[] }) => () => void>(
-      () => keymapDispose,
-    );
-    const register = vi.fn(() => commandDispose);
+    const registerLayer = vi.fn<(layer: { commands: Array<{ run: () => void }> }) => () => void>(() => keymapDispose);
+    const register = vi.fn<(commands: () => Array<{ onSelect?: () => void }>) => () => void>(() => commandDispose);
     const setSectionEnabled = vi.fn();
     let enabled = false;
 
@@ -28,19 +26,28 @@ describe('runtime commands', () => {
     expect(registerLayer).toHaveBeenCalledTimes(1);
     expect(register).toHaveBeenCalledTimes(1);
 
-    const keymapLayer = registerLayer.mock.calls[0]?.[0] as
-      | { commands: Array<{ run: () => void }>; bindings?: unknown[] }
-      | undefined;
+    const keymapLayer = registerLayer.mock.calls[0]?.[0] as { commands: Array<{ run: () => void }> } | undefined;
     expect(keymapLayer).toBeDefined();
     if (!keymapLayer) throw new Error('Expected keymap layer registration');
 
     expect(keymapLayer.commands).toHaveLength(2);
-    expect(keymapLayer.bindings).toEqual([{ key: 'alt+b', cmd: 'subagent-statusline.show-sidebar-section' }]);
+    expect(keymapLayer).not.toHaveProperty('bindings');
+
+    const legacyCommandFactory = register.mock.calls[0]?.[0] as (() => Array<{ onSelect?: () => void }>) | undefined;
+    expect(legacyCommandFactory).toBeDefined();
+    if (!legacyCommandFactory) throw new Error('Expected legacy command registration');
+
+    const legacyCommands = legacyCommandFactory();
+    expect(legacyCommands).toHaveLength(2);
 
     keymapLayer.commands[0].run();
     keymapLayer.commands[1].run();
+    legacyCommands[0]?.onSelect?.();
+    legacyCommands[1]?.onSelect?.();
     expect(setSectionEnabled).toHaveBeenNthCalledWith(1, true);
     expect(setSectionEnabled).toHaveBeenNthCalledWith(2, true);
+    expect(setSectionEnabled).toHaveBeenNthCalledWith(3, false);
+    expect(setSectionEnabled).toHaveBeenNthCalledWith(4, true);
 
     dispose();
 

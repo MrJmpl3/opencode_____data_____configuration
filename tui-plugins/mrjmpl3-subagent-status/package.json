@@ -4,6 +4,8 @@
   "type": "module",
   "exports": "./index.tsx",
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
@@ -14,6 +16,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "prettier": "^3.6.2",
     "vitest": "^4.1.7",
     "typescript": "^5.9.3"
   }

@@ -4,8 +4,9 @@ import { join } from 'node:path';
 import os from 'node:os';
 
 import type { SubagentChild, SubagentState, SubagentTokens } from '../../domain/types.ts';
+import { normalizeSubagentTokens } from '../../domain/tokens.ts';
 import { deriveTerminalSessionStatus } from '../../domain/session-status.ts';
-import { isRecord, timestampFromUnknown } from '../../shared/coercion.ts';
+import { asString, isRecord, timestampFromUnknown, toFiniteNumber } from '../../shared/coercion.ts';
 
 import { applyRecoveredChildren } from '../recovery.ts';
 import type { RecoveryContext, RecoveryResult, RecoverySource } from '../recovery.ts';
@@ -126,8 +127,7 @@ const resolveRecoveredStatus = (
 
   const part = latestPart;
   const state = isRecord(part.state) ? part.state : undefined;
-  const rawTokens =
-    typeof part.tokens === 'object' && part.tokens !== null ? (part.tokens as SubagentTokens) : undefined;
+  const rawTokens = normalizeSubagentTokens(part.tokens);
   const time = isRecord(part.time) ? part.time : undefined;
   const endedAt =
     timestampFromUnknown(time?.end) ??
@@ -164,18 +164,47 @@ const resolveRecoveredStatus = (
   };
 };
 
-const readSQLiteRecoveryRows = (databasePath: string, parentSessionID: string): SQLiteRecoveryRow[] => {
-  if (!existsSync(databasePath)) return [];
-
+const runSQLiteRecoveryScript = (databasePath: string, parentSessionID: string): string | undefined => {
   const result = spawnSync('python3', ['-c', READ_SQLITE_RECOVERY_SCRIPT, databasePath, parentSessionID], {
     encoding: 'utf8',
   });
 
-  if (result.status !== 0 || !result.stdout.trim()) return [];
+  return result.status === 0 && result.stdout.trim() ? result.stdout : undefined;
+};
+
+const normalizeSQLiteRecoveryRow = (input: unknown): SQLiteRecoveryRow | undefined => {
+  if (!isRecord(input)) return undefined;
+
+  const id = asString(input.id);
+  const parentID = asString(input.parentID);
+  const title = asString(input.title);
+  const startedAtMs = toFiniteNumber(input.startedAtMs);
+  const updatedAtMs = toFiniteNumber(input.updatedAtMs);
+  if (!id || !parentID || !title || startedAtMs === undefined || updatedAtMs === undefined) {
+    return undefined;
+  }
+
+  return {
+    id,
+    parentID,
+    title,
+    agentName: asString(input.agentName),
+    startedAtMs,
+    updatedAtMs,
+    latestPart: asString(input.latestPart),
+    tokens: normalizeSubagentTokens(input.tokens),
+  };
+};
+
+const readSQLiteRecoveryRows = async (databasePath: string, parentSessionID: string): Promise<SQLiteRecoveryRow[]> => {
+  if (!existsSync(databasePath)) return [];
+
+  const stdout = runSQLiteRecoveryScript(databasePath, parentSessionID);
+  if (!stdout) return [];
 
   try {
-    const parsed = JSON.parse(result.stdout) as SQLiteRecoveryRow[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(stdout);
+    return Array.isArray(parsed) ? parsed.map(normalizeSQLiteRecoveryRow).filter((row) => row !== undefined) : [];
   } catch {
     return [];
   }
@@ -219,7 +248,7 @@ export const createSQLiteRecoverySource = (input: { databasePath?: string } = {}
       const parentSessionID = context.parentSessionID;
       if (!parentSessionID) return undefined;
 
-      const rows = readSQLiteRecoveryRows(databasePath, parentSessionID);
+      const rows = await readSQLiteRecoveryRows(databasePath, parentSessionID);
       if (rows.length === 0) return undefined;
 
       return applyRecoveredChildren(

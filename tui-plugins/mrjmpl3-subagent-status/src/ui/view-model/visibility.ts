@@ -20,7 +20,7 @@ export const visibleSubagentWorkItems = (children: SubagentChild[], nowMs = Date
   const visible = collapseSubagentWorkItems(children).filter((child) => isVisibleWorkItem(child, nowMs));
   const hasRunning = visible.some((child) => child.status === 'running');
   const activeMessageIDs = new Set(
-    visible.filter((child) => child.status === 'running' && child.messageID).map((child) => child.messageID as string),
+    visible.flatMap((child) => (child.status === 'running' && child.messageID ? [child.messageID] : [])),
   );
 
   if (!hasRunning) return visible;
