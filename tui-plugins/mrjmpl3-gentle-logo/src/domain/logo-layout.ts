@@ -1,12 +1,12 @@
-// @ts-nocheck
-/** @jsxImportSource @opentui/solid */
-import type { TuiPlugin, TuiThemeCurrent } from '@opencode-ai/plugin/tui';
-import { useTerminalDimensions } from '@opentui/solid';
-import { createMemo } from 'solid-js';
+export interface TerminalDimensions {
+  height: number;
+  width: number;
+}
 
-const id = 'gentle-logo';
+export const FULL_LOGO_MIN_WIDTH = 64;
+export const FULL_LOGO_VERTICAL_PADDING = 6;
 
-const roseArt = [
+export const ROSE_LOGO_LINES = [
   '             ⣠⣾⣷⣶⣦⣤⣤⣄⣠⣄⣀  ⢀⣀⣀',
   '          ⢀⣴⣿⣿⠿⣋⣭⣭⣯⣭⣍⣭⣿⣟⠛⠛⠿⠿⣿⣷⣄',
   '      ⢀⣴⣾⡟⢻⣿⡟⠁⣼⣿⠏⣵⢻⣿⣻⣿⣿⢿⡻⣿⣿⣶⡌⢿⣿⣷⣦⣤⡄',
@@ -25,37 +25,14 @@ const roseArt = [
   '                ⡠⢊⡴⠤⠂⠃ ⠒',
   '             ⢀⡴⢪⠔⣉⠔⠋',
   '               ⠐⠈',
-];
+] as const;
 
-const compactArt = ['✦ Gentle AI ✦'];
+export const COMPACT_LOGO_LINES = ['✦ Gentle AI ✦'] as const;
 
-const Logo = (props: { theme: TuiThemeCurrent }) => {
-  const dim = useTerminalDimensions();
-  const lines = createMemo(() => {
-    const term = dim();
-    return term.height >= roseArt.length + 6 && term.width >= 64 ? roseArt : compactArt;
-  });
-
-  return (
-    <box flexDirection="column" alignItems="center">
-      {lines().map((line) => (
-        <text fg={props.theme.accent}>{line}</text>
-      ))}
-    </box>
-  );
+export const hasRoomForFullLogo = (term: TerminalDimensions): boolean => {
+  return term.height >= ROSE_LOGO_LINES.length + FULL_LOGO_VERTICAL_PADDING && term.width >= FULL_LOGO_MIN_WIDTH;
 };
 
-const tui: TuiPlugin = async (api) => {
-  api.slots.register({
-    id,
-    order: 100,
-    slots: {
-      home_logo(ctx) {
-        return <Logo theme={ctx.theme.current} />;
-      },
-    },
-  });
+export const selectLogoLines = (term: TerminalDimensions): readonly string[] => {
+  return hasRoomForFullLogo(term) ? ROSE_LOGO_LINES : COMPACT_LOGO_LINES;
 };
-
-const plugin = { id: 'gentle-logo', tui };
-export default plugin;
