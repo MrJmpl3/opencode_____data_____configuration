@@ -2,8 +2,8 @@ import type { TuiPluginApi, TuiPluginMeta } from '@opencode-ai/plugin/tui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import plugin from '../index.tsx';
-import { summarizeCacheMessages } from '../runtime/summary.ts';
-import { slotSessionId } from '../runtime/tui.ts';
+import { summarizeCacheMessages } from '../src/domain/summary.ts';
+import { slotSessionId } from '../src/runtime/tui.ts';
 
 const pluginMeta: TuiPluginMeta = {
   id: 'cache',

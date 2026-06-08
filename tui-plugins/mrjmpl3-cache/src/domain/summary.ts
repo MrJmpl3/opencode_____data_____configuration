@@ -1,4 +1,4 @@
-import { finiteNumber, hasOwn, isRecord } from './tui.ts';
+import { finiteNumber, hasOwn, isRecord } from '../runtime/tui.ts';
 
 export type CacheSummary = {
   hasData: boolean;

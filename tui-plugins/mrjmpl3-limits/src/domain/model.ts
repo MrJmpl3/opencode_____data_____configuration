@@ -1,4 +1,4 @@
-import { isRecord } from './tui.ts';
+import { isRecord } from '../runtime/tui.ts';
 
 export type MessageModel = {
   modelId: string;
