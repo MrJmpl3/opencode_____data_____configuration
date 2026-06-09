@@ -22,4 +22,23 @@ describe('formatDelegationContext', () => {
     expect(context).toContain('Use `delegation_read(id)`');
     expect(context).not.toContain('Do NOT poll `delegation_list`');
   });
+
+  it('returns a minimal retrieval block when there are no delegations', () => {
+    const context = formatDelegationContext([], []);
+
+    expect(context).toContain('<delegation-context>');
+    expect(context).toContain('## Retrieval');
+    expect(context).not.toContain('## Running Delegations');
+    expect(context).not.toContain('## Recent Completed Delegations');
+  });
+
+  it('truncates long running prompts in compaction context', () => {
+    const context = formatDelegationContext(
+      [{ id: 'swift-blue-fox', agent: 'explore', status: 'running', prompt: 'a'.repeat(250) }],
+      [],
+    );
+
+    expect(context).toContain(`**Prompt:** ${'a'.repeat(200)}...`);
+    expect(context).not.toContain('a'.repeat(250));
+  });
 });

@@ -8,7 +8,8 @@ import type { Event } from '@opencode-ai/sdk';
 import { DELEGATION_RULES, formatDelegationContext } from './context.ts';
 import { createLogger } from './logger.ts';
 import { DelegationManager } from './manager.ts';
-import { getProjectId, refreshSkillRegistry } from './primitives.ts';
+import { getProjectId } from './project-id.ts';
+import { refreshSkillRegistry } from './skill-registry.ts';
 import { createDelegate, createDelegationList, createDelegationRead } from './tools.ts';
 import type { OpencodeClient, SystemTransformInput } from './types.ts';
 
@@ -61,21 +62,16 @@ export const BackgroundAgents: Plugin = async (ctx) => {
       input: { sessionID: string },
       output: { context: string[]; prompt?: string },
     ) => {
-      const rootSessionID = await manager.getRootSessionID(input.sessionID);
-
       // Get running delegations for this session tree
-      const running = manager
-        .getRunningDelegations()
-        .filter((d) => d.parentSessionID === input.sessionID || d.parentSessionID === rootSessionID)
-        .map((d) => ({
-          id: d.id,
-          agent: d.agent,
-          title: d.title,
-          description: d.description,
-          status: d.status,
-          startedAt: d.startedAt,
-          prompt: d.prompt,
-        }));
+      const running = (await manager.getRunningDelegationsForSession(input.sessionID)).map((d) => ({
+        id: d.id,
+        agent: d.agent,
+        title: d.title,
+        description: d.description,
+        status: d.status,
+        startedAt: d.startedAt,
+        prompt: d.prompt,
+      }));
 
       // Get recent completed delegations (last 10)
       const allDelegations = await manager.listDelegations(input.sessionID);

@@ -1,34 +1,37 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import type { Part, TextPart } from '@opencode-ai/sdk';
-
 import { resolveAgentModel } from './agents.ts';
+import { dispatchDelegationNotifications, PendingDelegationNotifications } from './delegation-notifications.ts';
+import { getDelegationResult } from './delegation-results.ts';
+import { DelegationStorage } from './delegation-storage.ts';
 import { generateReadableId } from './ids.ts';
 import type { Logger } from './logger.ts';
 import { generateMetadata } from './metadata.ts';
 import { MAX_RUN_TIME_MS } from './types.ts';
-import type {
-  AssistantSessionMessageItem,
-  DelegateInput,
-  Delegation,
-  DelegationListItem,
-  OpencodeClient,
-  SessionMessageItem,
-} from './types.ts';
+import type { DelegateInput, Delegation, DelegationListItem, OpencodeClient } from './types.ts';
+
+interface AgentSummary {
+  name: string;
+  description?: string;
+  mode?: string;
+}
+
+type SessionPromptInput = Parameters<OpencodeClient['session']['prompt']>[0];
 
 export class DelegationManager {
   private delegations: Map<string, Delegation> = new Map();
   private client: OpencodeClient;
   private baseDir: string;
   private log: Logger;
-  // Track pending delegations per parent session for batched notifications
-  private pendingByParent: Map<string, Set<string>> = new Map();
+  private storage: DelegationStorage;
+  private notificationTracker = new PendingDelegationNotifications();
 
   constructor(client: OpencodeClient, baseDir: string, log: Logger) {
     this.client = client;
     this.baseDir = baseDir;
     this.log = log;
+    this.storage = new DelegationStorage(baseDir, (sessionID) => this.getRootSessionID(sessionID));
   }
 
   /**
@@ -56,70 +59,95 @@ export class DelegationManager {
     return currentID;
   }
 
-  /**
-   * Get the delegations directory for a session scope (root session)
-   */
-  private async getDelegationsDir(sessionID: string): Promise<string> {
-    const rootID = await this.getRootSessionID(sessionID);
-    return path.join(this.baseDir, rootID);
+  private assertValidDelegationId(id: string): void {
+    this.storage.assertValidDelegationId(id);
+  }
+
+  private async delegationBelongsToRoot(delegation: Delegation, requestedRootID: string): Promise<boolean> {
+    return (await this.getRootSessionID(delegation.parentSessionID)) === requestedRootID;
   }
 
   /**
    * Ensure the delegations directory exists
    */
   private async ensureDelegationsDir(sessionID: string): Promise<string> {
-    const dir = await this.getDelegationsDir(sessionID);
-    await fs.mkdir(dir, { recursive: true });
-    return dir;
+    return await this.storage.ensureDelegationsDir(sessionID);
+  }
+
+  private async validateStorageRoot(sessionID: string): Promise<void> {
+    await this.storage.validateSessionRoot(sessionID);
   }
 
   /**
    * Delegate a task to an agent
    */
   async delegate(input: DelegateInput): Promise<Delegation> {
-    // Generate readable ID
-    const id = generateReadableId();
-    await this.debugLog(`delegate() called, generated ID: ${id}`);
+    this.assertValidDelegationParentInput(input.parentSessionID);
+    await this.assertAgentExists(input.agent);
+    await this.validateStorageRoot(input.parentSessionID);
 
-    // Check for ID collisions (regenerate if needed)
-    let finalId = id;
-    let attempts = 0;
-    while (this.delegations.has(finalId) && attempts < 10) {
-      finalId = generateReadableId();
-      attempts++;
-    }
-    if (this.delegations.has(finalId)) {
-      throw new Error('Failed to generate unique delegation ID after 10 attempts');
-    }
-
-    // Validate agent exists before creating session
-    const agentsResult = await this.client.app.agents({});
-    const agents = (agentsResult.data ?? []) as {
-      name: string;
-      description?: string;
-      mode?: string;
-    }[];
-    const validAgent = agents.find((a) => a.name === input.agent);
-
-    if (!validAgent) {
-      const available = agents
-        .filter((a) => a.mode === 'subagent' || a.mode === 'all' || !a.mode)
-        .map((a) => `• ${a.name}${a.description ? ` - ${a.description}` : ''}`)
-        .join('\n');
-
-      throw new Error(`Agent "${input.agent}" not found.\n\nAvailable agents:\n${available || '(none)'}`);
-    }
+    const delegationId = await this.generateUniqueDelegationId();
 
     // NOTE: Read-only restriction removed — any sub-agent can use delegate.
     // Background delegations run in isolated sessions outside OpenCode's session tree.
     // The undo/branching system cannot track changes made in background sessions.
     // This is an accepted tradeoff for the ability to run sub-agents in parallel.
 
-    // Create isolated session for delegation
+    const sessionID = await this.createDelegationSession(delegationId, input.parentSessionID);
+    const delegation = this.buildDelegation(input, delegationId, sessionID);
+    const promptInput = await this.buildDelegationPromptInput(delegation);
+
+    await this.registerDelegation(delegation);
+    this.scheduleDelegationTimeout(delegation.id);
+    this.startDelegationPrompt(delegation, promptInput);
+
+    return delegation;
+  }
+
+  private assertValidDelegationParentInput(parentSessionID: string): void {
+    this.storage.assertValidSessionId(parentSessionID);
+  }
+
+  private async generateUniqueDelegationId(): Promise<string> {
+    const id = generateReadableId();
+    await this.debugLog(`delegate() called, generated ID: ${id}`);
+
+    let finalId = id;
+    let attempts = 0;
+    while (this.delegations.has(finalId) && attempts < 10) {
+      finalId = generateReadableId();
+      attempts++;
+    }
+
+    if (this.delegations.has(finalId)) {
+      throw new Error('Failed to generate unique delegation ID after 10 attempts');
+    }
+
+    return finalId;
+  }
+
+  private async assertAgentExists(agentName: string): Promise<void> {
+    const agentsResult = await this.client.app.agents({});
+    const agents = (agentsResult.data ?? []) as AgentSummary[];
+
+    if (agents.find((agent) => agent.name === agentName)) return;
+
+    const available = this.formatAvailableAgents(agents);
+    throw new Error(`Agent "${agentName}" not found.\n\nAvailable agents:\n${available || '(none)'}`);
+  }
+
+  private formatAvailableAgents(agents: AgentSummary[]): string {
+    return agents
+      .filter((agent) => agent.mode === 'subagent' || agent.mode === 'all' || !agent.mode)
+      .map((agent) => `• ${agent.name}${agent.description ? ` - ${agent.description}` : ''}`)
+      .join('\n');
+  }
+
+  private async createDelegationSession(delegationId: string, parentSessionID: string): Promise<string> {
     const sessionResult = await this.client.session.create({
       body: {
-        title: `Delegation: ${finalId}`,
-        parentID: input.parentSessionID,
+        title: `Delegation: ${delegationId}`,
+        parentID: parentSessionID,
       },
     });
 
@@ -129,9 +157,13 @@ export class DelegationManager {
       throw new Error('Failed to create delegation session');
     }
 
-    const delegation: Delegation = {
-      id: finalId,
-      sessionID: sessionResult.data.id,
+    return sessionResult.data.id;
+  }
+
+  private buildDelegation(input: DelegateInput, delegationId: string, sessionID: string): Delegation {
+    return {
+      id: delegationId,
+      sessionID,
       parentSessionID: input.parentSessionID,
       parentMessageID: input.parentMessageID,
       parentAgent: input.parentAgent,
@@ -144,66 +176,65 @@ export class DelegationManager {
         lastUpdate: new Date(),
       },
     };
+  }
 
+  private async registerDelegation(delegation: Delegation): Promise<void> {
     await this.debugLog(`Created delegation ${delegation.id}`);
     this.delegations.set(delegation.id, delegation);
 
-    // Track this delegation for batched notification
-    const parentId = input.parentSessionID;
-    if (!this.pendingByParent.has(parentId)) {
-      this.pendingByParent.set(parentId, new Set());
-    }
-    this.pendingByParent.get(parentId)?.add(delegation.id);
+    const pendingCount = this.notificationTracker.track(delegation.parentSessionID, delegation.id);
     await this.debugLog(
-      `Tracking delegation ${delegation.id} for parent ${parentId}. Pending count: ${this.pendingByParent.get(parentId)?.size}`,
+      `Tracking delegation ${delegation.id} for parent ${delegation.parentSessionID}. Pending count: ${pendingCount}`,
     );
 
     await this.debugLog(
       `Delegation added to map. Current delegations: ${Array.from(this.delegations.keys()).join(', ')}`,
     );
+  }
 
-    // Set a timer for the global max run time
+  private scheduleDelegationTimeout(delegationId: string): void {
     setTimeout(() => {
-      const current = this.delegations.get(delegation.id);
+      const current = this.delegations.get(delegationId);
       if (current && current.status === 'running') {
-        this.handleTimeout(delegation.id);
+        void this.handleTimeout(delegationId);
       }
-    }, MAX_RUN_TIME_MS + 5000); // Adding 5s buffer
+    }, MAX_RUN_TIME_MS + 5000);
+  }
 
-    // Ensure delegations directory exists (early check)
-    await this.ensureDelegationsDir(input.parentSessionID);
+  private async buildDelegationPromptInput(delegation: Delegation): Promise<SessionPromptInput> {
+    await this.ensureDelegationsDir(delegation.parentSessionID);
 
-    // Resolve the agent's configured model so sub-agents use their own model, not the orchestrator's
-    const agentModel = await resolveAgentModel(this.client, input.agent, this.log);
+    const agentModel = await resolveAgentModel(this.client, delegation.agent, this.log);
 
-    // Fire the prompt (using prompt() instead of promptAsync() to properly initialize agent loop)
-    // Agent param is critical for MCP tools - tells OpenCode which agent's config to use
-    // Anti-recursion: disable nested delegations and state-modifying tools via tools config
-    this.client.session
-      .prompt({
-        path: { id: delegation.sessionID },
-        body: {
-          agent: input.agent,
-          ...(agentModel && { model: { providerID: agentModel.providerID, modelID: agentModel.modelID } }),
-          ...(agentModel?.variant && { variant: agentModel.variant }),
-          parts: [{ type: 'text', text: input.prompt }],
-          tools: {
-            task: false,
-            delegate: false,
-            todowrite: false,
-            plan_save: false,
-          },
+    return {
+      path: { id: delegation.sessionID },
+      body: {
+        agent: delegation.agent,
+        ...(agentModel && { model: { providerID: agentModel.providerID, modelID: agentModel.modelID } }),
+        ...(agentModel?.variant && { variant: agentModel.variant }),
+        parts: [{ type: 'text', text: delegation.prompt }],
+        tools: {
+          task: false,
+          delegate: false,
+          todowrite: false,
+          plan_save: false,
         },
-      })
-      .catch((error: Error) => {
-        delegation.status = 'error';
-        delegation.error = error.message;
-        delegation.completedAt = new Date();
-        this.persistOutput(delegation, `Error: ${error.message}`);
-        this.notifyParent(delegation);
-      });
+      },
+    };
+  }
 
-    return delegation;
+  private startDelegationPrompt(delegation: Delegation, promptInput: SessionPromptInput): void {
+    void this.client.session.prompt(promptInput).catch((error: Error) => {
+      void this.handlePromptError(delegation, error);
+    });
+  }
+
+  private async handlePromptError(delegation: Delegation, error: Error): Promise<void> {
+    delegation.status = 'error';
+    delegation.error = error.message;
+    delegation.completedAt = new Date();
+    await this.persistOutput(delegation, `Error: ${error.message}`);
+    await this.notifyParent(delegation);
   }
 
   /**
@@ -286,53 +317,7 @@ export class DelegationManager {
    * Get the result from a delegation's session
    */
   private async getResult(delegation: Delegation): Promise<string> {
-    try {
-      const messages = await this.client.session.messages({
-        path: { id: delegation.sessionID },
-      });
-
-      const messageData = messages.data as SessionMessageItem[] | undefined;
-
-      if (!messageData || messageData.length === 0) {
-        await this.debugLog(`getResult: No messages found for session ${delegation.sessionID}`);
-        return `Delegation "${delegation.description}" completed but produced no output.`;
-      }
-
-      await this.debugLog(
-        `getResult: Found ${messageData.length} messages. Roles: ${messageData.map((m) => m.info.role).join(', ')}`,
-      );
-
-      // Find the last message from the assistant/model
-      const isAssistantMessage = (m: SessionMessageItem): m is AssistantSessionMessageItem =>
-        m.info.role === 'assistant';
-
-      const assistantMessages = messageData.filter(isAssistantMessage);
-
-      if (assistantMessages.length === 0) {
-        await this.debugLog(
-          `getResult: No assistant messages found in ${JSON.stringify(messageData.map((m) => ({ role: m.info.role, keys: Object.keys(m) })))}`,
-        );
-        return `Delegation "${delegation.description}" completed but produced no assistant response.`;
-      }
-
-      const lastMessage = assistantMessages[assistantMessages.length - 1];
-
-      // Extract text parts from the message
-      const isTextPart = (p: Part): p is TextPart => p.type === 'text';
-      const textParts = lastMessage.parts.filter(isTextPart);
-
-      if (textParts.length === 0) {
-        await this.debugLog(`getResult: No text parts found in message: ${JSON.stringify(lastMessage)}`);
-        return `Delegation "${delegation.description}" completed but produced no text content.`;
-      }
-
-      return textParts.map((p) => p.text).join('\n');
-    } catch (error) {
-      await this.debugLog(`getResult error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return `Delegation "${delegation.description}" completed but result could not be retrieved: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`;
-    }
+    return await getDelegationResult(this.client, delegation, (message) => this.debugLog(message));
   }
 
   /**
@@ -340,28 +325,7 @@ export class DelegationManager {
    */
   private async persistOutput(delegation: Delegation, content: string): Promise<void> {
     try {
-      // Ensure we resolve the root session ID of the PARENT session for storage
-      const dir = await this.ensureDelegationsDir(delegation.parentSessionID);
-      const filePath = path.join(dir, `${delegation.id}.md`);
-
-      // Use title/description if available (generated by small model), otherwise fallback
-      const title = delegation.title || delegation.id;
-      const description = delegation.description || '(No description generated)';
-
-      const header = `# ${title}
-
-${description}
-
-**ID:** ${delegation.id}
-**Agent:** ${delegation.agent}
-**Status:** ${delegation.status}
-**Started:** ${delegation.startedAt.toISOString()}
-**Completed:** ${delegation.completedAt?.toISOString() || 'N/A'}
-
----
-
-`;
-      await fs.writeFile(filePath, header + content, 'utf8');
+      const filePath = await this.storage.persistOutput(delegation, content);
       await this.debugLog(`Persisted output to ${filePath}`);
     } catch (error) {
       await this.debugLog(`Failed to persist output: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -375,53 +339,11 @@ ${description}
    */
   private async notifyParent(delegation: Delegation): Promise<void> {
     try {
-      const statusText = delegation.status === 'complete' ? 'complete' : delegation.status;
-
-      // Mark this delegation as complete in the pending tracker
-      const pendingSet = this.pendingByParent.get(delegation.parentSessionID);
-      if (pendingSet) {
-        pendingSet.delete(delegation.id);
-      }
-
-      // Check if ALL delegations for this parent are now complete
-      const allComplete = !pendingSet || pendingSet.size === 0;
-
-      // Clean up if all complete
-      if (allComplete && pendingSet) {
-        this.pendingByParent.delete(delegation.parentSessionID);
-      }
-
-      // Always send the completed delegation notification first (compact — full result is on disk)
-      const completionNotification = `[TASK NOTIFICATION]
-ID: ${delegation.id}
-Status: ${statusText}
-Use delegation_read(id) to retrieve the full result.`;
-
-      await this.client.session.prompt({
-        path: { id: delegation.parentSessionID },
-        body: {
-          noReply: true,
-          agent: delegation.parentAgent,
-          parts: [{ type: 'text', text: completionNotification }],
-        },
-      });
-
-      // If all delegations complete, send a minimal completion notice that triggers response
-      if (allComplete) {
-        const allCompleteNotification = `[TASK NOTIFICATION] All delegations complete.`;
-
-        await this.client.session.prompt({
-          path: { id: delegation.parentSessionID },
-          body: {
-            noReply: false,
-            agent: delegation.parentAgent,
-            parts: [{ type: 'text', text: allCompleteNotification }],
-          },
-        });
-      }
+      const completionState = this.notificationTracker.complete(delegation.parentSessionID, delegation.id);
+      await dispatchDelegationNotifications(this.client, delegation, completionState.allComplete);
 
       await this.debugLog(
-        `Notified parent session ${delegation.parentSessionID} (allComplete=${allComplete}, remaining=${pendingSet?.size || 0})`,
+        `Notified parent session ${delegation.parentSessionID} (allComplete=${completionState.allComplete}, remaining=${completionState.remaining})`,
       );
     } catch (error) {
       await this.debugLog(`Failed to notify parent: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -432,33 +354,23 @@ Use delegation_read(id) to retrieve the full result.`;
    * Read a delegation's output by ID. Blocks if the delegation is still running.
    */
   async readOutput(sessionID: string, id: string): Promise<string> {
-    // Try to find the file
-    let filePath: string | undefined;
-    try {
-      const dir = await this.getDelegationsDir(sessionID);
-      filePath = path.join(dir, `${id}.md`);
-      // Check if file exists
-      await fs.access(filePath);
-      return await fs.readFile(filePath, 'utf8');
-    } catch {
-      // File doesn't exist yet, continue to check memory
-    }
+    this.assertValidDelegationId(id);
 
-    // Check if it's currently running in memory
+    const persistedOutput = await this.storage.readOutput(sessionID, id);
+    if (persistedOutput !== undefined) return persistedOutput;
+
+    const requestedRootID = await this.getRootSessionID(sessionID);
+
+    // Check if it's currently running in memory for the requested session root.
     const delegation = this.delegations.get(id);
-    if (delegation) {
+    if (delegation && (await this.delegationBelongsToRoot(delegation, requestedRootID))) {
       if (delegation.status === 'running') {
         await this.debugLog(`readOutput: waiting for delegation ${delegation.id} to complete`);
         await this.waitForCompletion(delegation.id);
 
         // Re-check after waiting
-        const dir = await this.getDelegationsDir(sessionID);
-        filePath = path.join(dir, `${id}.md`);
-        try {
-          return await fs.readFile(filePath, 'utf8');
-        } catch {
-          // Still failed to read
-        }
+        const completedOutput = await this.storage.readOutput(sessionID, id);
+        if (completedOutput !== undefined) return completedOutput;
 
         // If still no file after waiting (e.g. error/timeout/cancel)
         const updated = this.delegations.get(id);
@@ -477,9 +389,12 @@ Use delegation_read(id) to retrieve the full result.`;
    */
   async listDelegations(sessionID: string): Promise<DelegationListItem[]> {
     const results: DelegationListItem[] = [];
+    const requestedRootID = await this.getRootSessionID(sessionID);
 
-    // Add in-memory delegations that match this session (or parent)
+    // Add in-memory delegations that match this session root.
     for (const delegation of this.delegations.values()) {
+      if (!(await this.delegationBelongsToRoot(delegation, requestedRootID))) continue;
+
       results.push({
         id: delegation.id,
         status: delegation.status,
@@ -488,47 +403,11 @@ Use delegation_read(id) to retrieve the full result.`;
       });
     }
 
-    // Check filesystem for persisted delegations
-    try {
-      const dir = await this.getDelegationsDir(sessionID);
-      const files = await fs.readdir(dir);
-
-      for (const file of files) {
-        if (file.endsWith('.md')) {
-          const id = file.replace('.md', '');
-          // Deduplicate: prioritize in-memory status
-          if (!results.find((r) => r.id === id)) {
-            // Try to read title, agent, description from file
-            let title = '(loaded from storage)';
-            let description = '';
-            let agent: string | undefined;
-            try {
-              const filePath = path.join(dir, file);
-              const content = await fs.readFile(filePath, 'utf8');
-              const titleMatch = content.match(/^# (.+)$/m);
-              if (titleMatch) title = titleMatch[1];
-              const agentMatch = content.match(/^\*\*Agent:\*\* (.+)$/m);
-              if (agentMatch) agent = agentMatch[1];
-              // Get first paragraph after title as description
-              const lines = content.split('\n');
-              if (lines.length > 2 && lines[2]) {
-                description = lines[2].slice(0, 150);
-              }
-            } catch {
-              // Ignore read errors
-            }
-            results.push({
-              id,
-              status: 'complete',
-              title,
-              description,
-              agent,
-            });
-          }
-        }
+    for (const persistedDelegation of await this.storage.listPersistedDelegations(sessionID)) {
+      // Deduplicate: prioritize in-memory status
+      if (!results.find((result) => result.id === persistedDelegation.id)) {
+        results.push(persistedDelegation);
       }
-    } catch {
-      // Directory may not exist yet
     }
 
     return results;
@@ -539,10 +418,13 @@ Use delegation_read(id) to retrieve the full result.`;
    * Used internally for cleanup (timeout, etc.)
    */
   async deleteDelegation(sessionID: string, id: string): Promise<boolean> {
+    this.assertValidDelegationId(id);
+    const requestedRootID = await this.getRootSessionID(sessionID);
+
     // Find delegation by id
     let delegationId: string | undefined;
     for (const [dId, d] of this.delegations) {
-      if (d.id === id) {
+      if (d.id === id && (await this.delegationBelongsToRoot(d, requestedRootID))) {
         delegationId = dId;
         break;
       }
@@ -561,18 +443,13 @@ Use delegation_read(id) to retrieve the full result.`;
         delegation.status = 'cancelled';
         delegation.completedAt = new Date();
       }
+      if (delegation) {
+        this.notificationTracker.remove(delegation.parentSessionID, delegation.id);
+      }
       this.delegations.delete(delegationId);
     }
 
-    // Remove from filesystem
-    try {
-      const dir = await this.getDelegationsDir(sessionID);
-      const filePath = path.join(dir, `${id}.md`);
-      await fs.unlink(filePath);
-      return true;
-    } catch {
-      return false;
-    }
+    return await this.storage.deleteOutput(sessionID, id);
   }
 
   /**
@@ -600,8 +477,11 @@ Use delegation_read(id) to retrieve the full result.`;
    * Get count of pending delegations for a parent session
    */
   getPendingCount(parentSessionID: string): number {
-    const pendingSet = this.pendingByParent.get(parentSessionID);
-    return pendingSet ? pendingSet.size : 0;
+    return this.notificationTracker.count(parentSessionID);
+  }
+
+  getPendingParentCount(): number {
+    return this.notificationTracker.totalParents();
   }
 
   /**
@@ -609,6 +489,19 @@ Use delegation_read(id) to retrieve the full result.`;
    */
   getRunningDelegations(): Delegation[] {
     return Array.from(this.delegations.values()).filter((d) => d.status === 'running');
+  }
+
+  async getRunningDelegationsForSession(sessionID: string): Promise<Delegation[]> {
+    const requestedRootID = await this.getRootSessionID(sessionID);
+    const runningDelegations: Delegation[] = [];
+
+    for (const delegation of this.getRunningDelegations()) {
+      if (await this.delegationBelongsToRoot(delegation, requestedRootID)) {
+        runningDelegations.push(delegation);
+      }
+    }
+
+    return runningDelegations;
   }
 
   /**
