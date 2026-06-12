@@ -15,6 +15,7 @@ export async function refreshSkillRegistry(
         } else {
           log('info', 'skill-registry refresh completed');
         }
+
         resolve();
       },
     );

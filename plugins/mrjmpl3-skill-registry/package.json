@@ -1,5 +1,5 @@
 {
-  "name": "mrjmpl3-background-agents",
+  "name": "mrjmpl3-skill-registry",
   "private": true,
   "type": "module",
   "exports": "./index.ts",
@@ -10,9 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.15.13",
-    "@opencode-ai/sdk": "1.15.13",
-    "unique-names-generator": "^4.7.1"
+    "@opencode-ai/plugin": "1.15.13"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
