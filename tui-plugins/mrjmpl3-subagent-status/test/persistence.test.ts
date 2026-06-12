@@ -124,6 +124,77 @@ describe('persistence recovery', () => {
     expect(loaded.purgedSessionIDs.ses_stale).toBe(true);
   });
 
+  it('recovers persisted running children via their original parent when current session differs', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const statePath = join(dir, 'state.json');
+
+    const persisted: SubagentState = {
+      children: {
+        ses_child_a: {
+          id: 'ses_child_a',
+          title: 'Finished child from old session',
+          parentID: 'ses_old_parent',
+          source: 'session',
+          targetSessionID: 'ses_child_a',
+          status: 'running',
+          startedAt: '2026-06-04T11:55:00.000Z',
+          updatedAt: '2026-06-04T11:59:00.000Z',
+        },
+        ses_child_b: {
+          id: 'ses_child_b',
+          title: 'Another finished child',
+          parentID: 'ses_old_parent',
+          source: 'session',
+          targetSessionID: 'ses_child_b',
+          status: 'running',
+          startedAt: '2026-06-04T11:56:00.000Z',
+          updatedAt: '2026-06-04T11:58:00.000Z',
+        },
+      },
+      countedChildIDs: { ses_child_a: true, ses_child_b: true },
+      purgedSessionIDs: {},
+      totalExecuted: 2,
+      updatedAt: '2026-06-04T11:59:00.000Z',
+    };
+    await saveState(statePath, persisted);
+
+    const parentsSeen: string[] = [];
+    const recoverySource: RecoverySource = {
+      hydrateState: async (state: SubagentState, context: RecoveryContext) => {
+        parentsSeen.push(context.parentSessionID ?? '');
+        // Only mutate state when called with the correct parent
+        if (context.parentSessionID === 'ses_old_parent') {
+          state.children.ses_child_a = {
+            ...state.children.ses_child_a,
+            status: 'done',
+            updatedAt: '2026-06-04T12:00:00.000Z',
+            endedAt: '2026-06-04T12:00:00.000Z',
+          };
+          state.children.ses_child_b = {
+            ...state.children.ses_child_b,
+            status: 'done',
+            updatedAt: '2026-06-04T12:00:00.000Z',
+            endedAt: '2026-06-04T12:00:00.000Z',
+          };
+        }
+
+        return { changed: true, authoritativeSessionIDs: ['ses_child_a', 'ses_child_b'] };
+      },
+    };
+
+    const loaded = await loadState(statePath, {
+      recoveryContext: { directory: '/tmp/workspace', parentSessionID: 'ses_current_session' },
+      recoverySources: [recoverySource],
+    });
+
+    // Recovery is called twice: first with current session, then with inferred parent
+    expect(parentsSeen).toEqual(['ses_current_session', 'ses_old_parent']);
+    expect(loaded.children.ses_child_a).toMatchObject({ status: 'done' });
+    expect(loaded.children.ses_child_b).toMatchObject({ status: 'done' });
+    expect(loaded.totalExecuted).toBe(2);
+  });
+
   it('clones state snapshots at enqueue time before later mutations', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
     tempDirs.push(dir);

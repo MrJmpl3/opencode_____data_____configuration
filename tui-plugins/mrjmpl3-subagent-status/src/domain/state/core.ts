@@ -14,7 +14,7 @@ export const getCounts = (state: SubagentState): SubagentCounts => {
   for (const child of Object.values(state.children)) {
     if (child.status === 'running') counts.running += 1;
     if (child.status === 'done') counts.done += 1;
-    if (child.status === 'stale') counts.stale += 1;
+    if (child.status === 'stale') counts.error += 1;
     if (child.status === 'error') counts.error += 1;
   }
 

@@ -1,4 +1,3 @@
-import { deriveOpenCodeSessionStatus } from '../../domain/session-status.ts';
 import { markChildRunning, markChildStatus, upsertChildDetails, upsertRunningChild } from '../../domain/state.ts';
 import type { SubagentState } from '../../domain/types.ts';
 
@@ -6,6 +5,7 @@ import {
   extractChildDetails,
   extractCreatedChild,
   extractEventTimestamp,
+  extractOpenCodeEventSessionStatus,
   extractSessionId,
   extractSubtaskChild,
   extractToolChild,
@@ -42,17 +42,7 @@ const handleSessionStatus = (state: SubagentState, event: EventLike): boolean =>
   const sessionId = extractSessionId(event);
   if (!type || !sessionId) return false;
 
-  const status =
-    type === 'session.error'
-      ? 'error'
-      : deriveOpenCodeSessionStatus(
-          event.properties?.status ??
-            event.properties?.state ??
-            event.properties?.info?.status ??
-            event.status ??
-            event.state ??
-            event.properties,
-        );
+  const status = type === 'session.error' ? 'error' : extractOpenCodeEventSessionStatus(event);
   if (!status) return false;
 
   const details = extractChildDetails(event);
@@ -68,6 +58,15 @@ const handleSessionStatus = (state: SubagentState, event: EventLike): boolean =>
         );
 
   return upsertChildDetails(state, sessionId, details) || changed;
+};
+
+const handleSessionUpdated = (state: SubagentState, event: EventLike): boolean => {
+  const changed = handleSessionCreated(state, event);
+  const status = extractOpenCodeEventSessionStatus(event);
+
+  if (!status) return changed;
+
+  return handleSessionStatus(state, event) || changed;
 };
 
 const handleMessagePartUpdated = (state: SubagentState, event: EventLike): boolean => {
@@ -135,7 +134,8 @@ export const applySubagentEvent = (state: SubagentState, event: unknown): boolea
   const type = asString(candidate.type);
   if (!type) return false;
 
-  if (type === 'session.created' || type === 'session.updated') return handleSessionCreated(state, candidate);
+  if (type === 'session.created') return handleSessionCreated(state, candidate);
+  if (type === 'session.updated') return handleSessionUpdated(state, candidate);
   if (type === 'session.idle') return handleSessionIdle(state, candidate);
   if (type === 'session.error' || type === 'session.status') return handleSessionStatus(state, candidate);
   if (type !== 'message.part.updated') return false;

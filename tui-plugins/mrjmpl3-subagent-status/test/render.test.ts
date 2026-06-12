@@ -9,7 +9,9 @@ import {
   formatContextCompact,
   formatCount,
   formatRelativeRecency,
+  formatSidebarCompactCount,
   formatSidebarRunningMeta,
+  formatSidebarSectionHeading,
   formatSidebarTerminalMeta,
   formatSidebarTitle,
   formatTokenCompact,
@@ -167,7 +169,7 @@ describe('render', () => {
     ).toEqual(['done_extended']);
   });
 
-  it('keeps stale zombies visible longer than done rows but still ages them out before errors', () => {
+  it('treats legacy stale rows as sticky error rows instead of aging them out like done rows', () => {
     const nowMs = Date.parse('2026-06-04T10:20:00.000Z');
     const staleVisible = child({
       id: 'stale_visible',
@@ -200,10 +202,10 @@ describe('render', () => {
 
     expect(
       visibleSubagentWorkItems([staleVisible, staleExpired, doneExpired, errorSticky], nowMs).map((item) => item.id),
-    ).toEqual(['stale_visible', 'error_sticky']);
+    ).toEqual(['stale_visible', 'stale_expired', 'error_sticky']);
   });
 
-  it('uses a configured stale retention override when deciding zombie visibility', () => {
+  it('keeps legacy stale rows visible even when stale retention is zero', () => {
     const nowMs = Date.parse('2026-06-04T10:20:00.000Z');
     const staleExtended = child({
       id: 'stale_extended',
@@ -213,16 +215,16 @@ describe('render', () => {
       updatedAt: '2026-06-04T09:55:00.000Z',
     });
 
-    expect(visibleSubagentWorkItems([staleExtended], nowMs)).toEqual([]);
+    expect(visibleSubagentWorkItems([staleExtended], nowMs).map((item) => item.id)).toEqual(['stale_extended']);
     expect(
       visibleSubagentWorkItems([staleExtended], nowMs, {
         ...DEFAULT_SUBAGENT_VISIBILITY_POLICY,
-        staleRetentionMs: 30 * 60 * 1000,
+        staleRetentionMs: 0,
       }).map((item) => item.id),
     ).toEqual(['stale_extended']);
   });
 
-  it('keeps stale zombies visible alongside active work even when they are not part of the current running message', () => {
+  it('keeps legacy stale rows visible alongside active work even when they are not part of the current running message', () => {
     const nowMs = Date.parse('2026-06-04T10:20:00.000Z');
     const runningChild = child({
       id: 'ses_running',
@@ -289,7 +291,7 @@ describe('render', () => {
     expect(formatTokenCompact(doneChild)).toBe('1.5k tok');
     expect(formatContextCompact(doneChild)).toBe('42%');
     expect(formatUsageCompact(doneChild)).toBe('1.5k tok 42%');
-    expect(renderStatusLine(state, nowMs)).toContain('Subagents: 1 run · 1 done · 0 zombie · 0 err · Σ 2');
+    expect(renderStatusLine(state, nowMs)).toContain('Subagents: 1 run · 1 done · 0 err · Σ 2');
     expect(renderStatusLine(state, nowMs)).toContain('Summarize results 1:59:00 1.5k tok 42%');
   });
 
@@ -315,6 +317,7 @@ describe('render', () => {
 
     expect(truncateLabel('   lots   of    gaps   ', 12)).toBe('lots of gaps');
     expect(formatSidebarTitle(sidebarChild)).toBe('Prioritize task name visibi…');
+    expect(formatSidebarTitle(sidebarChild, true)).toBe('Prioritize task name visi…');
     expect(formatSidebarTitle(sidebarChild)).not.toContain('render-specialist');
   });
 
@@ -341,17 +344,26 @@ describe('render', () => {
       tokens: { total: 1530, contextPercent: 42.3 },
     });
 
-    expect(formatSidebarRunningMeta(runningChild)).toEqual({
-      primary: '01:01 · @render-spec…',
-      secondary: '1.5k 42%',
-    });
+    expect(formatSidebarRunningMeta(runningChild)).toBe('01:01 · @render-… · 1.5k 42%');
     expect(formatRelativeRecency(doneChild.endedAt, nowMs)).toBe('2m ago');
-    expect(formatSidebarTerminalMeta(doneChild, nowMs)).toBe('2m ago · 1.5k 42%');
-    expect(formatSidebarTerminalMeta({ ...doneChild, status: 'stale', color: 'gray' }, nowMs)).toBe('zombie · 2m ago');
+    expect(formatSidebarTerminalMeta(doneChild, nowMs)).toBe('2m ago · 1.5k 42% · 04:00');
+    expect(formatSidebarTerminalMeta({ ...doneChild, status: 'stale', color: 'gray' }, nowMs)).toBe(
+      '2m ago · 1.5k 42% · 04:00',
+    );
     expect(formatCount(1200)).toBe('1,200');
   });
 
-  it('splits visible sidebar rows into active, zombie, and recent sections without reordering within each group', () => {
+  it('keeps sidebar count and section labels compact for a static width', () => {
+    expect(formatSidebarCompactCount(12)).toBe('12');
+    expect(formatSidebarCompactCount(1200)).toBe('1.2k');
+    expect(formatSidebarCompactCount(999_999)).toBe('999k');
+    expect(formatSidebarCompactCount(1_250_000)).toBe('1.3M');
+    expect(formatSidebarCompactCount(123_456_789_012_345)).toBe('123T');
+    expect(formatSidebarCompactCount(Number.MAX_SAFE_INTEGER)).toBe('999T+');
+    expect(formatSidebarSectionHeading('Very Long Sidebar Section Name', 1234)).toBe('Very Long Sidebar Section Nam…');
+  });
+
+  it('splits visible sidebar rows into active and recent sections without reordering within each group', () => {
     const runningChild = child({ id: 'ses_running' });
     const staleChild = child({ id: 'ses_stale', status: 'stale', color: 'gray' });
     const errorChild = child({ id: 'ses_error', status: 'error', color: 'red' });
@@ -360,8 +372,7 @@ describe('render', () => {
     const sections = splitSidebarVisibleSections([runningChild, staleChild, errorChild, doneChild]);
 
     expect(sections.active.map((item) => item.id)).toEqual(['ses_running']);
-    expect(sections.zombies.map((item) => item.id)).toEqual(['ses_stale']);
-    expect(sections.recent.map((item) => item.id)).toEqual(['ses_error', 'ses_done']);
+    expect(sections.recent.map((item) => item.id)).toEqual(['ses_stale', 'ses_error', 'ses_done']);
   });
 
   it('keeps tracked totals honest when visible rows are pruned', () => {
@@ -401,7 +412,7 @@ describe('render', () => {
   it('maps statuses to the expected color keys', () => {
     expect(statusColor('running')).toBe('yellow');
     expect(statusColor('done')).toBe('green');
-    expect(statusColor('stale')).toBe('gray');
+    expect(statusColor('stale')).toBe('red');
     expect(statusColor('error')).toBe('red');
   });
 });

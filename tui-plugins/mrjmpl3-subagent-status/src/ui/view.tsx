@@ -9,7 +9,9 @@ import { t } from '../runtime/i18n.ts';
 import { navigateToChildSession, resolveNavigationSessionId } from '../runtime/navigation.ts';
 import {
   formatCount,
+  formatSidebarCompactCount,
   formatSidebarRunningMeta,
+  formatSidebarSectionHeading,
   formatSidebarTerminalMeta,
   formatSidebarTitle,
   statusColor as resolveRenderStatusColor,
@@ -29,8 +31,7 @@ const SidebarSection = (props: {
 }) => (
   <box flexDirection="column">
     <box flexDirection="row">
-      <text fg={props.tone}>{props.label}</text>
-      <text fg={props.api.theme.current.textMuted}>{` · ${formatCount(props.count)}`}</text>
+      <text fg={props.tone}>{formatSidebarSectionHeading(props.label, props.count)}</text>
     </box>
     <box flexDirection="column">{props.children}</box>
   </box>
@@ -39,7 +40,7 @@ const SidebarSection = (props: {
 const taskStatusMarker = (status: SubagentChild['status']): string => {
   if (status === 'done') return '✓';
   if (status === 'error') return '✕';
-  if (status === 'stale') return '☠';
+  if (status === 'stale') return '✕';
   return '●';
 };
 
@@ -47,7 +48,7 @@ const themeStatusColor = (
   status: SubagentChild['status'],
   theme: Pick<TuiThemeCurrent, 'success' | 'error' | 'warning' | 'textMuted'>,
 ): TuiThemeCurrent['success'] => {
-  if (status === 'stale') return theme.warning;
+  if (status === 'stale') return theme.error;
   if (resolveRenderStatusColor(status) === 'green') return theme.success;
   if (resolveRenderStatusColor(status) === 'red') return theme.error;
   if (resolveRenderStatusColor(status) === 'gray') return theme.textMuted;
@@ -62,21 +63,18 @@ const ChildRow = (props: {
   const clickable = createMemo(() => resolveNavigationSessionId(props.child) !== undefined);
   const opacity = createMemo(() => {
     if (props.child.status === 'running') return 1;
-    if (props.child.status === 'error') return 0.88;
-    if (props.child.status === 'stale') return 0.78;
+    if (props.child.status === 'error' || props.child.status === 'stale') return 0.88;
     return 0.58;
   });
-  const title = createMemo(() => formatSidebarTitle(props.child));
+  const title = createMemo(() => formatSidebarTitle(props.child, clickable()));
   const runningMeta = createMemo(() => formatSidebarRunningMeta(props.child));
   const terminalMeta = createMemo(() => formatSidebarTerminalMeta(props.child));
   const titleColor = createMemo(() => {
     if (props.child.status === 'done') return props.api.theme.current.textMuted;
-    if (props.child.status === 'stale') return props.api.theme.current.text;
     return props.api.theme.current.text;
   });
   const metaColor = createMemo(() => {
-    if (props.child.status === 'error') return props.api.theme.current.error;
-    if (props.child.status === 'stale') return props.api.theme.current.warning;
+    if (props.child.status === 'error' || props.child.status === 'stale') return props.api.theme.current.error;
     return props.api.theme.current.textMuted;
   });
 
@@ -118,14 +116,9 @@ const ChildRow = (props: {
           </Show>
         }
       >
-        <box flexDirection="column">
-          <Show when={runningMeta().primary.length > 0}>
-            <text fg={props.api.theme.current.textMuted}>{`  ${runningMeta().primary}`}</text>
-          </Show>
-          <Show when={runningMeta().secondary.length > 0}>
-            <text fg={props.api.theme.current.textMuted}>{`  ${runningMeta().secondary}`}</text>
-          </Show>
-        </box>
+        <Show when={runningMeta().length > 0}>
+          <text fg={props.api.theme.current.textMuted}>{`  ${runningMeta()}`}</text>
+        </Show>
       </Show>
     </box>
   );
@@ -147,19 +140,17 @@ export const SidebarView = (props: {
     <box flexDirection="column">
       <box flexDirection="row">
         <text fg={props.api.theme.current.text} selectable={false} onMouseDown={props.onToggle}>
-          {`${props.expanded ? SIDEBAR_ARROW_EXPANDED : SIDEBAR_ARROW_COLLAPSED} ${t('subagents')}`}
+          {`${props.expanded ? SIDEBAR_ARROW_EXPANDED : SIDEBAR_ARROW_COLLAPSED} ${t('subagents')} · Σ ${formatSidebarCompactCount(props.totalExecuted())}`}
         </text>
       </box>
       <box flexDirection="row" paddingRight={1}>
-        <text fg={props.api.theme.current.warning}>{`● ${formatCount(counts().running)} ${t('run')}`}</text>
-        <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.success}>{`✓ ${formatCount(counts().done)} ${t('done')}`}</text>
-        <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.warning}>{`☠ ${formatCount(counts().stale)} ${t('zombie')}`}</text>
-        <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.error}>{`✕ ${formatCount(counts().error)} ${t('err')}`}</text>
-        <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.text}>{`Σ ${formatCount(props.totalExecuted())}`}</text>
+        <text fg={props.api.theme.current.warning}>{`● ${formatSidebarCompactCount(counts().running)}`}</text>
+        <text fg={props.api.theme.current.textMuted}> </text>
+        <text fg={props.api.theme.current.success}>{`✓ ${formatSidebarCompactCount(counts().done)}`}</text>
+        <text fg={props.api.theme.current.textMuted}> </text>
+        <text
+          fg={props.api.theme.current.error}
+        >{`✕ ${formatSidebarCompactCount(counts().error + counts().stale)}`}</text>
       </box>
 
       <Show when={props.expanded}>
@@ -176,18 +167,6 @@ export const SidebarView = (props: {
                 tone={props.api.theme.current.warning}
               >
                 <For each={sections().active}>
-                  {(child) => <ChildRow api={props.api} child={child} onNavigateToChild={props.onNavigateToChild} />}
-                </For>
-              </SidebarSection>
-            </Show>
-            <Show when={sections().zombies.length > 0}>
-              <SidebarSection
-                api={props.api}
-                label={t('zombies')}
-                count={sections().zombies.length}
-                tone={props.api.theme.current.warning}
-              >
-                <For each={sections().zombies}>
                   {(child) => <ChildRow api={props.api} child={child} onNavigateToChild={props.onNavigateToChild} />}
                 </For>
               </SidebarSection>
@@ -217,7 +196,7 @@ export const HomeBottomView = (props: {
   totalExecuted: () => number;
 }) => {
   const counts = () => props.snapshot().counts;
-  if (counts().running + counts().done + counts().stale + counts().error === 0) return undefined;
+  if (counts().running + counts().done + counts().error + counts().stale === 0) return undefined;
 
   return (
     <box paddingLeft={1} paddingRight={1}>
@@ -226,9 +205,7 @@ export const HomeBottomView = (props: {
         <text fg={props.api.theme.current.textMuted}> · </text>
         <text fg={props.api.theme.current.success}>{`✓ ${formatCount(counts().done)}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.warning}>{`☠ ${formatCount(counts().stale)}`}</text>
-        <text fg={props.api.theme.current.textMuted}> · </text>
-        <text fg={props.api.theme.current.error}>{`✕ ${formatCount(counts().error)}`}</text>
+        <text fg={props.api.theme.current.error}>{`✕ ${formatCount(counts().error + counts().stale)}`}</text>
         <text fg={props.api.theme.current.textMuted}> · </text>
         <text fg={props.api.theme.current.text}>{`Σ ${formatCount(props.totalExecuted())}`}</text>
       </box>

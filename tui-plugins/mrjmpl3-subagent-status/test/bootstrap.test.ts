@@ -226,6 +226,7 @@ describe('tui bootstrap buffering', () => {
       {
         staleRunningProbePolicy: {
           baseBackoffMs: 10,
+          hardStaleAfterMs: 90_000,
           maxBackoffMs: 20,
           maxAttempts: 2,
           refreshIntervalMs: 30,
@@ -249,8 +250,17 @@ describe('tui bootstrap buffering', () => {
       statePath: '/tmp/from-options.json',
     });
     expect(shouldPreserveStateOnStartup).toHaveBeenCalledWith({ preserveStateOnStartup: true });
-    expect(loadState).toHaveBeenCalledWith('/tmp/custom-subagent-status.json');
-    expect(createSQLiteRecoverySource).toHaveBeenCalledWith({ databasePath: '/tmp/opencode.db' });
+    expect(loadState).toHaveBeenCalledWith('/tmp/custom-subagent-status.json', {
+      recoveryContext: {
+        directory: '/tmp/workspace',
+        parentSessionID: undefined,
+      },
+      recoverySources: [expect.objectContaining({ id: 'sqlite' })],
+    });
+    expect(createSQLiteRecoverySource).toHaveBeenCalledWith({
+      databasePath: '/tmp/opencode.db',
+      hardStaleAfterMs: 90_000,
+    });
     expect(DEFAULT_STALE_RUNNING_PROBE_POLICY.baseBackoffMs).toBe(60_000);
   });
 });

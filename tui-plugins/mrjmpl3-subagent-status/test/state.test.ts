@@ -194,7 +194,7 @@ describe('state', () => {
     const state = createEmptyState();
     state.children.ses_stale = {
       id: 'ses_stale',
-      title: 'Zombie child',
+      title: 'Abandoned child',
       parentID: 'ses_parent',
       source: 'session',
       status: 'running',
@@ -208,7 +208,7 @@ describe('state', () => {
       color: 'gray',
       endedAt: '2026-06-04T12:00:00.000Z',
     });
-    expect(getCounts(state)).toEqual({ running: 0, done: 0, stale: 1, error: 0 });
+    expect(getCounts(state)).toEqual({ running: 0, done: 0, stale: 0, error: 1 });
 
     const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
     tempDirs.push(dir);
@@ -221,7 +221,7 @@ describe('state', () => {
       status: 'stale',
       color: 'gray',
     });
-    expect(getCounts(loaded)).toEqual({ running: 0, done: 0, stale: 1, error: 0 });
+    expect(getCounts(loaded)).toEqual({ running: 0, done: 0, stale: 0, error: 1 });
   });
 
   it('prunes orphaned synthetic running rows that are no longer anchored to an active session', () => {

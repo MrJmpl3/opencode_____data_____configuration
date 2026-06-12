@@ -17,7 +17,18 @@ const RUNNING_SESSION_STATUS_VALUES = new Set([
 
 const DONE_SESSION_STATUS_VALUES = new Set(['done', 'completed', 'complete', 'success', 'succeeded']);
 
-const ERROR_SESSION_STATUS_VALUES = new Set(['error', 'failed', 'failure', 'cancelled', 'canceled', 'aborted']);
+const ERROR_SESSION_STATUS_VALUES = new Set([
+  'error',
+  'failed',
+  'failure',
+  'cancelled',
+  'canceled',
+  'aborted',
+  'abandoned',
+  'orphaned',
+  'stale',
+  'zombie',
+]);
 
 export const collectSessionStatusValues = (value: unknown): string[] => {
   const direct = normalizedString(value);

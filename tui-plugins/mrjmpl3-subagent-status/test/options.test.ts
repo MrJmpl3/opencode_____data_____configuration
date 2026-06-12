@@ -30,6 +30,7 @@ describe('subagent status options', () => {
       resolveSubagentStatusPluginOptions({
         staleRunningProbePolicy: {
           baseBackoffMs: 500,
+          hardStaleAfterMs: -1,
           maxBackoffMs: 200,
           maxAttempts: -3,
           refreshIntervalMs: 0,
@@ -49,6 +50,7 @@ describe('subagent status options', () => {
     ).toEqual({
       staleRunningProbePolicy: {
         baseBackoffMs: 1_000,
+        hardStaleAfterMs: 0,
         maxBackoffMs: 1_000,
         maxAttempts: 0,
         refreshIntervalMs: 1_000,
@@ -67,7 +69,7 @@ describe('subagent status options', () => {
     });
   });
 
-  it('accepts explicit stale retention overrides for zombie visibility', () => {
+  it('accepts legacy stale retention overrides for persisted stale rows', () => {
     expect(
       resolveSubagentStatusPluginOptions({
         visibility: {
@@ -93,6 +95,20 @@ describe('subagent status options', () => {
       visibility: {
         doneRetentionMs: 900_450,
         staleRetentionMs: DEFAULT_STALE_RETENTION_MS,
+      },
+    });
+  });
+
+  it('accepts explicit hard stale safety-net overrides', () => {
+    expect(
+      resolveSubagentStatusPluginOptions({
+        staleRunningProbePolicy: {
+          hardStaleAfterMs: 90 * 60_000,
+        },
+      }),
+    ).toMatchObject({
+      staleRunningProbePolicy: {
+        hardStaleAfterMs: 5_400_000,
       },
     });
   });

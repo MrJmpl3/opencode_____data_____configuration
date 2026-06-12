@@ -6,7 +6,12 @@ import os from 'node:os';
 import type { SubagentState } from '../domain/types.ts';
 import type { PersistedSnapshotArtifacts } from '../shared/persisted-artifacts.ts';
 
-import { hydrateStateFromRecoverySources, type RecoveryContext, type RecoverySource } from './recovery.ts';
+import {
+  hydrateStateFromRecoverySources,
+  inferParentSessionID,
+  type RecoveryContext,
+  type RecoverySource,
+} from './recovery.ts';
 import { createSerializedTaskQueue } from '../runtime/queue.ts';
 import {
   createEmptyState,
@@ -174,14 +179,30 @@ export const loadState = async (
     syncExecutionState(state);
 
     if (options.recoverySources && options.recoverySources.length > 0) {
+      const contextParentID = options.recoveryContext?.parentSessionID;
+      const inferredParentID = inferParentSessionID(state);
+      const shouldRetryWithInferredParent =
+        inferredParentID && inferredParentID !== contextParentID && Object.keys(state.children).length > 0;
+
       await hydrateStateFromRecoverySources(
         state,
         {
           directory: options.recoveryContext?.directory ?? process.cwd(),
-          parentSessionID: options.recoveryContext?.parentSessionID,
+          parentSessionID: contextParentID,
         },
         options.recoverySources,
       );
+
+      if (shouldRetryWithInferredParent) {
+        await hydrateStateFromRecoverySources(
+          state,
+          {
+            directory: options.recoveryContext?.directory ?? process.cwd(),
+            parentSessionID: inferredParentID,
+          },
+          options.recoverySources,
+        );
+      }
     }
 
     const prunedTerminalChildren = pruneTerminalChildren(state, Date.now());

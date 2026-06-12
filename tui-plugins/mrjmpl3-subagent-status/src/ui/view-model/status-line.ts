@@ -7,7 +7,7 @@ import { buildSubagentSnapshotView } from './snapshot-view.ts';
 import { formatAggregateNumber } from './sort.ts';
 
 const renderAggregate = (counts: SubagentCounts): string =>
-  `Subagents: ${counts.running} run · ${counts.done} done · ${counts.stale} zombie · ${counts.error} err`;
+  `Subagents: ${counts.running} run · ${counts.done} done · ${counts.error + counts.stale} err`;
 
 const renderSnapshotAggregate = (counts: SubagentCounts): string =>
   renderAggregate(counts).replace(/^Subagents: /, 'Subagents snapshot: ');

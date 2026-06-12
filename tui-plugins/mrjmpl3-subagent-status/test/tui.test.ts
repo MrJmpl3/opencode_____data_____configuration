@@ -100,7 +100,7 @@ describe('tui elapsed time', () => {
     expect(snapshot.visibleChildren.map((child) => child.id)).toEqual(
       expect.arrayContaining(['ses_child_running', 'ses_child_error', 'ses_child_done']),
     );
-    expect(snapshot.statusLine).toContain('Subagents: 1 run · 1 done · 0 zombie · 1 err · Σ 3');
+    expect(snapshot.statusLine).toContain('Subagents: 1 run · 1 done · 1 err · Σ 3');
     expect(snapshot.statusLine).toContain('Implement sidebar sync');
     expect(snapshot.statusLine).toContain('420 tok 58%');
   });
@@ -259,10 +259,10 @@ describe('tui elapsed time', () => {
     expect(snapshot.statusLine).toContain('2 done');
   });
 
-  it('threads configured stale retention through snapshot rendering', () => {
-    const staleZombie = createChild({
-      id: 'ses_stale_zombie',
-      title: 'Zombie child',
+  it('renders legacy stale rows as visible errors without a stale retention section', () => {
+    const staleRow = createChild({
+      id: 'ses_stale_error',
+      title: 'Abandoned child',
       parentID: 'ses_parent',
       source: 'session',
       status: 'stale',
@@ -272,16 +272,15 @@ describe('tui elapsed time', () => {
 
     const nowMs = Date.parse('2026-06-04T12:00:00.000Z');
 
-    expect(buildTuiSnapshot(createState([staleZombie], 1), nowMs).visibleChildren).toEqual([]);
-
-    const snapshot = buildTuiSnapshot(createState([staleZombie], 1), nowMs, {
+    const snapshot = buildTuiSnapshot(createState([staleRow], 1), nowMs, {
       ...DEFAULT_SUBAGENT_VISIBILITY_POLICY,
-      staleRetentionMs: 30 * 60 * 1000,
+      staleRetentionMs: 0,
     });
 
-    expect(snapshot.visibleCounts).toEqual({ running: 0, done: 0, stale: 1, error: 0 });
-    expect(snapshot.visibleChildren.map((child) => child.id)).toEqual(['ses_stale_zombie']);
-    expect(snapshot.statusLine).toContain('Zombie child');
+    expect(snapshot.visibleCounts).toEqual({ running: 0, done: 0, stale: 0, error: 1 });
+    expect(snapshot.visibleChildren.map((child) => child.id)).toEqual(['ses_stale_error']);
+    expect(snapshot.statusLine).toContain('Subagents: 0 run · 0 done · 1 err');
+    expect(snapshot.statusLine).toContain('Abandoned child');
   });
 
   it('threads configured done retention through snapshot rendering', () => {
@@ -353,7 +352,7 @@ describe('tui elapsed time', () => {
     const persistedSnapshot = formatPersistedSnapshot(state, { source: 'startup' });
     const debug = JSON.parse(persistedSnapshot.debugSnapshot) as Record<string, unknown>;
 
-    expect(persistedSnapshot.statusText).toContain('Subagents snapshot: 1 run · 0 done · 0 zombie · 0 err · Σ 1');
+    expect(persistedSnapshot.statusText).toContain('Subagents snapshot: 1 run · 0 done · 0 err · Σ 1');
     expect(debug).toMatchObject({
       source: 'startup',
       bufferedEventCount: 0,

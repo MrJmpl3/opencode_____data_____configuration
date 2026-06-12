@@ -5,7 +5,6 @@ import { collapseSubagentWorkItems } from './collapse.ts';
 
 export interface SidebarVisibleSections {
   active: SubagentChild[];
-  zombies: SubagentChild[];
   recent: SubagentChild[];
 }
 
@@ -14,12 +13,10 @@ export const isVisibleWorkItem = (
   nowMs = Date.now(),
   visibilityPolicy: SubagentVisibilityPolicy = DEFAULT_SUBAGENT_VISIBILITY_POLICY,
 ): boolean => {
-  if (child.status === 'running' || child.status === 'error') return true;
+  if (child.status === 'running' || child.status === 'error' || child.status === 'stale') return true;
 
   const endedMs = Date.parse(child.endedAt ?? child.updatedAt);
   if (Number.isNaN(endedMs)) return false;
-
-  if (child.status === 'stale') return nowMs - endedMs <= visibilityPolicy.staleRetentionMs;
 
   return nowMs - endedMs <= visibilityPolicy.doneRetentionMs;
 };
@@ -51,13 +48,11 @@ export const splitSidebarVisibleSections = (children: readonly SubagentChild[]):
     (sections, child) => {
       if (child.status === 'running') {
         sections.active.push(child);
-      } else if (child.status === 'stale') {
-        sections.zombies.push(child);
       } else {
         sections.recent.push(child);
       }
 
       return sections;
     },
-    { active: [], zombies: [], recent: [] },
+    { active: [], recent: [] },
   );

@@ -8,6 +8,7 @@ import {
 
 export type StaleRunningProbePolicy = {
   baseBackoffMs: number;
+  hardStaleAfterMs: number;
   maxBackoffMs: number;
   maxAttempts: number;
   refreshIntervalMs: number;
@@ -15,46 +16,46 @@ export type StaleRunningProbePolicy = {
 
 export interface SubagentStatusStaleRunningProbePolicyOptions {
   /**
-   * Backoff base para volver a sondear una sesion que sigue figurando como
-   * running. Si llega un valor invalido, se reemplaza por el minimo seguro.
+   * Base backoff for probing a session that still appears as running. Invalid
+   * values are replaced by the safe minimum.
    */
   baseBackoffMs?: number;
+  hardStaleAfterMs?: number;
   /**
-   * Tope del backoff exponencial para no dejar probes zombies ni tampoco
-   * castigar demasiado una sesion que todavia no emitio evidencia terminal.
+   * Exponential backoff ceiling so abandoned probes do not run forever while
+   * still avoiding excessive pressure on sessions that have not emitted
+   * terminal evidence yet.
    */
   maxBackoffMs?: number;
   /**
-   * Cantidad maxima de probes extra antes de dejar de insistir hasta que haya
-   * nueva actividad visible en la sesion.
+   * Maximum extra probes before waiting for new visible session activity.
    */
   maxAttempts?: number;
   /**
-   * Intervalo del loop de reconciliacion que revisa si conviene disparar esos
-   * probes de running stale.
+   * Reconciliation loop interval used to decide whether running-session probes
+   * should run.
    */
   refreshIntervalMs?: number;
 }
 
 export interface SubagentStatusPersistenceOptions {
   /**
-   * Ruta explicita del snapshot persistido. Sirve para fijar el archivo desde
-   * `tui.json` en vez de depender de convenciones externas o variables de
-   * entorno.
+   * Explicit persisted snapshot path. This lets `tui.json` choose the file
+   * instead of relying on external conventions or environment variables.
    */
   statePath?: string;
   /**
-   * Cuando es true, el runtime intenta cargar el ultimo snapshot al iniciar.
-   * Cuando es false o falta, arranca desde un estado vacio.
+   * When true, the runtime attempts to load the last snapshot on startup.
+   * When false or omitted, it starts from an empty state.
    */
   preserveStateOnStartup?: boolean;
 }
 
 export interface SubagentStatusRecoveryOptions {
   /**
-   * Ruta explicita a la base SQLite de OpenCode usada para recovery.
-   * El plugin no lee configuracion propia desde ENV: la unica entrada valida
-   * es este objeto `options` recibido desde el tuple del plugin.
+   * Explicit OpenCode SQLite database path used for recovery. The plugin does
+   * not read plugin-specific configuration from environment variables; this
+   * `options` object is the supported input boundary.
    */
   sqliteDatabasePath?: string;
 }
@@ -62,14 +63,15 @@ export interface SubagentStatusRecoveryOptions {
 export interface SubagentStatusVisibilityOptions {
   doneRetentionMs?: number;
   /**
-   * How long a `stale` child stays visible in the zombie section before it is
-   * hidden from the live snapshot.
+   * How long a legacy `stale` child remains eligible for visibility. Current
+   * abandoned-session detection marks rows as `error` instead.
    */
   staleRetentionMs?: number;
 }
 
 /**
- * Forma publica del objeto `options` que acompana al plugin en `tui.json`.
+ * Public shape of the `options` object that accompanies this plugin in
+ * `tui.json`.
  *
  * Ejemplo de la entrada completa:
  * `[
@@ -82,10 +84,10 @@ export interface SubagentStatusVisibilityOptions {
  *   }
  * ]`
  *
- * Opencode entrega ese segundo elemento como `options: unknown`; por eso este
- * modulo define la forma esperada y la normaliza explicitamente en un solo
- * borde. No existe una via soportada de configuracion especifica del plugin
- * por variables de entorno.
+ * OpenCode passes that second tuple element as `options: unknown`, so this
+ * module defines the expected shape and normalizes it at a single boundary.
+ * Environment variables are not a supported plugin-specific configuration
+ * path.
  */
 export interface SubagentStatusPluginOptions {
   staleRunningProbePolicy?: SubagentStatusStaleRunningProbePolicyOptions;
@@ -95,9 +97,9 @@ export interface SubagentStatusPluginOptions {
 }
 
 /**
- * Alias util para quien quiera tipar una entrada completa del array `plugin`
- * en `tui.json`: el primer elemento es el spec/ruta del plugin y el segundo es
- * exactamente el objeto que este modulo sabe normalizar.
+ * Helper alias for typing a complete `plugin` array entry in `tui.json`: the
+ * first element is the plugin spec/path, and the second is the options object
+ * normalized by this module.
  */
 export type SubagentStatusPluginConfigEntry = readonly [pluginSpec: string, options: SubagentStatusPluginOptions];
 
@@ -115,6 +117,7 @@ export interface ResolvedSubagentStatusPluginOptions {
 
 export const DEFAULT_STALE_RUNNING_PROBE_POLICY: StaleRunningProbePolicy = {
   baseBackoffMs: 60_000,
+  hardStaleAfterMs: 5 * 60 * 60_000,
   maxBackoffMs: 5 * 60_000,
   maxAttempts: 4,
   refreshIntervalMs: 60_000,
@@ -140,9 +143,9 @@ const integerOption = (value: unknown): number | undefined => {
 };
 
 /**
- * Normaliza el payload crudo que llega desde `plugin: [[spec, options]]`.
- * Mantener esta conversion en un unico lugar evita que el runtime tenga que
- * adivinar formas parciales o volver a introducir configuracion via ENV.
+ * Normalizes the raw payload received from `plugin: [[spec, options]]`.
+ * Keeping this conversion in one place prevents the runtime from guessing at
+ * partial shapes or reintroducing environment-variable configuration.
  */
 export const normalizeSubagentStatusPluginOptions = (options: unknown): ResolvedSubagentStatusPluginOptions => {
   const pluginOptions = isRecord(options) ? options : {};
@@ -165,6 +168,10 @@ export const normalizeSubagentStatusPluginOptions = (options: unknown): Resolved
     MAX_MAX_ATTEMPTS,
     Math.max(0, integerOption(staleRunningProbePolicy.maxAttempts) ?? DEFAULT_STALE_RUNNING_PROBE_POLICY.maxAttempts),
   );
+  const hardStaleAfterMs = Math.max(
+    0,
+    integerOption(staleRunningProbePolicy.hardStaleAfterMs) ?? DEFAULT_STALE_RUNNING_PROBE_POLICY.hardStaleAfterMs,
+  );
   const refreshIntervalMs = Math.max(
     MIN_REFRESH_INTERVAL_MS,
     numberOption(staleRunningProbePolicy.refreshIntervalMs) ?? DEFAULT_STALE_RUNNING_PROBE_POLICY.refreshIntervalMs,
@@ -175,6 +182,7 @@ export const normalizeSubagentStatusPluginOptions = (options: unknown): Resolved
   return {
     staleRunningProbePolicy: {
       baseBackoffMs,
+      hardStaleAfterMs,
       maxBackoffMs,
       maxAttempts,
       refreshIntervalMs,

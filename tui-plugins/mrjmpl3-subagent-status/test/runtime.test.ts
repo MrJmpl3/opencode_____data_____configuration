@@ -33,6 +33,115 @@ describe('refresh runtime', () => {
     vi.doUnmock('../src/infrastructure/recovery-sources.ts');
   });
 
+  it('marks hard-stale persisted running rows before the first rendered load state', async () => {
+    vi.resetModules();
+
+    const setStateCalls: SubagentState[] = [];
+
+    vi.doMock('../src/runtime/events/bridge.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/runtime/events/bridge.ts')>(
+        '../src/runtime/events/bridge.ts',
+      );
+
+      return {
+        ...actual,
+        installEventBridge: vi.fn(() => () => undefined),
+      };
+    });
+
+    vi.doMock('../src/infrastructure/persistence.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/infrastructure/persistence.ts')>(
+        '../src/infrastructure/persistence.ts',
+      );
+      const loadedState = createEmptyState();
+      loadedState.children.ses_stale = {
+        id: 'ses_stale',
+        title: 'Persisted stale child',
+        parentID: 'ses_parent',
+        source: 'session',
+        targetSessionID: 'ses_stale',
+        status: 'running',
+        startedAt: '2026-06-04T05:00:00.000Z',
+        updatedAt: '2026-06-04T05:00:00.000Z',
+      };
+      loadedState.children.ses_fresh = {
+        id: 'ses_fresh',
+        title: 'Persisted fresh child',
+        parentID: 'ses_parent',
+        source: 'session',
+        targetSessionID: 'ses_fresh',
+        status: 'running',
+        startedAt: '2026-06-04T05:24:00.000Z',
+        updatedAt: '2026-06-04T05:24:00.000Z',
+      };
+
+      return {
+        ...actual,
+        resolveStatePath: vi.fn(() => '/tmp/mrjmpl3-subagent-status-state.json'),
+        resolveTextPath: vi.fn(() => '/tmp/mrjmpl3-subagent-status-status.txt'),
+        loadState: vi.fn(async () => loadedState),
+        shouldPreserveStateOnStartup: vi.fn(() => true),
+        createPersistQueue: vi.fn(() => async () => undefined),
+      };
+    });
+
+    const { createTuiRuntime } = await import('../src/runtime/tui-runtime.ts');
+
+    let state: SubagentState = createEmptyState();
+    const api = {
+      client: {
+        session: {
+          children: vi.fn(async () => ({ data: [] })),
+        },
+      },
+      lifecycle: {
+        onDispose: vi.fn(),
+      },
+      state: {
+        path: {
+          directory: '/tmp/workspace',
+        },
+        session: {
+          messages: vi.fn(() => []),
+          status: vi.fn(() => undefined),
+        },
+      },
+    } as unknown as TuiPluginApi;
+
+    const runtime = createTuiRuntime(
+      api,
+      {
+        getState: () => state,
+        setState: (nextState) => {
+          state = nextState;
+          setStateCalls.push(structuredClone(nextState));
+        },
+        getSessionId: () => '',
+        setSessionId: vi.fn(),
+        setNowMs: vi.fn(),
+      },
+      resolveSubagentStatusPluginOptions({
+        persistence: { preserveStateOnStartup: true },
+        staleRunningProbePolicy: { hardStaleAfterMs: 10 * 60_000 },
+      }),
+    );
+
+    await runtime.bootstrap();
+
+    expect(setStateCalls[0]?.children.ses_stale).toMatchObject({
+      status: 'error',
+      updatedAt: '2026-06-04T05:25:00.000Z',
+      endedAt: '2026-06-04T05:25:00.000Z',
+    });
+    expect(setStateCalls[0]?.children.ses_fresh).toMatchObject({
+      status: 'running',
+      updatedAt: '2026-06-04T05:24:00.000Z',
+    });
+    expect(setStateCalls[0]?.children.ses_fresh?.endedAt).toBeUndefined();
+
+    runtime.dispose();
+  });
+
   it('replays buffered synthetic events after the session is selected', async () => {
     vi.resetModules();
 
@@ -934,7 +1043,7 @@ describe('refresh runtime', () => {
     runtime.dispose();
   });
 
-  it('marks a legacy running real-session row as stale once missing-authoritative probes are exhausted', async () => {
+  it('marks a legacy running real-session row as error once missing-running-evidence probes are exhausted', async () => {
     vi.resetModules();
     const probePolicy = {
       baseBackoffMs: 1_000,
@@ -1027,11 +1136,11 @@ describe('refresh runtime', () => {
     await waitForCondition(() => statusSpy.mock.calls.length === 2);
 
     await vi.advanceTimersByTimeAsync(probePolicy.baseBackoffMs * 2);
-    await waitForCondition(() => state.children.ses_child?.status === 'stale');
+    await waitForCondition(() => state.children.ses_child?.status === 'error');
 
     expect(state.children.ses_child).toMatchObject({
-      status: 'stale',
-      color: 'gray',
+      status: 'error',
+      color: 'red',
     });
     expect(state.children.ses_child?.endedAt).toBeDefined();
 

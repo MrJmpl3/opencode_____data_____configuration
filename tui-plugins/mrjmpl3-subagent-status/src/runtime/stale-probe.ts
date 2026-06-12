@@ -2,13 +2,47 @@ import type { SubagentState } from '../domain/types.ts';
 
 import type { StaleRunningProbePolicy } from './options.ts';
 import { isRealSessionRow, resolveSessionRowSessionId } from './session-row.ts';
-import { markChildStatus } from '../domain/state.ts';
+import { childEvidenceTimestampMs, markChildStatus } from '../domain/state.ts';
 
 export type StaleRunningProbeState = {
   attempts: number;
-  missingAuthoritativeAttempts: number;
+  missingRunningEvidenceAttempts: number;
   lastSeenUpdatedAt: string;
   nextProbeAtMs: number;
+};
+
+type LegacyStaleRunningProbeState = StaleRunningProbeState & {
+  missingAuthoritativeAttempts?: unknown;
+};
+
+const finiteProbeCounter = (value: unknown): number | undefined => {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, value) : undefined;
+};
+
+const normalizeProbeCounter = (value: unknown): number => {
+  return finiteProbeCounter(value) ?? 0;
+};
+
+const previousProbeCounter = (
+  previous: StaleRunningProbeState | undefined,
+  childUpdatedAt: string,
+  key: keyof StaleRunningProbeState,
+): number => {
+  if (!previous || previous.lastSeenUpdatedAt !== childUpdatedAt) return 0;
+
+  return normalizeProbeCounter(previous[key]);
+};
+
+const previousMissingRunningEvidenceAttempts = (
+  previous: StaleRunningProbeState | undefined,
+  childUpdatedAt: string,
+): number => {
+  if (!previous || previous.lastSeenUpdatedAt !== childUpdatedAt) return 0;
+
+  const currentAttempts = finiteProbeCounter(previous.missingRunningEvidenceAttempts);
+  if (currentAttempts !== undefined) return currentAttempts;
+
+  return normalizeProbeCounter((previous as LegacyStaleRunningProbeState).missingAuthoritativeAttempts);
 };
 
 export const nextStaleRunningBackoffMs = (attempts: number, policy: StaleRunningProbePolicy): number => {
@@ -41,7 +75,7 @@ export const resolveStaleRunningProbeTargets = (
     if (existing.lastSeenUpdatedAt !== child.updatedAt) {
       probeStateBySessionId.set(sessionId, {
         attempts: 0,
-        missingAuthoritativeAttempts: 0,
+        missingRunningEvidenceAttempts: 0,
         lastSeenUpdatedAt: child.updatedAt,
         nextProbeAtMs: nowMs + policy.baseBackoffMs,
       });
@@ -83,29 +117,33 @@ export const settleStaleRunningProbeTargets = (
     }
 
     const previous = probeStateBySessionId.get(sessionId);
-    const attempts = Math.min(
-      policy.maxAttempts,
-      (previous?.lastSeenUpdatedAt === child.updatedAt ? previous.attempts : 0) + 1,
-    );
-    const hasAuthoritativePresence = authoritativeSessionIDs.has(sessionId);
+    const attempts = Math.min(policy.maxAttempts, previousProbeCounter(previous, child.updatedAt, 'attempts') + 1);
     const hasRunningEvidence = runningEvidenceSessionIDs.has(sessionId);
-    const missingAuthoritativeAttempts =
-      hasAuthoritativePresence || hasRunningEvidence
+    const hasAuthoritativePresenceGuard = authoritativeSessionIDs.has(sessionId);
+    const childEvidenceMs = childEvidenceTimestampMs(child);
+    const hasExceededHardStaleAge = policy.hardStaleAfterMs > 0 && nowMs - childEvidenceMs >= policy.hardStaleAfterMs;
+    const missingRunningEvidenceAttempts =
+      hasRunningEvidence || hasAuthoritativePresenceGuard
         ? 0
-        : Math.min(
-            policy.maxAttempts,
-            (previous?.lastSeenUpdatedAt === child.updatedAt ? previous.missingAuthoritativeAttempts : 0) + 1,
-          );
+        : Math.min(policy.maxAttempts, previousMissingRunningEvidenceAttempts(previous, child.updatedAt) + 1);
 
-    if (missingAuthoritativeAttempts >= policy.maxAttempts) {
-      probeStateBySessionId.delete(sessionId);
-      changed = markChildStatus(state, child.id, 'stale', new Date(nowMs).toISOString()) || changed;
-      continue;
+    if (
+      hasExceededHardStaleAge ||
+      (!hasRunningEvidence && !hasAuthoritativePresenceGuard && missingRunningEvidenceAttempts >= policy.maxAttempts)
+    ) {
+      const errorAt = new Date(Math.max(nowMs, childEvidenceMs)).toISOString();
+      const marked = markChildStatus(state, child.id, 'error', errorAt);
+
+      if (marked) {
+        probeStateBySessionId.delete(sessionId);
+        changed = true;
+        continue;
+      }
     }
 
     probeStateBySessionId.set(sessionId, {
       attempts,
-      missingAuthoritativeAttempts,
+      missingRunningEvidenceAttempts,
       lastSeenUpdatedAt: child.updatedAt,
       nextProbeAtMs: nowMs + nextStaleRunningBackoffMs(attempts, policy),
     });

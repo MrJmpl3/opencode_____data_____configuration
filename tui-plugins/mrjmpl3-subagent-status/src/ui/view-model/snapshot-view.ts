@@ -9,6 +9,11 @@ import { visibleSubagentWorkItems } from './visibility.ts';
 const countsFromChildren = (children: readonly SubagentChild[]): SubagentCounts =>
   children.reduce<SubagentCounts>(
     (counts, child) => {
+      if (child.status === 'stale') {
+        counts.error += 1;
+        return counts;
+      }
+
       counts[child.status] += 1;
       return counts;
     },

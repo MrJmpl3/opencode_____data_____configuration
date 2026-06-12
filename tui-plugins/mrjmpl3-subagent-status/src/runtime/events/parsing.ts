@@ -1,5 +1,6 @@
 import type { SubagentState } from '../../domain/types.ts';
 
+import { deriveOpenCodeSessionStatus } from '../../domain/session-status.ts';
 import { conciseText, sameDisplayText } from '../../shared/display.ts';
 import { asString, isRecord, timestampFromUnknown } from '../../shared/coercion.ts';
 import type { EventLike } from '../boundaries/event-payload.ts';
@@ -69,6 +70,24 @@ export const extractSessionId = (event: EventLike): string | undefined =>
   asString(event.sessionId) ??
   asString(event.properties?.info?.id) ??
   asString(event.properties?.id);
+
+export const extractOpenCodeEventSessionStatus = (event: EventLike): SyntheticChild['status'] | undefined => {
+  const candidates = [
+    event.properties?.info?.status,
+    event.properties?.info?.state,
+    event.properties?.status,
+    event.properties?.state,
+    event.status,
+    event.state,
+    event.properties,
+  ];
+
+  const statuses = candidates
+    .map(deriveOpenCodeSessionStatus)
+    .filter((status): status is SyntheticChild['status'] => Boolean(status) && status !== 'stale');
+
+  return statuses.find((status) => status !== 'running') ?? statuses[0];
+};
 
 const collectSessionIds = (input: unknown, target: Set<string>, depth = 0): void => {
   if (depth > 4 || !input) return;
@@ -146,6 +165,7 @@ export const extractCreatedChild = (event: EventLike): SyntheticChild | null => 
 
   const startedAt = extractEventTimestamp(event, ['started', 'start', 'created', 'updated']);
   const updatedAt = extractEventTimestamp(event, ['updated', 'created', 'started', 'start']) ?? startedAt;
+  const status = extractOpenCodeEventSessionStatus(event) ?? 'running';
 
   return {
     id,
@@ -156,7 +176,11 @@ export const extractCreatedChild = (event: EventLike): SyntheticChild | null => 
     targetSessionID: id,
     startedAt,
     updatedAt,
-    status: 'running',
+    status,
+    endedAt:
+      status === 'running'
+        ? undefined
+        : extractEventTimestamp(event, ['completed', 'end', 'ended', 'updated', 'created', 'started']),
   };
 };
 

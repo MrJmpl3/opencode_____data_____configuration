@@ -4,23 +4,19 @@ const translations = {
   en: {
     subagents: 'Subagents',
     active: 'Active',
-    zombies: 'Zombies',
     recent: 'Recent',
     noSubagentsYet: 'No subagents yet',
     run: 'run',
     done: 'done',
-    zombie: 'zombie',
     err: 'err',
   },
   es: {
     subagents: 'Subagentes',
     active: 'Activos',
-    zombies: 'Zombies',
     recent: 'Recientes',
     noSubagentsYet: 'Todavía no hay subagentes',
     run: 'act',
     done: 'listo',
-    zombie: 'zombie',
     err: 'err',
   },
 } as const;

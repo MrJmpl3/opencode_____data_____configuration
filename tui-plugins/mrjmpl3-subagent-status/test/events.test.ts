@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createEmptyState } from '../src/domain/state.ts';
+import { createEmptyState, getCounts } from '../src/domain/state.ts';
 import { applySubagentEvent } from '../src/runtime/events/handling.ts';
 import { extractSessionId, extractTaskToolEvidence } from '../src/runtime/events/parsing.ts';
 
@@ -281,6 +281,62 @@ describe('events', () => {
       updatedAt: DONE_AT,
       endedAt: DONE_AT,
     });
+  });
+
+  it('marks a child done from terminal session.updated info status evidence despite unrecognized outer status', () => {
+    const state = seedChildSession();
+
+    expect(
+      applySubagentEvent(state, {
+        type: 'session.updated',
+        properties: {
+          status: 'idle',
+          info: {
+            id: 'ses_child',
+            parentID: 'ses_parent',
+            status: 'completed',
+            time: {
+              completed: DONE_AT,
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      updatedAt: DONE_AT,
+      endedAt: DONE_AT,
+      elapsedMs: Date.parse(DONE_AT) - Date.parse(CREATED_AT),
+    });
+    expect(getCounts(state)).toEqual({ running: 0, done: 1, stale: 0, error: 0 });
+  });
+
+  it('marks a child error from terminal session.updated info state evidence despite non-terminal outer state', () => {
+    const state = seedChildSession();
+
+    expect(
+      applySubagentEvent(state, {
+        type: 'session.updated',
+        properties: {
+          sessionID: 'ses_child',
+          state: 'running',
+          info: {
+            state: 'failed',
+            time: {
+              ended: ERROR_AT,
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'error',
+      updatedAt: ERROR_AT,
+      endedAt: ERROR_AT,
+    });
+    expect(getCounts(state)).toEqual({ running: 0, done: 0, stale: 0, error: 1 });
   });
 
   it('marks an idle child error when later session.error evidence arrives', () => {

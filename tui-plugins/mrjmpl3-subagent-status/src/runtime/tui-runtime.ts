@@ -5,7 +5,7 @@ import { createBufferedTaskQueue } from './queue.ts';
 import { normalizeSubagentStatusPluginOptions, type ResolvedSubagentStatusPluginOptions } from './options.ts';
 import { resolveSessionSlotTransition } from './navigation.ts';
 import { createRuntimeSessionScopeHelpers } from './session-scope.ts';
-import { createEmptyState } from '../domain/state.ts';
+import { childEvidenceTimestampMs, createEmptyState, markChildStatus } from '../domain/state.ts';
 import type { SubagentState } from '../domain/types.ts';
 import {
   createPersistQueue,
@@ -45,7 +45,10 @@ export const createTuiRuntime = (
   const persistQueuedSnapshot = createPersistQueue(statePath, textPath, (state, meta: PersistSnapshotMeta) =>
     formatPersistedSnapshot(state, meta, visibilityPolicy),
   );
-  const recoverySources = createRecoverySources({ sqliteDatabasePath: options.recovery.sqliteDatabasePath });
+  const recoverySources = createRecoverySources({
+    sqliteDatabasePath: options.recovery.sqliteDatabasePath,
+    hardStaleAfterMs: options.staleRunningProbePolicy.hardStaleAfterMs,
+  });
   const staleRunningProbePolicy = options.staleRunningProbePolicy;
   const bufferedEvents = createBufferedTaskQueue(async (event: unknown) => {
     await mergeEventState(event);
@@ -66,6 +69,22 @@ export const createTuiRuntime = (
     if (disposed) return;
     input.setState(nextState);
     await persistQueuedSnapshot(nextState, meta);
+  };
+
+  const markHardStaleRunningChildren = (state: SubagentState): void => {
+    const hardStaleAfterMs = staleRunningProbePolicy.hardStaleAfterMs;
+    if (hardStaleAfterMs <= 0) return;
+
+    const nowMs = Date.now();
+    for (const child of Object.values(state.children)) {
+      if (child.status !== 'running') continue;
+
+      const childEvidenceMs = childEvidenceTimestampMs(child);
+      if (nowMs - childEvidenceMs < hardStaleAfterMs) continue;
+
+      const errorAt = new Date(Math.max(nowMs, childEvidenceMs)).toISOString();
+      markChildStatus(state, child.id, 'error', errorAt);
+    }
   };
 
   const sessionScope = createRuntimeSessionScopeHelpers({
@@ -134,7 +153,15 @@ export const createTuiRuntime = (
       if (!shouldPreserveStateOnStartup({ preserveStateOnStartup: options.persistence.preserveStateOnStartup })) {
         await syncState(createEmptyState(), createPersistMeta('startup'));
       } else {
-        await syncState(await loadState(statePath), createPersistMeta('load'));
+        const loadedState = await loadState(statePath, {
+          recoveryContext: {
+            directory: api.state.path.directory,
+            parentSessionID: input.getSessionId() || undefined,
+          },
+          recoverySources,
+        });
+        markHardStaleRunningChildren(loadedState);
+        await syncState(loadedState, createPersistMeta('load'));
       }
 
       await refresh(input.getSessionId());

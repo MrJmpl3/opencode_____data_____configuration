@@ -62,7 +62,10 @@ export const applyRecoveredChildren = (
       }) || changed;
 
     if (child.status !== 'running') {
-      changed = markChildStatus(state, child.id, child.status, child.endedAt ?? child.updatedAt) || changed;
+      changed =
+        markChildStatus(state, child.id, child.status, child.endedAt ?? child.updatedAt, {
+          allowOlderTerminalEvidence: true,
+        }) || changed;
     }
   }
 

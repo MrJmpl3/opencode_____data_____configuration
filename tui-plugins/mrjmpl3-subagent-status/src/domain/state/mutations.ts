@@ -310,6 +310,7 @@ export const markChildStatus = (
   childID: string,
   status: Exclude<SubagentChild['status'], 'running'>,
   endedAt?: string,
+  options: { allowOlderTerminalEvidence?: boolean } = {},
 ): boolean => {
   let changed = false;
   const resolvedEndedAt = safeTimestamp(endedAt, new Date().toISOString());
@@ -317,7 +318,12 @@ export const markChildStatus = (
 
   for (const child of Object.values(state.children)) {
     if (child.id !== childID && child.targetSessionID !== childID) continue;
-    if (nextEvidenceMs < childEvidenceTimestampMs(child)) continue;
+    if (
+      nextEvidenceMs < childEvidenceTimestampMs(child) &&
+      !(options.allowOlderTerminalEvidence === true && child.status === 'running')
+    ) {
+      continue;
+    }
     if (child.status === status && child.endedAt === resolvedEndedAt && child.updatedAt === resolvedEndedAt) {
       continue;
     }
