@@ -345,33 +345,6 @@
       "**/secrets/**": "deny"
     }
   },
-  "provider": {
-    "github-copilot": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
-    "ollama-cloud": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
-    "openai": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
-    "opencode-go": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
-    "openrouter": {
-      "options": {
-        "setCacheKey": true
-      }
-    }
-  },
   "share": "disabled",
   "small_model": "openai/gpt-5.4-mini"
 }
