@@ -226,8 +226,8 @@ describe('tui elapsed time', () => {
     expect(JSON.parse(readFileSync(debugPath, 'utf8'))).toMatchObject({
       source: 'load',
       snapshotSemantics: 'snapshot',
-        trackedCounts: { running: 0, done: 1, stale: 0, error: 0 },
-        visibleCounts: { running: 0, done: 1, stale: 0, error: 0 },
+      trackedCounts: { running: 0, done: 1, stale: 0, error: 0 },
+      visibleCounts: { running: 0, done: 1, stale: 0, error: 0 },
     });
   });
 

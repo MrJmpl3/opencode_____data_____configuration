@@ -169,10 +169,7 @@ export const normalizeSubagentStatusPluginOptions = (options: unknown): Resolved
     MIN_REFRESH_INTERVAL_MS,
     numberOption(staleRunningProbePolicy.refreshIntervalMs) ?? DEFAULT_STALE_RUNNING_PROBE_POLICY.refreshIntervalMs,
   );
-  const staleRetentionMs = Math.max(
-    0,
-    integerOption(visibility.staleRetentionMs) ?? DEFAULT_STALE_RETENTION_MS,
-  );
+  const staleRetentionMs = Math.max(0, integerOption(visibility.staleRetentionMs) ?? DEFAULT_STALE_RETENTION_MS);
   const doneRetentionMs = Math.max(0, integerOption(visibility.doneRetentionMs) ?? DEFAULT_DONE_RETENTION_MS);
 
   return {

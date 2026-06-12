@@ -203,7 +203,8 @@ export const hydrateChildStatusesFromClient = async (
 
       if (nextStatus === 'running') {
         runningEvidenceSessionIDs?.add(sessionId);
-        changed = markChildRunning(state, child.id, latestLiveSessionActivityAt(api, sessionId) ?? child.updatedAt) || changed;
+        changed =
+          markChildRunning(state, child.id, latestLiveSessionActivityAt(api, sessionId) ?? child.updatedAt) || changed;
         return;
       }
 

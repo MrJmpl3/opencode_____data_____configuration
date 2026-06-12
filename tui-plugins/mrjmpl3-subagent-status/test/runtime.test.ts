@@ -1014,7 +1014,10 @@ describe('refresh runtime', () => {
         },
         setNowMs: vi.fn(),
       },
-      resolveSubagentStatusPluginOptions({ persistence: { preserveStateOnStartup: true }, staleRunningProbePolicy: probePolicy }),
+      resolveSubagentStatusPluginOptions({
+        persistence: { preserveStateOnStartup: true },
+        staleRunningProbePolicy: probePolicy,
+      }),
     );
 
     await runtime.bootstrap();
@@ -1114,7 +1117,10 @@ describe('refresh runtime', () => {
         },
         setNowMs: vi.fn(),
       },
-      resolveSubagentStatusPluginOptions({ persistence: { preserveStateOnStartup: true }, staleRunningProbePolicy: probePolicy }),
+      resolveSubagentStatusPluginOptions({
+        persistence: { preserveStateOnStartup: true },
+        staleRunningProbePolicy: probePolicy,
+      }),
     );
 
     await runtime.bootstrap();

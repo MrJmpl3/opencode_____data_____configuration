@@ -83,15 +83,19 @@ export const settleStaleRunningProbeTargets = (
     }
 
     const previous = probeStateBySessionId.get(sessionId);
-    const attempts = Math.min(policy.maxAttempts, (previous?.lastSeenUpdatedAt === child.updatedAt ? previous.attempts : 0) + 1);
+    const attempts = Math.min(
+      policy.maxAttempts,
+      (previous?.lastSeenUpdatedAt === child.updatedAt ? previous.attempts : 0) + 1,
+    );
     const hasAuthoritativePresence = authoritativeSessionIDs.has(sessionId);
     const hasRunningEvidence = runningEvidenceSessionIDs.has(sessionId);
-    const missingAuthoritativeAttempts = hasAuthoritativePresence || hasRunningEvidence
-      ? 0
-      : Math.min(
-          policy.maxAttempts,
-          (previous?.lastSeenUpdatedAt === child.updatedAt ? previous.missingAuthoritativeAttempts : 0) + 1,
-        );
+    const missingAuthoritativeAttempts =
+      hasAuthoritativePresence || hasRunningEvidence
+        ? 0
+        : Math.min(
+            policy.maxAttempts,
+            (previous?.lastSeenUpdatedAt === child.updatedAt ? previous.missingAuthoritativeAttempts : 0) + 1,
+          );
 
     if (missingAuthoritativeAttempts >= policy.maxAttempts) {
       probeStateBySessionId.delete(sessionId);

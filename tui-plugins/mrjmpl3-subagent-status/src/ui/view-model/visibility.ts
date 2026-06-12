@@ -1,9 +1,6 @@
 import type { SubagentChild } from '../../domain/types.ts';
 
-import {
-  DEFAULT_SUBAGENT_VISIBILITY_POLICY,
-  type SubagentVisibilityPolicy,
-} from '../../shared/visibility.ts';
+import { DEFAULT_SUBAGENT_VISIBILITY_POLICY, type SubagentVisibilityPolicy } from '../../shared/visibility.ts';
 import { collapseSubagentWorkItems } from './collapse.ts';
 
 export interface SidebarVisibleSections {
@@ -32,7 +29,9 @@ export const visibleSubagentWorkItems = (
   nowMs = Date.now(),
   visibilityPolicy: SubagentVisibilityPolicy = DEFAULT_SUBAGENT_VISIBILITY_POLICY,
 ): SubagentChild[] => {
-  const visible = collapseSubagentWorkItems(children).filter((child) => isVisibleWorkItem(child, nowMs, visibilityPolicy));
+  const visible = collapseSubagentWorkItems(children).filter((child) =>
+    isVisibleWorkItem(child, nowMs, visibilityPolicy),
+  );
   const hasRunning = visible.some((child) => child.status === 'running');
   const activeMessageIDs = new Set(
     visible.flatMap((child) => (child.status === 'running' && child.messageID ? [child.messageID] : [])),

@@ -188,7 +188,6 @@ describe('state', () => {
     });
     expect(loaded.totalExecuted).toBe(3);
     expect(getCounts(loaded)).toEqual({ running: 1, done: 1, stale: 0, error: 0 });
-
   });
 
   it('treats stale rows as terminal and preserves them across persistence', async () => {

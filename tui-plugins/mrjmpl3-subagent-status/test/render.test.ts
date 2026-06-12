@@ -198,10 +198,9 @@ describe('render', () => {
       updatedAt: '2026-06-04T09:30:00.000Z',
     });
 
-    expect(visibleSubagentWorkItems([staleVisible, staleExpired, doneExpired, errorSticky], nowMs).map((item) => item.id)).toEqual([
-      'stale_visible',
-      'error_sticky',
-    ]);
+    expect(
+      visibleSubagentWorkItems([staleVisible, staleExpired, doneExpired, errorSticky], nowMs).map((item) => item.id),
+    ).toEqual(['stale_visible', 'error_sticky']);
   });
 
   it('uses a configured stale retention override when deciding zombie visibility', () => {
@@ -348,9 +347,7 @@ describe('render', () => {
     });
     expect(formatRelativeRecency(doneChild.endedAt, nowMs)).toBe('2m ago');
     expect(formatSidebarTerminalMeta(doneChild, nowMs)).toBe('2m ago · 1.5k 42%');
-    expect(
-      formatSidebarTerminalMeta({ ...doneChild, status: 'stale', color: 'gray' }, nowMs),
-    ).toBe('zombie · 2m ago');
+    expect(formatSidebarTerminalMeta({ ...doneChild, status: 'stale', color: 'gray' }, nowMs)).toBe('zombie · 2m ago');
     expect(formatCount(1200)).toBe('1,200');
   });
 
