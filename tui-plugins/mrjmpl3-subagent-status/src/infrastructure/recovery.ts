@@ -15,6 +15,7 @@ export type RecoveryContext = {
 export type RecoveryResult = {
   changed: boolean;
   authoritativeSessionIDs: string[];
+  protectedTerminalSessionIDs?: string[];
 };
 
 export interface RecoverySource {
@@ -45,9 +46,13 @@ export const applyRecoveredChildren = (
   children: SubagentChild[],
   authoritativeSessionIDs: string[],
   parentSessionID?: string,
+  options: { protectedTerminalSessionIDs?: readonly string[] } = {},
 ): RecoveryResult => {
   let changed = false;
   const authoritativeSet = new Set(authoritativeSessionIDs);
+  const protectedTerminalSet = options.protectedTerminalSessionIDs
+    ? new Set(options.protectedTerminalSessionIDs)
+    : undefined;
 
   for (const child of children) {
     clearPurgedSession(state, child.id);
@@ -62,9 +67,10 @@ export const applyRecoveredChildren = (
       }) || changed;
 
     if (child.status !== 'running') {
+      const sessionId = resolveSessionIdentity(child) ?? child.id;
       changed =
         markChildStatus(state, child.id, child.status, child.endedAt ?? child.updatedAt, {
-          allowOlderTerminalEvidence: true,
+          allowOlderTerminalEvidence: protectedTerminalSet ? protectedTerminalSet.has(sessionId) : true,
         }) || changed;
     }
   }
@@ -83,10 +89,16 @@ export const applyRecoveredChildren = (
 
   syncExecutionState(state);
 
-  return {
+  const result: RecoveryResult = {
     changed,
     authoritativeSessionIDs,
   };
+
+  if (options.protectedTerminalSessionIDs) {
+    result.protectedTerminalSessionIDs = [...options.protectedTerminalSessionIDs];
+  }
+
+  return result;
 };
 
 export const hydrateStateFromRecoverySources = async (
@@ -96,6 +108,8 @@ export const hydrateStateFromRecoverySources = async (
 ): Promise<RecoveryResult> => {
   let changed = false;
   const authoritativeSessionIDs = new Set<string>();
+  const protectedTerminalSessionIDs = new Set<string>();
+  let hasProtectedTerminalSessionIDs = false;
 
   for (const recoverySource of recoverySources) {
     const result = await recoverySource.hydrateState(state, context);
@@ -105,10 +119,23 @@ export const hydrateStateFromRecoverySources = async (
     for (const sessionId of result.authoritativeSessionIDs) {
       authoritativeSessionIDs.add(sessionId);
     }
+
+    if (result.protectedTerminalSessionIDs) {
+      hasProtectedTerminalSessionIDs = true;
+      for (const sessionId of result.protectedTerminalSessionIDs) {
+        protectedTerminalSessionIDs.add(sessionId);
+      }
+    }
   }
 
-  return {
+  const result: RecoveryResult = {
     changed,
     authoritativeSessionIDs: [...authoritativeSessionIDs],
   };
+
+  if (hasProtectedTerminalSessionIDs) {
+    result.protectedTerminalSessionIDs = [...protectedTerminalSessionIDs];
+  }
+
+  return result;
 };

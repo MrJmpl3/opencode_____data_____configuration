@@ -158,7 +158,10 @@ export const createTuiRuntimeRefresh = (
       if (isInactiveSessionToken(sessionToken)) return;
 
       const recoverySessionIDs = new Set(recovered.authoritativeSessionIDs);
-      const terminalRecoverySessionIDs = resolveTerminalRecoverySessionIDs(nextState, recoverySessionIDs);
+      const protectedRecoverySessionIDs = new Set(
+        recovered.protectedTerminalSessionIDs ?? recovered.authoritativeSessionIDs,
+      );
+      const terminalRecoverySessionIDs = resolveTerminalRecoverySessionIDs(nextState, protectedRecoverySessionIDs);
       let response: unknown;
       try {
         response = await sessionClient.listChildren(sessionId);

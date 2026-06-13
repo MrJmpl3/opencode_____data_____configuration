@@ -12,7 +12,7 @@ import { isRealSessionRow, resolveSessionRowSessionId } from './session-row.ts';
 
 type RunningEvidenceCollector = Set<string>;
 
-type MessageSummary = { status?: 'done' | 'error'; endedAt?: string };
+type MessageSummary = { status?: 'done' | 'error'; endedAt?: string; evidence?: 'explicit' | 'ambiguous' };
 
 type MessageActivity = {
   summary: MessageSummary;
@@ -76,6 +76,25 @@ const maxTimestamp = (currentMs: number, timestamp: string | undefined): number 
   return Number.isNaN(parsed) ? currentMs : Math.max(currentMs, parsed);
 };
 
+const resolveStepStartTimestamp = (message: unknown): string | undefined => {
+  return messageTime(message, 'start', 'started', 'created', 'updated');
+};
+
+const resolveAmbiguousStepFinishStatus = (message: unknown): MessageSummary['status'] => {
+  const record = isRecord(message) ? message : undefined;
+  const info = messageInfo(message);
+  const state = isRecord(record?.state) ? record.state : undefined;
+  const type = normalizedString(record?.type ?? info?.type ?? state?.type);
+  if (type !== 'step-finish') return undefined;
+  if (record?.error || info?.error || state?.error) return 'error';
+
+  const reason = normalizedString(record?.reason ?? info?.reason ?? state?.reason ?? record?.status ?? info?.status);
+  const terminalReason = deriveTerminalSessionStatus(reason);
+  if (terminalReason === 'done' || terminalReason === 'error') return terminalReason;
+
+  return reason === 'stop' ? 'done' : undefined;
+};
+
 const isNewerTimestamp = (candidate: string | undefined, baseline: string | undefined): boolean => {
   if (!candidate || !baseline) return false;
 
@@ -89,6 +108,9 @@ const analyzeMessages = (messages: readonly unknown[]): MessageActivity => {
   let latestLiveActivityMs = 0;
   let completedAtMs = 0;
   let errorAtMs = 0;
+  let ambiguousCompletedAtMs = 0;
+  let ambiguousErrorAtMs = 0;
+  let latestStepStartAtMs = 0;
 
   for (const message of messages) {
     latestActivityMs = maxTimestamp(latestActivityMs, messageActivityAt(message));
@@ -101,6 +123,10 @@ const analyzeMessages = (messages: readonly unknown[]): MessageActivity => {
       deriveTerminalSessionStatus(state?.status ?? info?.status ?? record?.status ?? state ?? info ?? record) ??
       (record?.error || info?.error || state?.error ? 'error' : undefined);
     const type = normalizedString(record?.type ?? info?.type ?? state?.type);
+    if (type === 'step-start') {
+      latestStepStartAtMs = maxTimestamp(latestStepStartAtMs, resolveStepStartTimestamp(message));
+    }
+
     const terminalAt =
       messageTime(message, 'completed', 'end', 'ended', 'updated', 'created') ?? messageActivityAt(message);
 
@@ -112,15 +138,30 @@ const analyzeMessages = (messages: readonly unknown[]): MessageActivity => {
     const hasDoneSignal = status === 'done' && (type === 'session.status' || type === 'completed');
     if (hasDoneSignal && terminalAt) {
       completedAtMs = maxTimestamp(completedAtMs, terminalAt);
+      continue;
+    }
+
+    const ambiguousStatus = resolveAmbiguousStepFinishStatus(message);
+    if (ambiguousStatus === 'error' && terminalAt) {
+      ambiguousErrorAtMs = maxTimestamp(ambiguousErrorAtMs, terminalAt);
+      continue;
+    }
+
+    if (ambiguousStatus === 'done' && terminalAt) {
+      ambiguousCompletedAtMs = maxTimestamp(ambiguousCompletedAtMs, terminalAt);
     }
   }
 
+  const ambiguousAtMs = Math.max(ambiguousCompletedAtMs, ambiguousErrorAtMs);
+  const ambiguousStatus = ambiguousErrorAtMs > ambiguousCompletedAtMs ? 'error' : 'done';
   const summary: MessageSummary =
     errorAtMs > completedAtMs
       ? { status: 'error', endedAt: latestISOString(errorAtMs) }
       : completedAtMs > 0
         ? { status: 'done', endedAt: latestISOString(completedAtMs) }
-        : {};
+        : ambiguousAtMs > 0 && ambiguousAtMs >= latestStepStartAtMs
+          ? { status: ambiguousStatus, endedAt: latestISOString(ambiguousAtMs), evidence: 'ambiguous' }
+          : {};
 
   return {
     summary,
@@ -225,7 +266,10 @@ export const hydrateChildStatusesFromClient = async (
       const blockRunningEvidence = isRecoveryProtectedFromRunning(sessionId, options);
 
       if (clientStatus === 'running') {
-        if (blockRunningEvidence) return;
+        if (blockRunningEvidence) {
+          console.log(`[subagent-status] hydration-client: ${sessionId} protected from running (recovery terminal)`);
+          return;
+        }
 
         let clientActivity = emptyMessageActivity();
 
@@ -255,6 +299,9 @@ export const hydrateChildStatusesFromClient = async (
       }
 
       const nextStatus = clientTerminalStatus ?? clientActivity.summary.status;
+      console.log(
+        `[subagent-status] hydration-client: ${sessionId} clientStatus=${clientStatus} clientTerminal=${clientTerminalStatus} nextStatus=${nextStatus}`,
+      );
       if (!nextStatus) {
         if (blockRunningEvidence) return;
 
@@ -265,6 +312,14 @@ export const hydrateChildStatusesFromClient = async (
           changed = markChildRunning(state, child.id, clientActivity.latestLiveActivityAt) || changed;
         }
 
+        return;
+      }
+
+      if (
+        !clientTerminalStatus &&
+        clientActivity.summary.evidence === 'ambiguous' &&
+        runningEvidenceSessionIDs?.has(sessionId)
+      ) {
         return;
       }
 
@@ -329,6 +384,14 @@ export const hydrateChildStatusesFromTuiState = (
     const messageActivity = getTuiMessageActivity(sessionId);
     const nextStatus = terminalStatus ?? messageActivity.summary.status;
     if (nextStatus) {
+      if (
+        !terminalStatus &&
+        messageActivity.summary.evidence === 'ambiguous' &&
+        runningEvidenceSessionIDs?.has(sessionId)
+      ) {
+        continue;
+      }
+
       for (const child of children) {
         const endedAt =
           sessionStatusEndedAt(sessionStatus) ??

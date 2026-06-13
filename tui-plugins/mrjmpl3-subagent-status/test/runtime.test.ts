@@ -780,7 +780,7 @@ describe('refresh runtime', () => {
     await rm(tempDir, { recursive: true, force: true });
   });
 
-  it('keeps live children running when SQLite only has ambiguous step-finish evidence', async () => {
+  it('keeps SQLite ambiguous step-finish recovery terminal over newer client running evidence', async () => {
     vi.resetModules();
 
     const tempDir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
@@ -883,17 +883,13 @@ describe('refresh runtime', () => {
 
     await runtime.bootstrap();
     runtime.refreshFromSlot({ session_id: 'ses_parent' });
-    await waitForCondition(() => state.children.ses_child?.updatedAt === '2026-06-04T05:24:30.000Z');
+    await waitForCondition(() => state.children.ses_child?.status === 'done');
 
-    expect(clientStatusSpy).toHaveBeenCalled();
-    expect(clientMessagesSpy).toHaveBeenCalled();
     expect(state.children.ses_child).toMatchObject({
-      status: 'running',
-      color: 'yellow',
-      updatedAt: '2026-06-04T05:24:30.000Z',
+      status: 'done',
+      endedAt: '2026-06-04T05:20:00.000Z',
       tokens: { input: 5, output: 3, total: 8 },
     });
-    expect(state.children.ses_child?.endedAt).toBeUndefined();
 
     runtime.dispose();
     await rm(tempDir, { recursive: true, force: true });
@@ -1699,7 +1695,7 @@ describe('refresh runtime', () => {
     runtime.dispose();
   });
 
-  it('keeps children running when step-finish is the only message evidence during refresh', async () => {
+  it('marks children done when step-finish is the only message evidence during refresh', async () => {
     vi.resetModules();
 
     vi.doMock('../src/infrastructure/persistence.ts', async () => {
@@ -1788,14 +1784,14 @@ describe('refresh runtime', () => {
 
     await runtime.bootstrap();
     runtime.refreshFromSlot({ session_id: 'ses_parent' });
-    await waitForCondition(() => state.children.ses_child !== undefined);
+    await waitForCondition(() => state.children.ses_child?.status === 'done');
 
     expect(state.children.ses_child).toMatchObject({
-      status: 'running',
-      color: 'yellow',
-      updatedAt: '2026-06-04T11:59:00.000Z',
+      status: 'done',
+      color: 'green',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      endedAt: '2026-06-04T12:01:00.000Z',
     });
-    expect(state.children.ses_child?.endedAt).toBeUndefined();
 
     runtime.dispose();
   });

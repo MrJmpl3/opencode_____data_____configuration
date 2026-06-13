@@ -378,7 +378,103 @@ describe('status hydration', () => {
     });
   });
 
-  it('ignores step-finish stop as terminal session evidence', () => {
+  it('marks a running row done from step-finish stop when no newer live evidence exists', async () => {
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_child',
+      status: 'running',
+      color: 'yellow',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    const changed = await hydrateChildStatusesFromClient(
+      createApi({
+        clientStatus: {
+          ses_child: {
+            type: 'idle',
+          },
+        },
+        clientMessages: [
+          {
+            type: 'step-finish',
+            reason: 'stop',
+            time: { end: '2026-06-04T12:01:30.000Z' },
+          },
+        ],
+      }),
+      state,
+      ['ses_child'],
+    );
+
+    expect(changed).toBe(true);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      color: 'green',
+      endedAt: '2026-06-04T12:01:30.000Z',
+      updatedAt: '2026-06-04T12:01:30.000Z',
+    });
+  });
+
+  it('keeps live newer running evidence ahead of step-finish stop evidence', async () => {
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_child',
+      status: 'running',
+      color: 'yellow',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    const runningEvidenceSessionIDs = new Set<string>();
+    hydrateChildStatusesFromTuiState(
+      createApi({
+        tuiStatus: { type: 'running' },
+        tuiMessages: [{ time: { updated: '2026-06-04T12:02:00.000Z' } }],
+      }),
+      state,
+      ['ses_child'],
+      runningEvidenceSessionIDs,
+    );
+
+    const changed = await hydrateChildStatusesFromClient(
+      createApi({
+        clientStatus: {
+          ses_child: {
+            type: 'idle',
+          },
+        },
+        clientMessages: [
+          {
+            type: 'step-finish',
+            reason: 'stop',
+            time: { end: '2026-06-04T12:01:30.000Z' },
+          },
+        ],
+      }),
+      state,
+      ['ses_child'],
+      runningEvidenceSessionIDs,
+    );
+
+    expect(changed).toBe(false);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'running',
+      color: 'yellow',
+      updatedAt: '2026-06-04T12:02:00.000Z',
+    });
+    expect(state.children.ses_child?.endedAt).toBeUndefined();
+  });
+
+  it('summarizes step-finish stop as ambiguous successful completion evidence', () => {
     expect(
       summarizeMessages([
         {
@@ -387,7 +483,43 @@ describe('status hydration', () => {
           time: { end: '2026-06-04T12:01:30.000Z' },
         },
       ]),
+    ).toEqual({
+      status: 'done',
+      endedAt: '2026-06-04T12:01:30.000Z',
+      evidence: 'ambiguous',
+    });
+  });
+
+  it('keeps step-finish stop ambiguous when a newer step starts later', () => {
+    expect(
+      summarizeMessages([
+        {
+          type: 'step-finish',
+          reason: 'stop',
+          time: { end: '2026-06-04T12:01:30.000Z' },
+        },
+        {
+          type: 'step-start',
+          time: { start: '2026-06-04T12:02:00.000Z' },
+        },
+      ]),
     ).toEqual({});
+  });
+
+  it('summarizes failed step-finish evidence as error', () => {
+    expect(
+      summarizeMessages([
+        {
+          type: 'step-finish',
+          reason: 'failed',
+          time: { end: '2026-06-04T12:01:30.000Z' },
+        },
+      ]),
+    ).toEqual({
+      status: 'error',
+      endedAt: '2026-06-04T12:01:30.000Z',
+      evidence: 'ambiguous',
+    });
   });
 
   it('prefers explicit done evidence when error and done arrive with the same terminal timestamp', () => {

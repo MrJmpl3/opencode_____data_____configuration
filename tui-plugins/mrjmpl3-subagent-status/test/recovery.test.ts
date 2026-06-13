@@ -37,7 +37,7 @@ describe('sqlite recovery source', () => {
     }
   });
 
-  it('keeps step-finish-only SQLite evidence running when no explicit session terminal event exists', async () => {
+  it('marks step-finish-only SQLite evidence done when no newer running evidence exists', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
     tempDirs.push(dir);
     const databasePath = join(dir, 'opencode.db');
@@ -92,15 +92,15 @@ describe('sqlite recovery source', () => {
     });
 
     expect(state.children.ses_1468147afffePt1H1Qt7VKwLho).toMatchObject({
-      status: 'running',
+      status: 'done',
       tokens: { input: 12, output: 8, total: 20 },
     });
-    expect(state.children.ses_1468147afffePt1H1Qt7VKwLho?.endedAt).toBeUndefined();
+    expect(state.children.ses_1468147afffePt1H1Qt7VKwLho?.endedAt).toBe('2026-06-04T05:20:00.000Z');
     expect(state.children['tool:ses_1468147afffePt1H1Qt7VKwLho']).toMatchObject({
-      status: 'running',
+      status: 'done',
     });
-    expect(state.children['tool:ses_1468147afffePt1H1Qt7VKwLho']?.endedAt).toBeUndefined();
-    expect(getCounts(state)).toMatchObject({ done: 0, running: 2 });
+    expect(state.children['tool:ses_1468147afffePt1H1Qt7VKwLho']?.endedAt).toBe('2026-06-04T05:20:00.000Z');
+    expect(getCounts(state)).toMatchObject({ done: 2, running: 0 });
   });
 
   it('does not override newer persisted running rows when SQLite only has step-finish evidence', async () => {
@@ -143,18 +143,14 @@ describe('sqlite recovery source', () => {
     });
 
     expect(state.children.ses_14584472affeE6HD4fNRxdM0oq).toMatchObject({
-      status: 'running',
-      updatedAt: '2026-06-04T05:24:30.000Z',
-      endedAt: undefined,
+      status: 'done',
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
       tokens: { input: 12, output: 8, total: 20 },
     });
-
-    const sections = splitSidebarVisibleSections(Object.values(state.children));
-    expect(sections.active.map((child) => child.id)).toEqual(['ses_14584472affeE6HD4fNRxdM0oq']);
-    expect(sections.recent).toHaveLength(0);
   });
 
-  it('keeps large step-finish-only recovery running while preserving token evidence', async () => {
+  it('uses large step-finish-only recovery as done evidence while preserving token evidence', async () => {
     const largePayload = 'x'.repeat(256 * 1024);
     const largeParts = [
       ...Array.from({ length: 104 }, (_, index) =>
@@ -177,8 +173,8 @@ describe('sqlite recovery source', () => {
     const parsedParts = safeParseParts(largeParts);
     expect(parsedParts).toHaveLength(105);
     expect(resolveRecoveredStatus(parsedParts)).toMatchObject({
-      status: 'running',
-      endedAt: undefined,
+      status: 'done',
+      endedAt: '2026-06-04T05:20:00.000Z',
       tokens: { input: 12, output: 8, total: 20 },
     });
 
@@ -226,9 +222,128 @@ describe('sqlite recovery source', () => {
     });
 
     expect(state.children.ses_large_terminal).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
+      tokens: { input: 12, output: 8, total: 20 },
+    });
+  });
+
+  it('marks stale step-finish stop recovery as done instead of abandoned error', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import json, sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        "cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', ('ses_step_finish_done', 'ses_parent', 'Finished child', 'sdd-apply', 1780530000000, 1780532400000, 12, 8, 0, 0, 0))",
+        'payload = json.dumps({"type": "step-finish", "reason": "stop", "tokens": {"input": 12, "output": 8, "total": 20}, "time": {"end": 1780532400000}})',
+        "cur.execute('INSERT INTO part VALUES (?, ?, ?, ?, ?)', ('prt_1', 'ses_step_finish_done', 1780532399000, 1780532400000, payload))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    const source = createSQLiteRecoverySource({ databasePath });
+
+    await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(state.children.ses_step_finish_done).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T00:20:00.000Z',
+      endedAt: '2026-06-04T00:20:00.000Z',
+      tokens: { input: 12, output: 8, total: 20 },
+    });
+  });
+
+  it('uses SQLite row timestamps for real-shaped step-finish payloads without payload time', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
+    tempDirs.push(dir);
+    const databasePath = join(dir, 'opencode.db');
+
+    await createSQLiteRecoveryDatabase(
+      databasePath,
+      [
+        'import json, sqlite3, sys',
+        'path = sys.argv[1]',
+        'conn = sqlite3.connect(path)',
+        'cur = conn.cursor()',
+        "cur.execute('CREATE TABLE session (id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, agent TEXT, time_created INTEGER, time_updated INTEGER, tokens_input INTEGER, tokens_output INTEGER, tokens_reasoning INTEGER, tokens_cache_read INTEGER, tokens_cache_write INTEGER)')",
+        "cur.execute('CREATE TABLE part (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)')",
+        'sessions = [',
+        "  ('ses_fresh_stop', 'Fresh real-shaped done', 1780550100000, 1780550400000, 12, 8),",
+        "  ('ses_stale_stop', 'Stale real-shaped done', 1780530000000, 1780532400000, 12, 8),",
+        "  ('ses_resumed_after_stop', 'Resumed after stop', 1780550100000, 1780550460000, 0, 0),",
+        ']',
+        'for session_id, title, created_at, updated_at, tokens_input, tokens_output in sessions:',
+        "    cur.execute('INSERT INTO session VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (session_id, 'ses_parent', title, 'sdd-apply', created_at, updated_at, tokens_input, tokens_output, 0, 0, 0))",
+        'parts = [',
+        "  ('ses_fresh_stop', 'prt_fresh_start', 1780550340000, 1780550340000, {'type': 'step-start'}),",
+        "  ('ses_fresh_stop', 'prt_fresh_tool_done', 1780550360000, 1780550360000, {'type': 'tool', 'state': {'status': 'completed'}}),",
+        "  ('ses_fresh_stop', 'prt_fresh_stop', 1780550399000, 1780550400000, {'type': 'step-finish', 'reason': 'stop', 'tokens': {'input': 12, 'output': 8, 'total': 20}}),",
+        "  ('ses_stale_stop', 'prt_stale_start', 1780532100000, 1780532100000, {'type': 'step-start'}),",
+        "  ('ses_stale_stop', 'prt_stale_stop', 1780532399000, 1780532400000, {'type': 'step-finish', 'reason': 'stop', 'tokens': {'input': 12, 'output': 8, 'total': 20}}),",
+        "  ('ses_resumed_after_stop', 'prt_resumed_start_1', 1780550340000, 1780550340000, {'type': 'step-start'}),",
+        "  ('ses_resumed_after_stop', 'prt_resumed_stop', 1780550399000, 1780550400000, {'type': 'step-finish', 'reason': 'stop'}),",
+        "  ('ses_resumed_after_stop', 'prt_resumed_start_2', 1780550460000, 1780550460000, {'type': 'step-start'}),",
+        ']',
+        'for session_id, part_id, created_at, updated_at, payload in parts:',
+        "    cur.execute('INSERT INTO part VALUES (?, ?, ?, ?, ?)', (part_id, session_id, created_at, updated_at, json.dumps(payload)))",
+        'conn.commit()',
+      ].join('\n'),
+    );
+
+    const state = createEmptyState();
+    const source = createSQLiteRecoverySource({ databasePath });
+
+    await source.hydrateState(state, {
+      directory: '/tmp/workspace',
+      parentSessionID: 'ses_parent',
+    });
+
+    expect(state.children.ses_fresh_stop).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
+      tokens: { input: 12, output: 8, total: 20 },
+    });
+    expect(state.children.ses_stale_stop).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T00:20:00.000Z',
+      endedAt: '2026-06-04T00:20:00.000Z',
+      tokens: { input: 12, output: 8, total: 20 },
+    });
+    expect(state.children.ses_resumed_after_stop).toMatchObject({
       status: 'running',
-      updatedAt: '2026-06-04T05:20:00.101Z',
+      updatedAt: '2026-06-04T05:21:00.000Z',
       endedAt: undefined,
+    });
+  });
+
+  it('keeps failed step-finish recovery evidence as error', () => {
+    expect(
+      resolveRecoveredStatus([
+        {
+          type: 'step-finish',
+          reason: 'failed',
+          tokens: { input: 12, output: 8, total: 20 },
+          time: { end: 1780532400000 },
+        },
+      ]),
+    ).toMatchObject({
+      status: 'error',
+      updatedAt: '2026-06-04T00:20:00.000Z',
+      endedAt: '2026-06-04T00:20:00.000Z',
       tokens: { input: 12, output: 8, total: 20 },
     });
   });
@@ -330,6 +445,7 @@ describe('sqlite recovery source', () => {
     expect(result).toEqual({
       authoritativeSessionIDs: ['ses_child'],
       changed: true,
+      protectedTerminalSessionIDs: ['ses_child'],
     });
     expect(state.children.ses_child).toMatchObject({
       status: 'done',
@@ -542,7 +658,7 @@ describe('sqlite recovery source', () => {
     });
   });
 
-  it('merges SQLite row token counts with ambiguous latest-part usage details without terminalizing', async () => {
+  it('merges SQLite row token counts with step-finish usage details when marking done', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'mrjmpl3-subagent-status-'));
     tempDirs.push(dir);
     const databasePath = join(dir, 'opencode.db');
@@ -581,11 +697,11 @@ describe('sqlite recovery source', () => {
     });
 
     expect(state.children.ses_child).toMatchObject({
-      status: 'running',
+      status: 'done',
       updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
       tokens: { input: 12, output: 8, contextPercent: 42.5 },
     });
-    expect(state.children.ses_child?.endedAt).toBeUndefined();
   });
 
   it('purges non-authoritative rows that are absent from SQLite recovery', async () => {
@@ -746,6 +862,7 @@ describe('sqlite recovery source', () => {
     expect(result).toEqual({
       authoritativeSessionIDs: ['ses_child'],
       changed: true,
+      protectedTerminalSessionIDs: [],
     });
     expect(state.children.ses_child).toMatchObject({
       status: 'running',

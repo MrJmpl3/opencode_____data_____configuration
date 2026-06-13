@@ -150,7 +150,11 @@ export const createTuiRuntime = (
 
   const bootstrap = async (): Promise<void> => {
     try {
-      if (!shouldPreserveStateOnStartup({ preserveStateOnStartup: options.persistence.preserveStateOnStartup })) {
+      const preserveState = shouldPreserveStateOnStartup({
+        preserveStateOnStartup: options.persistence.preserveStateOnStartup,
+      });
+      console.log(`[subagent-status] bootstrap: preserveStateOnStartup=${preserveState} statePath=${statePath}`);
+      if (!preserveState) {
         await syncState(createEmptyState(), createPersistMeta('startup'));
       } else {
         const loadedState = await loadState(statePath, {
@@ -164,6 +168,7 @@ export const createTuiRuntime = (
         await syncState(loadedState, createPersistMeta('load'));
       }
 
+      console.log(`[subagent-status] bootstrap: calling refresh with sessionId=${input.getSessionId()}`);
       await refresh(input.getSessionId());
     } finally {
       await bufferedEvents.markReady();
