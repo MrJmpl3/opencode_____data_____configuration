@@ -270,12 +270,12 @@ ROOT
 
 El directorio [`plugins/`](./plugins) contiene adaptadores de plugins personalizados para OpenCode.
 
-| Plugin                                                       | Qué agrega                                                                                                                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`mrjmpl3-engram`](./plugins/mrjmpl3-engram)                 | Integración con memoria Engram: inicia o conecta el servidor local, captura prompts, inyecta instrucciones de memoria y evita inflar sesiones de subagentes.      |
-| [`mrjmpl3-model-variants`](./plugins/mrjmpl3-model-variants) | Lee datos de variantes de modelos/proveedores desde OpenCode y escribe una caché local para Gentle AI.                                                             |
-| [`mrjmpl3-rtk`](./plugins/mrjmpl3-rtk)                       | Reescribe comandos de shell mediante `rtk rewrite` cuando está disponible para reducir uso de tokens.                                                              |
-| [`mrjmpl3-skill-registry`](./plugins/mrjmpl3-skill-registry) | Mantiene disponible el comportamiento de actualización del registro de skills dentro del mismo layout de plugins `mrjmpl3-*`.                                      |
+| Plugin                                                       | Qué agrega                                                                                                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`mrjmpl3-engram`](./plugins/mrjmpl3-engram)                 | Integración con memoria Engram: inicia o conecta el servidor local, captura prompts, inyecta instrucciones de memoria y evita inflar sesiones de subagentes. |
+| [`mrjmpl3-model-variants`](./plugins/mrjmpl3-model-variants) | Lee datos de variantes de modelos/proveedores desde OpenCode y escribe una caché local para Gentle AI.                                                       |
+| [`mrjmpl3-rtk`](./plugins/mrjmpl3-rtk)                       | Reescribe comandos de shell mediante `rtk rewrite` cuando está disponible para reducir uso de tokens.                                                        |
+| [`mrjmpl3-skill-registry`](./plugins/mrjmpl3-skill-registry) | Mantiene disponible el comportamiento de actualización del registro de skills dentro del mismo layout de plugins `mrjmpl3-*`.                                |
 
 Cada plugin tiene su propio README con notas de instalación, exports y desarrollo.
 
@@ -283,13 +283,13 @@ Cada plugin tiene su propio README con notas de instalación, exports y desarrol
 
 El directorio [`tui-plugins/`](./tui-plugins) contiene extensiones para la TUI de OpenCode.
 
-| Plugin                    | Propósito                                               |
-| ------------------------- | ------------------------------------------------------- |
-| `mrjmpl3-cache`           | Información de estado relacionada con caché.            |
-| `mrjmpl3-gentle-logo`     | Branding de Gentle AI para la TUI.                      |
-| `mrjmpl3-limits`          | Información de estado relacionada con límites.          |
-| `mrjmpl3-quota`           | Visualización de cuotas por proveedor.                  |
-| `mrjmpl3-subagent-status` | Estado de subagentes, inactividad y recuperación.       |
+| Plugin                    | Propósito                                         |
+| ------------------------- | ------------------------------------------------- |
+| `mrjmpl3-cache`           | Información de estado relacionada con caché.      |
+| `mrjmpl3-gentle-logo`     | Branding de Gentle AI para la TUI.                |
+| `mrjmpl3-limits`          | Información de estado relacionada con límites.    |
+| `mrjmpl3-quota`           | Visualización de cuotas por proveedor.            |
+| `mrjmpl3-subagent-status` | Estado de subagentes, inactividad y recuperación. |
 
 Estas extensiones se conectan desde [`tui.json`](./tui.json).
 
@@ -315,15 +315,15 @@ El directorio [`commands/`](./commands) define comandos de workflow orientados a
 
 Comandos importantes relacionados con SDD:
 
-| Archivo de comando                              | Propósito                                             |
-| ----------------------------------------------- | ----------------------------------------------------- |
-| [`sdd-new.md`](./commands/sdd-new.md)           | Iniciar un nuevo cambio SDD.                          |
+| Archivo de comando                              | Propósito                                               |
+| ----------------------------------------------- | ------------------------------------------------------- |
+| [`sdd-new.md`](./commands/sdd-new.md)           | Iniciar un nuevo cambio SDD.                            |
 | [`sdd-explore.md`](./commands/sdd-explore.md)   | Explorar una idea antes de comprometerse con un cambio. |
-| [`sdd-ff.md`](./commands/sdd-ff.md)             | Avanzar rápido por fases de planificación.            |
-| [`sdd-continue.md`](./commands/sdd-continue.md) | Continuar la próxima fase lista según dependencias.   |
-| [`sdd-apply.md`](./commands/sdd-apply.md)       | Aplicar tareas de implementación.                     |
-| [`sdd-verify.md`](./commands/sdd-verify.md)     | Verificar la implementación contra specs y tareas.    |
-| [`sdd-archive.md`](./commands/sdd-archive.md)   | Archivar artefactos de cambios completados.           |
+| [`sdd-ff.md`](./commands/sdd-ff.md)             | Avanzar rápido por fases de planificación.              |
+| [`sdd-continue.md`](./commands/sdd-continue.md) | Continuar la próxima fase lista según dependencias.     |
+| [`sdd-apply.md`](./commands/sdd-apply.md)       | Aplicar tareas de implementación.                       |
+| [`sdd-verify.md`](./commands/sdd-verify.md)     | Verificar la implementación contra specs y tareas.      |
+| [`sdd-archive.md`](./commands/sdd-archive.md)   | Archivar artefactos de cambios completados.             |
 
 Los prompts detallados por fase viven en [`prompts/sdd/`](./prompts/sdd).
 
