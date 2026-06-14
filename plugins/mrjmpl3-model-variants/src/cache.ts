@@ -10,12 +10,7 @@ import type { ModelVariants } from './types.ts';
  * and should not be surfaced as errors.
  */
 function isIgnorableFileRace(err: unknown): boolean {
-  return (
-    typeof err === 'object' &&
-    err !== null &&
-    'code' in err &&
-    (err as { code?: string }).code === 'ENOENT'
-  );
+  return typeof err === 'object' && err !== null && 'code' in err && (err as { code?: string }).code === 'ENOENT';
 }
 
 async function removeOwnTempFile(tmpPath: string): Promise<void> {

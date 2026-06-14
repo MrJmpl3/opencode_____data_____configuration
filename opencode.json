@@ -41,7 +41,7 @@
         "task": true,
         "write": true
       },
-      "variant": "xhigh"
+      "variant": "medium"
     },
     "jd-fix-agent": {
       "description": "Surgical fix agent for judgment-day protocol",
@@ -398,22 +398,7 @@
     }
   },
   "provider": {
-    "github-copilot": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
-    "ollama-cloud": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
     "openai": {
-      "options": {
-        "setCacheKey": true
-      }
-    },
-    "opencode-go": {
       "options": {
         "setCacheKey": true
       }

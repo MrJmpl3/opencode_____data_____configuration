@@ -624,6 +624,55 @@ describe('state', () => {
     });
   });
 
+  it('does not rewrite endedAt/updatedAt when the same terminal status is repeated with a newer timestamp', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Completed child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'done',
+      color: 'green',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    vi.advanceTimersByTime(120_000);
+
+    expect(markChildStatus(state, 'ses_child', 'done', '2026-06-04T12:02:00.000Z')).toBe(false);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
+  it('allows changing from one terminal status to a different terminal status', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    expect(markChildStatus(state, 'ses_child', 'done', '2026-06-04T12:01:00.000Z')).toBe(true);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'done',
+      color: 'green',
+      updatedAt: '2026-06-04T12:01:00.000Z',
+      endedAt: '2026-06-04T12:01:00.000Z',
+    });
+  });
+
   it('does not let older detail updates roll timestamps backwards', () => {
     const state = createEmptyState();
 

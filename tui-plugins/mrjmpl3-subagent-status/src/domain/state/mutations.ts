@@ -324,7 +324,7 @@ export const markChildStatus = (
     ) {
       continue;
     }
-    if (child.status === status && child.endedAt === resolvedEndedAt && child.updatedAt === resolvedEndedAt) {
+    if (child.status === status) {
       continue;
     }
 

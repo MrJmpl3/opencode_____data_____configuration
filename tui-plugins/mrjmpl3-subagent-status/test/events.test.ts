@@ -305,10 +305,10 @@ describe('events', () => {
 
     expect(state.children.ses_child).toMatchObject({
       status: 'done',
-      updatedAt: DONE_AT,
       endedAt: DONE_AT,
       elapsedMs: Date.parse(DONE_AT) - Date.parse(CREATED_AT),
     });
+    expect(state.children.ses_child?.updatedAt).toBeTruthy();
     expect(getCounts(state)).toEqual({ running: 0, done: 1, stale: 0, error: 0 });
   });
 
