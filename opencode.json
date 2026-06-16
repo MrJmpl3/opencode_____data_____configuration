@@ -272,61 +272,158 @@
   },
   "lsp": {
     "basedpyright": {
-      "command": ["basedpyright-langserver", "--stdio"],
-      "extensions": [".py", ".pyi"]
+      "command": [
+        "basedpyright-langserver",
+        "--stdio"
+      ],
+      "extensions": [
+        ".py",
+        ".pyi"
+      ]
     },
     "bash-language-server": {
-      "command": ["bash-language-server", "start"],
-      "extensions": [".sh", ".bash", ".zsh"]
+      "command": [
+        "bash-language-server",
+        "start"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".zsh"
+      ]
     },
     "intelephense": {
-      "command": ["intelephense", "--stdio"],
-      "extensions": [".php", ".phtml"]
+      "command": [
+        "intelephense",
+        "--stdio"
+      ],
+      "extensions": [
+        ".php",
+        ".phtml"
+      ]
     },
     "marksman": {
-      "command": ["marksman"],
-      "extensions": [".md"]
+      "command": [
+        "marksman"
+      ],
+      "extensions": [
+        ".md"
+      ]
     },
     "tailwindcss-language-server": {
-      "command": ["tailwindcss-language-server", "--stdio"],
-      "extensions": [".css", ".scss", ".less", ".html", ".js", ".jsx", ".ts", ".tsx", ".vue", ".md", ".php"]
+      "command": [
+        "tailwindcss-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".css",
+        ".scss",
+        ".less",
+        ".html",
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".vue",
+        ".md",
+        ".php"
+      ]
     },
     "taplo": {
-      "command": ["taplo", "lsp", "stdio"],
-      "extensions": [".toml"]
+      "command": [
+        "taplo",
+        "lsp",
+        "stdio"
+      ],
+      "extensions": [
+        ".toml"
+      ]
     },
     "typescript-language-server": {
-      "command": ["typescript-language-server", "--stdio"],
-      "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]
+      "command": [
+        "typescript-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs"
+      ]
     },
     "vscode-css-language-server": {
-      "command": ["vscode-css-language-server", "--stdio"],
-      "extensions": [".css", ".scss", ".less"]
+      "command": [
+        "vscode-css-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".css",
+        ".scss",
+        ".less"
+      ]
     },
     "vscode-eslint-language-server": {
-      "command": ["vscode-eslint-language-server", "--stdio"],
-      "extensions": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".vue"]
+      "command": [
+        "vscode-eslint-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".mjs",
+        ".cjs",
+        ".vue"
+      ]
     },
     "vscode-html-language-server": {
-      "command": ["vscode-html-language-server", "--stdio"],
-      "extensions": [".html", ".htm"]
+      "command": [
+        "vscode-html-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".html",
+        ".htm"
+      ]
     },
     "vscode-json-language-server": {
-      "command": ["vscode-json-language-server", "--stdio"],
-      "extensions": [".json", ".jsonc"]
+      "command": [
+        "vscode-json-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".json",
+        ".jsonc"
+      ]
     },
     "vue-language-server": {
-      "command": ["vue-language-server", "--stdio"],
-      "extensions": [".vue"]
+      "command": [
+        "vue-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".vue"
+      ]
     },
     "yaml-language-server": {
-      "command": ["yaml-language-server", "--stdio"],
-      "extensions": [".yaml", ".yml"]
+      "command": [
+        "yaml-language-server",
+        "--stdio"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml"
+      ]
     }
   },
   "mcp": {
     "ast_grep": {
-      "command": ["ast-grep-mcp"],
+      "command": [
+        "ast-grep-mcp"
+      ],
       "enabled": true,
       "timeout": 30000,
       "type": "local"
@@ -342,12 +439,19 @@
       "url": "https://mcp.deepwiki.com/mcp"
     },
     "docker": {
-      "command": ["uvx", "mcp-server-docker"],
+      "command": [
+        "uvx",
+        "mcp-server-docker"
+      ],
       "enabled": true,
       "type": "local"
     },
     "engram": {
-      "command": ["/home/mrjmpl3/.local/bin/engram", "mcp", "--tools=agent"],
+      "command": [
+        "/home/mrjmpl3/.local/bin/engram",
+        "mcp",
+        "--tools=agent"
+      ],
       "type": "local"
     },
     "github": {
@@ -399,6 +503,57 @@
   },
   "provider": {
     "openai": {
+      "models": {
+        "gpt-5.4": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        },
+        "gpt-5.4-fast": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        },
+        "gpt-5.4-mini": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        },
+        "gpt-5.4-mini-fast": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        },
+        "gpt-5.5": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        },
+        "gpt-5.5-fast": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        },
+        "gpt-5.5-pro": {
+          "limit": {
+            "context": 272000,
+            "input": 272000,
+            "output": 128000
+          }
+        }
+      },
       "options": {
         "setCacheKey": true
       }
