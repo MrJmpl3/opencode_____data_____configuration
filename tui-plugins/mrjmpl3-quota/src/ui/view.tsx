@@ -30,7 +30,7 @@ const lineFg = (line: QuotaLine, nowMs: number): string => {
     case 'pace': {
       const resetSec = remainingSeconds(line.resetAtMs, nowMs);
       const status = computePaceStatus({ usedPct: line.usedPct, resetSec }, line.windowSeconds);
-      return status.isOverPace ? 'yellow' : 'green';
+      return status.isOverPace ? 'red' : 'green';
     }
     case 'detail':
       return toneColor(line.tone);
