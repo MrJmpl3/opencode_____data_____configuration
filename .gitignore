@@ -1,50 +1,77 @@
-# OpenCode genera estado operacional local; versionarlo mezclaria historial del proyecto con sesiones temporales.
-.omo/
+# Estado local de OpenCode
 tasks/
+.omo/
+.atl/
 
-# Las dependencias instaladas son artefactos reproducibles y pesados; Git debe conservar fuentes, no vendors locales.
+# Dependencias
 node_modules/
-# En esta configuracion personal, los manifests y locks nacen de instalaciones por plugin y no son contrato compartido.
 
-# Las salidas derivadas deben regenerarse en cada entorno para evitar binarios o caches obsoletos en el historial.
+# Artefactos de build
 dist/
 build/
 coverage/
 .nyc_output/
+
+# Cachés
 .cache/
 .turbo/
 .vite/
-# TypeScript serializa estado incremental en *.tsbuildinfo; compartirlo acoplaria el repo a rutas y versiones locales.
+
+# TypeScript
 *.tsbuildinfo
 
-# Los registros son diagnostico efimero y pueden filtrar rutas, tokens parciales o respuestas de proveedores.
+# Logs
 *.log
-# Cada gestor de paquetes usa nombres de log propios; los comodines cubren rotaciones y sufijos automaticos.
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 bun-debug.log*
 
-# Los archivos .env son frontera de secretos; solo las plantillas documentan variables sin exponer valores reales.
+# Variables de entorno
 .env
 .env.*
-# El prefijo ! revierte una regla previa y permite versionar ejemplos seguros como contrato de configuracion.
+.env.*.local
 !.env.example
 !.env.sample
 
-# Archivos de editor y sistema operativo describen preferencias locales, no requisitos para ejecutar el proyecto.
+# Sistema operativo
+## macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+## Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+## Linux
+*~
+.directory
+
+# Editores e IDEs
 .idea/
 .vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
 
-# Este .gitignore tambien es local; una regla que el equipo deba heredar pertenece a un ignore versionado.
-.gitignore
-# Los plugins TUI son paquetes reutilizables; sus .gitignore locales documentan reglas que si pertenecen a cada paquete.
-!tui-plugins/*/.gitignore
+# Merge artifacts
+*.orig
+*.rej
 
-# Git aplica patrones por orden, usa barras finales para directorios y permite auditar decisiones con git check-ignore -v.
-# Local AI runtime state
-.atl/
+# Archivos de bloqueo
+*.pid
+*.seed
+
+# Go
 go-workspaces.json
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl

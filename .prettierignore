@@ -1,37 +1,89 @@
-# Prettier debe formatear fuente humana, no metadatos internos de Git ni dependencias instaladas.
+# Git
+# Prettier formatea fuente humana, no metadatos de Git.
 .git/
-node_modules/
-plugins/**/node_modules/
-plugins-tui/**/node_modules/
 
-# En esta configuracion personal, los manifests y locks locales son artefactos regenerables por plugin.
-package.json
+# Dependencias
+node_modules/
+tui-plugins/**/node_modules/
+
+# Lockfiles
+# Formatear lockfiles rompe la integridad de resolución.
 package-lock.json
 npm-shrinkwrap.json
 pnpm-lock.yaml
 yarn.lock
 bun.lock
 bun.lockb
+tui-plugins/**/package-lock.json
 
-# Las salidas generadas se reconstruyen desde el codigo fuente y no necesitan estabilidad de formato manual.
+# Artefactos de build
 dist/
 build/
 coverage/
 .nyc_output/
 
-# Las caches aceleran herramientas locales, pero suelen contener rutas absolutas o formatos internos no editables.
+# Cachés
 .cache/
 .turbo/
 .vite/
+
+# TypeScript
 *.tsbuildinfo
 
-# El estado de OpenCode y las tareas locales documentan una sesion, no una convencion de formato del proyecto.
+# Runtime de OpenCode
 .omo/
 tasks/
+.atl/
 
-# Registros y variables de entorno quedan fuera para evitar reformatear diagnosticos o secretos locales.
+# Logs
 *.log
+
+# Variables de entorno
 .env
 .env.*
+.env.*.local
 !.env.example
 !.env.sample
+
+# Archivos de configuración
+# Estos archivos no deben ser formateados: usan formatos no estándar
+# o su indentación es parte del contrato (Makefiles, EditorConfig).
+.editorconfig
+.gitignore
+.gitattributes
+.prettierrc*
+Makefile
+makefile
+GNUmakefile
+
+# Sistema operativo
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+.directory
+
+# Editores e IDEs
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# Merge artifacts
+*.orig
+*.rej
+
+# Go
+go-workspaces.json
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl

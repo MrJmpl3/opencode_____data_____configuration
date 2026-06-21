@@ -1,6 +1,7 @@
 root = true
 
-# La seccion global fija invariantes portables: UTF-8, LF y newline final evitan diffs falsos entre editores.
+# Reglas globales
+# UTF-8, LF, y newline final evitan diffs espurios entre editores.
 [*]
 charset = utf-8
 end_of_line = lf
@@ -9,30 +10,86 @@ indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true
 
-# Estos formatos son sensibles al ruido estructural; 2 espacios mantienen objetos y bloques compactos sin depender de tabs.
-[*.{js,mjs,cjs,ts,tsx,json,jsonc,yml,yaml}]
+# JavaScript / TypeScript
+# 2 espacios mantienen bloques compactos en JSX/TSX anidado.
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}]
 indent_style = space
 indent_size = 2
 
-# PHP, Python y C# favorecen 4 espacios porque sus comunidades optimizan la lectura de bloques anidados.
+# CSS / Sass / Less
+[*.{css,scss,sass,less}]
+indent_style = space
+indent_size = 2
+
+# JSON / YAML
+[*.{json,jsonc,json5,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown
+# Espacios finales son parte de la sintaxis de salto de línea manual.
+[*.{md,mdx,markdown}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# PHP / Python / C#
 [*.{php,py,cs}]
 indent_style = space
 indent_size = 4
 
-# Go delega el formato a gofmt; respetar tabs aqui evita pelear con una herramienta canonica del lenguaje.
+# Rust
+[*.rs]
+indent_style = space
+indent_size = 4
+
+# Java / Kotlin
+[*.{java,kt,kts}]
+indent_style = space
+indent_size = 4
+
+# Go
+# `gofmt` usa tabs; el ancho se define en el editor, no acá.
 [*.go]
 indent_style = tab
-indent_size = tab
 
-# Make trata los tabs iniciales como sintaxis de receta, no solo como preferencia visual del editor.
-[Makefile]
+# Shell
+[*.{sh,bash,zsh,fish}]
+indent_style = space
+indent_size = 2
+shell_variant = bash
+
+# Makefiles
+# El tab inicial es parte de la sintaxis de Make.
+[Makefile,makefile,GNUmakefile]
 indent_style = tab
 
-# Markdown puede usar dos espacios finales como salto de linea manual; recortarlos cambiaria el renderizado.
-[*.{md,markdown}]
-trim_trailing_whitespace = false
-max_line_length = off
+# Docker
+[Dockerfile,Dockerfile.*]
+indent_style = space
+indent_size = 2
 
-# En diffs y parches, los espacios finales son datos del cambio; normalizarlos alteraria la evidencia revisada.
+# TOML / INI / CFG
+[*.{toml,ini,cfg,conf}]
+indent_style = space
+indent_size = 2
+
+# SQL
+[*.sql]
+indent_style = space
+indent_size = 2
+
+# Git
+[.gitignore,.gitattributes,.gitmodules]
+indent_style = space
+indent_size = 2
+
+# Parches y diffs
+# Espacios finales y saltos de línea son parte de la evidencia.
 [*.{diff,patch}]
 trim_trailing_whitespace = false
+insert_final_newline = false
+
+# EditorConfig
+[.editorconfig]
+indent_style = space
+indent_size = 2
