@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-react-state-management
-description: Master modern React state management with Redux Toolkit, Zustand, Jotai, and React Query. Use when setting up global state, managing server state, or choosing between state management solutions.
+description:
+  Master modern React state management with Redux Toolkit, Zustand, Jotai, and React Query. Use when
+  setting up global state, managing server state, or choosing between state management solutions.
 ---
 
 # React State Management
 
-Comprehensive guide to modern React state management patterns, from local component state to global stores and server state synchronization.
+Comprehensive guide to modern React state management patterns, from local component state to global
+stores and server state synchronization.
 
 ## When to Use This Skill
 
@@ -135,15 +138,18 @@ const initialState: UserState = {
   error: null,
 };
 
-export const fetchUser = createAsyncThunk('user/fetchUser', async (userId: string, { rejectWithValue }) => {
-  try {
-    const response = await fetch(`/api/users/${userId}`);
-    if (!response.ok) throw new Error('Failed to fetch user');
-    return await response.json();
-  } catch (error) {
-    return rejectWithValue((error as Error).message);
-  }
-});
+export const fetchUser = createAsyncThunk(
+  'user/fetchUser',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/users/${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch user');
+      return await response.json();
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  },
+);
 
 const userSlice = createSlice({
   name: 'user',

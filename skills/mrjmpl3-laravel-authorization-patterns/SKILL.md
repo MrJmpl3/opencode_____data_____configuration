@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-authorization-patterns
-description: Best practices for Laravel authorization including Gates, Policies, middleware auth, and Blade directives for access control.
+description:
+  Best practices for Laravel authorization including Gates, Policies, middleware auth, and Blade
+  directives for access control.
 ---
 
 # Laravel Authorization Patterns

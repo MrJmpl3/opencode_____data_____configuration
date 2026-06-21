@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-auth
-description: Authentication with Laravel Sanctum and permission-based authorization. Use when implementing login/logout, protecting pages with permissions, checking permissions in components, or understanding the auth flow.
+description:
+  Authentication with Laravel Sanctum and permission-based authorization. Use when implementing
+  login/logout, protecting pages with permissions, checking permissions in components, or
+  understanding the auth flow.
 ---
 
 # Nuxt Authentication & Authorization

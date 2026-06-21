@@ -1,6 +1,7 @@
 # Node.js Advanced Patterns
 
-Advanced patterns for dependency injection, database integration, authentication, caching, and API response formatting.
+Advanced patterns for dependency injection, database integration, authentication, caching, and API
+response formatting.
 
 ## Dependency Injection
 
@@ -180,23 +181,24 @@ export class OrderService {
       await client.query('BEGIN');
 
       // Create order
-      const orderResult = await client.query('INSERT INTO orders (user_id, total) VALUES ($1, $2) RETURNING id', [
-        userId,
-        calculateTotal(items),
-      ]);
+      const orderResult = await client.query(
+        'INSERT INTO orders (user_id, total) VALUES ($1, $2) RETURNING id',
+        [userId, calculateTotal(items)],
+      );
       const orderId = orderResult.rows[0].id;
 
       // Create order items
       for (const item of items) {
-        await client.query('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)', [
-          orderId,
-          item.productId,
-          item.quantity,
-          item.price,
-        ]);
+        await client.query(
+          'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)',
+          [orderId, item.productId, item.quantity, item.price],
+        );
 
         // Update inventory
-        await client.query('UPDATE products SET stock = stock - $1 WHERE id = $2', [item.quantity, item.productId]);
+        await client.query('UPDATE products SET stock = stock - $1 WHERE id = $2', [
+          item.quantity,
+          item.productId,
+        ]);
       }
 
       await client.query('COMMIT');

@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-architecture
-description: Foundational architecture for Nuxt 4 + Vue 3 + Nuxt UI applications. Use when starting new projects, understanding project structure, or making architectural decisions about directory organization, technology choices, and pattern selection.
+description:
+  Foundational architecture for Nuxt 4 + Vue 3 + Nuxt UI applications. Use when starting new
+  projects, understanding project structure, or making architectural decisions about directory
+  organization, technology choices, and pattern selection.
 ---
 
 # Nuxt Architecture
@@ -9,11 +12,13 @@ Domain-driven, type-safe, composable-first architecture prioritizing separation 
 
 ## Core Philosophy
 
-**[philosophy.md](references/philosophy.md)** - Foundational principles, separation of concerns, when to use each pattern
+**[philosophy.md](references/philosophy.md)** - Foundational principles, separation of concerns,
+when to use each pattern
 
 ## Project Structure
 
-**[structure.md](references/structure.md)** - Directory layout, naming conventions, file organization
+**[structure.md](references/structure.md)** - Directory layout, naming conventions, file
+organization
 
 ## Technology Stack
 
@@ -51,4 +56,5 @@ Component → Action → Mutation → Repository → API
          Query (reactive data fetching)
 ```
 
-Actions orchestrate business logic. Mutations handle pure API calls. Queries provide reactive data. Repositories abstract API access.
+Actions orchestrate business logic. Mutations handle pure API calls. Queries provide reactive data.
+Repositories abstract API access.

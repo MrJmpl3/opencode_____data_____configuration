@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Web Content Accessibility Guidelines (WCAG) 2.2 provide recommendations for making web content more accessible. They are organized into four principles (POUR): Perceivable, Operable, Understandable, and Robust.
+The Web Content Accessibility Guidelines (WCAG) 2.2 provide recommendations for making web content
+more accessible. They are organized into four principles (POUR): Perceivable, Operable,
+Understandable, and Robust.
 
 ## Conformance Levels
 
@@ -506,7 +508,12 @@ function FormField({ id, label, error, ...props }) {
   return (
     <div>
       <label htmlFor={id}>{label}</label>
-      <input id={id} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} {...props} />
+      <input
+        id={id}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
+        {...props}
+      />
       {error && (
         <p id={`${id}-error`} role="alert" className="text-red-600">
           {error}
@@ -570,7 +577,12 @@ Content must be robust enough for assistive technologies.
 // Custom components must expose name, role, and value
 function CustomCheckbox({ checked, onChange, label }) {
   return (
-    <button role="checkbox" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}>
+    <button
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+    >
       {checked ? '✓' : '○'} {label}
     </button>
   );

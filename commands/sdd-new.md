@@ -5,8 +5,9 @@ agent: gentle-orchestrator
 
 Follow the SDD orchestrator workflow for starting a new change named "$ARGUMENTS".
 
-HARD GATE:
-SDD Session Preflight must already be complete for this session. It must include execution mode, artifact store, chained PR strategy, and review budget. If missing, ask the exact orchestrator preflight prompt and STOP. Do not launch exploration or proposal in the same turn.
+HARD GATE: SDD Session Preflight must already be complete for this session. It must include
+execution mode, artifact store, chained PR strategy, and review budget. If missing, ask the exact
+orchestrator preflight prompt and STOP. Do not launch exploration or proposal in the same turn.
 
 WORKFLOW:
 
@@ -17,7 +18,10 @@ WORKFLOW:
 
 CONTEXT:
 
-- Working directory: before doing anything else, run `git rev-parse --show-toplevel 2>/dev/null || pwd` with your bash tool and use the returned path as the authoritative workspace. In OpenCode Desktop (Electron) the parse-time interpolation resolves to the app data directory, not the project.
+- Working directory: before doing anything else, run
+  `git rev-parse --show-toplevel 2>/dev/null || pwd` with your bash tool and use the returned path
+  as the authoritative workspace. In OpenCode Desktop (Electron) the parse-time interpolation
+  resolves to the app data directory, not the project.
 - Current project: the `basename` of the detected workspace above.
 - Change name: $ARGUMENTS
 - Execution mode: ask/cache per orchestrator
@@ -25,7 +29,8 @@ CONTEXT:
 - Delivery strategy: ask/cache per orchestrator
 - Review budget: ask/cache per orchestrator
 
-ENGRAM NOTE:
-Sub-agents handle persistence automatically using the selected artifact store. In engram/hybrid, each phase saves with topic_key "sdd/$ARGUMENTS/{type}".
+ENGRAM NOTE: Sub-agents handle persistence automatically using the selected artifact store. In
+engram/hybrid, each phase saves with topic_key "sdd/$ARGUMENTS/{type}".
 
-Read the orchestrator instructions to coordinate this workflow. Do NOT execute phase work inline — delegate to sub-agents.
+Read the orchestrator instructions to coordinate this workflow. Do NOT execute phase work inline —
+delegate to sub-agents.

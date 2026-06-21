@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-policies
-description: Authorization policies for resource access control. Use when creating or modifying policies, permissions, or ability checks.
+description:
+  Authorization policies for resource access control. Use when creating or modifying policies,
+  permissions, or ability checks.
 ---
 
 # Laravel Policies
@@ -9,7 +11,8 @@ Policies encapsulate authorization logic and delegate to permission systems.
 
 **Related guides:**
 
-- [routing-permissions.md](../mrjmpl3-laravel-routing/references/routing-permissions.md) - Route-level authorization
+- [routing-permissions.md](../mrjmpl3-laravel-routing/references/routing-permissions.md) -
+  Route-level authorization
 - [Enums](../mrjmpl3-laravel-enums/SKILL.md) - Permission enums
 
 ## Structure
@@ -153,7 +156,8 @@ Route::post('/orders', [OrderController::class, 'store'])
     ->can('create', Order::class);
 ```
 
-See [routing-permissions.md](../mrjmpl3-laravel-routing/references/routing-permissions.md) for route authorization.
+See [routing-permissions.md](../mrjmpl3-laravel-routing/references/routing-permissions.md) for route
+authorization.
 
 ## Summary
 

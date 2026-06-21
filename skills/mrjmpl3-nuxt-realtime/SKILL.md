@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-nuxt-realtime
-description: Real-time features with Laravel Echo and WebSockets. Use when subscribing to channels, listening for events, implementing live updates, or managing channel subscriptions.
+description:
+  Real-time features with Laravel Echo and WebSockets. Use when subscribing to channels, listening
+  for events, implementing live updates, or managing channel subscriptions.
 ---
 
 # Nuxt Real-time

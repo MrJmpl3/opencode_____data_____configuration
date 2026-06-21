@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-value-objects
-description: Immutable value objects for domain values. Use when creating or modifying value objects like money, coordinates, or other domain primitives.
+description:
+  Immutable value objects for domain values. Use when creating or modifying value objects like
+  money, coordinates, or other domain primitives.
 ---
 
 # Laravel Value Objects
@@ -9,7 +11,8 @@ Value objects are **simple, immutable objects** representing domain concepts.
 
 **Related guides:**
 
-- [DTOs](../mrjmpl3-laravel-dtos/SKILL.md) - DTOs are for data transfer, value objects for domain concepts
+- [DTOs](../mrjmpl3-laravel-dtos/SKILL.md) - DTOs are for data transfer, value objects for domain
+  concepts
 
 ## When to Use
 
@@ -172,7 +175,8 @@ $refund = $price->negated();                // $price unchanged
 
 ### 5. Implement Serialization Interfaces
 
-Value objects typically implement `JsonSerializable`, `Stringable`, and `Wireable` (Livewire) for integration with framework features and storage.
+Value objects typically implement `JsonSerializable`, `Stringable`, and `Wireable` (Livewire) for
+integration with framework features and storage.
 
 ## Directory Structure
 

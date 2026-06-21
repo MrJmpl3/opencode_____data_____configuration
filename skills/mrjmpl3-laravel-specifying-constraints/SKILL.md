@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-specifying-constraints
-description: Define clear constraints—performance, security, testing, architecture, dependencies—so AI generates code that meets your project standards
+description:
+  Define clear constraints—performance, security, testing, architecture, dependencies—so AI
+  generates code that meets your project standards
 ---
 
 # Specifying Constraints
 
-Constraints guide the AI toward solutions that fit your project. Without them, you get generic code that may not meet your requirements.
+Constraints guide the AI toward solutions that fit your project. Without them, you get generic code
+that may not meet your requirements.
 
 ## Performance Constraints
 

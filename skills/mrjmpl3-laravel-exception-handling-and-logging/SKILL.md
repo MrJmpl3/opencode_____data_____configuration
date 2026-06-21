@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-exception-handling-and-logging
-description: Use reportable/renderable exceptions, structured logs, and channel strategy for observability and graceful failures
+description:
+  Use reportable/renderable exceptions, structured logs, and channel strategy for observability and
+  graceful failures
 ---
 
 # Exception Handling and Logging

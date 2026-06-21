@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-observability
-description: Python observability patterns including structured logging, metrics, and distributed tracing. Use when adding logging, implementing metrics collection, setting up tracing, or debugging production systems.
+description:
+  Python observability patterns including structured logging, metrics, and distributed tracing. Use
+  when adding logging, implementing metrics collection, setting up tracing, or debugging production
+  systems.
 ---
 
 # Python Observability
 
-Instrument Python applications with structured logs, metrics, and traces. When something breaks in production, you need to answer "what, where, and why" without deploying new code.
+Instrument Python applications with structured logs, metrics, and traces. When something breaks in
+production, you need to answer "what, where, and why" without deploying new code.
 
 ## When to Use This Skill
 
@@ -20,7 +24,8 @@ Instrument Python applications with structured logs, metrics, and traces. When s
 
 ### 1. Structured Logging
 
-Emit logs as JSON with consistent fields for production environments. Machine-readable logs enable powerful queries and alerts. For local development, consider human-readable formats.
+Emit logs as JSON with consistent fields for production environments. Machine-readable logs enable
+powerful queries and alerts. For local development, consider human-readable formats.
 
 ### 2. The Four Golden Signals
 
@@ -352,7 +357,9 @@ with timed_operation("fetch_user_orders", user_id=user.id):
 
 Set up distributed tracing with OpenTelemetry.
 
-**Note:** OpenTelemetry is actively evolving. Check the [official Python documentation](https://opentelemetry.io/docs/languages/python/) for the latest API patterns and best practices.
+**Note:** OpenTelemetry is actively evolving. Check the
+[official Python documentation](https://opentelemetry.io/docs/languages/python/) for the latest API
+patterns and best practices.
 
 ```python
 from opentelemetry import trace

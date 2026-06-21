@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-ports-and-adapters
-description: Use hexagonal architecture for external systems; define ports (interfaces) and per-provider adapters; select adapter at composition edge
+description:
+  Use hexagonal architecture for external systems; define ports (interfaces) and per-provider
+  adapters; select adapter at composition edge
 ---
 
 # Ports and Adapters (Hexagonal)

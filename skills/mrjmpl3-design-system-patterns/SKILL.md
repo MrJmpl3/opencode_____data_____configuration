@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-design-system-patterns
-description: Build scalable design systems with design tokens, theming infrastructure, and component architecture patterns. Use when creating design tokens, implementing theme switching, building component libraries, or establishing design system foundations.
+description:
+  Build scalable design systems with design tokens, theming infrastructure, and component
+  architecture patterns. Use when creating design tokens, implementing theme switching, building
+  component libraries, or establishing design system foundations.
 ---
 
 # Design System Patterns
 
-Master design system architecture to create consistent, maintainable, and scalable UI foundations across web and mobile applications.
+Master design system architecture to create consistent, maintainable, and scalable UI foundations
+across web and mobile applications.
 
 ## When to Use This Skill
 
@@ -186,7 +190,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  return <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export const useTheme = () => {
@@ -229,7 +237,8 @@ const buttonVariants = cva(
   },
 );
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 

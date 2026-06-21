@@ -2,7 +2,8 @@
 
 ## Overview
 
-The layer system provides shared functionality across Nuxt applications. Layers extend each other in a stack:
+The layer system provides shared functionality across Nuxt applications. Layers extend each other in
+a stack:
 
 ```
 Your App
@@ -283,7 +284,11 @@ Extended UI components for applications.
 // In your app's nuxt.config.ts
 export default defineNuxtConfig({
   // Extend layers (order matters - later overrides earlier)
-  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
+  extends: [
+    '../../../nuxt-layers/base',
+    '../../../nuxt-layers/nuxt-ui',
+    '../../../nuxt-layers/x-ui',
+  ],
 
   // SPA mode
   ssr: false,

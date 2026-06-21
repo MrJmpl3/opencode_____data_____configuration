@@ -4,7 +4,8 @@ Unified workflow for implementing code changes with quality gates and atomic com
 
 ## Workflow Pattern Detection
 
-Before implementing, check for existing workflow patterns in the repository and your skills, the worklow pattern should be superseeded by these.
+Before implementing, check for existing workflow patterns in the repository and your skills, the
+worklow pattern should be superseeded by these.
 
 ### Spec-First Workflow
 

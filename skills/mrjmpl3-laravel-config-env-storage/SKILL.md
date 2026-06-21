@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-config-env-storage
-description: Portable storage configuration across S3/R2/MinIO with optional CDN—env toggles, path-style endpoints, and URL generation
+description:
+  Portable storage configuration across S3/R2/MinIO with optional CDN—env toggles, path-style
+  endpoints, and URL generation
 ---
 
 # Storage Config (S3/R2/MinIO/CDN)

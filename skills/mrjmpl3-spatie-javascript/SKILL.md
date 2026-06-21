@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-spatie-javascript
-description: Apply Spatie's JavaScript coding standards for any task that creates, edits, reviews, refactors, or formats JavaScript or TypeScript code; use for variable declarations, comparisons, functions, destructuring, and Prettier configuration to align with Spatie's JS conventions.
+description:
+  Apply Spatie's JavaScript coding standards for any task that creates, edits, reviews, refactors,
+  or formats JavaScript or TypeScript code; use for variable declarations, comparisons, functions,
+  destructuring, and Prettier configuration to align with Spatie's JS conventions.
 license: MIT
 metadata:
   author: Spatie

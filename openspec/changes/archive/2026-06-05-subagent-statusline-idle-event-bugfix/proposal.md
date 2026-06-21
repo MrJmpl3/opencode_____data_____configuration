@@ -2,13 +2,18 @@
 
 ## Intent
 
-Fix the confirmed event-path bug where `session.idle` in `tui-plugins/mrjmpl3-subagent-status/src/events.ts` is treated as `done`, causing a false terminal state that can stick before authoritative completion or error evidence arrives. This must land before the broader status architecture refactor so the refactor starts from correct terminal-state semantics instead of preserving known bad behavior.
+Fix the confirmed event-path bug where `session.idle` in
+`tui-plugins/mrjmpl3-subagent-status/src/events.ts` is treated as `done`, causing a false terminal
+state that can stick before authoritative completion or error evidence arrives. This must land
+before the broader status architecture refactor so the refactor starts from correct terminal-state
+semantics instead of preserving known bad behavior.
 
 ## Proposal question round
 
 - Confirmed assumption: `session.idle` alone is not a completion signal.
 - Confirmed assumption: temporarily showing `running` is safer than falsely showing `done`.
-- Confirmed assumption: persistence, rendering, retention, and refactor work stay unchanged in this slice.
+- Confirmed assumption: persistence, rendering, retention, and refactor work stay unchanged in this
+  slice.
 
 ## Scope
 
@@ -31,11 +36,14 @@ None.
 
 ### Modified Capabilities
 
-- `mrjmpl3-subagent-status`: event-driven child status updates must not treat `session.idle` as terminal without authoritative completion or error evidence.
+- `mrjmpl3-subagent-status`: event-driven child status updates must not treat `session.idle` as
+  terminal without authoritative completion or error evidence.
 
 ## Approach
 
-Apply the minimal event-mapping fix in `applySubagentEvent`: treat `session.idle` as non-terminal, update row details only, and continue relying on explicit completion/error evidence from `session.status`, `session.error`, refresh recovery, or message-derived signals for terminalization.
+Apply the minimal event-mapping fix in `applySubagentEvent`: treat `session.idle` as non-terminal,
+update row details only, and continue relying on explicit completion/error evidence from
+`session.status`, `session.error`, refresh recovery, or message-derived signals for terminalization.
 
 ## Affected Areas
 
@@ -53,11 +61,13 @@ Apply the minimal event-mapping fix in `applySubagentEvent`: treat `session.idle
 
 ## Rollback Plan
 
-Revert the `events.ts` mapping change and its regression test if downstream evidence proves an unsupported flow depends on idle-as-done.
+Revert the `events.ts` mapping change and its regression test if downstream evidence proves an
+unsupported flow depends on idle-as-done.
 
 ## Dependencies
 
-- Existing authoritative terminal-state semantics in `src/reconcile.ts` and `src/refresh.ts` remain the source of truth.
+- Existing authoritative terminal-state semantics in `src/reconcile.ts` and `src/refresh.ts` remain
+  the source of truth.
 
 ## Success Criteria
 

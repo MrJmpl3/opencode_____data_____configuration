@@ -1,13 +1,15 @@
 # Form Requests & Validation - Complete Guide
 
-**Always use Form Requests** for validation. Form Requests encapsulate validation logic and keep controllers clean.
+**Always use Form Requests** for validation. Form Requests encapsulate validation logic and keep
+controllers clean.
 
 **Related guides:**
 
 - [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) - Controllers use form requests
 - [DTOs](../../mrjmpl3-laravel-dtos/SKILL.md) - Transformers convert validated requests to DTOs
 - [validation-testing.md](validation-testing.md) - Testing form request validation
-- [testing-conventions.md](../../mrjmpl3-laravel-testing/references/testing-conventions.md) - Test file structure
+- [testing-conventions.md](../../mrjmpl3-laravel-testing/references/testing-conventions.md) - Test
+  file structure
 
 ## Philosophy
 
@@ -490,7 +492,8 @@ use Illuminate\Validation\Rules\Password;
 
 **Related guides:**
 
-- [validation-testing.md](validation-testing.md) - **Complete guide to validation testing** with RequestDataProviderItem and datasets
+- [validation-testing.md](validation-testing.md) - **Complete guide to validation testing** with
+  RequestDataProviderItem and datasets
 - [Quality](../../mrjmpl3-laravel-quality/SKILL.md) - Testing standards and practices
 
 ### Basic Testing
@@ -523,7 +526,8 @@ it('validates minimum items', function () {
 
 ### Comprehensive Validation Testing
 
-For **systematic, comprehensive validation testing** of all rules and edge cases, use the **RequestDataProviderItem pattern** with Pest datasets.
+For **systematic, comprehensive validation testing** of all rules and edge cases, use the
+**RequestDataProviderItem pattern** with Pest datasets.
 
 See **[validation-testing.md](validation-testing.md)** for:
 

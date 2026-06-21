@@ -1,6 +1,8 @@
 ---
 name: sdd-spec
-description: 'Write SDD delta specs with requirements and scenarios. Trigger: orchestrator launches spec work for a change.'
+description:
+  'Write SDD delta specs with requirements and scenarios. Trigger: orchestrator launches spec work
+  for a change.'
 disable-model-invocation: true
 user-invocable: false
 license: MIT
@@ -10,27 +12,35 @@ metadata:
   delegate_only: true
 ---
 
-> **ORCHESTRATOR GATE**: If you loaded this skill via the `skill()` tool, you are
-> the ORCHESTRATOR — STOP. Do NOT execute these instructions inline. Delegate to
-> the dedicated `sdd-spec` sub-agent using your platform's delegation primitive
-> (e.g., `task(...)`, sub-agent invocation, etc.). This skill is for EXECUTORS
-> only.
+> **ORCHESTRATOR GATE**: If you loaded this skill via the `skill()` tool, you are the ORCHESTRATOR —
+> STOP. Do NOT execute these instructions inline. Delegate to the dedicated `sdd-spec` sub-agent
+> using your platform's delegation primitive (e.g., `task(...)`, sub-agent invocation, etc.). This
+> skill is for EXECUTORS only.
 
 ## Executor Override
 
-If you ARE the `sdd-spec` sub-agent (NOT the orchestrator), the gate above does NOT apply to you. Continue with the phase work below. Do NOT delegate. Do NOT call the Skill tool. You are the executor — execute.
+If you ARE the `sdd-spec` sub-agent (NOT the orchestrator), the gate above does NOT apply to you.
+Continue with the phase work below. Do NOT delegate. Do NOT call the Skill tool. You are the
+executor — execute.
 
 ## Language Domain Contract
 
-Generated technical artifacts default to English. Do not inherit the user's conversational language or the active persona's regional voice for SDD artifacts unless the user explicitly requests that artifact language or the project convention requires it.
+Generated technical artifacts default to English. Do not inherit the user's conversational language
+or the active persona's regional voice for SDD artifacts unless the user explicitly requests that
+artifact language or the project convention requires it.
 
-If Spanish technical artifacts are explicitly requested, use neutral/professional Spanish unless the user explicitly asks for a regional variant.
+If Spanish technical artifacts are explicitly requested, use neutral/professional Spanish unless the
+user explicitly asks for a regional variant.
 
-Public/contextual comments follow the target context language by default. Explicit user language or tone overrides win; Spanish comments default to neutral/professional Spanish unless the user or target context clearly calls for regional tone.
+Public/contextual comments follow the target context language by default. Explicit user language or
+tone overrides win; Spanish comments default to neutral/professional Spanish unless the user or
+target context clearly calls for regional tone.
 
 ## Purpose
 
-You are a sub-agent responsible for writing SPECIFICATIONS. You take the proposal and produce delta specs — structured requirements and scenarios that describe what's being ADDED, MODIFIED, REMOVED, or RENAMED from the system's behavior.
+You are a sub-agent responsible for writing SPECIFICATIONS. You take the proposal and produce delta
+specs — structured requirements and scenarios that describe what's being ADDED, MODIFIED, REMOVED,
+or RENAMED from the system's behavior.
 
 ## What You Receive
 
@@ -41,11 +51,14 @@ From the orchestrator:
 
 ## Execution and Persistence Contract
 
-> Follow **Section B** (retrieval) and **Section C** (persistence) from `skills/_shared/sdd-phase-common.md`.
+> Follow **Section B** (retrieval) and **Section C** (persistence) from
+> `skills/_shared/sdd-phase-common.md`.
 
-- **engram**: Read `sdd/{change-name}/proposal` (required). If specs span multiple domains, concatenate into a single artifact with domain headers. Save as `sdd/{change-name}/spec`.
+- **engram**: Read `sdd/{change-name}/proposal` (required). If specs span multiple domains,
+  concatenate into a single artifact with domain headers. Save as `sdd/{change-name}/spec`.
 - **openspec**: Read and follow `skills/_shared/openspec-convention.md`.
-- **hybrid**: Follow BOTH conventions — persist to Engram (single concatenated artifact) AND write domain files to filesystem.
+- **hybrid**: Follow BOTH conventions — persist to Engram (single concatenated artifact) AND write
+  domain files to filesystem.
 - **none**: Return result only. Never create or modify project files.
 
 ## What to Do
@@ -68,13 +81,16 @@ FOR EACH entry under "Modified Capabilities":
 └── Read existing openspec/specs/<capability-name>/spec.md first — your delta modifies it
 ```
 
-If the proposal has no Capabilities section (older format), fall back to inferring from "Affected Areas". But always prefer the explicit Capabilities mapping when present.
+If the proposal has no Capabilities section (older format), fall back to inferring from "Affected
+Areas". But always prefer the explicit Capabilities mapping when present.
 
 ### Step 3: Read Existing Specs
 
-**IF mode is `openspec` or `hybrid`:** If `openspec/specs/{domain}/spec.md` exists, read it to understand CURRENT behavior. Your delta specs describe CHANGES to this behavior.
+**IF mode is `openspec` or `hybrid`:** If `openspec/specs/{domain}/spec.md` exists, read it to
+understand CURRENT behavior. Your delta specs describe CHANGES to this behavior.
 
-**IF mode is `engram`:** Existing specs were already retrieved from Engram in the Persistence Contract. Skip filesystem reads.
+**IF mode is `engram`:** Existing specs were already retrieved from Engram in the Persistence
+Contract. Skip filesystem reads.
 
 **IF mode is `none`:** Skip — no existing specs to read.
 
@@ -90,7 +106,8 @@ openspec/changes/{change-name}/
         └── spec.md          ← Delta spec
 ```
 
-**IF mode is `engram` or `none`:** Do NOT create any `openspec/` directories or files. Compose the spec content in memory — you will persist it in Step 5.
+**IF mode is `engram` or `none`:** Do NOT create any `openspec/` directories or files. Compose the
+spec content in memory — you will persist it in Step 5.
 
 #### MODIFIED Requirements Workflow (CRITICAL — read before writing deltas)
 
@@ -140,8 +157,8 @@ The system {MUST/SHALL/SHOULD} {do something specific}.
 
 ### Requirement: {Existing Requirement Name}
 
-{Full updated requirement text — replaces the existing one entirely}
-(Previously: {what it was before, in one line})
+{Full updated requirement text — replaces the existing one entirely} (Previously: {what it was
+before, in one line})
 
 #### Scenario: {Unchanged scenario — keep if still valid}
 
@@ -159,15 +176,15 @@ The system {MUST/SHALL/SHOULD} {do something specific}.
 
 ### Requirement: {Requirement Being Removed}
 
-(Reason: {why this requirement is being deprecated/removed})
-(Migration: {what replaces it, or "None" if no migration is needed})
+(Reason: {why this requirement is being deprecated/removed}) (Migration: {what replaces it, or
+"None" if no migration is needed})
 
 ## RENAMED Requirements
 
 ### Requirement: {Old Requirement Name} → {New Requirement Name}
 
-(Reason: {why the requirement is being renamed})
-(Migration: {how references/tests/docs should update, or "None" if no migration is needed})
+(Reason: {why the requirement is being renamed}) (Migration: {how references/tests/docs should
+update, or "None" if no migration is needed})
 ```
 
 #### For NEW Specs (No Existing Spec)
@@ -234,19 +251,24 @@ Ready for design (sdd-design). If design already exists, ready for tasks (sdd-ta
 
 - ALWAYS use Given/When/Then format for scenarios
 - ALWAYS use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY) for requirement strength
-- Read the proposal's **Capabilities section** first — it tells you exactly which spec files to create
+- Read the proposal's **Capabilities section** first — it tells you exactly which spec files to
+  create
 - If existing specs exist, write DELTA specs (ADDED/MODIFIED/REMOVED sections)
 - If NO existing specs exist for the domain, write a FULL spec
 - Every requirement MUST have at least ONE scenario
 - Include both happy path AND edge case scenarios
 - Keep scenarios TESTABLE — someone should be able to write an automated test from each one
 - DO NOT include implementation details in specs — specs describe WHAT, not HOW
-- **MODIFIED requirements MUST be the FULL block** — copy entire requirement + all scenarios from main spec, then edit. Partial MODIFIED blocks lose content at archive time.
+- **MODIFIED requirements MUST be the FULL block** — copy entire requirement + all scenarios from
+  main spec, then edit. Partial MODIFIED blocks lose content at archive time.
 - If adding new behavior without changing existing behavior → use ADDED, not MODIFIED
-- REMOVED requirements MUST include Reason and SHOULD include Migration when consumers, persisted behavior, docs, or tests are affected
-- RENAMED requirements MUST state both old and new names explicitly and SHOULD include Migration guidance for references/tests/docs
+- REMOVED requirements MUST include Reason and SHOULD include Migration when consumers, persisted
+  behavior, docs, or tests are affected
+- RENAMED requirements MUST state both old and new names explicitly and SHOULD include Migration
+  guidance for references/tests/docs
 - Apply any `rules.specs` from `openspec/config.yaml`
-- **Size budget**: Spec artifact MUST be under 650 words. Prefer requirement tables over narrative descriptions. Each scenario: 3-5 lines max.
+- **Size budget**: Spec artifact MUST be under 650 words. Prefer requirement tables over narrative
+  descriptions. Each scenario: 3-5 lines max.
 - Return envelope per **Section D** from `skills/_shared/sdd-phase-common.md`.
 
 ## RFC 2119 Keywords Quick Reference

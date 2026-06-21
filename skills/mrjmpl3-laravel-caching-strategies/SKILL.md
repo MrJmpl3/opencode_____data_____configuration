@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-caching-strategies
-description: Best practices for Laravel caching including cache patterns, tags, atomic locks, flexible cache, and cache invalidation strategies.
+description:
+  Best practices for Laravel caching including cache patterns, tags, atomic locks, flexible cache,
+  and cache invalidation strategies.
 ---
 
 # Laravel Caching Strategies

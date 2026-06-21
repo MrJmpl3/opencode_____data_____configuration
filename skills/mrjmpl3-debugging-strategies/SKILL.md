@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-debugging-strategies
-description: Master systematic debugging techniques, profiling tools, and root cause analysis to efficiently track down bugs across any codebase or technology stack. Use when investigating bugs, performance issues, or unexpected behavior.
+description:
+  Master systematic debugging techniques, profiling tools, and root cause analysis to efficiently
+  track down bugs across any codebase or technology stack. Use when investigating bugs, performance
+  issues, or unexpected behavior.
 ---
 
 # Debugging Strategies
 
-Transform debugging from frustrating guesswork into systematic problem-solving with proven strategies, powerful tools, and methodical approaches.
+Transform debugging from frustrating guesswork into systematic problem-solving with proven
+strategies, powerful tools, and methodical approaches.
 
 ## When to Use This Skill
 
@@ -22,11 +26,9 @@ Transform debugging from frustrating guesswork into systematic problem-solving w
 
 ### 1. The Scientific Method
 
-**1. Observe**: What's the actual behavior?
-**2. Hypothesize**: What could be causing it?
-**3. Experiment**: Test your hypothesis
-**4. Analyze**: Did it prove/disprove your theory?
-**5. Repeat**: Until you find the root cause
+**1. Observe**: What's the actual behavior? **2. Hypothesize**: What could be causing it? **3.
+Experiment**: Test your hypothesis **4. Analyze**: Did it prove/disprove your theory? **5. Repeat**:
+Until you find the root cause
 
 ### 2. Debugging Mindset
 
@@ -46,7 +48,8 @@ Transform debugging from frustrating guesswork into systematic problem-solving w
 
 ### 3. Rubber Duck Debugging
 
-Explain your code and problem out loud (to a rubber duck, colleague, or yourself). Often reveals the issue.
+Explain your code and problem out loud (to a rubber duck, colleague, or yourself). Often reveals the
+issue.
 
 ## Systematic Debugging Process
 

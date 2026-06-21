@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-executing-plans
-description: Execute Laravel plans in small batches with checkpoints—TDD first, migrations safe, queues verified, and quality gates enforced
+description:
+  Execute Laravel plans in small batches with checkpoints—TDD first, migrations safe, queues
+  verified, and quality gates enforced
 ---
 
 # Executing Plans (Laravel)

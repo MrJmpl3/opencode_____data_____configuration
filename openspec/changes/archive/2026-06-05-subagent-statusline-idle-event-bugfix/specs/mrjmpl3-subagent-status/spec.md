@@ -4,8 +4,12 @@
 
 ### Requirement: Accurate child-session reconciliation
 
-The system MUST normalize incoming child snapshots into stable rows, count each execution once, and resolve fallback/session duplicates to a single execution. It MUST preserve terminal rows once completed or errored, and newer running evidence MUST NOT regress a terminal row or resume elapsed time. Event-path handling MUST treat `session.idle` as non-terminal unless separate authoritative completion or error evidence is present.
-(Previously: the requirement preserved terminal rows, but it did not explicitly forbid `session.idle` from terminalizing a child on the event path.)
+The system MUST normalize incoming child snapshots into stable rows, count each execution once, and
+resolve fallback/session duplicates to a single execution. It MUST preserve terminal rows once
+completed or errored, and newer running evidence MUST NOT regress a terminal row or resume elapsed
+time. Event-path handling MUST treat `session.idle` as non-terminal unless separate authoritative
+completion or error evidence is present. (Previously: the requirement preserved terminal rows, but
+it did not explicitly forbid `session.idle` from terminalizing a child on the event path.)
 
 #### Scenario: Duplicate fallback row is rekeyed once
 
@@ -16,7 +20,8 @@ The system MUST normalize incoming child snapshots into stable rows, count each 
 
 #### Scenario: Stale running row becomes terminal
 
-- GIVEN a row is still marked running but newer child-session information indicates completion or failure
+- GIVEN a row is still marked running but newer child-session information indicates completion or
+  failure
 - WHEN the plugin refreshes
 - THEN the row MUST update to the terminal status
 - AND its elapsed time MUST stop advancing

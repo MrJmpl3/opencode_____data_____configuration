@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-bootstrap-check
-description: Detect Sail/non‑Sail and print the right command pairs for your environment; verify dependencies and key services are reachable
+description:
+  Detect Sail/non‑Sail and print the right command pairs for your environment; verify dependencies
+  and key services are reachable
 ---
 
 # Bootstrap Check (Laravel)
 
-Quickly determine if the project should run with Sail or host tools, then list the correct commands for this session.
+Quickly determine if the project should run with Sail or host tools, then list the correct commands
+for this session.
 
 ## Detect Runner
 

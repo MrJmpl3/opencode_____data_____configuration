@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-memory-safety-patterns
-description: Implement memory-safe programming with RAII, ownership, smart pointers, and resource management across Rust, C++, and C. Use when writing safe systems code, managing resources, or preventing memory bugs.
+description:
+  Implement memory-safe programming with RAII, ownership, smart pointers, and resource management
+  across Rust, C++, and C. Use when writing safe systems code, managing resources, or preventing
+  memory bugs.
 ---
 
 # Memory Safety Patterns
 
-Cross-language patterns for memory-safe programming including RAII, ownership, smart pointers, and resource management.
+Cross-language patterns for memory-safe programming including RAII, ownership, smart pointers, and
+resource management.
 
 ## When to Use This Skill
 

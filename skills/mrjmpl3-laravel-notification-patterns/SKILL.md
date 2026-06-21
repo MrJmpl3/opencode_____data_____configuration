@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-notification-patterns
-description: Best practices for Laravel notifications including multi-channel delivery, mail and database notifications, queueing, and on-demand recipients.
+description:
+  Best practices for Laravel notifications including multi-channel delivery, mail and database
+  notifications, queueing, and on-demand recipients.
 ---
 
 # Notification Patterns

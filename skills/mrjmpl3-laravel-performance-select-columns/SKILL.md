@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-performance-select-columns
-description: Select only required columns to reduce memory and transfer costs; apply to base queries and relations
+description:
+  Select only required columns to reduce memory and transfer costs; apply to base queries and
+  relations
 ---
 
 # Select Only Needed Columns

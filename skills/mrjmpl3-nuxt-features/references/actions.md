@@ -1,6 +1,7 @@
 # Action Patterns
 
-Actions orchestrate mutations and provide user feedback. They're the glue between UI and data operations.
+Actions orchestrate mutations and provide user feedback. They're the glue between UI and data
+operations.
 
 ## Core Pattern
 
@@ -350,5 +351,6 @@ Common patterns:
 ## Related Skills
 
 - **[nuxt-features](../../4008-mrjmpl3-nuxt-features/SKILL.md)** - Overview
-- **[nuxt-composables](../../4004-mrjmpl3-nuxt-composables/SKILL.md)** - useFlash, useConfirmationToast
+- **[nuxt-composables](../../4004-mrjmpl3-nuxt-composables/SKILL.md)** - useFlash,
+  useConfirmationToast
 - **[nuxt-errors](../../4007-mrjmpl3-nuxt-errors/SKILL.md)** - Error handling patterns

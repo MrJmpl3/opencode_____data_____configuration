@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-queues-and-horizon
-description: Operate and verify queues with or without Horizon; safe worker flags, failure handling, and test strategies
+description:
+  Operate and verify queues with or without Horizon; safe worker flags, failure handling, and test
+  strategies
 ---
 
 # Queues and Horizon

@@ -1,13 +1,18 @@
 ---
 name: mrjmpl3-tailwind-design-system
-description: Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns.
+description:
+  Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and
+  responsive patterns. Use when creating component libraries, implementing design systems, or
+  standardizing UI patterns.
 ---
 
 # Tailwind Design System (v4)
 
-Build production-ready design systems with Tailwind CSS v4, including CSS-first configuration, design tokens, component variants, responsive patterns, and accessibility.
+Build production-ready design systems with Tailwind CSS v4, including CSS-first configuration,
+design tokens, component variants, responsive patterns, and accessibility.
 
-> **Note**: This skill targets Tailwind CSS v4 (2024+). For v3 projects, refer to the [upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
+> **Note**: This skill targets Tailwind CSS v4 (2024+). For v3 projects, refer to the
+> [upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
 
 ## When to Use This Skill
 
@@ -528,10 +533,14 @@ export function Container({ className, size, ...props }: ContainerProps) {
 </Container>
 ```
 
-For advanced animation and dark mode patterns, see [references/advanced-patterns.md](references/advanced-patterns.md):
+For advanced animation and dark mode patterns, see
+[references/advanced-patterns.md](references/advanced-patterns.md):
 
-- **Pattern 5: Native CSS Animations** — dialog `@keyframes`, native popover API with `@starting-style`, `allow-discrete` transitions, and a full `DialogContent`/`DialogOverlay` implementation using Radix UI
-- **Pattern 6: Dark Mode** — `ThemeProvider` context with `localStorage` persistence, `prefers-color-scheme` detection, meta `theme-color` update, and a `ThemeToggle` button component
+- **Pattern 5: Native CSS Animations** — dialog `@keyframes`, native popover API with
+  `@starting-style`, `allow-discrete` transitions, and a full `DialogContent`/`DialogOverlay`
+  implementation using Radix UI
+- **Pattern 6: Dark Mode** — `ThemeProvider` context with `localStorage` persistence,
+  `prefers-color-scheme` detection, meta `theme-color` update, and a `ThemeToggle` button component
 
 ## Utility Functions
 
@@ -554,12 +563,15 @@ export const focusRing = cn(
 export const disabled = 'disabled:pointer-events-none disabled:opacity-50';
 ```
 
-For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices, see [references/advanced-patterns.md](references/advanced-patterns.md):
+For advanced v4 CSS patterns, the full v3-to-v4 migration checklist, and complete best practices,
+see [references/advanced-patterns.md](references/advanced-patterns.md):
 
 - **Custom `@utility`** — reusable CSS utilities for decorative lines and text gradients
-- **Theme modifiers** — `@theme inline` (reference other CSS vars), `@theme static` (always output), `@import "tailwindcss" theme(static)`
+- **Theme modifiers** — `@theme inline` (reference other CSS vars), `@theme static` (always output),
+  `@import "tailwindcss" theme(static)`
 - **Namespace overrides** — clearing default Tailwind color scales with `--color-*: initial`
 - **Semi-transparent variants** — `color-mix()` for alpha scale generation
 - **Container queries** — `--container-*` token definitions
-- **v3→v4 migration checklist** — 10-item checklist covering config, directives, colors, dark mode, animations, React 19 ref changes
+- **v3→v4 migration checklist** — 10-item checklist covering config, directives, colors, dark mode,
+  animations, React 19 ref changes
 - **Best practices** — full Do's and Don'ts list

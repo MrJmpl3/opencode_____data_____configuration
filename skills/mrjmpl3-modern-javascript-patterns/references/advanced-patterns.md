@@ -1,6 +1,7 @@
 # Advanced Modern JavaScript Patterns
 
-Advanced patterns covering functional programming, modern class features, ES6 modules, iterators, generators, modern operators, and performance optimization.
+Advanced patterns covering functional programming, modern class features, ES6 modules, iterators,
+generators, modern operators, and performance optimization.
 
 ## Functional Programming Patterns
 

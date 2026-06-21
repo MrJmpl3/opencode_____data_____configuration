@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-testing
-description: Comprehensive testing patterns with Pest. Use when writing or modifying tests, mocking, factories, or test patterns.
+description:
+  Comprehensive testing patterns with Pest. Use when writing or modifying tests, mocking, factories,
+  or test patterns.
 ---
 
 # Laravel Testing
@@ -9,9 +11,12 @@ Testing patterns with Pest: Arrange-Act-Assert, proper mocking, null drivers, de
 
 **Related guides:**
 
-- [testing-conventions.md](references/testing-conventions.md) - Test file structure and RESTful ordering
-- [testing-factories.md](references/testing-factories.md) - Declarative factory methods for readable tests
-- [validation-testing.md](../mrjmpl3-laravel-validation/references/validation-testing.md) - Form request validation testing
+- [testing-conventions.md](references/testing-conventions.md) - Test file structure and RESTful
+  ordering
+- [testing-factories.md](references/testing-factories.md) - Declarative factory methods for readable
+  tests
+- [validation-testing.md](../mrjmpl3-laravel-validation/references/validation-testing.md) - Form
+  request validation testing
 - [Actions](../mrjmpl3-laravel-actions/SKILL.md) - Action pattern for unit testing
 - [Controllers](../mrjmpl3-laravel-controllers/SKILL.md) - Controller patterns for feature testing
 - [DTOs](../mrjmpl3-laravel-dtos/SKILL.md) - DTO test factories
@@ -146,7 +151,8 @@ it('throws exception when user has too many pending orders', function () {
 
 ### Testing Action Composition
 
-**Critical pattern:** Always resolve actions from the container using `resolve()` so dependencies are recursively resolved. Use `swap()` to replace dependencies with mocked versions.
+**Critical pattern:** Always resolve actions from the container using `resolve()` so dependencies
+are recursively resolved. Use `swap()` to replace dependencies with mocked versions.
 
 ```php
 use function Pest\Laravel\mock;
@@ -359,7 +365,8 @@ $user = User::factory()
 
 ### Declarative Factory Methods
 
-**Critical principle:** Make tests **declarative and readable** by hiding database implementation details behind factory methods.
+**Critical principle:** Make tests **declarative and readable** by hiding database implementation
+details behind factory methods.
 
 ```php
 // ❌ Bad - Database schema leaks into test
@@ -378,7 +385,8 @@ $calendar = Calendar::factory()->accepted()->create();
 
 ### DTO Test Factories
 
-DTOs use the `HasTestFactory` trait with `DataTestFactory` base class — mirroring Laravel's model factory API for Data objects.
+DTOs use the `HasTestFactory` trait with `DataTestFactory` base class — mirroring Laravel's model
+factory API for Data objects.
 
 ```php
 // Create DTO with defaults

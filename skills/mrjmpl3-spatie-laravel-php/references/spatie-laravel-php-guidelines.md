@@ -22,7 +22,8 @@
 
 ## Core Laravel Principle
 
-**Follow Laravel conventions first.** If Laravel has a documented way to do something, use it. Only deviate when you have a clear justification.
+**Follow Laravel conventions first.** If Laravel has a documented way to do something, use it. Only
+deviate when you have a clear justification.
 
 ## PHP Standards
 

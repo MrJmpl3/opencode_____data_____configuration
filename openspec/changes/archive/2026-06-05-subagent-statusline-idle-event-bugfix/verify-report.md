@@ -135,12 +135,16 @@ Coverage analysis skipped — no coverage tool detected.
 
 **WARNING**:
 
-- Strict TDD evidence was not materialized into OpenSpec: `openspec/changes/subagent-statusline-idle-event-bugfix/apply-progress.md` is missing, so verification had to rely on Engram memory `#326` for the TDD cycle table.
-- Coverage tooling is unavailable because `@vitest/coverage-v8` is not installed in `tui-plugins/mrjmpl3-subagent-status`.
+- Strict TDD evidence was not materialized into OpenSpec:
+  `openspec/changes/subagent-statusline-idle-event-bugfix/apply-progress.md` is missing, so
+  verification had to rely on Engram memory `#326` for the TDD cycle table.
+- Coverage tooling is unavailable because `@vitest/coverage-v8` is not installed in
+  `tui-plugins/mrjmpl3-subagent-status`.
 
 **SUGGESTION**: None
 
 ### Verdict
 
-PASS WITH WARNINGS
-Implementation matches the proposal/spec/design, all mapped scenarios have passing runtime coverage, and type-checking is green; only the missing OpenSpec apply-progress artifact and unavailable coverage tooling remain.
+PASS WITH WARNINGS Implementation matches the proposal/spec/design, all mapped scenarios have
+passing runtime coverage, and type-checking is green; only the missing OpenSpec apply-progress
+artifact and unavailable coverage tooling remain.

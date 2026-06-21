@@ -44,7 +44,8 @@ $articles = Article::whereHas('user', fn ($q) => $q->active())->get();
 
 ## Apply Global Scopes Sparingly
 
-Global scopes silently modify every query on the model, making debugging difficult. Prefer local scopes and reserve global scopes for truly universal constraints like soft deletes or multi-tenancy.
+Global scopes silently modify every query on the model, making debugging difficult. Prefer local
+scopes and reserve global scopes for truly universal constraints like soft deletes or multi-tenancy.
 
 Incorrect (global scope for a conditional filter):
 
@@ -73,7 +74,8 @@ Post::paginate(); // Admin sees all
 
 ## Define Attribute Casts
 
-Use the `casts()` method (or `$casts` property following project convention) for automatic type conversion.
+Use the `casts()` method (or `$casts` property following project convention) for automatic type
+conversion.
 
 ```php
 protected function casts(): array
@@ -131,7 +133,9 @@ Post::whereBelongsTo($user, 'author')->get();
 
 ## Avoid Hardcoded Table Names in Queries
 
-Never use string literals for table names in raw queries, joins, or subqueries. Hardcoded table names make it impossible to find all places a model is used and break refactoring (e.g., renaming a table requires hunting through every raw string).
+Never use string literals for table names in raw queries, joins, or subqueries. Hardcoded table
+names make it impossible to find all places a model is used and break refactoring (e.g., renaming a
+table requires hunting through every raw string).
 
 Incorrect:
 
@@ -153,6 +157,10 @@ User::where('active', true)->get();
 Order::where('status', 'pending')->get();
 ```
 
-Prefer Eloquent queries and relationships over `DB::table()` whenever possible — they already reference the model's table. When `DB::table()` or raw joins are unavoidable, always use `(new Model)->getTable()` to keep the reference traceable.
+Prefer Eloquent queries and relationships over `DB::table()` whenever possible — they already
+reference the model's table. When `DB::table()` or raw joins are unavoidable, always use
+`(new Model)->getTable()` to keep the reference traceable.
 
-**Exception — migrations:** In migrations, hardcoded table names via `DB::table('settings')` are acceptable and preferred. Models change over time but migrations are frozen snapshots — referencing a model that is later renamed or deleted would break the migration.
+**Exception — migrations:** In migrations, hardcoded table names via `DB::table('settings')` are
+acceptable and preferred. Models change over time but migrations are frozen snapshots — referencing
+a model that is later renamed or deleted would break the migration.

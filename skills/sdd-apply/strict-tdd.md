@@ -1,11 +1,13 @@
 # Strict TDD Module — Apply Phase
 
-> **This module is loaded ONLY when Strict TDD Mode is enabled AND a test runner is available.**
-> If you are reading this, the orchestrator already verified both conditions. Follow every instruction.
+> **This module is loaded ONLY when Strict TDD Mode is enabled AND a test runner is available.** If
+> you are reading this, the orchestrator already verified both conditions. Follow every instruction.
 
 ## TDD Philosophy
 
-TDD is not testing. TDD is **software design driven by tests**. You write a test that describes what the code SHOULD do, then write the minimum code to make it real. The tests design the API, the contracts, the behavior. Code is a side effect of tests.
+TDD is not testing. TDD is **software design driven by tests**. You write a test that describes what
+the code SHOULD do, then write the minimum code to make it real. The tests design the API, the
+contracts, the behavior. Code is a side effect of tests.
 
 ### The Three Laws
 
@@ -88,7 +90,8 @@ FOR EACH TASK:
 
 ## Choosing Test Layer
 
-Based on the testing capabilities cached in Engram (`sdd/{project}/testing-capabilities`), choose the appropriate test layer for each task:
+Based on the testing capabilities cached in Engram (`sdd/{project}/testing-capabilities`), choose
+the appropriate test layer for each task:
 
 ```
 Determine test layer by WHAT the task does:
@@ -111,7 +114,8 @@ Determine test layer by WHAT the task does:
 └── Default: Unit test (always the fallback)
 ```
 
-**Key rule**: Use the HIGHEST available layer that fits the task. But NEVER skip a task because a layer is unavailable — degrade to the next available layer.
+**Key rule**: Use the HIGHEST available layer that fits the task. But NEVER skip a task because a
+layer is unavailable — degrade to the next available layer.
 
 ## Test Execution
 
@@ -151,7 +155,8 @@ function calculateDiscount(item: Item) {
 }
 ```
 
-**Why**: Pure functions are deterministic (same input → same output), have no side effects, and are trivially testable. TDD naturally pushes you toward pure functions — embrace it.
+**Why**: Pure functions are deterministic (same input → same output), have no side effects, and are
+trivially testable. TDD naturally pushes you toward pure functions — embrace it.
 
 ## Approval Testing (for refactoring existing code)
 
@@ -202,12 +207,14 @@ When Strict TDD Mode is active, your return summary MUST include this section:
 - **Safety Net**: Pre-existing tests run before modifying files. "N/A (new)" for new files.
 - **RED**: Test written first, referencing code that doesn't exist yet. Always "✅ Written".
 - **GREEN**: Tests executed and passing after minimal implementation. Must show execution result.
-- **TRIANGULATE**: Additional test cases added to force real logic. "➖ Single" if spec has only one scenario.
+- **TRIANGULATE**: Additional test cases added to force real logic. "➖ Single" if spec has only one
+  scenario.
 - **REFACTOR**: Code improved with tests still passing. "➖ None needed" if code was already clean.
 
 ## Assertion Quality Rules (MANDATORY)
 
-**Every assertion must verify REAL behavior.** A test that passes without exercising production logic is worse than no test — it gives false confidence.
+**Every assertion must verify REAL behavior.** A test that passes without exercising production
+logic is worse than no test — it gives false confidence.
 
 ### Banned Assertion Patterns (NEVER write these)
 
@@ -252,9 +259,11 @@ for (const item of items) { ... }                # ✅ Now the loop actually run
 
 Every test assertion must satisfy ALL of these:
 
-1. **Calls production code** — the test invokes a function, method, or component from the implementation
+1. **Calls production code** — the test invokes a function, method, or component from the
+   implementation
 2. **Asserts a specific output** — compares against a concrete expected value derived from the spec
-3. **Would FAIL if the production code were wrong** — if you change the implementation logic, THIS test breaks
+3. **Would FAIL if the production code were wrong** — if you change the implementation logic, THIS
+   test breaks
 
 ```
 # ✅ REAL assertions — production code determines the result
@@ -269,7 +278,8 @@ expect(result).toHaveLength(3)                     # AND you set up exactly 3 it
 
 `expect(result).toEqual([])` or `assert len(result) == 0` is ONLY valid when:
 
-1. You set up a specific precondition that SHOULD produce an empty result (e.g., no matching records)
+1. You set up a specific precondition that SHOULD produce an empty result (e.g., no matching
+   records)
 2. The production code actually ran and filtered/processed data to arrive at empty
 3. A companion test with different setup produces a NON-EMPTY result (triangulation)
 
@@ -290,7 +300,9 @@ expect(screen.getByText("Expected Title")).toBeInTheDocument();  # Verifies outp
 expect(screen.getByRole("button")).toHaveTextContent("Submit");  # Verifies real content
 ```
 
-"Renders without crash" is a smoke test. It is NOT a unit test, NOT an integration test, and it does NOT count toward TDD coverage. If you need a smoke test, it must be accompanied by real behavioral assertions.
+"Renders without crash" is a smoke test. It is NOT a unit test, NOT an integration test, and it does
+NOT count toward TDD coverage. If you need a smoke test, it must be accompanied by real behavioral
+assertions.
 
 ### Mock Hygiene Rules
 
@@ -306,7 +318,9 @@ Mock/assertion ratio guide:
 │   └── NEVER write 10+ mocks to verify a one-line transformation
 ```
 
-**Extract-Before-Mock Rule**: If the behavior you want to test is a data transformation, mapping, filtering, or conditional logic (e.g., `MUTED → FAIL` status conversion), EXTRACT it to a pure function FIRST, then test the pure function directly. No mocks needed.
+**Extract-Before-Mock Rule**: If the behavior you want to test is a data transformation, mapping,
+filtering, or conditional logic (e.g., `MUTED → FAIL` status conversion), EXTRACT it to a pure
+function FIRST, then test the pure function directly. No mocks needed.
 
 ```
 # ❌ BAD: 15 mocks to test a one-line status conversion
@@ -351,7 +365,8 @@ expect(screen.getByRole("button")).toBeDisabled();
 
 **CSS class assertions are NEVER valid test assertions.** If you need to verify visual styling:
 
-1. Test the **semantic outcome** (e.g., element has `role="alert"`, text is visible, button is disabled)
+1. Test the **semantic outcome** (e.g., element has `role="alert"`, text is visible, button is
+   disabled)
 2. OR use a visual regression tool / E2E screenshot comparison
 3. NEVER assert specific Tailwind/CSS class names — they are implementation details
 
@@ -359,12 +374,15 @@ expect(screen.getByRole("button")).toBeDisabled();
 
 - NEVER write production code before writing its test — this is the ONE rule that cannot be broken
 - NEVER skip the GREEN execution gate — you MUST run tests and confirm they pass
-- NEVER skip triangulation when the spec defines multiple scenarios — hardcoded Fake It must be forced out
+- NEVER skip triangulation when the spec defines multiple scenarios — hardcoded Fake It must be
+  forced out
 - NEVER write trivial assertions (see Banned Assertion Patterns above) — they are WORSE than no test
 - ALWAYS verify that every assertion CALLS production code and asserts a SPECIFIC expected value
 - ALWAYS run the Safety Net before modifying existing files — protect what already works
 - ALWAYS report the TDD Cycle Evidence table — the verify phase will check it
-- If a test runner execution fails for infrastructure reasons (not test failures), report as "Blocked" and continue to next task
-- Prefer pure functions — but don't force it where it doesn't fit (e.g., React components with state)
+- If a test runner execution fails for infrastructure reasons (not test failures), report as
+  "Blocked" and continue to next task
+- Prefer pure functions — but don't force it where it doesn't fit (e.g., React components with
+  state)
 - For refactoring tasks, ALWAYS write approval tests before touching code
 - Run ONLY the relevant test file during the cycle, not the full suite

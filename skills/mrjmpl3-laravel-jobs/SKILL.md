@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-jobs
-description: Background jobs and event listeners for async processing. Use when creating or modifying jobs, queues, listeners, or event-driven workflows.
+description:
+  Background jobs and event listeners for async processing. Use when creating or modifying jobs,
+  queues, listeners, or event-driven workflows.
 ---
 
 # Laravel Jobs

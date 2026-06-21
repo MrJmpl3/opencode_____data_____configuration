@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-middleware-patterns
-description: Best practices for Laravel middleware including before/after patterns, terminable middleware, groups, parameters, and common middleware implementations.
+description:
+  Best practices for Laravel middleware including before/after patterns, terminable middleware,
+  groups, parameters, and common middleware implementations.
 ---
 
 # Middleware Patterns

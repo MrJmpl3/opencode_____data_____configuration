@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-eloquent-relationships
-description: Define clear relationships and load data efficiently; prevent N+1, use constraints, counts/sums, and pivot syncing safely
+description:
+  Define clear relationships and load data efficiently; prevent N+1, use constraints, counts/sums,
+  and pivot syncing safely
 ---
 
 # Eloquent Relationships and Loading

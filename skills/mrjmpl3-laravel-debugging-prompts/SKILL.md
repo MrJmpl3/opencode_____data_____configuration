@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-debugging-prompts
-description: Create effective debugging prompts—include error messages, stack traces, expected vs actual behavior, logs, and attempted solutions
+description:
+  Create effective debugging prompts—include error messages, stack traces, expected vs actual
+  behavior, logs, and attempted solutions
 ---
 
 # Debugging Prompts
 
-Debugging with AI requires complete information. Missing context means generic suggestions that don't solve your specific problem.
+Debugging with AI requires complete information. Missing context means generic suggestions that
+don't solve your specific problem.
 
 ## Error Messages and Stack Traces
 
@@ -96,7 +99,8 @@ return new ProductResource($product);
 
 Product has `category_id = 5` in database, but relationship not loading."
 
-**Why it works:** Shows exact expected vs actual output, identifies specific issues, includes relevant code.
+**Why it works:** Shows exact expected vs actual output, identifies specific issues, includes
+relevant code.
 
 ## Log Entries and State
 
@@ -171,7 +175,8 @@ public function show(Product $product)
 }
 ```
 
-**Problem:** Cache key doesn't invalidate when product updates. Need cache invalidation in ProductObserver or remove caching from show method."
+**Problem:** Cache key doesn't invalidate when product updates. Need cache invalidation in
+ProductObserver or remove caching from show method."
 
 **Why it works:** Clear hypothesis, concrete evidence, relevant code, proposed solution.
 
@@ -191,7 +196,8 @@ public function show(Product $product)
 $products = Product::with('category')->get();
 ```
 
-**Result:** Still getting N+1 queries. Debugbar shows 101 queries (1 for products, 100 for categories).
+**Result:** Still getting N+1 queries. Debugbar shows 101 queries (1 for products, 100 for
+categories).
 
 **Attempt 2:** Used `load()` after fetching
 
@@ -214,9 +220,11 @@ public function category()
 
 **Result:** Relationship looks correct. Foreign key `category_id` exists in products table.
 
-**Current state:** Eager loading syntax seems correct but not working. Using Laravel 11.x. What am I missing?"
+**Current state:** Eager loading syntax seems correct but not working. Using Laravel 11.x. What am I
+missing?"
 
-**Why it works:** Shows what was tried, exact code used, results observed, helps avoid suggesting already-tried solutions.
+**Why it works:** Shows what was tried, exact code used, results observed, helps avoid suggesting
+already-tried solutions.
 
 ## Debugging Templates
 

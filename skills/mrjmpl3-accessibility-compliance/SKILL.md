@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-accessibility-compliance
-description: Implement WCAG 2.2 compliant interfaces with mobile accessibility, inclusive design patterns, and assistive technology support. Use when auditing accessibility, implementing ARIA patterns, building for screen readers, or ensuring inclusive user experiences.
+description:
+  Implement WCAG 2.2 compliant interfaces with mobile accessibility, inclusive design patterns, and
+  assistive technology support. Use when auditing accessibility, implementing ARIA patterns,
+  building for screen readers, or ensuring inclusive user experiences.
 ---
 
 # Accessibility Compliance
 
-Master accessibility implementation to create inclusive experiences that work for everyone, including users with disabilities.
+Master accessibility implementation to create inclusive experiences that work for everyone,
+including users with disabilities.
 
 ## When to Use This Skill
 
@@ -82,7 +86,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
 }
 
-function AccessibleButton({ children, variant = 'primary', isLoading = false, disabled, ...props }: ButtonProps) {
+function AccessibleButton({
+  children,
+  variant = 'primary',
+  isLoading = false,
+  disabled,
+  ...props
+}: ButtonProps) {
   return (
     <button
       // Disable when loading
@@ -287,10 +297,13 @@ function Layout({ children }) {
 function useAnnounce() {
   const [message, setMessage] = React.useState('');
 
-  const announce = React.useCallback((text: string, priority: 'polite' | 'assertive' = 'polite') => {
-    setMessage(''); // Clear first to ensure re-announcement
-    setTimeout(() => setMessage(text), 100);
-  }, []);
+  const announce = React.useCallback(
+    (text: string, priority: 'polite' | 'assertive' = 'polite') => {
+      setMessage(''); // Clear first to ensure re-announcement
+      setTimeout(() => setMessage(text), 100);
+    },
+    [],
+  );
 
   const Announcer = () => (
     <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">

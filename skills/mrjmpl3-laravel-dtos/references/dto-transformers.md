@@ -1,6 +1,7 @@
 # DTO Transformers
 
-**Transformer classes transform external system data into internal DTOs.** Use when you need explicit, testable mapping logic between different data structures.
+**Transformer classes transform external system data into internal DTOs.** Use when you need
+explicit, testable mapping logic between different data structures.
 
 **Related guides:**
 
@@ -138,7 +139,8 @@ Three approaches for mapping collections, from simplest to most control:
     )),
 ```
 
-Use request with index when you need `boolean()`, `integer()`, `date()` helpers. Use `new Data()` when you want explicit control over child DTO construction.
+Use request with index when you need `boolean()`, `integer()`, `date()` helpers. Use `new Data()`
+when you want explicit control over child DTO construction.
 
 **First-class callable for reusable transformers:**
 

@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-controller-cleanup
-description: Reduce controller bloat using Form Requests for auth/validation, small Actions/Services with DTOs, and resource/single-action controllers
+description:
+  Reduce controller bloat using Form Requests for auth/validation, small Actions/Services with DTOs,
+  and resource/single-action controllers
 ---
 
 # Controller Cleanup

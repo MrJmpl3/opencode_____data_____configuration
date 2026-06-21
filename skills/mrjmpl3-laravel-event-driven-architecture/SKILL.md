@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-event-driven-architecture
-description: Best practices for Laravel events and listeners including event discovery, queued listeners, subscribers, and model events for decoupled architecture.
+description:
+  Best practices for Laravel events and listeners including event discovery, queued listeners,
+  subscribers, and model events for decoupled architecture.
 ---
 
 # Laravel Event-Driven Architecture
@@ -49,7 +51,8 @@ class SendOrderConfirmation
 
 ## Automatic Listener Discovery
 
-Laravel auto-discovers listeners when they are in the `App\Listeners` directory and have a `handle` method type-hinting an event. No manual registration needed.
+Laravel auto-discovers listeners when they are in the `App\Listeners` directory and have a `handle`
+method type-hinting an event. No manual registration needed.
 
 ```php
 // ✅ Auto-discovered - just create the class with a typed handle method

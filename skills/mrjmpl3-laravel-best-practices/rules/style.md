@@ -37,7 +37,8 @@
 
 ## Use Laravel String & Array Helpers
 
-Laravel provides `Str`, `Arr`, `Number`, and `Uri` helper classes that are more readable, chainable, and UTF-8 safe than raw PHP functions. Always prefer them.
+Laravel provides `Str`, `Arr`, `Number`, and `Uri` helper classes that are more readable, chainable,
+and UTF-8 safe than raw PHP functions. Always prefer them.
 
 Strings — use `Str` and fluent `Str::of()` over raw PHP:
 
@@ -63,7 +64,9 @@ $result = strtolower(trim(str_replace('_', '-', $input)));
 $result = Str::of($input)->trim()->replace('_', '-')->lower();
 ```
 
-Key `Str` methods to prefer: `Str::slug()`, `Str::limit()`, `Str::contains()`, `Str::before()`, `Str::after()`, `Str::between()`, `Str::camel()`, `Str::snake()`, `Str::kebab()`, `Str::headline()`, `Str::squish()`, `Str::mask()`, `Str::uuid()`, `Str::ulid()`, `Str::random()`, `Str::is()`.
+Key `Str` methods to prefer: `Str::slug()`, `Str::limit()`, `Str::contains()`, `Str::before()`,
+`Str::after()`, `Str::between()`, `Str::camel()`, `Str::snake()`, `Str::kebab()`, `Str::headline()`,
+`Str::squish()`, `Str::mask()`, `Str::uuid()`, `Str::ulid()`, `Str::random()`, `Str::is()`.
 
 Arrays — use `Arr` over raw PHP:
 
@@ -75,7 +78,8 @@ $name = isset($array['user']['name']) ? $array['user']['name'] : 'default';
 $name = Arr::get($array, 'user.name', 'default');
 ```
 
-Key `Arr` methods: `Arr::get()`, `Arr::has()`, `Arr::only()`, `Arr::except()`, `Arr::first()`, `Arr::flatten()`, `Arr::pluck()`, `Arr::where()`, `Arr::wrap()`.
+Key `Arr` methods: `Arr::get()`, `Arr::has()`, `Arr::only()`, `Arr::except()`, `Arr::first()`,
+`Arr::flatten()`, `Arr::pluck()`, `Arr::where()`, `Arr::wrap()`.
 
 Numbers — use `Number` for display formatting:
 
@@ -94,7 +98,8 @@ $uri = Uri::of('https://example.com/search')
     ->withQuery(['q' => 'laravel', 'page' => 1]);
 ```
 
-Use `$request->string('name')` to get a fluent `Stringable` directly from request input for immediate chaining.
+Use `$request->string('name')` to get a fluent `Stringable` directly from request input for
+immediate chaining.
 
 Use `search-docs` for the full list of available methods — these helpers are extensive.
 
@@ -118,7 +123,8 @@ Pass data to JS via data attributes or use a dedicated PHP-to-JS package.
 
 ## No Unnecessary Comments
 
-Code should be readable on its own. Use descriptive method and variable names instead of comments. The only exception is config files, where descriptive comments are expected.
+Code should be readable on its own. Use descriptive method and variable names instead of comments.
+The only exception is config files, where descriptive comments are expected.
 
 Incorrect:
 

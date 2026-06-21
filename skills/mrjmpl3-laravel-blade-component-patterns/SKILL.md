@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-blade-component-patterns
-description: Best practices for Laravel Blade components including class-based and anonymous components, slots, attribute bags, and reusable UI patterns.
+description:
+  Best practices for Laravel Blade components including class-based and anonymous components, slots,
+  attribute bags, and reusable UI patterns.
 ---
 
 # Blade Component Patterns

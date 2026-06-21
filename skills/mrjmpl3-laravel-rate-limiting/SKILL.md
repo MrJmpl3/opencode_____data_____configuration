@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-rate-limiting
-description: Apply per-user and per-route limits with RateLimiter and throttle middleware; use backoffs and headers for clients
+description:
+  Apply per-user and per-route limits with RateLimiter and throttle middleware; use backoffs and
+  headers for clients
 ---
 
 # Rate Limiting and Throttle

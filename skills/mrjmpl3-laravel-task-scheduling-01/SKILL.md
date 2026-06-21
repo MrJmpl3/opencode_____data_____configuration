@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-task-scheduling-01
-description: Schedule tasks with safety; use withoutOverlapping, onOneServer, and visibility settings for reliable cron execution
+description:
+  Schedule tasks with safety; use withoutOverlapping, onOneServer, and visibility settings for
+  reliable cron execution
 ---
 
 # Task Scheduling

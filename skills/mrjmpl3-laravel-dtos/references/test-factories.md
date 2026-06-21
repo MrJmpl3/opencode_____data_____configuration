@@ -1,6 +1,7 @@
 # DTO Test Factories
 
-**Test factories create hydrated DTOs for tests.** They live in `database/factories/Data/` and use the `HasTestFactory` trait to enable `::testFactory()` on Data classes.
+**Test factories create hydrated DTOs for tests.** They live in `database/factories/Data/` and use
+the `HasTestFactory` trait to enable `::testFactory()` on Data classes.
 
 **Related guides:**
 

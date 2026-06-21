@@ -98,7 +98,8 @@ Correct:
 
 ## CSRF Protection
 
-Include `@csrf` in all POST/PUT/DELETE Blade forms. In Inertia apps, the `@csrf` directive is automatically applied.
+Include `@csrf` in all POST/PUT/DELETE Blade forms. In Inertia apps, the `@csrf` directive is
+automatically applied.
 
 Incorrect:
 
@@ -131,7 +132,8 @@ Route::post('/login', LoginController::class)->middleware('throttle:login');
 
 ## Validate File Uploads
 
-Validate extension, MIME type, and size. The `mimes` rule checks extensions; use `mimetypes` for actual MIME type validation. Never trust client-provided filenames.
+Validate extension, MIME type, and size. The `mimes` rule checks extensions; use `mimetypes` for
+actual MIME type validation. Never trust client-provided filenames.
 
 ```php
 public function rules(): array
@@ -170,7 +172,8 @@ $key = config('services.api_key');
 
 ## Audit Dependencies
 
-Run `composer audit` periodically to check for known vulnerabilities in dependencies. Automate this in CI to catch issues before deployment.
+Run `composer audit` periodically to check for known vulnerabilities in dependencies. Automate this
+in CI to catch issues before deployment.
 
 ```bash
 composer audit

@@ -8,8 +8,10 @@ Complete project organization following action-oriented architecture.
 - [DTOs](../../mrjmpl3-laravel-dtos/SKILL.md) - DTO structure and transformers
 - [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) - HTTP layer organization
 - [Models](../../mrjmpl3-laravel-models/SKILL.md) - Model structure and custom builders
-- [Multi-tenancy](../../mrjmpl3-laravel-multi-tenancy/SKILL.md) - Multi-tenant directory organization
-- [validation-testing.md](../../mrjmpl3-laravel-validation/references/validation-testing.md) - Test datasets for validation testing
+- [Multi-tenancy](../../mrjmpl3-laravel-multi-tenancy/SKILL.md) - Multi-tenant directory
+  organization
+- [validation-testing.md](../../mrjmpl3-laravel-validation/references/validation-testing.md) - Test
+  datasets for validation testing
 
 ## Full Structure Created
 

@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-visual-design-foundations
-description: Apply typography, color theory, spacing systems, and iconography principles to create cohesive visual designs. Use when establishing design tokens, building style guides, or improving visual hierarchy and consistency.
+description:
+  Apply typography, color theory, spacing systems, and iconography principles to create cohesive
+  visual designs. Use when establishing design tokens, building style guides, or improving visual
+  hierarchy and consistency.
 ---
 
 # Visual Design Foundations
 
-Build cohesive, accessible visual systems using typography, color, spacing, and iconography fundamentals.
+Build cohesive, accessible visual systems using typography, color, spacing, and iconography
+fundamentals.
 
 ## When to Use This Skill
 
@@ -38,12 +42,8 @@ Build cohesive, accessible visual systems using typography, color, spacing, and 
 }
 ```
 
-**Line Height Guidelines**:
-| Text Type | Line Height |
-|-----------|-------------|
-| Headings | 1.1 - 1.3 |
-| Body text | 1.5 - 1.7 |
-| UI labels | 1.2 - 1.4 |
+**Line Height Guidelines**: | Text Type | Line Height | |-----------|-------------| | Headings |
+1.1 - 1.3 | | Body text | 1.5 - 1.7 | | UI labels | 1.2 - 1.4 |
 
 ### 2. Spacing System
 

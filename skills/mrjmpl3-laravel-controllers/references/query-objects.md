@@ -1,11 +1,13 @@
 # Query Objects
 
-Query Objects encapsulate complex filtering, sorting, and includes for API endpoints using Spatie Query Builder.
+Query Objects encapsulate complex filtering, sorting, and includes for API endpoints using Spatie
+Query Builder.
 
 **Related guides:**
 
 - [Controllers](../SKILL.md) - Controllers use query objects
-- [Query Builders](../../mrjmpl3-laravel-query-builders/SKILL.md) - Custom Eloquent query builders (different purpose)
+- [Query Builders](../../mrjmpl3-laravel-query-builders/SKILL.md) - Custom Eloquent query builders
+  (different purpose)
 
 ## When to Use Query Objects
 

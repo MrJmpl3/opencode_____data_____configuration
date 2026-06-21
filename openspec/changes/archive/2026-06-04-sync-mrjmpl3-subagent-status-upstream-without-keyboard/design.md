@@ -2,9 +2,14 @@
 
 ## Technical Approach
 
-Use a selective upstream core port inside `tui-plugins/mrjmpl3-subagent-status` while keeping the local plugin shell unchanged: `index.tsx` stays the entrypoint, `src/tui.tsx` stays the only TUI module, and navigation remains mouse-only. The port will import upstream ideas from `events`, `state`, `reconcile`, `render`, and token hydration, but it will explicitly exclude `tui-commands`, `tui-focus`, `useKeyboard`, focus restoration, and command-palette registration.
+Use a selective upstream core port inside `tui-plugins/mrjmpl3-subagent-status` while keeping the
+local plugin shell unchanged: `index.tsx` stays the entrypoint, `src/tui.tsx` stays the only TUI
+module, and navigation remains mouse-only. The port will import upstream ideas from `events`,
+`state`, `reconcile`, `render`, and token hydration, but it will explicitly exclude `tui-commands`,
+`tui-focus`, `useKeyboard`, focus restoration, and command-palette registration.
 
-No delta specs were present during design. This design is based on the proposal, exploration, and the inspected local/upstream code.
+No delta specs were present during design. This design is based on the proposal, exploration, and
+the inspected local/upstream code.
 
 ## Architecture Decisions
 
@@ -25,7 +30,8 @@ Rationale: the change intent is sync-without-keyboard, not replace-the-plugin.
 | Fully event-driven like upstream                                                                                             | Broad refactor and larger review slices                                            | Reject   |
 | Keep `session.children()` as authority for real sessions, but enrich state with upstream event parsing for subtask/tool rows | Slightly more orchestration, but fits local architecture and adds missing fidelity | Accept   |
 
-Rationale: this preserves the current refresh loop while enabling upstream bug fixes that depend on tool/subtask evidence.
+Rationale: this preserves the current refresh loop while enabling upstream bug fixes that depend on
+tool/subtask evidence.
 
 ### Decision: Port pure render/state helpers, not keyboard helpers
 
@@ -34,7 +40,8 @@ Rationale: this preserves the current refresh loop while enabling upstream bug f
 | Leave render logic inline in `src/tui.tsx`                                     | Smaller initial diff, but keeps dedup/visibility logic hard to test    | Reject   |
 | Add local `src/render.ts` and port upstream collapse/visibility/status helpers | New file, but isolates the highest-risk behavior in unit-testable code | Accept   |
 
-Rationale: duplicate collapse, recent-done visibility, and status text rendering are the main upstream UX gains and do not require keyboard support.
+Rationale: duplicate collapse, recent-done visibility, and status text rendering are the main
+upstream UX gains and do not require keyboard support.
 
 ## Data Flow
 
@@ -79,7 +86,10 @@ export interface SubagentChild {
 }
 
 export function applySubagentEvent(state: SubagentState, event: unknown): boolean;
-export function visibleSubagentWorkItems(children: SubagentChild[], nowMs?: number): SubagentChild[];
+export function visibleSubagentWorkItems(
+  children: SubagentChild[],
+  nowMs?: number,
+): SubagentChild[];
 ```
 
 ## Testing Strategy
@@ -92,7 +102,9 @@ export function visibleSubagentWorkItems(children: SubagentChild[], nowMs?: numb
 
 ## Migration / Rollout
 
-No migration required. Roll out in chained review slices: (1) state/reconcile core, (2) render + tests, (3) `tui.tsx` integration. This change is likely over the 400-line budget if delivered as one PR.
+No migration required. Roll out in chained review slices: (1) state/reconcile core, (2) render +
+tests, (3) `tui.tsx` integration. This change is likely over the 400-line budget if delivered as one
+PR.
 
 ## Open Questions
 

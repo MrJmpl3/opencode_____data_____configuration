@@ -12,9 +12,7 @@
 ````markdown
 ## Verification Report
 
-**Change**: {change-name}
-**Version**: {spec version or N/A}
-**Mode**: {Strict TDD | Standard}
+**Change**: {change-name} **Version**: {spec version or N/A} **Mode**: {Strict TDD | Standard}
 
 ### Completeness
 
@@ -63,14 +61,12 @@
 
 ### Issues Found
 
-**CRITICAL**: {list or None}
-**WARNING**: {list or None}
-**SUGGESTION**: {list or None}
+**CRITICAL**: {list or None} **WARNING**: {list or None} **SUGGESTION**: {list or None}
 
 ### Verdict
 
-{PASS / PASS WITH WARNINGS / FAIL}
-{one-line reason}
+{PASS / PASS WITH WARNINGS / FAIL} {one-line reason}
 ````
 
-When Strict TDD is active, insert the TDD compliance, test layer distribution, changed-file coverage, and quality metrics sections from `strict-tdd-verify.md`.
+When Strict TDD is active, insert the TDD compliance, test layer distribution, changed-file
+coverage, and quality metrics sections from `strict-tdd-verify.md`.

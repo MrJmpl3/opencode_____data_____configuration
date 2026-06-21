@@ -39,7 +39,8 @@ php artisan env:encrypt --env=production --readable
 php artisan env:decrypt --env=production
 ```
 
-For cloud deployments, prefer the platform's native secret store (AWS Secrets Manager, Vault, etc.) and inject at runtime.
+For cloud deployments, prefer the platform's native secret store (AWS Secrets Manager, Vault, etc.)
+and inject at runtime.
 
 ## Use `App::environment()` for Environment Checks
 
@@ -69,7 +70,9 @@ return $this->type === 'normal';
 return $this->type === self::TYPE_NORMAL;
 ```
 
-If the application already uses language files for localization, use `__()` for user-facing strings too. Do not introduce language files purely for English-only apps — simple string literals are fine there.
+If the application already uses language files for localization, use `__()` for user-facing strings
+too. Do not introduce language files purely for English-only apps — simple string literals are fine
+there.
 
 ```php
 // Only when lang files already exist in the project

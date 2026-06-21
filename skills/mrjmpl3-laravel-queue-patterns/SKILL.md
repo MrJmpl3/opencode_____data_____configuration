@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-queue-patterns
-description: Best practices for Laravel queues including job structure, batching, chaining, middleware, retry strategies, and error handling.
+description:
+  Best practices for Laravel queues including job structure, batching, chaining, middleware, retry
+  strategies, and error handling.
 ---
 
 # Laravel Queue Patterns

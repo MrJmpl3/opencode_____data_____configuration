@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-nuxt-tables
-description: Table components with column builder pattern and XTable. Use when creating data tables, defining columns with custom cells, implementing row actions, or building reusable table configurations.
+description:
+  Table components with column builder pattern and XTable. Use when creating data tables, defining
+  columns with custom cells, implementing row actions, or building reusable table configurations.
 ---
 
 # Nuxt Tables

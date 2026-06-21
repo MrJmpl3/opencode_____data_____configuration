@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-openapi-spec-generation
-description: Generate and maintain OpenAPI 3.1 specifications from code, design-first specs, and validation patterns. Use when creating API documentation, generating SDKs, or ensuring API contract compliance.
+description:
+  Generate and maintain OpenAPI 3.1 specifications from code, design-first specs, and validation
+  patterns. Use when creating API documentation, generating SDKs, or ensuring API contract
+  compliance.
 ---
 
 # OpenAPI Spec Generation
 
-Comprehensive patterns for creating, maintaining, and validating OpenAPI 3.1 specifications for RESTful APIs.
+Comprehensive patterns for creating, maintaining, and validating OpenAPI 3.1 specifications for
+RESTful APIs.
 
 ## When to Use This Skill
 
@@ -510,11 +514,16 @@ security:
   - bearerAuth: []
 ```
 
-For advanced code-first generation patterns and tooling, see [references/code-first-and-tooling.md](references/code-first-and-tooling.md):
+For advanced code-first generation patterns and tooling, see
+[references/code-first-and-tooling.md](references/code-first-and-tooling.md):
 
-- **Template 2: Python/FastAPI** — Pydantic models with `Field` validation, enum types, full CRUD endpoints with `response_model` and `status_code`, exporting the spec as JSON
-- **Template 3: TypeScript/tsoa** — Decorator-based controllers (`@Route`, `@Get`, `@Security`, `@Example`, `@Response`) that generate OpenAPI from TypeScript types
-- **Template 4: Validation & Linting** — Spectral ruleset (`.spectral.yaml`) with custom rules for operationId, security, naming conventions; Redocly config with MIME type enforcement and code sample generation
+- **Template 2: Python/FastAPI** — Pydantic models with `Field` validation, enum types, full CRUD
+  endpoints with `response_model` and `status_code`, exporting the spec as JSON
+- **Template 3: TypeScript/tsoa** — Decorator-based controllers (`@Route`, `@Get`, `@Security`,
+  `@Example`, `@Response`) that generate OpenAPI from TypeScript types
+- **Template 4: Validation & Linting** — Spectral ruleset (`.spectral.yaml`) with custom rules for
+  operationId, security, naming conventions; Redocly config with MIME type enforcement and code
+  sample generation
 - **SDK Generation** — `openapi-generator-cli` for TypeScript (fetch), Python, and Go clients
 
 ## Best Practices

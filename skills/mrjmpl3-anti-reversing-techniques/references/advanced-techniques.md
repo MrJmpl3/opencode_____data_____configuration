@@ -1,6 +1,8 @@
 # Advanced Anti-Reversing Techniques
 
-This reference covers advanced and niche techniques extracted from the core skill to keep SKILL.md focused on common patterns. Refer here for deep-dive analysis of virtualization-based protections, packer internals, and anti-disassembly tricks.
+This reference covers advanced and niche techniques extracted from the core skill to keep SKILL.md
+focused on common patterns. Refer here for deep-dive analysis of virtualization-based protections,
+packer internals, and anti-disassembly tricks.
 
 ---
 

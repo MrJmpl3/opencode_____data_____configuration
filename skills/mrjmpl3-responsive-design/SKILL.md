@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-responsive-design
-description: Implement modern responsive layouts using container queries, fluid typography, CSS Grid, and mobile-first breakpoint strategies. Use when building adaptive interfaces, implementing fluid layouts, or creating component-level responsive behavior.
+description:
+  Implement modern responsive layouts using container queries, fluid typography, CSS Grid, and
+  mobile-first breakpoint strategies. Use when building adaptive interfaces, implementing fluid
+  layouts, or creating component-level responsive behavior.
 ---
 
 # Responsive Design
 
-Master modern responsive design techniques to create interfaces that adapt seamlessly across all screen sizes and device contexts.
+Master modern responsive design techniques to create interfaces that adapt seamlessly across all
+screen sizes and device contexts.
 
 ## When to Use This Skill
 
@@ -126,7 +130,11 @@ function ResponsiveCard({ title, image, description }) {
   return (
     <div className="@container">
       <article className="flex flex-col @md:flex-row @md:gap-4">
-        <img src={image} alt="" className="w-full @md:w-48 @lg:w-64 aspect-video @md:aspect-square object-cover" />
+        <img
+          src={image}
+          alt=""
+          className="w-full @md:w-48 @lg:w-64 aspect-video @md:aspect-square object-cover"
+        />
         <div className="p-4 @md:p-0">
           <h2 className="text-lg @md:text-xl @lg:text-2xl font-semibold">{title}</h2>
           <p className="mt-2 text-muted-foreground @md:line-clamp-3">{description}</p>

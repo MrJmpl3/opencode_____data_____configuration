@@ -2,13 +2,16 @@
 
 ## Purpose
 
-Keep subagent status data accurate when events arrive out of order, recovery data is partial, or legacy state is stale, while preserving the current mouse-only statusline UX.
+Keep subagent status data accurate when events arrive out of order, recovery data is partial, or
+legacy state is stale, while preserving the current mouse-only statusline UX.
 
 ## Requirements
 
 ### Requirement: Terminal-preserving reconciliation
 
-The system MUST preserve terminal state once a row has been marked completed or errored. New running evidence MUST NOT regress a terminal row, and elapsed-time display MUST stop advancing after terminalization.
+The system MUST preserve terminal state once a row has been marked completed or errored. New running
+evidence MUST NOT regress a terminal row, and elapsed-time display MUST stop advancing after
+terminalization.
 
 #### Scenario: New running evidence does not reopen a finished row
 
@@ -26,7 +29,9 @@ The system MUST preserve terminal state once a row has been marked completed or 
 
 ### Requirement: Completion propagation and counting semantics
 
-The system MUST terminalize task and subtask rows when completion evidence is observed. It MUST exclude delegation-style rows from execution totals and MUST count each execution only once, even when duplicate fallback or session rows appear.
+The system MUST terminalize task and subtask rows when completion evidence is observed. It MUST
+exclude delegation-style rows from execution totals and MUST count each execution only once, even
+when duplicate fallback or session rows appear.
 
 #### Scenario: Delegation rows are excluded from totals
 
@@ -44,7 +49,9 @@ The system MUST terminalize task and subtask rows when completion evidence is ob
 
 ### Requirement: Recovery hydration prefers authoritative state
 
-The system MUST hydrate missing state and token metadata from the best available recovery source. When recovery data conflicts with stale local legacy rows, the recovery state MUST win and the stale row SHOULD be replaced or removed.
+The system MUST hydrate missing state and token metadata from the best available recovery source.
+When recovery data conflicts with stale local legacy rows, the recovery state MUST win and the stale
+row SHOULD be replaced or removed.
 
 #### Scenario: Recovery fills missing token metadata
 
@@ -62,7 +69,9 @@ The system MUST hydrate missing state and token metadata from the best available
 
 ### Requirement: Stale-row retention is bounded
 
-The system MUST bound retention of stale or incorrect legacy rows. If a row cannot be reconciled to an accurate state, the system MAY purge it instead of preserving incorrect visible state, and purged rows MUST NOT be resurrected by later stale snapshots.
+The system MUST bound retention of stale or incorrect legacy rows. If a row cannot be reconciled to
+an accurate state, the system MAY purge it instead of preserving incorrect visible state, and purged
+rows MUST NOT be resurrected by later stale snapshots.
 
 #### Scenario: Irreconcilable legacy row is purged
 

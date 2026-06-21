@@ -1,6 +1,8 @@
 ---
 name: go-testing
-description: 'Trigger: Go tests, go test coverage, Bubbletea teatest, golden files. Apply focused Go testing patterns.'
+description:
+  'Trigger: Go tests, go test coverage, Bubbletea teatest, golden files. Apply focused Go testing
+  patterns.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -9,16 +11,20 @@ metadata:
 
 ## Activation Contract
 
-Load this skill when writing or reviewing Go tests, adding coverage, testing Bubbletea/TUI flows, using `teatest`, or updating golden files.
+Load this skill when writing or reviewing Go tests, adding coverage, testing Bubbletea/TUI flows,
+using `teatest`, or updating golden files.
 
 ## Hard Rules
 
 - Prefer table-driven tests for multiple cases; use `t.Run(tt.name, ...)`.
 - Test behavior and state transitions, not implementation trivia.
 - Use `t.TempDir()` for filesystem tests; never rely on a real home directory.
-- Keep integration tests skippable with `testing.Short()` when they run external commands or slow flows.
-- For Bubbletea, test `Model.Update()` directly for state changes; use `teatest` only for interactive flows.
-- Golden files must be deterministic; update only through the repo's `-update` path and rerun tests without `-update`.
+- Keep integration tests skippable with `testing.Short()` when they run external commands or slow
+  flows.
+- For Bubbletea, test `Model.Update()` directly for state changes; use `teatest` only for
+  interactive flows.
+- Golden files must be deterministic; update only through the repo's `-update` path and rerun tests
+  without `-update`.
 - Use small mocks/interfaces around system or command execution boundaries.
 
 ## Decision Gates
@@ -44,8 +50,10 @@ Load this skill when writing or reviewing Go tests, adding coverage, testing Bub
 
 ## Output Contract
 
-Report test files changed, scenarios covered, commands executed, golden files updated, and any skipped integration scope.
+Report test files changed, scenarios covered, commands executed, golden files updated, and any
+skipped integration scope.
 
 ## References
 
-- [references/examples.md](references/examples.md) — compact table-driven, Bubbletea, teatest, golden, and command examples.
+- [references/examples.md](references/examples.md) — compact table-driven, Bubbletea, teatest,
+  golden, and command examples.

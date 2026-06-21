@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-packages
-description: Package development and extraction of reusable code. Use when creating, extracting, or modifying composer packages.
+description:
+  Package development and extraction of reusable code. Use when creating, extracting, or modifying
+  composer packages.
 ---
 
 # Laravel Packages

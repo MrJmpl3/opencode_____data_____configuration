@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-exceptions
-description: Custom exceptions with static factories and HTTP responses. Use when creating or modifying exceptions or error handling.
+description:
+  Custom exceptions with static factories and HTTP responses. Use when creating or modifying
+  exceptions or error handling.
 ---
 
 # Laravel Exceptions

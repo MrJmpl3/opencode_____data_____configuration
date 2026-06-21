@@ -1,6 +1,7 @@
 ---
 name: mrjmpl3-laravel-api-surface-evolution
-description: Evolve APIs safely using versioned DTOs/transformers, deprecations, and compatibility tests
+description:
+  Evolve APIs safely using versioned DTOs/transformers, deprecations, and compatibility tests
 ---
 
 # API Surface Evolution

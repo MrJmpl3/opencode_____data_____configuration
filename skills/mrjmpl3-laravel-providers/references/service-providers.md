@@ -4,8 +4,10 @@ Service providers are the central place for application bootstrapping and config
 
 **Related guides:**
 
-- [route-binding.md](../../mrjmpl3-laravel-routing/references/route-binding.md) - Route model binding configuration
-- [package-extraction.md](../../mrjmpl3-laravel-packages/references/package-extraction.md) - Creating service providers for packages
+- [route-binding.md](../../mrjmpl3-laravel-routing/references/route-binding.md) - Route model
+  binding configuration
+- [package-extraction.md](../../mrjmpl3-laravel-packages/references/package-extraction.md) -
+  Creating service providers for packages
 
 ## Philosophy
 
@@ -116,7 +118,8 @@ database/
 
 **See [DTOs](../../mrjmpl3-laravel-dtos/SKILL.md) for complete factory examples.**
 
-See [route-binding.md](../../mrjmpl3-laravel-routing/references/route-binding.md) for route model binding configuration including the ConditionalRouteBinder pattern.
+See [route-binding.md](../../mrjmpl3-laravel-routing/references/route-binding.md) for route model
+binding configuration including the ConditionalRouteBinder pattern.
 
 ## Morph Maps (Required)
 

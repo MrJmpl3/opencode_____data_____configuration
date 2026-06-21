@@ -11,7 +11,8 @@ The change was synced into the source-of-truth spec and archived successfully.
 - Tests: 61 passed / 0 failed / 0 skipped
 - Focused regression file: 6 passed / 0 failed / 0 skipped
 - Type check: passed
-- Warning: `openspec/changes/subagent-statusline-idle-event-bugfix/apply-progress.md` is missing, so verification relied on Engram memory `#326` for TDD evidence
+- Warning: `openspec/changes/subagent-statusline-idle-event-bugfix/apply-progress.md` is missing, so
+  verification relied on Engram memory `#326` for TDD evidence
 - Warning: coverage tooling unavailable (`@vitest/coverage-v8` missing)
 
 ## Spec Sync
@@ -30,4 +31,5 @@ The change was synced into the source-of-truth spec and archived successfully.
 
 ## Notes
 
-- Archive completed under the default strict policy because all persisted implementation tasks were checked off and the verification report contained warnings only, with no CRITICAL issues.
+- Archive completed under the default strict policy because all persisted implementation tasks were
+  checked off and the verification report contained warnings only, with no CRITICAL issues.

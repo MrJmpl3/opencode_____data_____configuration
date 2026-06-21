@@ -2,7 +2,8 @@
 
 ## Overview
 
-Well-architected components are reusable, composable, and maintainable. This guide covers patterns for building flexible component APIs that scale across design systems.
+Well-architected components are reusable, composable, and maintainable. This guide covers patterns
+for building flexible component APIs that scale across design systems.
 
 ## Compound Components
 
@@ -144,12 +145,17 @@ type AsProp<C extends React.ElementType> = {
 
 type PropsToOmit<C extends React.ElementType, P> = keyof (AsProp<C> & P);
 
-type PolymorphicComponentProp<C extends React.ElementType, Props = {}> = React.PropsWithChildren<Props & AsProp<C>> &
+type PolymorphicComponentProp<C extends React.ElementType, Props = {}> = React.PropsWithChildren<
+  Props & AsProp<C>
+> &
   Omit<React.ComponentPropsWithoutRef<C>, PropsToOmit<C, Props>>;
 
 type PolymorphicRef<C extends React.ElementType> = React.ComponentPropsWithRef<C>['ref'];
 
-type PolymorphicComponentPropWithRef<C extends React.ElementType, Props = {}> = PolymorphicComponentProp<C, Props> & {
+type PolymorphicComponentPropWithRef<
+  C extends React.ElementType,
+  Props = {},
+> = PolymorphicComponentProp<C, Props> & {
   ref?: PolymorphicRef<C>;
 };
 
@@ -159,7 +165,10 @@ interface ButtonOwnProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-type ButtonProps<C extends React.ElementType = 'button'> = PolymorphicComponentPropWithRef<C, ButtonOwnProps>;
+type ButtonProps<C extends React.ElementType = 'button'> = PolymorphicComponentPropWithRef<
+  C,
+  ButtonOwnProps
+>;
 
 const Button = React.forwardRef(
   <C extends React.ElementType = 'button'>(
@@ -279,7 +288,11 @@ interface UseToggleProps {
   onPressedChange?: (pressed: boolean) => void;
 }
 
-function useToggle({ defaultPressed = false, pressed: controlledPressed, onPressedChange }: UseToggleProps = {}) {
+function useToggle({
+  defaultPressed = false,
+  pressed: controlledPressed,
+  onPressedChange,
+}: UseToggleProps = {}) {
   const [uncontrolledPressed, setUncontrolledPressed] = React.useState(defaultPressed);
 
   const isControlled = controlledPressed !== undefined;

@@ -190,7 +190,14 @@ const onSuccess = () => emits('close', true);
 
 <template>
   <USlideover title="Create Post">
-    <XForm ref="formRef" url="/api/posts" method="POST" :data="formData" @submit="onSubmit" @success="onSuccess">
+    <XForm
+      ref="formRef"
+      url="/api/posts"
+      method="POST"
+      :data="formData"
+      @submit="onSubmit"
+      @success="onSuccess"
+    >
       <div class="space-y-4">
         <AuthorSelect v-model="selectedAuthor" />
 
@@ -328,7 +335,9 @@ const onConfirm = async () => {
 
     <template #footer>
       <UButton variant="ghost" @click="emits('close', false)"> Cancel </UButton>
-      <UButton color="error" :loading="is(waitingFor.post.deleting(post.ulid))" @click="onConfirm"> Delete </UButton>
+      <UButton color="error" :loading="is(waitingFor.post.deleting(post.ulid))" @click="onConfirm">
+        Delete
+      </UButton>
     </template>
   </UModal>
 </template>

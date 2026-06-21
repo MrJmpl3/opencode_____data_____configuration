@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-models
-description: Eloquent model patterns and database layer. Use when creating or modifying models, relationships, casts, or observers.
+description:
+  Eloquent model patterns and database layer. Use when creating or modifying models, relationships,
+  casts, or observers.
 ---
 
 # Laravel Models
@@ -17,12 +19,15 @@ Models represent database tables and domain entities.
 
 Models should:
 
-- Use **custom query builders** (not local scopes) - see [Query Builders](../mrjmpl3-laravel-query-builders/SKILL.md)
+- Use **custom query builders** (not local scopes) - see
+  [Query Builders](../mrjmpl3-laravel-query-builders/SKILL.md)
 - Define relationships
 - Define casts
 - Contain simple accessors/mutators
 - **NOT contain business logic** (that belongs in Actions)
-- **Prefer PHP attributes** over properties/methods where available (Laravel 12+ for `#[UseEloquentBuilder]`, Laravel 13+ for `#[Table]`, `#[ObservedBy]`, `#[UsePolicy]`, `#[UseFactory]`, etc.)
+- **Prefer PHP attributes** over properties/methods where available (Laravel 12+ for
+  `#[UseEloquentBuilder]`, Laravel 13+ for `#[Table]`, `#[ObservedBy]`, `#[UsePolicy]`,
+  `#[UseFactory]`, etc.)
 
 ## Basic Model Structure
 
@@ -301,7 +306,8 @@ class Order extends Model
 
 - **Simplicity**: No need to maintain fillable/guarded arrays
 - **Flexibility**: All attributes can be mass-assigned
-- **Trust**: With proper validation in Form Requests and Actions, mass assignment protection is redundant
+- **Trust**: With proper validation in Form Requests and Actions, mass assignment protection is
+  redundant
 - **Cleaner Models**: Less boilerplate code
 
 **Important:** Always validate input in Form Requests before passing to Actions/Models.

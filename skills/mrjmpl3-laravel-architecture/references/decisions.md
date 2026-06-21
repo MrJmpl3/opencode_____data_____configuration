@@ -245,7 +245,8 @@ Services/
 - Type-hinted in controller
 - Auto-validation
 
-**See [form-requests.md](../../mrjmpl3-laravel-validation/references/form-requests.md) for validation patterns**
+**See [form-requests.md](../../mrjmpl3-laravel-validation/references/form-requests.md) for
+validation patterns**
 
 **Validator class:**
 
@@ -269,7 +270,8 @@ Services/
 - Can change freely
 - Private contract
 
-**See [structure.md](structure.md) and [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) for routing details**
+**See [structure.md](structure.md) and [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) for
+routing details**
 
 ## Namespace Organization
 

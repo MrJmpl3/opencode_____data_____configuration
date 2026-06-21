@@ -42,7 +42,9 @@ function generateColorScale(hue: number, saturation: number = 100): Record<strin
     { name: '950', l: 12 },
   ];
 
-  return Object.fromEntries(lightnessStops.map(({ name, l }) => [name, `hsl(${hue}, ${saturation}%, ${l}%)`]));
+  return Object.fromEntries(
+    lightnessStops.map(({ name, l }) => [name, `hsl(${hue}, ${saturation}%, ${l}%)`]),
+  );
 }
 
 // Generate semantic colors
@@ -182,7 +184,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement;
 
     if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
       setResolvedTheme(systemTheme);
       root.setAttribute('data-theme', systemTheme);
     } else {
@@ -205,7 +209,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => mediaQuery.removeEventListener('change', handler);
   }, [theme]);
 
-  return <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {
@@ -281,7 +289,11 @@ function getAccessibleTextColor(backgroundColor: string): string {
 }
 
 // Find the nearest accessible shade
-function findAccessibleShade(textColor: string, backgroundScale: string[], minContrast: number = 4.5): string | null {
+function findAccessibleShade(
+  textColor: string,
+  backgroundScale: string[],
+  minContrast: number = 4.5,
+): string | null {
   for (const shade of backgroundScale) {
     if (getContrastRatio(textColor, shade) >= minContrast) {
       return shade;
@@ -318,7 +330,9 @@ function generateHarmoniousPalette(baseHue: number, type: HarmonyType): Record<s
   const hues = generateHarmony(baseHue, type);
   const names = ['primary', 'secondary', 'tertiary'];
 
-  return Object.fromEntries(hues.map((hue, i) => [names[i] || `color-${i}`, `hsl(${hue}, 70%, 50%)`]));
+  return Object.fromEntries(
+    hues.map((hue, i) => [names[i] || `color-${i}`, `hsl(${hue}, 70%, 50%)`]),
+  );
 }
 ```
 

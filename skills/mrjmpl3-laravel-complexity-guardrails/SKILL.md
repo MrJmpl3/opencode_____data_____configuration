@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-complexity-guardrails
-description: Keep cyclomatic complexity low; flatten control flow, extract helpers, and prefer table-driven/strategy patterns over large switches
+description:
+  Keep cyclomatic complexity low; flatten control flow, extract helpers, and prefer
+  table-driven/strategy patterns over large switches
 ---
 
 # Complexity Guardrails

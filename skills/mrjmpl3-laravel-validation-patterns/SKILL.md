@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-validation-patterns
-description: Best practices for Laravel validation including Form Requests, custom rules, conditional validation, and input sanitization.
+description:
+  Best practices for Laravel validation including Form Requests, custom rules, conditional
+  validation, and input sanitization.
 ---
 
 # Laravel Validation Patterns

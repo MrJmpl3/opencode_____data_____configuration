@@ -20,8 +20,7 @@ You are an adversarial code reviewer. Your ONLY job is to find problems.
 - Error handling: propagation, logging, recovery
 - Performance: N+1, wasteful loops, excessive allocations
 - Security: injection, secrets, auth boundaries
-- Naming/conventions: project standards and local patterns
-  {custom criteria, if provided}
+- Naming/conventions: project standards and local patterns {custom criteria, if provided}
 
 ## Return Format
 
@@ -34,11 +33,13 @@ Each finding:
 - Description: what is wrong and why it matters
 - Suggested fix: one-line intent
 
-WARNING rule: normal intended use can trigger it → `WARNING (real)`; contrived/malicious/impossible path → `WARNING (theoretical)`.
+WARNING rule: normal intended use can trigger it → `WARNING (real)`; contrived/malicious/impossible
+path → `WARNING (theoretical)`.
 
 If clean: `VERDICT: CLEAN — No issues found.`
 
-Always end with: `Skill Resolution: {paths-injected|fallback-registry|fallback-path|none} — {details}`.
+Always end with:
+`Skill Resolution: {paths-injected|fallback-registry|fallback-path|none} — {details}`.
 ```
 
 ## Fix Agent Prompt
@@ -75,11 +76,13 @@ End with: `Skill Resolution: {paths-injected|fallback-registry|fallback-path|non
 | Naming mismatch                  | ✅      | ❌      | SUGGESTION            | Suspect   |
 ```
 
-Approved criteria after Round 1: zero confirmed CRITICALs and zero confirmed real WARNINGs. Theoretical warnings and suggestions may remain.
+Approved criteria after Round 1: zero confirmed CRITICALs and zero confirmed real WARNINGs.
+Theoretical warnings and suggestions may remain.
 
 ## Delegation Patterns
 
-When JD agents are configured as named sub-agents (e.g., OpenCode multi-mode overlay), use named delegation:
+When JD agents are configured as named sub-agents (e.g., OpenCode multi-mode overlay), use named
+delegation:
 
 ```
 Judge A:   delegate(agent="jd-judge-a", prompt="...")
@@ -89,7 +92,9 @@ Fix Agent: delegate(agent="jd-fix-agent", prompt="...")
 
 Each named agent uses its configured model from the Model Assignments table.
 
-When named JD agents are NOT available (Claude Code, Cursor, Windsurf, Gemini, Codex, etc.), use the adapter's generic delegate syntax. These adapters do not support the `agent` parameter — all calls use the same delegate entry point and the model is controlled externally:
+When named JD agents are NOT available (Claude Code, Cursor, Windsurf, Gemini, Codex, etc.), use the
+adapter's generic delegate syntax. These adapters do not support the `agent` parameter — all calls
+use the same delegate entry point and the model is controlled externally:
 
 ```
 // Generic delegate — no named agent support; adapter-native syntax
@@ -98,9 +103,13 @@ Judge B:   delegate(prompt="...")
 Fix Agent: delegate(prompt="...")
 ```
 
-The model is controlled by the adapter's native model-switching mechanism (e.g., model sentinels in agent .md files). Pass the model alias from the Model Assignments table if the adapter supports per-call model parameters.
+The model is controlled by the adapter's native model-switching mechanism (e.g., model sentinels in
+agent .md files). Pass the model alias from the Model Assignments table if the adapter supports
+per-call model parameters.
 
 ## Language Snippets
 
-- Spanish: “Juicio iniciado”, “Los jueces trabajan en paralelo”, “Los jueces coinciden”, “Juicio terminado — Aprobado”, “Escalado — necesita revisión humana”.
-- English: “Judgment initiated”, “Both judges are working in parallel”, “Both judges agree”, “Judgment complete — Approved”, “Escalated — requires human review”.
+- Spanish: “Juicio iniciado”, “Los jueces trabajan en paralelo”, “Los jueces coinciden”, “Juicio
+  terminado — Aprobado”, “Escalado — necesita revisión humana”.
+- English: “Judgment initiated”, “Both judges are working in parallel”, “Both judges agree”,
+  “Judgment complete — Approved”, “Escalated — requires human review”.

@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-writing-plans
-description: Create an actionable Laravel implementation plan—bite-sized tasks with TDD-first steps, migrations, services, jobs, and validation points
+description:
+  Create an actionable Laravel implementation plan—bite-sized tasks with TDD-first steps,
+  migrations, services, jobs, and validation points
 ---
 
 # Writing Plans (Laravel)
 
-Turn a confirmed design into a sequence of small, testable steps. Include guardrails and validation before handoff.
+Turn a confirmed design into a sequence of small, testable steps. Include guardrails and validation
+before handoff.
 
 ## Structure
 

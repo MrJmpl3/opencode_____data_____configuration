@@ -2,7 +2,8 @@
 
 ## Overview
 
-Effective breakpoint strategies focus on content needs rather than device sizes. Modern responsive design uses fewer, content-driven breakpoints combined with fluid techniques.
+Effective breakpoint strategies focus on content needs rather than device sizes. Modern responsive
+design uses fewer, content-driven breakpoints combined with fluid techniques.
 
 ## Mobile-First Approach
 

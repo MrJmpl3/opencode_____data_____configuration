@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-migrations-and-factories
-description: Safe database change patterns; when to modify vs add migrations; always pair models with migrations and factories; seeding guidance
+description:
+  Safe database change patterns; when to modify vs add migrations; always pair models with
+  migrations and factories; seeding guidance
 ---
 
 # Migrations and Factories

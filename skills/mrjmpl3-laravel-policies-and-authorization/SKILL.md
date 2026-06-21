@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-policies-and-authorization
-description: Enforce access via Policies and Gates; use authorize() and authorizeResource() to standardize controller protections
+description:
+  Enforce access via Policies and Gates; use authorize() and authorizeResource() to standardize
+  controller protections
 ---
 
 # Policies and Authorization

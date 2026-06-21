@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-spatie-security
-description: Apply Spatie's security guidelines when configuring applications, databases, or servers, or when reviewing code for security concerns; use for SSL setup, CSRF protection, password hashing, database permissions, and server hardening.
+description:
+  Apply Spatie's security guidelines when configuring applications, databases, or servers, or when
+  reviewing code for security concerns; use for SSL setup, CSRF protection, password hashing,
+  database permissions, and server hardening.
 license: MIT
 metadata:
   author: Spatie
@@ -10,7 +13,8 @@ metadata:
 
 ## Overview
 
-Apply Spatie's security best practices when building, configuring, or reviewing applications and infrastructure.
+Apply Spatie's security best practices when building, configuring, or reviewing applications and
+infrastructure.
 
 ## When to Activate
 
@@ -29,7 +33,8 @@ Apply Spatie's security best practices when building, configuring, or reviewing 
 - Transmit all HTTP traffic over SSL.
 - Use CSRF tokens in all forms.
 - Use appropriate HTTP methods for significant actions: `DELETE`, `POST`, `PUT` — never `GET`.
-- Add automated authorization tests to verify only authorized users can access restricted functionality.
+- Add automated authorization tests to verify only authorized users can access restricted
+  functionality.
 
 ## Database Security
 

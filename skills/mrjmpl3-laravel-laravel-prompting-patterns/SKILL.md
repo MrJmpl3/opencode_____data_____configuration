@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-laravel-prompting-patterns
-description: Use Laravel-specific vocabulary—Eloquent patterns, Form Requests, API resources, jobs/queues—to get idiomatic framework code
+description:
+  Use Laravel-specific vocabulary—Eloquent patterns, Form Requests, API resources, jobs/queues—to
+  get idiomatic framework code
 ---
 
 # Laravel Prompting Patterns
 
-Use Laravel's vocabulary to get idiomatic code. Generic requests produce generic solutions that don't leverage the framework.
+Use Laravel's vocabulary to get idiomatic code. Generic requests produce generic solutions that
+don't leverage the framework.
 
 ## Database Operations
 
@@ -157,11 +160,14 @@ If any job fails, chain stops. Handle in `catch()` callback."
 
 ### Effective References
 
-"Implement according to Laravel's [Eloquent Relationships docs](https://laravel.com/docs/11.x/eloquent-relationships#many-to-many)"
+"Implement according to Laravel's
+[Eloquent Relationships docs](https://laravel.com/docs/11.x/eloquent-relationships#many-to-many)"
 
-"Follow Laravel's [Form Request Validation pattern](https://laravel.com/docs/11.x/validation#form-request-validation)"
+"Follow Laravel's
+[Form Request Validation pattern](https://laravel.com/docs/11.x/validation#form-request-validation)"
 
-"Use Laravel's [API Resource](https://laravel.com/docs/11.x/eloquent-resources) pattern for response transformation"
+"Use Laravel's [API Resource](https://laravel.com/docs/11.x/eloquent-resources) pattern for response
+transformation"
 
 "Configure queues per [Laravel Queue docs](https://laravel.com/docs/11.x/queues)"
 

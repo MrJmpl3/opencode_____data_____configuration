@@ -180,7 +180,8 @@ class Order extends Model
 
 ## Model State Helper Methods
 
-Use the `markAs*` convention for model methods that trigger state transitions. These helpers provide a clean API and delegate to the state class.
+Use the `markAs*` convention for model methods that trigger state transitions. These helpers provide
+a clean API and delegate to the state class.
 
 ### Basic Helpers
 
@@ -291,7 +292,8 @@ $order->markAsProcessing()
 
 ## Model State Check Methods
 
-Use the `canBe*` convention for model methods that check if a state transition is allowed. These helpers return a boolean and delegate to the state class's `canTransitionTo()` method.
+Use the `canBe*` convention for model methods that check if a state transition is allowed. These
+helpers return a boolean and delegate to the state class's `canTransitionTo()` method.
 
 ### Basic Checks
 

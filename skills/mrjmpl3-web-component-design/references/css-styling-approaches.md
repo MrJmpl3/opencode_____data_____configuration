@@ -68,7 +68,10 @@ interface ButtonProps {
 
 export function Button({ variant = 'primary', size = 'medium', children, onClick }: ButtonProps) {
   return (
-    <button className={clsx(styles.button, styles[variant], size !== 'medium' && styles[size])} onClick={onClick}>
+    <button
+      className={clsx(styles.button, styles[variant], size !== 'medium' && styles[size])}
+      onClick={onClick}
+    >
       {children}
     </button>
   );
@@ -133,13 +136,18 @@ const buttonVariants = cva(
   },
 );
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, ...props }, ref) => {
-  return <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
-});
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, ...props }, ref) => {
+    return (
+      <button className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+    );
+  },
+);
 ```
 
 ### Tailwind Merge Utility

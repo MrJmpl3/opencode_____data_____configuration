@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-controllers
-description: Thin HTTP-layer controllers with zero domain logic. Use when creating or modifying controllers, handling HTTP concerns, or structuring web vs API layers.
+description:
+  Thin HTTP-layer controllers with zero domain logic. Use when creating or modifying controllers,
+  handling HTTP concerns, or structuring web vs API layers.
 ---
 
 # Laravel Controllers
 
-Controllers are **extremely thin**. They handle **HTTP concerns only** and contain **zero domain logic**.
+Controllers are **extremely thin**. They handle **HTTP concerns only** and contain **zero domain
+logic**.
 
 **Related guides:**
 
@@ -114,7 +117,8 @@ class OrdersController extends Controller
 
 ### Non-RESTful Actions: Extract to Invokable Controllers
 
-If you need an endpoint that doesn't fit standard RESTful methods, **extract it to its own invokable controller**:
+If you need an endpoint that doesn't fit standard RESTful methods, **extract it to its own invokable
+controller**:
 
 ```php
 // app/Http/Api/V1/Controllers/CancelOrderController.php

@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-api-resources-and-pagination
-description: Use API Resources with pagination and conditional fields; keep response shapes stable and cache-friendly
+description:
+  Use API Resources with pagination and conditional fields; keep response shapes stable and
+  cache-friendly
 ---
 
 # API Resources and Pagination

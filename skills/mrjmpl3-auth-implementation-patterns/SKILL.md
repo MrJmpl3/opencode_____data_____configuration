@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-auth-implementation-patterns
-description: Master authentication and authorization patterns including JWT, OAuth2, session management, and RBAC to build secure, scalable access control systems. Use when implementing auth systems, securing APIs, or debugging security issues.
+description:
+  Master authentication and authorization patterns including JWT, OAuth2, session management, and
+  RBAC to build secure, scalable access control systems. Use when implementing auth systems,
+  securing APIs, or debugging security issues.
 ---
 
 # Authentication & Authorization Implementation Patterns
 
-Build secure, scalable authentication and authorization systems using industry-standard patterns and modern best practices.
+Build secure, scalable authentication and authorization systems using industry-standard patterns and
+modern best practices.
 
 ## When to Use This Skill
 
@@ -180,9 +184,13 @@ class RefreshTokenService {
     }
 
     // Generate new access token
-    const accessToken = jwt.sign({ userId: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET!, {
-      expiresIn: '15m',
-    });
+    const accessToken = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: '15m',
+      },
+    );
 
     return { accessToken };
   }
@@ -339,12 +347,16 @@ app.get(
   }),
 );
 
-app.get('/api/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
-  // Generate JWT
-  const tokens = generateTokens(req.user.id, req.user.email, req.user.role);
-  // Redirect to frontend with token
-  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${tokens.accessToken}`);
-});
+app.get(
+  '/api/auth/google/callback',
+  passport.authenticate('google', { session: false }),
+  (req, res) => {
+    // Generate JWT
+    const tokens = generateTokens(req.user.id, req.user.email, req.user.role);
+    // Redirect to frontend with token
+    res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${tokens.accessToken}`);
+  },
+);
 ```
 
 ## Authorization Patterns
@@ -418,7 +430,9 @@ function requirePermission(...permissions: Permission[]) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
-    const hasAllPermissions = permissions.every((permission) => hasPermission(req.user.role, permission));
+    const hasAllPermissions = permissions.every((permission) =>
+      hasPermission(req.user.role, permission),
+    );
 
     if (!hasAllPermissions) {
       return res.status(403).json({ error: 'Insufficient permissions' });

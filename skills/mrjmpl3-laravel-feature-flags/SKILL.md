@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-feature-flags
-description: Best practices for Laravel Pennant feature flags including defining features, checking activation, scoping, rich values for A/B testing, and gradual rollouts.
+description:
+  Best practices for Laravel Pennant feature flags including defining features, checking activation,
+  scoping, rich values for A/B testing, and gradual rollouts.
 ---
 
 # Feature Flags with Laravel Pennant

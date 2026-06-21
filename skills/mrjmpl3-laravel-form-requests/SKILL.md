@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-form-requests
-description: Move validation and authorization into Form Requests; use rule objects, custom messages, and nested data handling to keep controllers slim
+description:
+  Move validation and authorization into Form Requests; use rule objects, custom messages, and
+  nested data handling to keep controllers slim
 ---
 
 # Form Requests and Validation
 
-Promote validation and authorization to dedicated Form Request classes. Keep controllers focused on orchestration and domain intents.
+Promote validation and authorization to dedicated Form Request classes. Keep controllers focused on
+orchestration and domain intents.
 
 ## Commands
 

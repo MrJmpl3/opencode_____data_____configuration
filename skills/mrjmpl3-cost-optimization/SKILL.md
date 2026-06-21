@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-cost-optimization
-description: Optimize cloud costs across AWS, Azure, GCP, and OCI through resource rightsizing, tagging strategies, reserved instances, and spending analysis. Use when reducing cloud expenses, analyzing infrastructure costs, or implementing cost governance policies.
+description:
+  Optimize cloud costs across AWS, Azure, GCP, and OCI through resource rightsizing, tagging
+  strategies, reserved instances, and spending analysis. Use when reducing cloud expenses, analyzing
+  infrastructure costs, or implementing cost governance policies.
 ---
 
 # Cloud Cost Optimization
@@ -9,7 +12,8 @@ Strategies and patterns for optimizing cloud costs across AWS, Azure, GCP, and O
 
 ## Purpose
 
-Implement systematic cost optimization strategies to reduce cloud spending while maintaining performance and reliability.
+Implement systematic cost optimization strategies to reduce cloud spending while maintaining
+performance and reliability.
 
 ## When to Use
 

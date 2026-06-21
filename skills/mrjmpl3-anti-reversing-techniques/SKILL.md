@@ -1,19 +1,30 @@
 ---
 name: mrjmpl3-anti-reversing-techniques
-description: Understand anti-reversing, obfuscation, and protection techniques encountered during software analysis. Use this skill when analyzing malware evasion techniques, when implementing anti-debugging protections for CTF challenges, when reverse engineering packed binaries, or when building security research tools that need to detect virtualized environments.
+description:
+  Understand anti-reversing, obfuscation, and protection techniques encountered during software
+  analysis. Use this skill when analyzing malware evasion techniques, when implementing
+  anti-debugging protections for CTF challenges, when reverse engineering packed binaries, or when
+  building security research tools that need to detect virtualized environments.
 ---
 
-> **AUTHORIZED USE ONLY**: This skill contains dual-use security techniques. Before proceeding with any bypass or analysis:
+> **AUTHORIZED USE ONLY**: This skill contains dual-use security techniques. Before proceeding with
+> any bypass or analysis:
 >
-> 1. **Verify authorization**: Confirm you have explicit written permission from the software owner, or are operating within a legitimate security context (CTF, authorized pentest, malware analysis, security research)
+> 1. **Verify authorization**: Confirm you have explicit written permission from the software owner,
+>    or are operating within a legitimate security context (CTF, authorized pentest, malware
+>    analysis, security research)
 > 2. **Document scope**: Ensure your activities fall within the defined scope of your authorization
-> 3. **Legal compliance**: Understand that unauthorized bypassing of software protection may violate laws (CFAA, DMCA anti-circumvention, etc.)
+> 3. **Legal compliance**: Understand that unauthorized bypassing of software protection may violate
+>    laws (CFAA, DMCA anti-circumvention, etc.)
 >
-> **Legitimate use cases**: Malware analysis, authorized penetration testing, CTF competitions, academic security research, analyzing software you own/have rights to
+> **Legitimate use cases**: Malware analysis, authorized penetration testing, CTF competitions,
+> academic security research, analyzing software you own/have rights to
 
 # Anti-Reversing Techniques
 
-Understanding protection mechanisms encountered during authorized software analysis, security research, and malware analysis. This knowledge helps analysts bypass protections to complete legitimate analysis tasks.
+Understanding protection mechanisms encountered during authorized software analysis, security
+research, and malware analysis. This knowledge helps analysts bypass protections to complete
+legitimate analysis tasks.
 
 For advanced techniques, see [references/advanced-techniques.md](references/advanced-techniques.md)
 
@@ -25,14 +36,19 @@ For advanced techniques, see [references/advanced-techniques.md](references/adva
 
 - **Binary path or sample**: the executable, DLL, or firmware image under analysis
 - **Platform**: Windows x86/x64, Linux, macOS, ARM — affects which checks apply
-- **Goal**: bypass for dynamic analysis, identify protection type, build detection code, implement for CTF
+- **Goal**: bypass for dynamic analysis, identify protection type, build detection code, implement
+  for CTF
 
 **What this skill produces:**
 
-- **Protection identification**: named technique (e.g., RDTSC timing check, PEB BeingDebugged) with location in binary
-- **Bypass strategy**: specific patch addresses, hook points, or tool commands to neutralize each check
-- **Analysis report**: structured findings listing each protection layer, severity, and recommended bypass
-- **Code artifacts**: Python/IDAPython scripts, GDB command sequences, or C stubs for bypassing or implementing checks
+- **Protection identification**: named technique (e.g., RDTSC timing check, PEB BeingDebugged) with
+  location in binary
+- **Bypass strategy**: specific patch addresses, hook points, or tool commands to neutralize each
+  check
+- **Analysis report**: structured findings listing each protection layer, severity, and recommended
+  bypass
+- **Code artifacts**: Python/IDAPython scripts, GDB command sequences, or C stubs for bypassing or
+  implementing checks
 
 ---
 
@@ -79,7 +95,9 @@ NtQueryInformationProcess(
 if (debugFlags == 0) exit(1);  // 0 means being debugged
 ```
 
-**Bypass:** Use ScyllaHide plugin in x64dbg (patches all common checks automatically). Manually: force `IsDebuggerPresent` return to 0, patch `PEB.BeingDebugged` to 0, hook `NtQueryInformationProcess`. In IDA: `ida_bytes.patch_byte(check_addr, 0x90)`.
+**Bypass:** Use ScyllaHide plugin in x64dbg (patches all common checks automatically). Manually:
+force `IsDebuggerPresent` return to 0, patch `PEB.BeingDebugged` to 0, hook
+`NtQueryInformationProcess`. In IDA: `ida_bytes.patch_byte(check_addr, 0x90)`.
 
 #### PEB-Based Detection
 
@@ -105,7 +123,8 @@ PDWORD heapFlags = (PDWORD)((PBYTE)peb->ProcessHeap + 0x70);
 if (*heapFlags & 0x50000062) exit(1);
 ```
 
-**Bypass:** In x64dbg, follow `gs:[60]` (x64) or `fs:[30]` (x86) in dump. Set `BeingDebugged` (offset +2) to 0; clear `NtGlobalFlag` (offset +0xBC on x64).
+**Bypass:** In x64dbg, follow `gs:[60]` (x64) or `fs:[30]` (x86) in dump. Set `BeingDebugged`
+(offset +2) to 0; clear `NtGlobalFlag` (offset +0xBC on x64).
 
 #### Timing-Based Detection
 
@@ -161,7 +180,8 @@ if __name__ == "__main__":
     scan(sys.argv[1])
 ```
 
-**Bypass:** Use hardware breakpoints (no INT3 overhead), NOP the comparison + conditional jump, freeze RDTSC via hypervisor, or hook timing APIs to return consistent values.
+**Bypass:** Use hardware breakpoints (no INT3 overhead), NOP the comparison + conditional jump,
+freeze RDTSC via hypervisor, or hook timing APIs to return consistent values.
 
 #### Exception-Based Detection
 
@@ -183,7 +203,8 @@ LONG CALLBACK VectoredHandler(PEXCEPTION_POINTERS ep) {
 }
 ```
 
-**Bypass**: In x64dbg, set "Pass exception to program" for EXCEPTION_BREAKPOINT (Options → Exceptions → add 0x80000003).
+**Bypass**: In x64dbg, set "Pass exception to program" for EXCEPTION_BREAKPOINT (Options →
+Exceptions → add 0x80000003).
 
 ### Linux Anti-Debugging
 
@@ -303,9 +324,13 @@ if ((end - start) > 500) {
 }
 ```
 
-**Bypass:** Use bare-metal environment, harden VM (remove guest tools, randomize MAC, delete artifact files), patch detection branches in the binary, or use FLARE-VM/REMnux with hardened settings.
+**Bypass:** Use bare-metal environment, harden VM (remove guest tools, randomize MAC, delete
+artifact files), patch detection branches in the binary, or use FLARE-VM/REMnux with hardened
+settings.
 
-For advanced VM detection (RDTSC delta calibration, VMware backdoor port, hypervisor leaf enumeration, guest driver artifact checks), see [references/advanced-techniques.md](references/advanced-techniques.md).
+For advanced VM detection (RDTSC delta calibration, VMware backdoor port, hypervisor leaf
+enumeration, guest driver artifact checks), see
+[references/advanced-techniques.md](references/advanced-techniques.md).
 
 ---
 
@@ -361,7 +386,8 @@ if ((x * x) >= 0) { real_code(); }   // Always true  → junk_code() is dead
 if ((x*(x+1)) % 2 == 1) { junk(); }  // Always false → consecutive product is even
 ```
 
-**Analysis Approach:** Identify invariant expressions via symbolic execution (angr, Triton), or pattern-match known opaque forms and prune them.
+**Analysis Approach:** Identify invariant expressions via symbolic execution (angr, Triton), or
+pattern-match known opaque forms and prune them.
 
 ### Data Obfuscation
 
@@ -422,7 +448,8 @@ DWORD hash_api(char *name) {
 // Resolve by hash comparison instead of string
 ```
 
-**Analysis Approach:** Identify the hash algorithm, build a database of known API name hashes, use HashDB plugin for IDA, or run under a debugger to let the binary resolve calls at runtime.
+**Analysis Approach:** Identify the hash algorithm, build a database of known API name hashes, use
+HashDB plugin for IDA, or run under a debugger to let the binary resolve calls at runtime.
 
 ### Instruction-Level Obfuscation
 
@@ -435,7 +462,9 @@ xor eax, eax  →  sub eax, eax  |  mov eax, 0  |  and eax, 0
 mov eax, 1    →  xor eax, eax; inc eax  |  push 1; pop eax
 ```
 
-For advanced anti-disassembly tricks (overlapping instructions, junk byte insertion, self-modifying code, ROP as obfuscation), see [references/advanced-techniques.md](references/advanced-techniques.md).
+For advanced anti-disassembly tricks (overlapping instructions, junk byte insertion, self-modifying
+code, ROP as obfuscation), see
+[references/advanced-techniques.md](references/advanced-techniques.md).
 
 ---
 
@@ -478,15 +507,23 @@ Never use to bypass protections for: software piracy, unauthorized access, or ma
 
 **Detection technique works on x86 but not ARM**
 
-RDTSC and CPUID are x86-only. On ARM, use `MRS x0, PMCCNTR_EL0` (requires kernel PMU access) or `clock_gettime(CLOCK_MONOTONIC)`. PEB/TEB do not exist on ARM — replace with `/proc/self/status` (Linux) or `task_info` (macOS). Rebuild detection logic with platform-specific APIs.
+RDTSC and CPUID are x86-only. On ARM, use `MRS x0, PMCCNTR_EL0` (requires kernel PMU access) or
+`clock_gettime(CLOCK_MONOTONIC)`. PEB/TEB do not exist on ARM — replace with `/proc/self/status`
+(Linux) or `task_info` (macOS). Rebuild detection logic with platform-specific APIs.
 
 **False positive on legitimate debugger or analysis tool**
 
-Timing checks fire when Process Monitor or AV hooks inflate syscall latency. Calibrate the threshold at startup: measure the guarded path 3 times and use `mean + 3*stddev`. For ptrace checks, verify the TracerPid comm name via `/proc/<pid>/comm` before exiting — it may be an unrelated monitoring tool, not a debugger.
+Timing checks fire when Process Monitor or AV hooks inflate syscall latency. Calibrate the threshold
+at startup: measure the guarded path 3 times and use `mean + 3*stddev`. For ptrace checks, verify
+the TracerPid comm name via `/proc/<pid>/comm` before exiting — it may be an unrelated monitoring
+tool, not a debugger.
 
 **Bypass patch causes crash instead of continuing execution**
 
-Before NOPing a conditional jump, trace the "detected" branch fully. If it initializes or frees heap state needed later, patching the jump skips that setup and corrupts state. Instead, patch the comparison operand to the expected "clean" value, or use x64dbg's "Set condition to always false" on the breakpoint rather than modifying bytes.
+Before NOPing a conditional jump, trace the "detected" branch fully. If it initializes or frees heap
+state needed later, patching the jump skips that setup and corrupts state. Instead, patch the
+comparison operand to the expected "clean" value, or use x64dbg's "Set condition to always false" on
+the breakpoint rather than modifying bytes.
 
 ---
 

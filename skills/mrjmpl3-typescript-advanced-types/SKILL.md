@@ -1,11 +1,17 @@
 ---
 name: mrjmpl3-typescript-advanced-types
-description: Master TypeScript's advanced type system including generics, conditional types, mapped types, template literals, and utility types for building type-safe applications. Use when implementing complex type logic, creating reusable type utilities, or ensuring compile-time type safety in TypeScript projects.
+description:
+  Master TypeScript's advanced type system including generics, conditional types, mapped types,
+  template literals, and utility types for building type-safe applications. Use when implementing
+  complex type logic, creating reusable type utilities, or ensuring compile-time type safety in
+  TypeScript projects.
 ---
 
 # TypeScript Advanced Types
 
-Comprehensive guidance for mastering TypeScript's advanced type system including generics, conditional types, mapped types, template literal types, and utility types for building robust, type-safe applications.
+Comprehensive guidance for mastering TypeScript's advanced type system including generics,
+conditional types, mapped types, template literal types, and utility types for building robust,
+type-safe applications.
 
 ## When to Use This Skill
 
@@ -375,7 +381,8 @@ type OptionalKeys<T> = {
   [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
 }[keyof T];
 
-type IsComplete<T, S> = RequiredKeys<T> extends keyof S ? (S[RequiredKeys<T>] extends undefined ? false : true) : false;
+type IsComplete<T, S> =
+  RequiredKeys<T> extends keyof S ? (S[RequiredKeys<T>] extends undefined ? false : true) : false;
 
 class Builder<T, S extends BuilderState<T> = {}> {
   private state: S = {} as S;
@@ -410,7 +417,11 @@ const user = builder.set('id', '1').set('name', 'John').set('email', 'john@examp
 
 ```typescript
 type DeepReadonly<T> = {
-  readonly [P in keyof T]: T[P] extends object ? (T[P] extends Function ? T[P] : DeepReadonly<T[P]>) : T[P];
+  readonly [P in keyof T]: T[P] extends object
+    ? T[P] extends Function
+      ? T[P]
+      : DeepReadonly<T[P]>
+    : T[P];
 };
 
 type DeepPartial<T> = {

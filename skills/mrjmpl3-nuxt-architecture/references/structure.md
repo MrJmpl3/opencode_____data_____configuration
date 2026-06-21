@@ -158,7 +158,11 @@ export const SlideoverKey = Symbol('slideover');
 export default defineNuxtConfig({
   ssr: false, // SPA mode
 
-  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
+  extends: [
+    '../../../nuxt-layers/base',
+    '../../../nuxt-layers/nuxt-ui',
+    '../../../nuxt-layers/x-ui',
+  ],
 
   modules: ['nuxt-auth-sanctum', '@nuxt/ui'],
 

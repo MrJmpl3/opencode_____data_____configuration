@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-services
-description: Service layer for external API integration using manager pattern and Saloon. Use when integrating external APIs or third-party services.
+description:
+  Service layer for external API integration using manager pattern and Saloon. Use when integrating
+  external APIs or third-party services.
 ---
 
 # Laravel Services

@@ -1,6 +1,7 @@
 # Advanced Architecture Patterns — Reference
 
-Deep-dive implementation examples for DDD bounded contexts, Onion Architecture, Anti-Corruption Layers, and full project structures. Referenced from SKILL.md.
+Deep-dive implementation examples for DDD bounded contexts, Onion Architecture, Anti-Corruption
+Layers, and full project structures. Referenced from SKILL.md.
 
 ---
 
@@ -89,7 +90,8 @@ Both enforce inward-pointing dependencies. The difference is terminology and lay
 | Outermost ring | Frameworks & Drivers     | Infrastructure / UI / Tests      |
 | Key insight    | Controller is an adapter | Application Services = Use Cases |
 
-Onion Architecture makes the Domain Services layer explicit — it hosts pure domain logic that spans multiple entities but has no I/O:
+Onion Architecture makes the Domain Services layer explicit — it hosts pure domain logic that spans
+multiple entities but has no I/O:
 
 ```python
 # onion/domain/services/pricing_service.py
@@ -121,7 +123,8 @@ class PricingService:
 
 ## Anti-Corruption Layer (ACL)
 
-When the `Ordering` context must fetch product data from the `Catalog` context, it should never use `Catalog`'s domain model directly. An ACL translates between the two models:
+When the `Ordering` context must fetch product data from the `Catalog` context, it should never use
+`Catalog`'s domain model directly. An ACL translates between the two models:
 
 ```python
 # ordering/domain/interfaces/catalog_client.py
@@ -230,7 +233,8 @@ Relationship types:
 
 ## Dependency Injection Wiring — Infrastructure Layer
 
-All the abstract interfaces are wired to concrete implementations in the infrastructure layer (or a DI container). Nothing else in the codebase knows which concrete class is used:
+All the abstract interfaces are wired to concrete implementations in the infrastructure layer (or a
+DI container). Nothing else in the codebase knows which concrete class is used:
 
 ```python
 # infrastructure/container.py

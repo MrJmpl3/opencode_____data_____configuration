@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-features
-description: Feature module pattern organizing domain logic into queries, mutations, and actions. Use when implementing data fetching with filters, API mutations with loading states, business logic with UI feedback, or organizing domain-specific code.
+description:
+  Feature module pattern organizing domain logic into queries, mutations, and actions. Use when
+  implementing data fetching with filters, API mutations with loading states, business logic with UI
+  feedback, or organizing domain-specific code.
 ---
 
 # Nuxt Features

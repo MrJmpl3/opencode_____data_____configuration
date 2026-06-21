@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-protocol-reverse-engineering
-description: Master network protocol reverse engineering including packet analysis, protocol dissection, and custom protocol documentation. Use when analyzing network traffic, understanding proprietary protocols, or debugging network communication.
+description:
+  Master network protocol reverse engineering including packet analysis, protocol dissection, and
+  custom protocol documentation. Use when analyzing network traffic, understanding proprietary
+  protocols, or debugging network communication.
 ---
 
 # Protocol Reverse Engineering
 
-Comprehensive techniques for capturing, analyzing, and documenting network protocols for security research, interoperability, and debugging.
+Comprehensive techniques for capturing, analyzing, and documenting network protocols for security
+research, interoperability, and debugging.
 
 ## Traffic Capture
 
@@ -370,11 +374,7 @@ Brief description of protocol purpose and design.
 ## State Machine
 ```
 
-[INIT] --HELLO--> [WAIT_ACK] --HELLO_ACK--> [CONNECTED]
-|
-DATA/DATA
-|
-[CLOSED] <--CLOSE--+
+[INIT] --HELLO--> [WAIT_ACK] --HELLO_ACK--> [CONNECTED] | DATA/DATA | [CLOSED] <--CLOSE--+
 
 ```
 
@@ -382,9 +382,8 @@ DATA/DATA
 ### Connection Establishment
 ```
 
-Client -> Server: HELLO (ClientID=0x12345678)
-Server -> Client: HELLO_ACK (Status=OK)
-Client -> Server: DATA (payload)
+Client -> Server: HELLO (ClientID=0x12345678) Server -> Client: HELLO_ACK (Status=OK) Client ->
+Server: DATA (payload)
 
 ```
 

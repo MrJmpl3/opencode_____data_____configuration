@@ -1,6 +1,7 @@
 # OpenAPI Code-First Generation and Tooling
 
-Advanced patterns for generating OpenAPI specs from code (Python/FastAPI, TypeScript/tsoa), validation, linting, and SDK generation.
+Advanced patterns for generating OpenAPI specs from code (Python/FastAPI, TypeScript/tsoa),
+validation, linting, and SDK generation.
 
 ## Template 2: Code-First Generation (Python/FastAPI)
 

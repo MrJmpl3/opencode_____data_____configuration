@@ -106,7 +106,10 @@ export default defineAppConfig({
 ### Handler Signature
 
 ```typescript
-type ErrorHandler = (context: { response: FetchResponse; flash: FlashInstance }) => Promise<any> | string;
+type ErrorHandler = (context: {
+  response: FetchResponse;
+  flash: FlashInstance;
+}) => Promise<any> | string;
 
 // String = redirect path
 // Promise.reject() = throw error

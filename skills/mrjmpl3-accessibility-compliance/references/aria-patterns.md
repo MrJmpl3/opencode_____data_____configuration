@@ -2,7 +2,9 @@
 
 ## Overview
 
-ARIA (Accessible Rich Internet Applications) provides attributes to enhance accessibility when native HTML semantics are insufficient. The first rule of ARIA is: don't use ARIA if native HTML can do the job.
+ARIA (Accessible Rich Internet Applications) provides attributes to enhance accessibility when
+native HTML semantics are insufficient. The first rule of ARIA is: don't use ARIA if native HTML can
+do the job.
 
 ## ARIA Fundamentals
 
@@ -248,7 +250,9 @@ function Combobox({ options, onSelect, placeholder }) {
   const inputRef = useRef(null);
   const listboxId = useId();
 
-  const filteredOptions = options.filter((opt) => opt.toLowerCase().includes(inputValue.toLowerCase()));
+  const filteredOptions = options.filter((opt) =>
+    opt.toLowerCase().includes(inputValue.toLowerCase()),
+  );
 
   const handleKeyDown = (e) => {
     switch (e.key) {

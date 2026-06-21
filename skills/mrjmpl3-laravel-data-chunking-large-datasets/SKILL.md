@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-data-chunking-large-datasets
-description: Process large datasets efficiently using chunk(), chunkById(), lazy(), and cursor() to reduce memory consumption and improve performance
+description:
+  Process large datasets efficiently using chunk(), chunkById(), lazy(), and cursor() to reduce
+  memory consumption and improve performance
 ---
 
 # Data Chunking for Large Datasets
 
-Process large datasets efficiently by breaking them into manageable chunks to reduce memory consumption and improve performance.
+Process large datasets efficiently by breaking them into manageable chunks to reduce memory
+consumption and improve performance.
 
 ## The Problem: Memory Exhaustion
 
@@ -399,4 +402,5 @@ test('handles empty datasets gracefully', function () {
    });
    ```
 
-Remember: When dealing with large datasets, always think about memory usage, query efficiency, and processing time. Chunk your data appropriately!
+Remember: When dealing with large datasets, always think about memory usage, query efficiency, and
+processing time. Chunk your data appropriately!

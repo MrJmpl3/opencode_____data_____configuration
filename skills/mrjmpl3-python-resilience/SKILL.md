@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-resilience
-description: Python resilience patterns including automatic retries, exponential backoff, timeouts, and fault-tolerant decorators. Use when adding retry logic, implementing timeouts, building fault-tolerant services, or handling transient failures.
+description:
+  Python resilience patterns including automatic retries, exponential backoff, timeouts, and
+  fault-tolerant decorators. Use when adding retry logic, implementing timeouts, building
+  fault-tolerant services, or handling transient failures.
 ---
 
 # Python Resilience Patterns
 
-Build fault-tolerant Python applications that gracefully handle transient failures, network issues, and service outages. Resilience patterns keep systems running when dependencies are unreliable.
+Build fault-tolerant Python applications that gracefully handle transient failures, network issues,
+and service outages. Resilience patterns keep systems running when dependencies are unreliable.
 
 ## When to Use This Skill
 
@@ -20,7 +24,8 @@ Build fault-tolerant Python applications that gracefully handle transient failur
 
 ### 1. Transient vs Permanent Failures
 
-Retry transient errors (network timeouts, temporary service issues). Don't retry permanent errors (invalid credentials, bad requests).
+Retry transient errors (network timeouts, temporary service issues). Don't retry permanent errors
+(invalid credentials, bad requests).
 
 ### 2. Exponential Backoff
 
@@ -51,7 +56,8 @@ def call_external_service(request: dict) -> dict:
 
 ### Pattern 1: Basic Retry with Tenacity
 
-Use the `tenacity` library for production-grade retry logic. For simpler cases, consider built-in retry functionality or a lightweight custom implementation.
+Use the `tenacity` library for production-grade retry logic. For simpler cases, consider built-in
+retry functionality or a lightweight custom implementation.
 
 ```python
 from tenacity import (

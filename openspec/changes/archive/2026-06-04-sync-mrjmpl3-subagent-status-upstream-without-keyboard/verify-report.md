@@ -138,13 +138,16 @@ Coverage analysis skipped — no coverage tool detected.
 
 **WARNING**
 
-- Coverage is still unavailable for changed files because the package has no configured coverage command in OpenSpec capabilities.
+- Coverage is still unavailable for changed files because the package has no configured coverage
+  command in OpenSpec capabilities.
 
 **SUGGESTION**
 
-- If future regressions cluster around snapshot timing, keep the dedicated `buildTuiSnapshot()` runtime proof updated because it now guards the previously failing status-line/count drift.
+- If future regressions cluster around snapshot timing, keep the dedicated `buildTuiSnapshot()`
+  runtime proof updated because it now guards the previously failing status-line/count drift.
 
 ### Verdict
 
-PASS
-The remediation slice resolves the prior verification failures. Required runtime and type-check commands pass, Strict TDD evidence is consistent with current execution, and all 7/7 spec scenarios are covered by passing tests.
+PASS The remediation slice resolves the prior verification failures. Required runtime and type-check
+commands pass, Strict TDD evidence is consistent with current execution, and all 7/7 spec scenarios
+are covered by passing tests.

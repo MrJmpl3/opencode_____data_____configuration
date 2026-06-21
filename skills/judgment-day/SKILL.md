@@ -1,6 +1,8 @@
 ---
 name: judgment-day
-description: 'Trigger: judgment day, dual review, adversarial review, juzgar. Run blind dual review, fix confirmed issues, then re-judge.'
+description:
+  'Trigger: judgment day, dual review, adversarial review, juzgar. Run blind dual review, fix
+  confirmed issues, then re-judge.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -9,16 +11,23 @@ metadata:
 
 ## Activation Contract
 
-Load this skill only when the user explicitly asks for Judgment Day, dual/adversarial review, or equivalent Spanish trigger (`juzgar`, `que lo juzguen`). Review a specific target: files, feature, PR, or architecture slice.
+Load this skill only when the user explicitly asks for Judgment Day, dual/adversarial review, or
+equivalent Spanish trigger (`juzgar`, `que lo juzguen`). Review a specific target: files, feature,
+PR, or architecture slice.
 
 ## Hard Rules
 
-- Resolve project skills before launching agents: read skill registry, match skill paths by target files/task, and inject the same `Skills to load before work` block into both judge prompts and fix prompts.
-- Launch **two blind judges in parallel** with identical target and criteria; never review the code yourself.
+- Resolve project skills before launching agents: read skill registry, match skill paths by target
+  files/task, and inject the same `Skills to load before work` block into both judge prompts and fix
+  prompts.
+- Launch **two blind judges in parallel** with identical target and criteria; never review the code
+  yourself.
 - Wait for both judges before synthesis; never accept a partial verdict.
-- Classify warnings as `WARNING (real)` only if normal intended use can trigger them; otherwise downgrade to INFO as `WARNING (theoretical)`.
+- Classify warnings as `WARNING (real)` only if normal intended use can trigger them; otherwise
+  downgrade to INFO as `WARNING (theoretical)`.
 - Ask before fixing Round 1 confirmed issues.
-- After any fix agent runs, immediately re-launch both judges in parallel before commit/push/done/session summary.
+- After any fix agent runs, immediately re-launch both judges in parallel before
+  commit/push/done/session summary.
 - Terminal states are only `JUDGMENT: APPROVED` or `JUDGMENT: ESCALATED`.
 - After 2 fix iterations with remaining issues, ask the user whether to continue.
 
@@ -45,8 +54,11 @@ Load this skill only when the user explicitly asks for Judgment Day, dual/advers
 
 ## Output Contract
 
-Return `## Judgment Day — {target}` with round number, verdict table, confirmed/suspect/contradiction counts, fixes applied, re-judgment result, `Skill Resolution`, and final `JUDGMENT: APPROVED ✅` or `JUDGMENT: ESCALATED ⚠️`.
+Return `## Judgment Day — {target}` with round number, verdict table,
+confirmed/suspect/contradiction counts, fixes applied, re-judgment result, `Skill Resolution`, and
+final `JUDGMENT: APPROVED ✅` or `JUDGMENT: ESCALATED ⚠️`.
 
 ## References
 
-- [references/prompts-and-formats.md](references/prompts-and-formats.md) — judge/fix prompts, warning rubric, verdict tables, and language snippets.
+- [references/prompts-and-formats.md](references/prompts-and-formats.md) — judge/fix prompts,
+  warning rubric, verdict tables, and language snippets.

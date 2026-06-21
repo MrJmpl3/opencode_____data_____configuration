@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-type-safety
-description: Python type safety with type hints, generics, protocols, and strict type checking. Use when adding type annotations, implementing generic classes, defining structural interfaces, or configuring mypy/pyright.
+description:
+  Python type safety with type hints, generics, protocols, and strict type checking. Use when adding
+  type annotations, implementing generic classes, defining structural interfaces, or configuring
+  mypy/pyright.
 ---
 
 # Python Type Safety
 
-Leverage Python's type system to catch errors at static analysis time. Type annotations serve as enforced documentation that tooling validates automatically.
+Leverage Python's type system to catch errors at static analysis time. Type annotations serve as
+enforced documentation that tooling validates automatically.
 
 ## When to Use This Skill
 
@@ -82,7 +86,8 @@ class UserRepository:
         ...
 ```
 
-Use `mypy --strict` or `pyright` in CI to catch type errors early. For existing projects, enable strict mode incrementally using per-module overrides.
+Use `mypy --strict` or `pyright` in CI to catch type errors early. For existing projects, enable
+strict mode incrementally using per-module overrides.
 
 ### Pattern 2: Use Modern Union Syntax
 
@@ -331,7 +336,9 @@ class Comparable(Protocol):
 
 Create meaningful type names.
 
-**Note:** The `type Alias = ...` statement syntax (PEP 695) was introduced in **Python 3.12**, not 3.10. For projects targeting earlier versions (including 3.10/3.11), use the `TypeAlias` annotation (PEP 613, available since Python 3.10).
+**Note:** The `type Alias = ...` statement syntax (PEP 695) was introduced in **Python 3.12**, not
+3.10. For projects targeting earlier versions (including 3.10/3.11), use the `TypeAlias` annotation
+(PEP 613, available since Python 3.10).
 
 ```python
 # Python 3.12+ type statement (PEP 695)
@@ -417,7 +424,8 @@ Incremental adoption goals:
 - Minimize `Any` usage (acceptable for truly dynamic data)
 - Generic collections use type parameters (`list[str]` not `list`)
 
-For existing codebases, enable strict mode per-module using `# mypy: strict` or configure per-module overrides in `pyproject.toml`.
+For existing codebases, enable strict mode per-module using `# mypy: strict` or configure per-module
+overrides in `pyproject.toml`.
 
 ## Best Practices Summary
 
@@ -429,5 +437,6 @@ For existing codebases, enable strict mode per-module using `# mypy: strict` or 
 6. **Narrow types** - Use guards to help the type checker
 7. **Bound type vars** - Restrict generics to meaningful types
 8. **Create type aliases** - Meaningful names for complex types
-9. **Minimize `Any`** - Use specific types or generics. `Any` is acceptable for truly dynamic data or when interfacing with untyped third-party code
+9. **Minimize `Any`** - Use specific types or generics. `Any` is acceptable for truly dynamic data
+   or when interfacing with untyped third-party code
 10. **Document with types** - Types are enforceable documentation

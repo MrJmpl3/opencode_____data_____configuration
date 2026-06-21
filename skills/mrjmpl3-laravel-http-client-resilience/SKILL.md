@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-http-client-resilience
-description: Use the HTTP client with sensible timeouts, retries, and backoff; capture context and handle failures explicitly
+description:
+  Use the HTTP client with sensible timeouts, retries, and backoff; capture context and handle
+  failures explicitly
 ---
 
 # HTTP Client Resilience

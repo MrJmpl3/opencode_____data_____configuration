@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-brainstorming-01
-description: Interactive design refinement tailored to Laravel projects; clarify domain, data, interfaces, testing, and quality gates while accounting for Sail/non‑Sail environments
+description:
+  Interactive design refinement tailored to Laravel projects; clarify domain, data, interfaces,
+  testing, and quality gates while accounting for Sail/non‑Sail environments
 ---
 
 # Brainstorming (Laravel)
 
-Use this when shaping features or refactors. Keep answers concise, then propose a design and gather confirmation before planning.
+Use this when shaping features or refactors. Keep answers concise, then propose a design and gather
+confirmation before planning.
 
 ## Ask (one at a time)
 

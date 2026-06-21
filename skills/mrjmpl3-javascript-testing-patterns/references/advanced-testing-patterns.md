@@ -1,6 +1,7 @@
 # Advanced JavaScript Testing Patterns
 
-Advanced patterns for integration testing, frontend component testing, fixtures, snapshot testing, coverage, and common test utilities.
+Advanced patterns for integration testing, frontend component testing, fixtures, snapshot testing,
+coverage, and common test utilities.
 
 ## Integration Testing
 
@@ -118,7 +119,10 @@ describe('User API Integration Tests', () => {
 
       const token = loginResponse.body.token;
 
-      const response = await request(app).get('/api/users/me').set('Authorization', `Bearer ${token}`).expect(200);
+      const response = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
 
       expect(response.body.email).toBe('john@example.com');
     });

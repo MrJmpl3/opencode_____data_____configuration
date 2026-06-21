@@ -2,7 +2,8 @@
 
 ## Overview
 
-A robust theming system enables applications to support multiple visual appearances (light/dark modes, brand themes) while maintaining consistency and developer experience.
+A robust theming system enables applications to support multiple visual appearances (light/dark
+modes, brand themes) while maintaining consistency and developer experience.
 
 ## CSS Custom Properties Architecture
 

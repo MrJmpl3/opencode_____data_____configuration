@@ -62,7 +62,12 @@ jsonDelete(url: string): Promise<void>
 import { BaseRepository } from '#layers/base/app/repositories/base-repository';
 import { ModelHydrator } from '#layers/base/app/repositories/hydrators/model-hydrator';
 import Post from '~/models/Post';
-import type { CollectionResponse, DataResponse, GenericQueryParams, OutgoingQueryParams } from '#layers/base/app/types';
+import type {
+  CollectionResponse,
+  DataResponse,
+  GenericQueryParams,
+  OutgoingQueryParams,
+} from '#layers/base/app/types';
 
 export default class PostRepository extends BaseRepository<Post> {
   // API resource path
@@ -404,5 +409,6 @@ app/
 ## Related Skills
 
 - **[nuxt-models](../../4011-mrjmpl3-nuxt-models/SKILL.md)** - Models for hydration
-- **[nuxt-features](../../4008-mrjmpl3-nuxt-features/SKILL.md)** - Using repositories in queries/mutations
+- **[nuxt-features](../../4008-mrjmpl3-nuxt-features/SKILL.md)** - Using repositories in
+  queries/mutations
 - **[nuxt-config](../../4005-mrjmpl3-nuxt-config/SKILL.md)** - Repository configuration

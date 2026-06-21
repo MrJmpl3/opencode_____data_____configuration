@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-task-scheduling-02
-description: Best practices for Laravel task scheduling including defining schedules, frequency constraints, overlap prevention, and monitoring hooks.
+description:
+  Best practices for Laravel task scheduling including defining schedules, frequency constraints,
+  overlap prevention, and monitoring hooks.
 ---
 
 # Task Scheduling

@@ -2,7 +2,9 @@
 
 ## Overview
 
-Design tokens are the atomic values of a design system - the smallest pieces that define visual style. They bridge the gap between design and development by providing a single source of truth for colors, typography, spacing, and other design decisions.
+Design tokens are the atomic values of a design system - the smallest pieces that define visual
+style. They bridge the gap between design and development by providing a single source of truth for
+colors, typography, spacing, and other design decisions.
 
 ## Token Categories
 
@@ -402,7 +404,11 @@ interface TokenValidation {
 }
 
 // Contrast validation
-function validateContrast(foreground: string, background: string, level: 'AA' | 'AAA' = 'AA'): boolean {
+function validateContrast(
+  foreground: string,
+  background: string,
+  level: 'AA' | 'AAA' = 'AA',
+): boolean {
   const ratio = getContrastRatio(foreground, background);
   return level === 'AA' ? ratio >= 4.5 : ratio >= 7;
 }

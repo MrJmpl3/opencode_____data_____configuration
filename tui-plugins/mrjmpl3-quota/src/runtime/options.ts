@@ -1,9 +1,4 @@
-import type {
-  ProviderSpec,
-  QuotaDisplayMode,
-  QuotaPluginOptions,
-  QuotaProviderId,
-} from '../domain/types.ts';
+import type { ProviderSpec, QuotaDisplayMode, QuotaPluginOptions, QuotaProviderId } from '../domain/types.ts';
 
 export type { QuotaPluginOptions } from '../domain/types.ts';
 

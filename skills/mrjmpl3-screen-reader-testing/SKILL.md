@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-screen-reader-testing
-description: Test web applications with screen readers including VoiceOver, NVDA, and JAWS. Use when validating screen reader compatibility, debugging accessibility issues, or ensuring assistive technology support.
+description:
+  Test web applications with screen readers including VoiceOver, NVDA, and JAWS. Use when validating
+  screen reader compatibility, debugging accessibility issues, or ensuring assistive technology
+  support.
 ---
 
 # Screen Reader Testing
 
-Practical guide to testing web applications with screen readers for comprehensive accessibility validation.
+Practical guide to testing web applications with screen readers for comprehensive accessibility
+validation.
 
 ## When to Use This Skill
 
@@ -420,7 +424,13 @@ function trapFocus(e) {
 </div>
 
 <!-- Progress updates -->
-<div role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress"></div>
+<div
+  role="progressbar"
+  aria-valuenow="75"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-label="Upload progress"
+></div>
 
 <!-- Log (additions only) -->
 <div role="log" aria-live="polite" aria-relevant="additions">
@@ -433,7 +443,9 @@ function trapFocus(e) {
 ```html
 <div role="tablist" aria-label="Product information">
   <button role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">Description</button>
-  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">Reviews</button>
+  <button role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">
+    Reviews
+  </button>
 </div>
 
 <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">Product description content...</div>
@@ -479,7 +491,10 @@ function logAccessibleName(element) {
   const computed = window.getComputedStyle(element);
   console.log({
     role: element.getAttribute('role') || element.tagName,
-    name: element.getAttribute('aria-label') || element.getAttribute('aria-labelledby') || element.textContent,
+    name:
+      element.getAttribute('aria-label') ||
+      element.getAttribute('aria-labelledby') ||
+      element.textContent,
     state: {
       expanded: element.getAttribute('aria-expanded'),
       selected: element.getAttribute('aria-selected'),

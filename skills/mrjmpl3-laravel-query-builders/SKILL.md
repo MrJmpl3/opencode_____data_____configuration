@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-query-builders
-description: Custom query builders for type-safe, composable database queries. Use when creating or modifying query builders, query scopes, or complex database queries.
+description:
+  Custom query builders for type-safe, composable database queries. Use when creating or modifying
+  query builders, query scopes, or complex database queries.
 ---
 
 # Laravel Query Builders

@@ -8,7 +8,8 @@ Step-by-step implementation checklist for new projects.
 - [Packages](../../mrjmpl3-laravel-packages/SKILL.md) - Packages to install
 - [Quality](../../mrjmpl3-laravel-quality/SKILL.md) - Quality tools to configure
 - [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) - Controller naming and patterns
-- [validation-testing.md](../../mrjmpl3-laravel-validation/references/validation-testing.md) - Validation testing with datasets
+- [validation-testing.md](../../mrjmpl3-laravel-validation/references/validation-testing.md) -
+  Validation testing with datasets
 - [examples.md](examples.md) - Reference implementations
 
 ## Immediate Tasks

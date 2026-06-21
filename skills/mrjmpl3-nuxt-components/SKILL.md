@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-components
-description: Vue component patterns with Composition API and script setup. Use when creating components, understanding script setup order convention, organizing component directories, or implementing component patterns like slideovers, modals, and tables.
+description:
+  Vue component patterns with Composition API and script setup. Use when creating components,
+  understanding script setup order convention, organizing component directories, or implementing
+  component patterns like slideovers, modals, and tables.
 ---
 
 # Nuxt Components

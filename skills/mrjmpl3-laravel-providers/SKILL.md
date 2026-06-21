@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-providers
-description: Service providers, bootstrapping, and application configuration. Use when modifying service providers, booters, bootstrap logic, or app-level configuration.
+description:
+  Service providers, bootstrapping, and application configuration. Use when modifying service
+  providers, booters, bootstrap logic, or app-level configuration.
 ---
 
 # Laravel Providers
