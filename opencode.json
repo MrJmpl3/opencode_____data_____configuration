@@ -1,16 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "agent": {
-    "explore": {
-      "disable": true
-    },
-    "general": {
-      "disable": true
-    },
     "gentle-orchestrator": {
       "description": "Gentle AI SDD Orchestrator - coordinates sub-agents, never does work inline",
       "mode": "primary",
-      "model": "opencode-go/deepseek-v4-pro",
+      "model": "opencode-go/deepseek-v4-flash",
       "permission": {
         "question": "allow",
         "task": {
@@ -43,7 +37,7 @@
         "task": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "jd-fix-agent": {
       "description": "Surgical fix agent for judgment-day protocol",
@@ -57,31 +51,31 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "jd-judge-a": {
       "description": "Adversarial code reviewer — blind judge A for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode-go/deepseek-v4-pro",
+      "model": "opencode-go/deepseek-v4-flash",
       "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the task prompt exactly. Do NOT delegate further. Do NOT modify any code — your job is ONLY to find problems.",
       "tools": {
         "bash": true,
         "read": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "jd-judge-b": {
       "description": "Adversarial code reviewer — blind judge B for judgment-day protocol",
       "hidden": true,
       "mode": "subagent",
-      "model": "opencode-go/mimo-v2.5",
+      "model": "opencode-go/deepseek-v4-flash",
       "prompt": "You are a judgment-day adversarial reviewer. Execute the review instructions provided in the task prompt exactly. Do NOT delegate further. Do NOT modify any code — your job is ONLY to find problems.",
       "tools": {
         "bash": true,
         "read": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "review-readability": {
       "description": "R2 Readability reviewer — naming, complexity, intention, maintainability, review size, and context clarity",
@@ -143,7 +137,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-apply-balanced": {
       "description": "Implement code changes from task definitions",
@@ -227,7 +221,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-archive-balanced": {
       "description": "Archive completed change artifacts",
@@ -311,7 +305,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-design-balanced": {
       "description": "Create technical design from proposals",
@@ -395,7 +389,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-explore-balanced": {
       "description": "Investigate codebase and think through ideas",
@@ -479,7 +473,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-init-balanced": {
       "description": "Bootstrap SDD context and project configuration",
@@ -563,7 +557,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-onboard-balanced": {
       "description": "Guide user through a complete SDD cycle using their real codebase",
@@ -837,7 +831,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-propose-balanced": {
       "description": "Create change proposals from explorations",
@@ -921,7 +915,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-spec-balanced": {
       "description": "Write detailed specifications from proposals",
@@ -1005,7 +999,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-tasks-balanced": {
       "description": "Break down specs and designs into implementation tasks",
@@ -1089,7 +1083,7 @@
         "read": true,
         "write": true
       },
-      "variant": ""
+      "variant": "max"
     },
     "sdd-verify-balanced": {
       "description": "Validate implementation against specs",
