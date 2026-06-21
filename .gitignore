@@ -47,3 +47,4 @@ Thumbs.db
 # Git aplica patrones por orden, usa barras finales para directorios y permite auditar decisiones con git check-ignore -v.
 # Local AI runtime state
 .atl/
+go-workspaces.json
