@@ -78,14 +78,14 @@ ROOT
 
 The [`plugins/`](./plugins) directory contains custom OpenCode plugin adapters.
 
-| Plugin                                                       | What it adds                                                                                                                                                 |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`mrjmpl3-engram`](./plugins/mrjmpl3-engram)                 | Engram memory integration: starts/connects to the local memory server, captures prompts, injects memory instructions, and avoids subagent session inflation. |
-| [`mrjmpl3-model-variants`](./plugins/mrjmpl3-model-variants) | Reads model/provider variant data from OpenCode and writes a local cache for Gentle AI.                                                                      |
-| [`mrjmpl3-rtk`](./plugins/mrjmpl3-rtk)                       | Rewrites shell commands through `rtk rewrite` when available to reduce token usage.                                                                          |
-| [`mrjmpl3-skill-registry`](./plugins/mrjmpl3-skill-registry) | Keeps the skill registry refresh behavior available through the same `mrjmpl3-*` plugin layout.                                                              |
+| Plugin                                 | What it adds                                                                                                                                                 |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`engram.ts`](./plugins/engram.ts)     | Engram memory integration: starts/connects to the local memory server, captures prompts, injects memory instructions, and avoids subagent session inflation. |
+| [`model-variants.ts`](./plugins/model-variants.ts) | Reads model/provider variant data from OpenCode and writes a local cache for Gentle AI.                                                          |
+| [`rtk.ts`](./plugins/rtk.ts)           | Rewrites shell commands through `rtk rewrite` when available to reduce token usage.                                                                          |
+| [`skill-registry.ts`](./plugins/skill-registry.ts) | Refreshes the local skill registry from the flattened plugin entrypoint layout.                                                               |
 
-Each plugin has its own README with install, exports, and development notes.
+These plugins now live as flat runtime entrypoints under [`plugins/`](./plugins).
 
 ### 🖥️ TUI plugins
 
@@ -94,7 +94,7 @@ The [`tui-plugins/`](./tui-plugins) directory contains OpenCode TUI extensions.
 | Plugin                    | Purpose                                               |
 | ------------------------- | ----------------------------------------------------- |
 | `mrjmpl3-cache`           | Cache-related status information.                     |
-| `mrjmpl3-gentle-logo`     | Gentle AI branding for the TUI.                       |
+| `gentle-logo.tsx`         | Gentle AI branding for the TUI.                       |
 | `mrjmpl3-limits`          | Limit-related status information.                     |
 | `mrjmpl3-quota`           | Provider quota display.                               |
 | `mrjmpl3-subagent-status` | Subagent status, idle state, and recovery visibility. |
@@ -153,9 +153,9 @@ This makes the repo useful not only as an OpenCode config, but also as a record 
 
 ### 🧪 Development notes
 
-This repository has both root-level configuration and package-local plugin projects.
+This repository has both root-level configuration and package-local TUI plugin projects.
 
-Some plugin packages include scripts such as:
+Some local packages include scripts such as:
 
 ```bash
 npm install
@@ -270,14 +270,14 @@ ROOT
 
 El directorio [`plugins/`](./plugins) contiene adaptadores de plugins personalizados para OpenCode.
 
-| Plugin                                                       | Qué agrega                                                                                                                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [`mrjmpl3-engram`](./plugins/mrjmpl3-engram)                 | Integración con memoria Engram: inicia o conecta el servidor local, captura prompts, inyecta instrucciones de memoria y evita inflar sesiones de subagentes. |
-| [`mrjmpl3-model-variants`](./plugins/mrjmpl3-model-variants) | Lee datos de variantes de modelos/proveedores desde OpenCode y escribe una caché local para Gentle AI.                                                       |
-| [`mrjmpl3-rtk`](./plugins/mrjmpl3-rtk)                       | Reescribe comandos de shell mediante `rtk rewrite` cuando está disponible para reducir uso de tokens.                                                        |
-| [`mrjmpl3-skill-registry`](./plugins/mrjmpl3-skill-registry) | Mantiene disponible el comportamiento de actualización del registro de skills dentro del mismo layout de plugins `mrjmpl3-*`.                                |
+| Plugin                                         | Qué agrega                                                                                                                                                   |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`engram.ts`](./plugins/engram.ts)             | Integración con memoria Engram: inicia o conecta el servidor local, captura prompts, inyecta instrucciones de memoria y evita inflar sesiones de subagentes. |
+| [`model-variants.ts`](./plugins/model-variants.ts) | Lee datos de variantes de modelos/proveedores desde OpenCode y escribe una caché local para Gentle AI.                                                   |
+| [`rtk.ts`](./plugins/rtk.ts)                   | Reescribe comandos de shell mediante `rtk rewrite` cuando está disponible para reducir uso de tokens.                                                        |
+| [`skill-registry.ts`](./plugins/skill-registry.ts) | Actualiza el registro local de skills desde el layout aplanado de entrypoints de plugins.                                                               |
 
-Cada plugin tiene su propio README con notas de instalación, exports y desarrollo.
+Estos plugins ahora viven como entrypoints planos de runtime dentro de [`plugins/`](./plugins).
 
 ### 🖥️ Plugins de TUI
 
@@ -286,7 +286,7 @@ El directorio [`tui-plugins/`](./tui-plugins) contiene extensiones para la TUI d
 | Plugin                    | Propósito                                         |
 | ------------------------- | ------------------------------------------------- |
 | `mrjmpl3-cache`           | Información de estado relacionada con caché.      |
-| `mrjmpl3-gentle-logo`     | Branding de Gentle AI para la TUI.                |
+| `gentle-logo.tsx`         | Branding de Gentle AI para la TUI.                |
 | `mrjmpl3-limits`          | Información de estado relacionada con límites.    |
 | `mrjmpl3-quota`           | Visualización de cuotas por proveedor.            |
 | `mrjmpl3-subagent-status` | Estado de subagentes, inactividad y recuperación. |
