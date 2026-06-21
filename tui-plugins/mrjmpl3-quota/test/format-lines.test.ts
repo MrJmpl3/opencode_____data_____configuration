@@ -37,9 +37,9 @@ describe('formatGoLines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      windowLine('5h', '0%', 300, fetchedAtMs),
-      windowLine('Wk', '0%', 600, fetchedAtMs),
-      windowLine('Mo', '0%', 900, fetchedAtMs),
+      windowLine('5h', '0%', 300, fetchedAtMs, 'neutral', 0),
+      windowLine('Wk', '0%', 600, fetchedAtMs, 'neutral', 0),
+      windowLine('Mo', '0%', 900, fetchedAtMs, 'neutral', 0),
       paceLine({ usedPct: 0, resetSec: 900 }, MONTH_SECONDS, fetchedAtMs),
     ]);
   });
@@ -56,7 +56,7 @@ describe('formatGoLines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      windowLine('Mo', '75%', 3600, fetchedAtMs),
+      windowLine('Mo', '75%', 3600, fetchedAtMs, 'neutral', 25),
       paceLine({ usedPct: 25, resetSec: 3600 }, MONTH_SECONDS, fetchedAtMs),
     ]);
   });
@@ -78,7 +78,7 @@ describe('formatCopilotLines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      windowLine('Mo', '70 pts', 3600, fetchedAtMs),
+      windowLine('Mo', '70 pts', 3600, fetchedAtMs, 'neutral', 30),
       paceLine({ usedPct: 30, resetSec: 3600 }, MONTH_SECONDS, fetchedAtMs),
     ]);
   });
@@ -95,7 +95,7 @@ describe('formatCopilotLines', () => {
         'remaining',
         fetchedAtMs,
       ),
-    ).toEqual([windowLine('Mo', '15 pts', 7200, fetchedAtMs)]);
+    ).toEqual([windowLine('Mo', '15 pts', 7200, fetchedAtMs, 'neutral', undefined)]);
   });
 
   it('falls back to a detail line when reset data is missing', () => {
@@ -187,10 +187,10 @@ describe('formatOpenAILines', () => {
       ),
     ).toEqual([
       headingLine('OpenAI'),
-      windowLine('5h', '20%', 300, fetchedAtMs),
-      windowLine('Wk', '30%', 600, fetchedAtMs),
+      windowLine('5h', '20%', 300, fetchedAtMs, 'neutral', 20),
+      windowLine('Wk', '30%', 600, fetchedAtMs, 'neutral', 30),
       paceLine({ usedPct: 30, resetSec: 600 }, WEEK_SECONDS, fetchedAtMs),
-      windowLine('Code', '40%', 900, fetchedAtMs),
+      windowLine('Code', '40%', 900, fetchedAtMs, 'neutral', 40),
       detailTextLine('Credits $5.00'),
     ]);
   });
@@ -213,8 +213,8 @@ describe('formatOpenAILines', () => {
       ),
     ).toEqual([
       headingLine('Spark'),
-      windowLine('5h', '90%', 100, fetchedAtMs),
-      windowLine('Wk', '80%', 200, fetchedAtMs),
+      windowLine('5h', '90%', 100, fetchedAtMs, 'neutral', 10),
+      windowLine('Wk', '80%', 200, fetchedAtMs, 'neutral', 20),
       paceLine({ usedPct: 20, resetSec: 200 }, 1234, fetchedAtMs),
     ]);
   });
@@ -242,9 +242,9 @@ describe('formatOpenAILines', () => {
       ),
     ).toEqual([
       headingLine('OpenAI'),
-      windowLine('blocked · Vision', '55%', 111, fetchedAtMs, 'error'),
-      windowLine('blocked · Vision 2nd', '66%', 222, fetchedAtMs, 'error'),
-      windowLine('limit reached · Audio 2nd', '70%', 333, fetchedAtMs, 'error'),
+      windowLine('blocked · Vision', '55%', 111, fetchedAtMs, 'error', 55),
+      windowLine('blocked · Vision 2nd', '66%', 222, fetchedAtMs, 'error', 66),
+      windowLine('limit reached · Audio 2nd', '70%', 333, fetchedAtMs, 'error', 70),
     ]);
   });
 
@@ -265,7 +265,7 @@ describe('formatOpenAILines', () => {
 
     expect(lines).toEqual([
       headingLine('OpenAI'),
-      windowLine('blocked · Extraordina…', '55%', 111, fetchedAtMs, 'error'),
+      windowLine('blocked · Extraordina…', '55%', 111, fetchedAtMs, 'error', 55),
     ]);
   });
 
@@ -304,7 +304,7 @@ describe('formatOpenAILines', () => {
     expect(dateTimeFormatSpy).toHaveBeenCalled();
     expect(lines).toEqual([
       headingLine('OpenAI'),
-      windowLine('Wk', '70%', 600, fetchedAtMs),
+      windowLine('Wk', '70%', 600, fetchedAtMs, 'neutral', 30),
       paceLine({ usedPct: 30, resetSec: 600 }, WEEK_SECONDS, fetchedAtMs),
       detailTextLine('Credits $5.00'),
       detailTextLine('Reset · 1 available · Jul 17'),

@@ -3,9 +3,10 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { Show } from 'solid-js';
 
 import { computePaceStatus } from '../domain/format.ts';
-import { remainingSeconds, renderQuotaLine } from '../domain/lines.ts';
+import { remainingSeconds, renderQuotaLine, usageColor } from '../domain/lines.ts';
 import type { QuotaLine } from '../domain/lines.ts';
 import type { QuotaLineTone } from '../domain/types.ts';
+import { fmtDuration } from '../infrastructure/providers/format.ts';
 
 const toneColor = (tone: QuotaLineTone | undefined): string => {
   switch (tone) {
@@ -37,6 +38,24 @@ const lineFg = (line: QuotaLine, nowMs: number): string => {
   }
 };
 
+const renderWindowLine = (line: Extract<QuotaLine, { kind: 'window' }>, nowMs: number) => {
+  const resetSec = remainingSeconds(line.resetAtMs, nowMs);
+  const color = line.usedPct !== undefined ? usageColor(line.usedPct) : toneColor(line.tone);
+
+  return (
+    <text wrapMode="none">
+      {/* @ts-expect-error SpanProps doesn't expose fg in the OpenTUI type definitions */}
+      <span fg="gray"> {line.label} </span>
+      {/* @ts-expect-error SpanProps doesn't expose fg in the OpenTUI type definitions */}
+      <span fg={color}>{line.value}</span>
+      {/* @ts-expect-error SpanProps doesn't expose fg in the OpenTUI type definitions */}
+      <span fg="gray"> · </span>
+      {/* @ts-expect-error SpanProps doesn't expose fg in the OpenTUI type definitions */}
+      <span fg={color}>{fmtDuration(resetSec)}</span>
+    </text>
+  );
+};
+
 export const View = (props: { getLines: () => QuotaLine[]; getNowMs: () => number; api: TuiPluginApi }) => {
   return (
     <box gap={0}>
@@ -49,11 +68,16 @@ export const View = (props: { getLines: () => QuotaLine[]; getNowMs: () => numbe
           </text>
         }
       >
-        {props.getLines().map((line) => (
-          <text fg={lineFg(line, props.getNowMs())} wrapMode="none">
-            {renderQuotaLine(line, props.getNowMs())}
-          </text>
-        ))}
+        {props.getLines().map((line) => {
+          if (line.kind === 'window') {
+            return renderWindowLine(line, props.getNowMs());
+          }
+          return (
+            <text fg={lineFg(line, props.getNowMs())} wrapMode="none">
+              {renderQuotaLine(line, props.getNowMs())}
+            </text>
+          );
+        })}
       </Show>
     </box>
   );

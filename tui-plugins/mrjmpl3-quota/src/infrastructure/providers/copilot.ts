@@ -106,7 +106,13 @@ export const formatCopilotLines = (
   const lines: QuotaLine[] = [];
 
   if (data.resetSec) {
-    lines.push(windowLine('Mo', value, data.resetSec, fetchedAtMs));
+    const usedPct =
+      data.pctRemaining !== undefined
+        ? Math.max(0, 100 - data.pctRemaining)
+        : data.total !== undefined && data.total > 0 && data.used !== undefined
+          ? Math.round((data.used / data.total) * 100)
+          : undefined;
+    lines.push(windowLine('Mo', value, data.resetSec, fetchedAtMs, 'neutral', usedPct));
 
     if (data.pctRemaining !== undefined) {
       const usedPct = Math.max(0, 100 - data.pctRemaining);

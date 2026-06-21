@@ -380,7 +380,14 @@ export const formatOpenAILines = (
     if (!window) return;
 
     targetLines.push(
-      windowLine(label, formatUsedPercentQuota(window.usedPct, displayMode), window.resetSec, fetchedAtMs, tone),
+      windowLine(
+        label,
+        formatUsedPercentQuota(window.usedPct, displayMode),
+        window.resetSec,
+        fetchedAtMs,
+        tone,
+        window.usedPct,
+      ),
     );
 
     if (paceWindowSeconds) {
