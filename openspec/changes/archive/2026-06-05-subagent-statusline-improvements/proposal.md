@@ -2,15 +2,19 @@
 
 ## Intent
 
-Reduce status drift and false running states in `mrjmpl3-subagent-status` by tightening reconciliation, completion propagation, and recovery. The change should favor correct terminal state handling over preserving stale or incorrect legacy state, while keeping the plugin mouse-only.
+Reduce status drift and false running states in `mrjmpl3-subagent-status` by tightening
+reconciliation, completion propagation, and recovery. The change should favor correct terminal state
+handling over preserving stale or incorrect legacy state, while keeping the plugin mouse-only.
 
 ## Scope
 
 ### In Scope
 
-- Preserve terminal child state during reconciliation and prevent completed/error rows from regressing to running.
+- Preserve terminal child state during reconciliation and prevent completed/error rows from
+  regressing to running.
 - Align delegation counting and task/subtask completion handling with upstream-safe behavior.
-- Improve state/token recovery, including evaluating the remote repository’s recovery approach where useful.
+- Improve state/token recovery, including evaluating the remote repository’s recovery approach where
+  useful.
 
 ### Out of Scope
 
@@ -22,7 +26,8 @@ Reduce status drift and false running states in `mrjmpl3-subagent-status` by tig
 
 ### New Capabilities
 
-- `subagent-statusline-state-and-recovery`: terminal-preserving reconciliation, stale-row retention limits, delegation counting, and recovery hydration.
+- `subagent-statusline-state-and-recovery`: terminal-preserving reconciliation, stale-row retention
+  limits, delegation counting, and recovery hydration.
 
 ### Modified Capabilities
 
@@ -30,7 +35,10 @@ None.
 
 ## Approach
 
-Keep the current TUI entrypoint and update the pure state/reconcile/persistence helpers first. Prefer upstream-aligned transition rules where they measurably fix bugs, and allow stale or incorrect rows to be purged rather than retained. Add targeted tests for regression cases before changing behavior.
+Keep the current TUI entrypoint and update the pure state/reconcile/persistence helpers first.
+Prefer upstream-aligned transition rules where they measurably fix bugs, and allow stale or
+incorrect rows to be purged rather than retained. Add targeted tests for regression cases before
+changing behavior.
 
 ## Affected Areas
 
@@ -51,7 +59,9 @@ Keep the current TUI entrypoint and update the pure state/reconcile/persistence 
 
 ## Rollback Plan
 
-Revert the state/reconcile/persistence changes and any new recovery fallback. The on-disk state format should remain readable so rollback can fall back to the previous hydration and pruning behavior without a migration.
+Revert the state/reconcile/persistence changes and any new recovery fallback. The on-disk state
+format should remain readable so rollback can fall back to the previous hydration and pruning
+behavior without a migration.
 
 ## Dependencies
 
@@ -61,5 +71,6 @@ Revert the state/reconcile/persistence changes and any new recovery fallback. Th
 ## Success Criteria
 
 - [ ] Terminal children do not regress to running after completion evidence arrives.
-- [ ] Delegation-style rows are excluded from execution counts, and completion propagation is covered by tests.
+- [ ] Delegation-style rows are excluded from execution counts, and completion propagation is
+      covered by tests.
 - [ ] Recovery hydrates state more accurately without reintroducing stale or incorrect rows.

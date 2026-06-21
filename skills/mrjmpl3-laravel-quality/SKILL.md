@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-quality
-description: Code quality tooling with PHPStan, Pint, and strict types. Use when configuring or running static analysis, code style, or linting.
+description:
+  Code quality tooling with PHPStan, Pint, and strict types. Use when configuring or running static
+  analysis, code style, or linting.
 ---
 
 # Laravel Quality

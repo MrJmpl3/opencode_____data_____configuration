@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-performance-caching
-description: Use framework caches and value/query caching to reduce work; add tags, locks, and explicit invalidation strategies for correctness
+description:
+  Use framework caches and value/query caching to reduce work; add tags, locks, and explicit
+  invalidation strategies for correctness
 ---
 
 # Caching Basics

@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-background-jobs
-description: Python background job patterns including task queues, workers, and event-driven architecture. Use when implementing async task processing, job queues, long-running operations, or decoupling work from request/response cycles.
+description:
+  Python background job patterns including task queues, workers, and event-driven architecture. Use
+  when implementing async task processing, job queues, long-running operations, or decoupling work
+  from request/response cycles.
 ---
 
 # Python Background Jobs & Task Queues
 
-Decouple long-running or unreliable work from request/response cycles. Return immediately to the user while background workers handle the heavy lifting asynchronously.
+Decouple long-running or unreliable work from request/response cycles. Return immediately to the
+user while background workers handle the heavy lifting asynchronously.
 
 ## When to Use This Skill
 
@@ -20,7 +24,8 @@ Decouple long-running or unreliable work from request/response cycles. Return im
 
 ### 1. Task Queue Pattern
 
-API accepts request, enqueues a job, returns immediately with a job ID. Workers process jobs asynchronously.
+API accepts request, enqueues a job, returns immediately with a job ID. Workers process jobs
+asynchronously.
 
 ### 2. Idempotency
 
@@ -36,7 +41,8 @@ Most queues guarantee at-least-once delivery. Your code must handle duplicates.
 
 ## Quick Start
 
-This skill uses Celery for examples, a widely adopted task queue. Alternatives like RQ, Dramatiq, and cloud-native solutions (AWS SQS, GCP Tasks) are equally valid choices.
+This skill uses Celery for examples, a widely adopted task queue. Alternatives like RQ, Dramatiq,
+and cloud-native solutions (AWS SQS, GCP Tasks) are equally valid choices.
 
 ```python
 from celery import Celery

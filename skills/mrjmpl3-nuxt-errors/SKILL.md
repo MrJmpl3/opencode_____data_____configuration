@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-nuxt-errors
-description: Error handling with error classes, handlers, and interceptors. Use when handling API errors, displaying validation errors, configuring error handlers, or implementing error interceptors.
+description:
+  Error handling with error classes, handlers, and interceptors. Use when handling API errors,
+  displaying validation errors, configuring error handlers, or implementing error interceptors.
 ---
 
 # Nuxt Error Handling

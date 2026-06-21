@@ -2,7 +2,8 @@
 
 ## Always Set Explicit Timeouts
 
-The default timeout is 30 seconds — too long for most API calls. Always set explicit `timeout` and `connectTimeout` to fail fast.
+The default timeout is 30 seconds — too long for most API calls. Always set explicit `timeout` and
+`connectTimeout` to fail fast.
 
 Incorrect:
 

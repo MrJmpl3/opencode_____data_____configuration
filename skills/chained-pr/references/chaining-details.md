@@ -11,7 +11,8 @@
 
 ## Feature Branch Chain
 
-Use when the feature branch accumulates the final integration while child PRs are reviewed as focused slices.
+Use when the feature branch accumulates the final integration while child PRs are reviewed as
+focused slices.
 
 ```text
 main

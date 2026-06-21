@@ -438,13 +438,13 @@ const service = new OrderService(new PostgresDatabase(), new SESMailer());
 
 ## ✅ Explain the why
 
-"Let's extract this to a separate function - it makes the logic easier
-to test and the main function more readable."
+"Let's extract this to a separate function - it makes the logic easier to test and the main function
+more readable."
 
 ## ✅ Offer alternatives
 
-"Instead of mutating the array, consider using `filter()` which returns
-a new array: `const active = items.filter(i => i.active)`"
+"Instead of mutating the array, consider using `filter()` which returns a new array:
+`const active = items.filter(i => i.active)`"
 
 ## ✅ Distinguish severity
 
@@ -586,7 +586,8 @@ module.exports = {
   - 簡單功能需要改動 10+ 個檔案
   - 新人看不懂架構
   - 程式碼比需求複雜 10 倍
-- **檢測**: `Factory.*Factory|Abstract.*Abstract|interface.*\{.*\}(?=.*interface.*\{.*\})|Strategy.*Strategy`
+- **檢測**:
+  `Factory.*Factory|Abstract.*Abstract|interface.*\{.*\}(?=.*interface.*\{.*\})|Strategy.*Strategy`
 - **解法**: YAGNI（You Aren't Gonna Need It）、先寫最簡單的實作、需要時再重構
 
 ### SE-2: 命名不一致
@@ -663,7 +664,8 @@ module.exports = {
 
 - **類型**: regex
 - **嚴重度**: medium
-- **模式**: `function\s+\w+\s*\([^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*\)|=>\s*\([^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*\)`
+- **模式**:
+  `function\s+\w+\s*\([^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*\)|=>\s*\([^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*,\s*[^)]*\)`
 - **訊息**: Function has more than 4 parameters - consider using an object
 - **修復建議**: Replace multiple params with single options object: `function(options: Options)`
 - **適用**: `*.ts`, `*.js`

@@ -1,6 +1,8 @@
 ---
 name: work-unit-commits
-description: 'Plan commits as reviewable work units. Trigger: implementation, commit splitting, chained PRs, or keeping tests and docs with code.'
+description:
+  'Plan commits as reviewable work units. Trigger: implementation, commit splitting, chained PRs, or
+  keeping tests and docs with code.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -65,7 +67,9 @@ When `sdd-tasks` produces a Review Workload Forecast:
 
 - Low risk: keep work-unit commits inside one PR.
 - Medium risk: commit by work unit and monitor changed lines before PR creation.
-- High risk: follow SDD `delivery_strategy` — ask on `ask-on-risk`, auto-slice on `auto-chain`, require `size:exception` on over-budget `single-pr`, or record accepted `size:exception` on `exception-ok`.
+- High risk: follow SDD `delivery_strategy` — ask on `ask-on-risk`, auto-slice on `auto-chain`,
+  require `size:exception` on over-budget `single-pr`, or record accepted `size:exception` on
+  `exception-ok`.
 
 Each SDD work unit should map cleanly to a commit or PR with:
 

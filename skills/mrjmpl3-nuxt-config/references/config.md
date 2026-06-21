@@ -13,7 +13,11 @@ export default defineNuxtConfig({
   ssr: false,
 
   // Extend shared layers
-  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
+  extends: [
+    '../../../nuxt-layers/base',
+    '../../../nuxt-layers/nuxt-ui',
+    '../../../nuxt-layers/x-ui',
+  ],
 
   // Compatibility
   compatibilityDate: '2025-07-15',

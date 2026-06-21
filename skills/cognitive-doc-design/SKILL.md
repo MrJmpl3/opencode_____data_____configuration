@@ -1,6 +1,8 @@
 ---
 name: cognitive-doc-design
-description: 'Design docs that reduce cognitive load. Trigger: writing guides, READMEs, RFCs, onboarding, architecture, or review-facing docs.'
+description:
+  'Design docs that reduce cognitive load. Trigger: writing guides, READMEs, RFCs, onboarding,
+  architecture, or review-facing docs.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -9,7 +11,8 @@ metadata:
 
 ## When to Use
 
-Load this skill when creating or editing documentation that people need to understand quickly, retain, or use during review.
+Load this skill when creating or editing documentation that people need to understand quickly,
+retain, or use during review.
 
 Use it especially for:
 

@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-state-machines
-description: State machines using Spatie Model States for complex state transitions. Use when implementing or modifying state machines, transitions, or transition validation.
+description:
+  State machines using Spatie Model States for complex state transitions. Use when implementing or
+  modifying state machines, transitions, or transition validation.
 ---
 
 # Laravel State Machines
@@ -53,4 +55,5 @@ final class SubmitOrderTransition extends Transition
 $order->status->transitionTo(PendingOrderState::class);
 ```
 
-Use state machines for complex state with validation, side effects, or state-specific behavior. Use simple enums for basic status fields.
+Use state machines for complex state with validation, side effects, or state-specific behavior. Use
+simple enums for basic status fields.

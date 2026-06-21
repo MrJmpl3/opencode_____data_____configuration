@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-laravel-tdd
-description: Test-Driven Development specifically for Laravel applications using Pest PHP. Use when implementing any Laravel feature or bugfix - write the test first, watch it fail, write minimal code to pass.
+description:
+  Test-Driven Development specifically for Laravel applications using Pest PHP. Use when
+  implementing any Laravel feature or bugfix - write the test first, watch it fail, write minimal
+  code to pass.
 ---
 
 # Test-Driven Development for Laravel
@@ -9,7 +12,8 @@ description: Test-Driven Development specifically for Laravel applications using
 
 Write the test first. Watch it fail. Write minimal code to pass.
 
-This skill adapts TDD principles specifically for Laravel applications using Pest PHP, Laravel's testing features, and framework-specific patterns.
+This skill adapts TDD principles specifically for Laravel applications using Pest PHP, Laravel's
+testing features, and framework-specific patterns.
 
 ## When to Use
 

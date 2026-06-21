@@ -1,15 +1,21 @@
 ---
 name: mrjmpl3-laravel-brainstorming-02
-description: Use when creating or developing Laravel features, before writing code or implementation plans - refines rough ideas into fully-formed Laravel designs through collaborative questioning, alternative exploration, and incremental validation.
+description:
+  Use when creating or developing Laravel features, before writing code or implementation plans -
+  refines rough ideas into fully-formed Laravel designs through collaborative questioning,
+  alternative exploration, and incremental validation.
 ---
 
 # Brainstorming Laravel Ideas Into Designs
 
 ## Overview
 
-Help turn Laravel feature ideas into fully formed designs and specs through natural collaborative dialogue, focusing on Laravel best practices and ecosystem patterns.
+Help turn Laravel feature ideas into fully formed designs and specs through natural collaborative
+dialogue, focusing on Laravel best practices and ecosystem patterns.
 
-Start by understanding the current Laravel project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design in small sections (200-300 words), checking after each section whether it looks right so far.
+Start by understanding the current Laravel project context, then ask questions one at a time to
+refine the idea. Once you understand what you're building, present the design in small sections
+(200-300 words), checking after each section whether it looks right so far.
 
 ## The Process
 
@@ -18,7 +24,8 @@ Start by understanding the current Laravel project context, then ask questions o
 - Check out the current Laravel project state first (routes, models, migrations, recent commits)
 - Ask questions one at a time to refine the idea
 - Prefer multiple choice questions when possible, but open-ended is fine too
-- Only one question per message - if a topic needs more exploration, break it into multiple questions
+- Only one question per message - if a topic needs more exploration, break it into multiple
+  questions
 - Focus on understanding: purpose, Laravel patterns, constraints, success criteria
 
 **Example Questions:**
@@ -64,7 +71,8 @@ Which approach feels right for your use case?
 - Once you believe you understand what you're building, present the design
 - Break it into sections of 200-300 words
 - Ask after each section whether it looks right so far
-- Cover: database schema, models & relationships, routes & controllers, services/actions, queues/events, API resources, validation, testing
+- Cover: database schema, models & relationships, routes & controllers, services/actions,
+  queues/events, API resources, validation, testing
 - Be ready to go back and clarify if something doesn't make sense
 
 ## Laravel-Specific Design Sections

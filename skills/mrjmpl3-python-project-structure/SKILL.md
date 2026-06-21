@@ -1,11 +1,16 @@
 ---
 name: mrjmpl3-python-project-structure
-description: Python project organization, module architecture, and public API design. Use when setting up new projects, organizing modules, defining public interfaces with __all__, or planning directory layouts.
+description:
+  Python project organization, module architecture, and public API design. Use when setting up new
+  projects, organizing modules, defining public interfaces with __all__, or planning directory
+  layouts.
 ---
 
 # Python Project Structure & Module Architecture
 
-Design well-organized Python projects with clear module boundaries, explicit public interfaces, and maintainable directory structures. Good organization makes code discoverable and changes predictable.
+Design well-organized Python projects with clear module boundaries, explicit public interfaces, and
+maintainable directory structures. Good organization makes code discoverable and changes
+predictable.
 
 ## When to Use This Skill
 
@@ -53,7 +58,8 @@ myproject/
 
 ### Pattern 1: One Concept Per File
 
-Each file should focus on a single concept or closely related set of functions. Consider splitting when a file:
+Each file should focus on a single concept or closely related set of functions. Consider splitting
+when a file:
 
 - Handles multiple unrelated responsibilities
 - Grows beyond 300-500 lines (varies by complexity)
@@ -242,7 +248,8 @@ Relative imports can break when modules are moved or reorganized.
 
 ## Best Practices Summary
 
-1. **Keep files focused** - One concept per file, consider splitting at 300-500 lines (varies by complexity)
+1. **Keep files focused** - One concept per file, consider splitting at 300-500 lines (varies by
+   complexity)
 2. **Define `__all__` explicitly** - Make public interfaces clear
 3. **Prefer flat structures** - Add depth only for genuine sub-domains
 4. **Use absolute imports** - More reliable and clearer

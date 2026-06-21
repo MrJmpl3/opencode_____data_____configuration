@@ -1,11 +1,13 @@
 # Strict TDD Module — Verify Phase
 
-> **This module is loaded ONLY when Strict TDD Mode is enabled AND a test runner is available.**
-> If you are reading this, the orchestrator already verified both conditions. Follow every instruction.
+> **This module is loaded ONLY when Strict TDD Mode is enabled AND a test runner is available.** If
+> you are reading this, the orchestrator already verified both conditions. Follow every instruction.
 
 ## TDD Verification Philosophy
 
-When Strict TDD Mode is active, verification goes beyond "does the code work?" to "was the code built correctly?" — meaning: was TDD actually followed? The apply phase reports TDD evidence; your job is to validate that evidence against reality.
+When Strict TDD Mode is active, verification goes beyond "does the code work?" to "was the code
+built correctly?" — meaning: was TDD actually followed? The apply phase reports TDD evidence; your
+job is to validate that evidence against reality.
 
 ## Step 5a: TDD Compliance Check (includes Assertion Quality Audit)
 
@@ -169,8 +171,7 @@ When Strict TDD Mode is active, your verification report MUST include these addi
 | `path/to/other.ext` | 82%    | 75%      | L45-48, L62     | ⚠️ Acceptable |
 | `path/to/new.ext`   | 100%   | 100%     | —               | ✅ Excellent  |
 
-**Average changed file coverage**: {N}%
-{or "Coverage analysis skipped — no coverage tool detected"}
+**Average changed file coverage**: {N}% {or "Coverage analysis skipped — no coverage tool detected"}
 
 ---
 
@@ -180,15 +181,14 @@ When Strict TDD Mode is active, your verification report MUST include these addi
 | ---- | ---- | --------- | ----- | -------- |
 | ...  | ...  | ...       | ...   | ...      |
 
-**Assertion quality**: {N} CRITICAL, {N} WARNING
-{or "✅ All assertions verify real behavior"}
+**Assertion quality**: {N} CRITICAL, {N} WARNING {or "✅ All assertions verify real behavior"}
 
 ---
 
 ### Quality Metrics
 
-**Linter**: ✅ No errors / ⚠️ {N} warnings / ❌ {N} errors / ➖ Not available
-**Type Checker**: ✅ No errors / ❌ {N} errors / ➖ Not available
+**Linter**: ✅ No errors / ⚠️ {N} warnings / ❌ {N} errors / ➖ Not available **Type Checker**: ✅
+No errors / ❌ {N} errors / ➖ Not available
 ```
 
 ## Step 5f: Assertion Quality Audit (MANDATORY)
@@ -265,11 +265,15 @@ If zero issues found, report: "**Assertion quality**: ✅ All assertions verify 
 ## Rules (Strict TDD Verify specific)
 
 - ALWAYS check the TDD Cycle Evidence table from apply-progress — it's the primary artifact
-- ALWAYS cross-reference reported test files against actual execution — don't trust the report blindly
+- ALWAYS cross-reference reported test files against actual execution — don't trust the report
+  blindly
 - ALWAYS run the Assertion Quality Audit (Step 5f) — trivial tests are WORSE than missing tests
 - If apply-progress has no TDD evidence table, flag as CRITICAL — the protocol was not followed
-- If tautology assertions are found (expect(true).toBe(true)), flag as CRITICAL — these MUST be rewritten
-- Coverage and quality metrics are informational, NOT blocking — only flag as WARNING, never CRITICAL
+- If tautology assertions are found (expect(true).toBe(true)), flag as CRITICAL — these MUST be
+  rewritten
+- Coverage and quality metrics are informational, NOT blocking — only flag as WARNING, never
+  CRITICAL
 - Test layer distribution is informational — SUGGESTION level only
 - DO NOT fix issues — only report. The orchestrator decides.
-- If coverage/quality tools are not available, say so cleanly and move on — never flag missing tools as failures
+- If coverage/quality tools are not available, say so cleanly and move on — never flag missing tools
+  as failures

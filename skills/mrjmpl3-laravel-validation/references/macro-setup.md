@@ -4,7 +4,8 @@
 
 ## Overview
 
-The `assertValidationErrors` macro extends Laravel's `TestResponse` class to provide clean, consistent validation error assertions when using the RequestDataProviderItem pattern.
+The `assertValidationErrors` macro extends Laravel's `TestResponse` class to provide clean,
+consistent validation error assertions when using the RequestDataProviderItem pattern.
 
 ## Installation
 
@@ -83,8 +84,10 @@ return [
 The `assertValidationErrors` macro provides three key behaviors:
 
 1. **Assert Unprocessable (422)**: Automatically asserts the response is 422 Unprocessable Entity
-2. **Assert Expected Error**: If `expectedError` is set, asserts that exact error message appears for the attribute
-3. **Assert Not Expected Error**: If `notExpectedError` is set, asserts that error does NOT appear for the attribute
+2. **Assert Expected Error**: If `expectedError` is set, asserts that exact error message appears
+   for the attribute
+3. **Assert Not Expected Error**: If `notExpectedError` is set, asserts that error does NOT appear
+   for the attribute
 
 ### Property Reference
 
@@ -252,7 +255,8 @@ test(
 
 **Error:** `Method Illuminate\Testing\TestResponse::assertValidationErrors does not exist.`
 
-**Solution:** Ensure `MacroServiceProvider` is registered in `bootstrap/providers.php` or `config/app.php`.
+**Solution:** Ensure `MacroServiceProvider` is registered in `bootstrap/providers.php` or
+`config/app.php`.
 
 ### Wrong Assertions Firing
 
@@ -281,7 +285,8 @@ postJson('/orders', $dataProviderItem->buildRequest())
 
 ## Summary
 
-The `assertValidationErrors` macro is a **required component** of the RequestDataProviderItem validation testing pattern. It provides:
+The `assertValidationErrors` macro is a **required component** of the RequestDataProviderItem
+validation testing pattern. It provides:
 
 - Clean, concise test assertions
 - Consistent validation testing patterns

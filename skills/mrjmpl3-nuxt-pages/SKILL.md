@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-pages
-description: File-based routing with page patterns for lists, details, and navigation. Use when creating pages, defining page meta (permissions, layouts), implementing list/detail patterns, or setting up breadcrumbs and headers.
+description:
+  File-based routing with page patterns for lists, details, and navigation. Use when creating pages,
+  defining page meta (permissions, layouts), implementing list/detail patterns, or setting up
+  breadcrumbs and headers.
 ---
 
 # Nuxt Pages
@@ -31,7 +34,9 @@ pages/
 
 ```vue
 <script lang="ts" setup>
-import getPostsQueryFactory, { type GetPostsFilters } from '~/features/posts/queries/get-posts-query';
+import getPostsQueryFactory, {
+  type GetPostsFilters,
+} from '~/features/posts/queries/get-posts-query';
 import { ListPosts, CreatePost } from '~/constants/permissions';
 
 definePageMeta({ permissions: ListPosts });

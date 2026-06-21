@@ -74,7 +74,9 @@ definePageMeta({
 ```vue
 <!-- app/pages/posts/index.vue -->
 <script lang="ts" setup>
-import getPostsQueryFactory, { type GetPostsFilters } from '~/features/posts/queries/get-posts-query';
+import getPostsQueryFactory, {
+  type GetPostsFilters,
+} from '~/features/posts/queries/get-posts-query';
 import deletePostActionFactory from '~/features/posts/actions/delete-post-action';
 import { ListPosts, CreatePost } from '~/constants/permissions';
 import type { Row } from '@tanstack/vue-table';
@@ -143,15 +145,29 @@ const tableRowActions = computed(() => (row: Row<Post>) => [
   <div>
     <!-- Toolbar -->
     <div class="flex items-center gap-4 mb-4">
-      <UInput v-model="filters.search" placeholder="Search..." icon="i-heroicons-magnifying-glass" />
+      <UInput
+        v-model="filters.search"
+        placeholder="Search..."
+        icon="i-heroicons-magnifying-glass"
+      />
 
-      <USelect v-model="filters.status" :options="PostStatus.values()" placeholder="Status" option-attribute="text" />
+      <USelect
+        v-model="filters.status"
+        :options="PostStatus.values()"
+        placeholder="Status"
+        option-attribute="text"
+      />
 
       <UButton v-if="hasFilters" variant="ghost" @click="resetFilters"> Clear filters </UButton>
 
       <div class="flex-1" />
 
-      <UButton v-if="can(CreatePost)" icon="i-heroicons-plus" label="Create Post" @click="openCreateSlideover()" />
+      <UButton
+        v-if="can(CreatePost)"
+        icon="i-heroicons-plus"
+        label="Create Post"
+        @click="openCreateSlideover()"
+      />
     </div>
 
     <!-- Loading indicator -->
@@ -167,7 +183,12 @@ const tableRowActions = computed(() => (row: Row<Post>) => [
     />
 
     <!-- Pagination -->
-    <XPagination v-if="pagination" v-model:page="filters.page" :pagination="pagination" class="mt-4" />
+    <XPagination
+      v-if="pagination"
+      v-model:page="filters.page"
+      :pagination="pagination"
+      class="mt-4"
+    />
 
     <!-- Slideovers -->
     <CreatePostSlideover @close="refresh" />
@@ -226,7 +247,11 @@ watch(
   post,
   (p) => {
     if (p) {
-      setBreadcrumbs([{ label: 'Content' }, { label: 'Posts', to: '/posts' }, { label: p.data.title }]);
+      setBreadcrumbs([
+        { label: 'Content' },
+        { label: 'Posts', to: '/posts' },
+        { label: p.data.title },
+      ]);
     }
   },
   { immediate: true },
@@ -271,7 +296,9 @@ privateChannel(Post, ulid.value).on(PostUpdated, refresh);
     <div v-else-if="post">
       <!-- Actions -->
       <div class="flex gap-2 mb-4">
-        <UButton v-if="can(UpdatePost)" @click="openEditSlideover({ post: post.data })"> Edit </UButton>
+        <UButton v-if="can(UpdatePost)" @click="openEditSlideover({ post: post.data })">
+          Edit
+        </UButton>
         <UButton v-if="can(DeletePost)" color="error" @click="handleDelete"> Delete </UButton>
       </div>
 

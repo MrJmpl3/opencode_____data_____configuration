@@ -2,11 +2,14 @@
 
 ## Overview
 
-Container queries enable component-based responsive design by allowing elements to respond to their container's size rather than the viewport. This paradigm shift makes truly reusable components possible.
+Container queries enable component-based responsive design by allowing elements to respond to their
+container's size rather than the viewport. This paradigm shift makes truly reusable components
+possible.
 
 ## Browser Support
 
-Container queries have excellent modern browser support (Chrome 105+, Firefox 110+, Safari 16+). For older browsers, provide graceful fallbacks.
+Container queries have excellent modern browser support (Chrome 105+, Firefox 110+, Safari 16+). For
+older browsers, provide graceful fallbacks.
 
 ## Containment Basics
 

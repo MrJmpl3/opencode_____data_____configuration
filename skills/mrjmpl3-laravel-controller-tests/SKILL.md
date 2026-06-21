@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-controller-tests
-description: Write focused controller tests using HTTP assertions; keep heavy logic in Actions/Services and unit test them
+description:
+  Write focused controller tests using HTTP assertions; keep heavy logic in Actions/Services and
+  unit test them
 ---
 
 # Controller Tests

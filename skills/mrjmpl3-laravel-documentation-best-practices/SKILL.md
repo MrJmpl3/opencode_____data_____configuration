@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-laravel-documentation-best-practices
-description: Write meaningful documentation that explains why not what; focus on complex business logic and self-documenting code
+description:
+  Write meaningful documentation that explains why not what; focus on complex business logic and
+  self-documenting code
 ---
 
 # Documentation Best Practices
 
-Keep documentation minimal and meaningful. Well-written code with descriptive names often eliminates the need for comments. Document the "why" not the "what", and focus on complex business logic, not obvious code.
+Keep documentation minimal and meaningful. Well-written code with descriptive names often eliminates
+the need for comments. Document the "why" not the "what", and focus on complex business logic, not
+obvious code.
 
 ## When NOT to Document
 
@@ -431,18 +435,15 @@ Brief description of what this project does.
 
 # Clone repository
 
-git clone https://github.com/username/project.git
-cd project
+git clone https://github.com/username/project.git cd project
 
 # Install dependencies
 
-composer install
-npm install
+composer install npm install
 
 # Environment setup
 
-cp .env.example .env
-php artisan key:generate
+cp .env.example .env php artisan key:generate
 
 # Database setup
 
@@ -450,8 +451,7 @@ php artisan migrate --seed
 
 # Start development server
 
-php artisan serve
-\```
+php artisan serve \```
 
 ## Key Features
 
@@ -483,8 +483,7 @@ php artisan test --testsuite=Feature
 
 # With coverage
 
-php artisan test --coverage
-\```
+php artisan test --coverage \```
 
 ## Deployment
 
@@ -621,4 +620,5 @@ test('document complex test scenarios', function () {
 9. **Keep README files up to date**
 10. **Document environmental dependencies**
 
-Remember: The best documentation is code that doesn't need documentation. Strive for clarity in your code first, then document what remains complex or non-obvious.
+Remember: The best documentation is code that doesn't need documentation. Strive for clarity in your
+code first, then document what remains complex or non-obvious.

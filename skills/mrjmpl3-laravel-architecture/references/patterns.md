@@ -54,9 +54,9 @@ Overview of all architectural patterns used in the Laravel architecture.
 - Queries handle complex filtering/sorting
 
 **Controllers:** HTTP only - See [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md)
-**Jobs/Listeners:** Delegate to actions
-**Actions:** Domain logic - See [Actions](../../mrjmpl3-laravel-actions/SKILL.md)
-**Validation:** Form Requests - See [form-requests.md](../../mrjmpl3-laravel-validation/references/form-requests.md)
+**Jobs/Listeners:** Delegate to actions **Actions:** Domain logic - See
+[Actions](../../mrjmpl3-laravel-actions/SKILL.md) **Validation:** Form Requests - See
+[form-requests.md](../../mrjmpl3-laravel-validation/references/form-requests.md)
 
 ### Custom Query Builders
 

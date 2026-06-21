@@ -1,13 +1,16 @@
 # Package Extraction - Complete Guide
 
-Extract **reusable patterns** into packages when they provide value across multiple projects. This guide covers when to extract, how to structure packages, and best practices for maintaining them.
+Extract **reusable patterns** into packages when they provide value across multiple projects. This
+guide covers when to extract, how to structure packages, and best practices for maintaining them.
 
 **Related guides:**
 
 - [Actions](../../mrjmpl3-laravel-actions/SKILL.md) - Action pattern for package base classes
 - [DTOs](../../mrjmpl3-laravel-dtos/SKILL.md) - DTO patterns for package data structures
-- [service-providers.md](../../mrjmpl3-laravel-providers/references/service-providers.md) - Service provider structure for packages
-- [code-style.md](../../mrjmpl3-laravel-quality/references/code-style.md) - Code style for package consistency
+- [service-providers.md](../../mrjmpl3-laravel-providers/references/service-providers.md) - Service
+  provider structure for packages
+- [code-style.md](../../mrjmpl3-laravel-quality/references/code-style.md) - Code style for package
+  consistency
 
 ## Philosophy
 
@@ -159,7 +162,8 @@ my-package/
 
 ### Advanced Service Provider
 
-For more advanced configurations with multiple boot methods, command registration, and macro support, refer to the implementation above with enhanced organization using private boot methods.
+For more advanced configurations with multiple boot methods, command registration, and macro
+support, refer to the implementation above with enhanced organization using private boot methods.
 
 ## Package Base Classes
 
@@ -406,15 +410,9 @@ The MIT License (MIT). Please see License File for more information.
 
 ```
 
-laravel-actions/
-├── src/
-│ ├── Action.php # Base action class
-│ ├── Concerns/
-│ │ ├── AsAction.php # Trait for action behavior
-│ │ └── MocksActions.php # Testing utilities
-│ └── ActionsServiceProvider.php
-└── tests/
-└── ActionTest.php
+laravel-actions/ ├── src/ │ ├── Action.php # Base action class │ ├── Concerns/ │ │ ├──
+AsAction.php # Trait for action behavior │ │ └── MocksActions.php # Testing utilities │ └──
+ActionsServiceProvider.php └── tests/ └── ActionTest.php
 
 ```
 
@@ -424,16 +422,9 @@ laravel-actions/
 
 ```
 
-laravel-data-extras/
-├── src/
-│ ├── Concerns/
-│ │ ├── HasTestFactory.php # Test factory trait
-│ │ └── ValidatesData.php # Validation utilities
-│ ├── Formatters/
-│ │ ├── MoneyFormatter.php
-│ │ └── DateFormatter.php
-│ └── DataExtrasServiceProvider.php
-└── tests/
+laravel-data-extras/ ├── src/ │ ├── Concerns/ │ │ ├── HasTestFactory.php # Test factory trait │ │
+└── ValidatesData.php # Validation utilities │ ├── Formatters/ │ │ ├── MoneyFormatter.php │ │ └──
+DateFormatter.php │ └── DataExtrasServiceProvider.php └── tests/
 
 ```
 
@@ -443,18 +434,9 @@ laravel-data-extras/
 
 ```
 
-stripe-integration/
-├── src/
-│ ├── StripeManager.php
-│ ├── Contracts/
-│ │ └── StripeDriverInterface.php
-│ ├── Drivers/
-│ │ ├── StripeDriver.php
-│ │ └── NullDriver.php
-│ ├── Facades/
-│ │ └── Stripe.php
-│ └── StripeServiceProvider.php
-└── tests/
+stripe-integration/ ├── src/ │ ├── StripeManager.php │ ├── Contracts/ │ │ └──
+StripeDriverInterface.php │ ├── Drivers/ │ │ ├── StripeDriver.php │ │ └── NullDriver.php │ ├──
+Facades/ │ │ └── Stripe.php │ └── StripeServiceProvider.php └── tests/
 
 ```
 
@@ -472,10 +454,8 @@ Follow [SemVer](https://semver.org/) strictly:
 
 ```
 
-1.0.0 - Initial release
-1.1.0 - Added new feature (backward-compatible)
-1.1.1 - Bug fix (backward-compatible)
-2.0.0 - Breaking change (new API)
+1.0.0 - Initial release 1.1.0 - Added new feature (backward-compatible) 1.1.1 - Bug fix
+(backward-compatible) 2.0.0 - Breaking change (new API)
 
 ````
 
@@ -582,6 +562,7 @@ Follow [SemVer](https://semver.org/) strictly:
 **See also:**
 
 - [Actions](../../mrjmpl3-laravel-actions/SKILL.md) - Action pattern for base classes
-- [service-providers.md](../../mrjmpl3-laravel-providers/references/service-providers.md) - Service provider structure
+- [service-providers.md](../../mrjmpl3-laravel-providers/references/service-providers.md) - Service
+  provider structure
 - [code-style.md](../../mrjmpl3-laravel-quality/references/code-style.md) - Code style guidelines
 - [Quality](../../mrjmpl3-laravel-quality/SKILL.md) - Testing and quality standards

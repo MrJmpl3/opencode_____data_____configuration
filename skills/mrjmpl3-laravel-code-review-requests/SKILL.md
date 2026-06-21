@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-code-review-requests
-description: Request effective code reviews—specify focus areas, provide context, ask for architectural feedback, reference Laravel conventions
+description:
+  Request effective code reviews—specify focus areas, provide context, ask for architectural
+  feedback, reference Laravel conventions
 ---
 
 # Code Review Requests
@@ -96,10 +98,8 @@ class ProductController extends Controller
 **Current design:**
 ````
 
-PaymentController
-→ PaymentService
-→ StripeGateway (direct Stripe API calls)
-→ PaymentRepository (database)
+PaymentController → PaymentService → StripeGateway (direct Stripe API calls) → PaymentRepository
+(database)
 
 ````
 

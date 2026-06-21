@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-web-component-design
-description: Master React, Vue, and Svelte component patterns including CSS-in-JS, composition strategies, and reusable component architecture. Use when building UI component libraries, designing component APIs, or implementing frontend design systems.
+description:
+  Master React, Vue, and Svelte component patterns including CSS-in-JS, composition strategies, and
+  reusable component architecture. Use when building UI component libraries, designing component
+  APIs, or implementing frontend design systems.
 ---
 
 # Web Component Design
 
-Build reusable, maintainable UI components using modern frameworks with clean composition patterns and styling approaches.
+Build reusable, maintainable UI components using modern frameworks with clean composition patterns
+and styling approaches.
 
 ## When to Use This Skill
 
@@ -115,7 +119,8 @@ const buttonVariants = cva(
   },
 );
 
-interface ButtonProps extends ComponentPropsWithoutRef<'button'>, VariantProps<typeof buttonVariants> {
+interface ButtonProps
+  extends ComponentPropsWithoutRef<'button'>, VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
 }
 
@@ -173,7 +178,15 @@ export function Accordion({ children }: { children: ReactNode }) {
   );
 }
 
-Accordion.Item = function AccordionItem({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+Accordion.Item = function AccordionItem({
+  id,
+  title,
+  children,
+}: {
+  id: string;
+  title: string;
+  children: ReactNode;
+}) {
   const { openItems, toggle } = useAccordion();
   const isOpen = openItems.has(id);
 

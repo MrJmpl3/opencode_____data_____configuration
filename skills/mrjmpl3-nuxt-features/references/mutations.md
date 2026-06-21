@@ -1,6 +1,7 @@
 # Mutation Patterns
 
-Mutations handle pure API operations with loading state management. No UI feedback - that's actions' job.
+Mutations handle pure API operations with loading state management. No UI feedback - that's actions'
+job.
 
 ## Core Pattern
 

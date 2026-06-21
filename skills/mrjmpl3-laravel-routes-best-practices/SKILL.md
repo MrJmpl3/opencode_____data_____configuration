@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-routes-best-practices
-description: Keep routes clean and focused on mapping requests to controllers; avoid business logic, validation, or database operations in route files
+description:
+  Keep routes clean and focused on mapping requests to controllers; avoid business logic,
+  validation, or database operations in route files
 ---
 
 # Routes Best Practices
 
-Keep your route files clean and focused on mapping requests to controllers. Routes should never contain business logic, validation, or database operations.
+Keep your route files clean and focused on mapping requests to controllers. Routes should never
+contain business logic, validation, or database operations.
 
 ## Anti-Pattern: Business Logic in Routes
 
@@ -204,4 +207,5 @@ test('route names are properly defined', function () {
 });
 ```
 
-Remember: If you're writing more than one line of code in a route definition, it belongs in a controller!
+Remember: If you're writing more than one line of code in a route definition, it belongs in a
+controller!

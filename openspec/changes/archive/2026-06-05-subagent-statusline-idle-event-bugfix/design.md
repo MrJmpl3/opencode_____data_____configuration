@@ -2,7 +2,11 @@
 
 ## Technical Approach
 
-Apply a narrow fix in `tui-plugins/mrjmpl3-subagent-status/src/events.ts` so `applySubagentEvent` no longer terminalizes a child on `session.idle`. The event path will keep using `session.error` and explicit `session.status` terminal values for completion, which matches the already-correct semantics in `reconcile.ts` and `refresh.ts`. No folder moves, runtime reorganization, persistence changes, or recovery changes are part of this design.
+Apply a narrow fix in `tui-plugins/mrjmpl3-subagent-status/src/events.ts` so `applySubagentEvent` no
+longer terminalizes a child on `session.idle`. The event path will keep using `session.error` and
+explicit `session.status` terminal values for completion, which matches the already-correct
+semantics in `reconcile.ts` and `refresh.ts`. No folder moves, runtime reorganization, persistence
+changes, or recovery changes are part of this design.
 
 ## Architecture Decisions
 
@@ -35,7 +39,8 @@ runtime event bridge
     -> syncState(nextState)
 ```
 
-This keeps refresh/reconcile semantics aligned: idle-only evidence never sets `endedAt`, while later authoritative evidence still terminalizes the same row through `markChildStatus`.
+This keeps refresh/reconcile semantics aligned: idle-only evidence never sets `endedAt`, while later
+authoritative evidence still terminalizes the same row through `markChildStatus`.
 
 ## File Changes
 
@@ -77,7 +82,8 @@ interface SubagentChild {
 
 ## Migration / Rollout
 
-No migration required. Rollout is a single small patch in the plugin package and should land before the architecture reorganization.
+No migration required. Rollout is a single small patch in the plugin package and should land before
+the architecture reorganization.
 
 ## Open Questions
 

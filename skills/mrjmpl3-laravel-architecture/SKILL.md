@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-architecture
-description: High-level architecture decisions, patterns, and project structure. Use when deciding which pattern to use, organizing code, or making structural decisions.
+description:
+  High-level architecture decisions, patterns, and project structure. Use when deciding which
+  pattern to use, organizing code, or making structural decisions.
 ---
 
 # Laravel Architecture

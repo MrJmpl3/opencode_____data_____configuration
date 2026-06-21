@@ -387,6 +387,8 @@ export default function useSubscription() {
 
 ## Related Skills
 
-- **[nuxt-features](../../4008-mrjmpl3-nuxt-features/SKILL.md)** - Queries/actions (prefer over data-fetching composables)
+- **[nuxt-features](../../4008-mrjmpl3-nuxt-features/SKILL.md)** - Queries/actions (prefer over
+  data-fetching composables)
 - **[nuxt-realtime](../../4013-mrjmpl3-nuxt-realtime/SKILL.md)** - Real-time subscriptions
-- **[nuxt-components](../../4003-mrjmpl3-nuxt-components/SKILL.md)** - Using composables in components
+- **[nuxt-components](../../4003-mrjmpl3-nuxt-components/SKILL.md)** - Using composables in
+  components

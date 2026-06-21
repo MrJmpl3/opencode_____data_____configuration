@@ -4,7 +4,10 @@ ready for proposal
 
 # executive_summary
 
-The local plugin is already close to upstream, but there are real gaps in terminal-state preservation, task/subtask completion handling, delegation counting, and stale-row retention. The safest next step is a selective parity pass that keeps the TUI mouse-only and does not copy the keyboard/focus layer.
+The local plugin is already close to upstream, but there are real gaps in terminal-state
+preservation, task/subtask completion handling, delegation counting, and stale-row retention. The
+safest next step is a selective parity pass that keeps the TUI mouse-only and does not copy the
+keyboard/focus layer.
 
 # artifacts
 
@@ -13,7 +16,8 @@ The local plugin is already close to upstream, but there are real gaps in termin
 
 # next_recommended
 
-Propose a medium-scope, non-keyboard change focused on state/event/reconcile parity, token recovery improvements, and tests for the edge cases below.
+Propose a medium-scope, non-keyboard change focused on state/event/reconcile parity, token recovery
+improvements, and tests for the edge cases below.
 
 # risks
 
@@ -29,22 +33,30 @@ sdd-explore completed; no rename needed.
 
 ## features
 
-- Upstream improves completion propagation: task-tool and subtask rows can be terminalized from completed evidence; local keeps task evidence effectively running until session updates arrive.
-- Upstream is stricter about stale-row lifecycle and preserves terminal state/timing more safely; local prunes more aggressively and has less protective state transitions.
+- Upstream improves completion propagation: task-tool and subtask rows can be terminalized from
+  completed evidence; local keeps task evidence effectively running until session updates arrive.
+- Upstream is stricter about stale-row lifecycle and preserves terminal state/timing more safely;
+  local prunes more aggressively and has less protective state transitions.
 - Upstream adds SQLite-backed token recovery; local only hydrates tokens from log files.
-- Upstream’s event parsing and child-detail extraction are broader (more title/agent fallbacks and status shapes).
+- Upstream’s event parsing and child-detail extraction are broader (more title/agent fallbacks and
+  status shapes).
 
 ## bugfixes
 
-- Local `upsertRunningChild` can regress a terminal row back to running if newer running data arrives; upstream preserves completed/error timing.
-- Local counts technical delegation rows toward `totalExecuted`; upstream explicitly excludes delegation-style titles.
-- Local does not terminalize task/subtask rows from completed tool evidence, so some rows can linger longer than necessary.
+- Local `upsertRunningChild` can regress a terminal row back to running if newer running data
+  arrives; upstream preserves completed/error timing.
+- Local counts technical delegation rows toward `totalExecuted`; upstream explicitly excludes
+  delegation-style titles.
+- Local does not terminalize task/subtask rows from completed tool evidence, so some rows can linger
+  longer than necessary.
 
 ## architecture
 
-- Local is already modular enough; the useful upstream lesson is tighter terminal-preserving reconciliation, not the keyboard layer.
+- Local is already modular enough; the useful upstream lesson is tighter terminal-preserving
+  reconciliation, not the keyboard layer.
 - Keep the current TUI entrypoint and mouse-only UX; port pure helpers/state semantics instead.
-- If expanded, the next abstraction boundary should be event normalization + state transitions, not focus management.
+- If expanded, the next abstraction boundary should be event normalization + state transitions, not
+  focus management.
 
 ## tests
 
@@ -61,7 +73,8 @@ sdd-explore completed; no rename needed.
 
 # recommended_change_scope
 
-medium — the important fixes are related and mostly local to event/state/reconcile/token helpers, but they still need careful tests and a guarded rollout.
+medium — the important fixes are related and mostly local to event/state/reconcile/token helpers,
+but they still need careful tests and a guarded rollout.
 
 # suggested_change_name
 

@@ -164,7 +164,10 @@ export function Dropdown({ trigger, children, label }: DropdownProps) {
         className="flex items-center gap-2 px-3 py-2"
       >
         {trigger}
-        <ChevronDownIcon aria-hidden="true" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon
+          aria-hidden="true"
+          className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (
@@ -247,7 +250,9 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
   const inputId = useId();
   const listboxId = useId();
 
-  const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(inputValue.toLowerCase()));
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(inputValue.toLowerCase()),
+  );
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -337,7 +342,9 @@ export function Combobox({ options, value, onChange, label, placeholder }: Combo
       )}
 
       {isOpen && filteredOptions.length === 0 && (
-        <div className="absolute z-10 mt-1 w-full rounded-md bg-white px-3 py-2 shadow-lg">No results found</div>
+        <div className="absolute z-10 mt-1 w-full rounded-md bg-white px-3 py-2 shadow-lg">
+          No results found
+        </div>
       )}
     </div>
   );
@@ -353,7 +360,11 @@ interface FormFieldProps {
   label: string;
   error?: string;
   required?: boolean;
-  children: (props: { id: string; 'aria-describedby': string | undefined; 'aria-invalid': boolean }) => ReactNode;
+  children: (props: {
+    id: string;
+    'aria-describedby': string | undefined;
+    'aria-invalid': boolean;
+  }) => ReactNode;
 }
 
 export function FormField({ label, error, required, children }: FormFieldProps) {
@@ -505,7 +516,8 @@ function useFocusTrap(containerRef: RefObject<HTMLElement>, isActive: boolean) {
     if (!isActive || !containerRef.current) return;
 
     const container = containerRef.current;
-    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;

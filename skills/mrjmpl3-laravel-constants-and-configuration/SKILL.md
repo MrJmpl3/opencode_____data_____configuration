@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-constants-and-configuration
-description: Replace hardcoded values with constants, enums, and configuration for maintainability; use PHP 8.1+ enums and config files
+description:
+  Replace hardcoded values with constants, enums, and configuration for maintainability; use PHP
+  8.1+ enums and config files
 ---
 
 # Constants and Configuration Values
 
-Avoid hardcoded values throughout your codebase. Use constants, configuration files, and enums to make your application more maintainable, refactorable, and debuggable.
+Avoid hardcoded values throughout your codebase. Use constants, configuration files, and enums to
+make your application more maintainable, refactorable, and debuggable.
 
 ## The Problem with Hardcoded Values
 
@@ -608,4 +611,5 @@ test('validation rules are applied correctly', function () {
    $cacheTime = DateConstants::secondsIn('hour') * 2; // 2 hours
    ```
 
-Remember: Constants make your code self-documenting, reduce bugs from typos, and make refactoring much safer!
+Remember: Constants make your code self-documenting, reduce bugs from typos, and make refactoring
+much safer!

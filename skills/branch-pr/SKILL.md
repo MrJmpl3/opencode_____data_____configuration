@@ -1,6 +1,8 @@
 ---
 name: branch-pr
-description: 'Create Gentle AI pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review.'
+description:
+  'Create Gentle AI pull requests with issue-first checks. Trigger: creating, opening, or preparing
+  PRs for review.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -76,8 +78,8 @@ The PR template is at `.github/PULL_REQUEST_TEMPLATE.md`. Every PR body MUST con
 Closes #<issue-number>
 ```
 
-Valid keywords: `Closes #N`, `Fixes #N`, `Resolves #N` (case insensitive).
-The linked issue MUST have the `status:approved` label.
+Valid keywords: `Closes #N`, `Fixes #N`, `Resolves #N` (case insensitive). The linked issue MUST
+have the `status:approved` label.
 
 ### 2. PR Type (REQUIRED)
 
@@ -147,7 +149,8 @@ Commit messages MUST match this regex:
 
 **Format:** `type(scope): description` or `type: description`
 
-- `type` — required, one of: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`
+- `type` — required, one of: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
+  `revert`, `style`, `test`
 - `(scope)` — optional, lowercase with `a-z0-9._-`
 - `!` — optional, indicates breaking change
 - `description` — required, starts after `: `

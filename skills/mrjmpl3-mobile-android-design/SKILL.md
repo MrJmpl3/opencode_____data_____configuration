@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-mobile-android-design
-description: Master Material Design 3 and Jetpack Compose patterns for building native Android apps. Use when designing Android interfaces, implementing Compose UI, or following Google's Material Design guidelines.
+description:
+  Master Material Design 3 and Jetpack Compose patterns for building native Android apps. Use when
+  designing Android interfaces, implementing Compose UI, or following Google's Material Design
+  guidelines.
 ---
 
 # Android Mobile Design
 
-Master Material Design 3 (Material You) and Jetpack Compose to build modern, adaptive Android applications that integrate seamlessly with the Android ecosystem.
+Master Material Design 3 (Material You) and Jetpack Compose to build modern, adaptive Android
+applications that integrate seamlessly with the Android ecosystem.
 
 ## When to Use This Skill
 
@@ -22,9 +26,8 @@ Master Material Design 3 (Material You) and Jetpack Compose to build modern, ada
 
 ### 1. Material Design 3 Principles
 
-**Personalization**: Dynamic color adapts UI to user's wallpaper
-**Accessibility**: Tonal palettes ensure sufficient color contrast
-**Large Screens**: Responsive layouts for tablets and foldables
+**Personalization**: Dynamic color adapts UI to user's wallpaper **Accessibility**: Tonal palettes
+ensure sufficient color contrast **Large Screens**: Responsive layouts for tablets and foldables
 
 **Material Components:**
 
@@ -414,7 +417,8 @@ fun ItemListCard(
 
 ## Best Practices
 
-1. **Use Material Theme**: Access colors via `MaterialTheme.colorScheme` for automatic dark mode support
+1. **Use Material Theme**: Access colors via `MaterialTheme.colorScheme` for automatic dark mode
+   support
 2. **Support Dynamic Color**: Enable dynamic color on Android 12+ for personalization
 3. **Adaptive Layouts**: Use `WindowSizeClass` for responsive designs
 4. **Content Descriptions**: Add `contentDescription` to all interactive elements

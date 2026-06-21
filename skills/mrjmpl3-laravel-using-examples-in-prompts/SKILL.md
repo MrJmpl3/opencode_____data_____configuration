@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-using-examples-in-prompts
-description: Provide concrete examples—existing code patterns, style samples, input/output pairs—to guide AI toward your project's conventions
+description:
+  Provide concrete examples—existing code patterns, style samples, input/output pairs—to guide AI
+  toward your project's conventions
 ---
 
 # Using Examples in Prompts

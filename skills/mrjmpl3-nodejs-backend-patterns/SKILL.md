@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-nodejs-backend-patterns
-description: Build production-ready Node.js backend services with Express/Fastify, implementing middleware patterns, error handling, authentication, database integration, and API design best practices. Use when creating Node.js servers, REST APIs, GraphQL backends, or microservices architectures.
+description:
+  Build production-ready Node.js backend services with Express/Fastify, implementing middleware
+  patterns, error handling, authentication, database integration, and API design best practices. Use
+  when creating Node.js servers, REST APIs, GraphQL backends, or microservices architectures.
 ---
 
 # Node.js Backend Patterns
 
-Comprehensive guidance for building scalable, maintainable, and production-ready Node.js backend applications with modern frameworks, architectural patterns, and best practices.
+Comprehensive guidance for building scalable, maintainable, and production-ready Node.js backend
+applications with modern frameworks, architectural patterns, and best practices.
 
 ## When to Use This Skill
 
@@ -297,7 +301,8 @@ export class UserRepository {
 
 ### Pattern 2: Dependency Injection
 
-Use a DI container to wire up repositories, services, and controllers. For a full container implementation, see [references/advanced-patterns.md](references/advanced-patterns.md).
+Use a DI container to wire up repositories, services, and controllers. For a full container
+implementation, see [references/advanced-patterns.md](references/advanced-patterns.md).
 
 ## Middleware Patterns
 
@@ -562,7 +567,9 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 };
 
 // Async error wrapper
-export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) => {
+export const asyncHandler = (
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<any>,
+) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -581,15 +588,19 @@ Key patterns covered in [references/advanced-patterns.md](references/advanced-pa
 
 ## Authentication & Authorization
 
-JWT-based auth with access tokens (short-lived, 15m) and refresh tokens (7d). Full `AuthService` implementation with `bcrypt` password comparison in [references/advanced-patterns.md](references/advanced-patterns.md).
+JWT-based auth with access tokens (short-lived, 15m) and refresh tokens (7d). Full `AuthService`
+implementation with `bcrypt` password comparison in
+[references/advanced-patterns.md](references/advanced-patterns.md).
 
 ## Caching Strategies
 
-Redis-backed `CacheService` with get/set/delete/invalidatePattern, plus a `@Cacheable` decorator for method-level caching. See [references/advanced-patterns.md](references/advanced-patterns.md).
+Redis-backed `CacheService` with get/set/delete/invalidatePattern, plus a `@Cacheable` decorator for
+method-level caching. See [references/advanced-patterns.md](references/advanced-patterns.md).
 
 ## API Response Format
 
-Standardized `ApiResponse` helper with `success`, `error`, and `paginated` static methods. See [references/advanced-patterns.md](references/advanced-patterns.md).
+Standardized `ApiResponse` helper with `success`, `error`, and `paginated` static methods. See
+[references/advanced-patterns.md](references/advanced-patterns.md).
 
 ## Best Practices
 

@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-transactions-and-consistency
-description: Wrap multi-write operations in transactions; use dispatchAfterCommit and idempotency patterns to ensure consistency
+description:
+  Wrap multi-write operations in transactions; use dispatchAfterCommit and idempotency patterns to
+  ensure consistency
 ---
 
 # Transactions and Consistency

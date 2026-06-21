@@ -1,15 +1,20 @@
 ---
 name: mrjmpl3-nuxt-layers
-description: Working with Nuxt layers (base, nuxt-ui, x-ui) that provide shared functionality. Use when understanding layer architecture, importing from layers, extending layer functionality, or creating new layers.
+description:
+  Working with Nuxt layers (base, nuxt-ui, x-ui) that provide shared functionality. Use when
+  understanding layer architecture, importing from layers, extending layer functionality, or
+  creating new layers.
 ---
 
 # Nuxt Layers
 
-Shared foundation layers providing composables, models, repositories, and UI components across applications.
+Shared foundation layers providing composables, models, repositories, and UI components across
+applications.
 
 ## Layer Stack
 
-**[layers.md](references/layers.md)** - Complete layer architecture, what each provides, how to extend
+**[layers.md](references/layers.md)** - Complete layer architecture, what each provides, how to
+extend
 
 ## Three-Layer Architecture
 
@@ -26,7 +31,11 @@ base          → Core infrastructure (Model, Repository, composables, utils)
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
+  extends: [
+    '../../../nuxt-layers/base',
+    '../../../nuxt-layers/nuxt-ui',
+    '../../../nuxt-layers/x-ui',
+  ],
 });
 ```
 

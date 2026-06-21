@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-api-design-principles
-description: Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers. Use when designing new APIs, reviewing API specifications, or establishing API design standards.
+description:
+  Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs
+  that delight developers. Use when designing new APIs, reviewing API specifications, or
+  establishing API design standards.
 ---
 
 # API Design Principles
 
-Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers and stand the test of time.
+Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs
+that delight developers and stand the test of time.
 
 ## When to Use This Skill
 

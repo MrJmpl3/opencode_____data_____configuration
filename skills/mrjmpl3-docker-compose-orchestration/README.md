@@ -1,10 +1,13 @@
 # Docker Compose Orchestration
 
-A comprehensive skill for managing multi-container applications with Docker Compose, covering service orchestration, networking, volumes, health checks, and production deployment strategies.
+A comprehensive skill for managing multi-container applications with Docker Compose, covering
+service orchestration, networking, volumes, health checks, and production deployment strategies.
 
 ## Overview
 
-Docker Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services, networks, and volumes. Then, with a single command, you create and start all the services from your configuration.
+Docker Compose is a tool for defining and running multi-container Docker applications. With Compose,
+you use a YAML file to configure your application's services, networks, and volumes. Then, with a
+single command, you create and start all the services from your configuration.
 
 This skill provides comprehensive knowledge for:
 
@@ -768,4 +771,5 @@ docker compose logs -f
 
 ---
 
-For detailed examples, advanced patterns, and comprehensive configurations, see the full SKILL.md documentation.
+For detailed examples, advanced patterns, and comprehensive configurations, see the full SKILL.md
+documentation.

@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-uv-package-manager
-description: Master the uv package manager for fast Python dependency management, virtual environments, and modern Python project workflows. Use when setting up Python projects, managing dependencies, or optimizing Python development workflows with uv.
+description:
+  Master the uv package manager for fast Python dependency management, virtual environments, and
+  modern Python project workflows. Use when setting up Python projects, managing dependencies, or
+  optimizing Python development workflows with uv.
 ---
 
 # UV Package Manager
 
-Comprehensive guide to using uv, an extremely fast Python package installer and resolver written in Rust, for modern Python project management and dependency workflows.
+Comprehensive guide to using uv, an extremely fast Python package installer and resolver written in
+Rust, for modern Python project management and dependency workflows.
 
 ## When to Use This Skill
 
@@ -342,4 +346,7 @@ uv pip freeze > requirements.txt
 uv pip freeze --require-hashes > requirements.txt
 ```
 
-For advanced workflows including Docker integration, lockfile management, performance optimization, tool comparison, common workflows, tool integration, troubleshooting, best practices, migration guides, and command reference, see [references/advanced-patterns.md](references/advanced-patterns.md)
+For advanced workflows including Docker integration, lockfile management, performance optimization,
+tool comparison, common workflows, tool integration, troubleshooting, best practices, migration
+guides, and command reference, see
+[references/advanced-patterns.md](references/advanced-patterns.md)

@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-dtos
-description: Data Transfer Objects using Spatie Laravel Data. Use when creating or modifying DTOs, data objects, formatters, transformers, or structured data handling.
+description:
+  Data Transfer Objects using Spatie Laravel Data. Use when creating or modifying DTOs, data
+  objects, formatters, transformers, or structured data handling.
 ---
 
 # Laravel DTOs
@@ -24,11 +26,13 @@ DTOs provide:
 
 ## Spatie Laravel Data Package
 
-Uses [Spatie Laravel Data](https://spatie.be/docs/laravel-data). Refer to official docs for package features. This guide covers project-specific patterns and preferences.
+Uses [Spatie Laravel Data](https://spatie.be/docs/laravel-data). Refer to official docs for package
+features. This guide covers project-specific patterns and preferences.
 
 ### Use `::from()` with Arrays
 
-**Always prefer `::from()`** with arrays where keys match constructor property names. Let the package handle casting based on property types.
+**Always prefer `::from()`** with arrays where keys match constructor property names. Let the
+package handle casting based on property types.
 
 ```php
 // ✅ PREFERRED - Let package cast automatically
@@ -63,7 +67,8 @@ $data = new CreateOrderData(
 
 ### Avoid Case Mapper Attributes
 
-**Don't use `#[MapInputName]` or case mapper attributes.** Map field names explicitly in calling code.
+**Don't use `#[MapInputName]` or case mapper attributes.** Map field names explicitly in calling
+code.
 
 ```php
 // ❌ AVOID - Case mapper attributes on the class
@@ -90,7 +95,8 @@ CreateOrderData::from([
 
 ### Date Casting is Automatic
 
-The package automatically casts date strings to `Carbon` or `CarbonImmutable` based on property types. Configure the expected date format in the package config.
+The package automatically casts date strings to `Carbon` or `CarbonImmutable` based on property
+types. Configure the expected date format in the package config.
 
 ```php
 // config/data.php
@@ -248,7 +254,8 @@ class EmailFormatter
 
 ### Static Factory Methods on DTOs
 
-For smaller applications or when starting out, add static `from*` methods directly on the DTO class. This provides factory-like behavior before complexity warrants separate transformers.
+For smaller applications or when starting out, add static `from*` methods directly on the DTO class.
+This provides factory-like behavior before complexity warrants separate transformers.
 
 **Method naming:** `from{SourceType}` - e.g., `fromArray`, `fromRequest`, `fromModel`
 
@@ -410,7 +417,8 @@ class CreateOrderAction
 
 ## Transformers
 
-For complex transformations (external APIs, webhooks, field mappings), use dedicated transformer classes.
+For complex transformations (external APIs, webhooks, field mappings), use dedicated transformer
+classes.
 
 **[→ Complete guide: dto-transformers.md](references/dto-transformers.md)**
 

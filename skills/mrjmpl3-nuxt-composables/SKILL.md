@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-nuxt-composables
-description: Creating custom Vue composables with proper patterns. Use when building reusable stateful logic, shared state management, or encapsulating feature-specific behavior.
+description:
+  Creating custom Vue composables with proper patterns. Use when building reusable stateful logic,
+  shared state management, or encapsulating feature-specific behavior.
 ---
 
 # Nuxt Composables

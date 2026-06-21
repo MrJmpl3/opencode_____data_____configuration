@@ -14,7 +14,9 @@ export interface ColumnBuilder<TModel> {
   except(columnsToExclude: string[]): TableColumn<TModel>[];
 }
 
-export function createColumnBuilder<TModel>(columns: Record<string, TableColumn<TModel>>): ColumnBuilder<TModel> {
+export function createColumnBuilder<TModel>(
+  columns: Record<string, TableColumn<TModel>>,
+): ColumnBuilder<TModel> {
   return {
     all: () => Object.values(columns),
     build: (columnKeys: string[]) => columnKeys.map((key) => columns[key]).filter(Boolean),
@@ -43,7 +45,8 @@ const ulidColumn: TableColumn<Post> = {
   id: 'ulid',
   accessorKey: 'ulid',
   header: 'ULID',
-  cell: ({ row }) => h(Copyable, { content: row.original.ulid }, () => truncateMiddle(row.original.ulid, 8)),
+  cell: ({ row }) =>
+    h(Copyable, { content: row.original.ulid }, () => truncateMiddle(row.original.ulid, 8)),
 };
 
 // Status column with badge

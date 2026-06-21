@@ -253,7 +253,9 @@ export default function getCommentsQueryFactory() {
 
 ```vue
 <script lang="ts" setup>
-import getPostsQueryFactory, { type GetPostsFilters } from '~/features/posts/queries/get-posts-query';
+import getPostsQueryFactory, {
+  type GetPostsFilters,
+} from '~/features/posts/queries/get-posts-query';
 
 // Set up filters
 const { filters, hasFilters, resetFilters } = useReactiveFilters<GetPostsFilters>(
@@ -304,5 +306,6 @@ const { data: posts, refresh, isLoading, isFetching, pagination } = getPostsQuer
 
 ## Related Skills
 
-- **[nuxt-repositories](../../4014-mrjmpl3-nuxt-repositories/SKILL.md)** - Repositories used in queries
+- **[nuxt-repositories](../../4014-mrjmpl3-nuxt-repositories/SKILL.md)** - Repositories used in
+  queries
 - **[nuxt-composables](../../4004-mrjmpl3-nuxt-composables/SKILL.md)** - useReactiveFilters details

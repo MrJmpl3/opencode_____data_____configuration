@@ -280,7 +280,13 @@ export const DeleteAuthor = 'authors.delete';
 // Permission groups
 export const PostPermissions = [ListPosts, ShowPost, CreatePost, UpdatePost, DeletePost];
 
-export const AuthorPermissions = [ListAuthors, ShowAuthor, CreateAuthor, UpdateAuthor, DeleteAuthor];
+export const AuthorPermissions = [
+  ListAuthors,
+  ShowAuthor,
+  CreateAuthor,
+  UpdateAuthor,
+  DeleteAuthor,
+];
 ```
 
 ### Using Constants

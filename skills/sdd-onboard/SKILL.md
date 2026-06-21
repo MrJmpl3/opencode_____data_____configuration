@@ -1,6 +1,8 @@
 ---
 name: sdd-onboard
-description: 'Walk users through the SDD workflow on the real codebase. Trigger: orchestrator launches onboarding for the full SDD cycle.'
+description:
+  'Walk users through the SDD workflow on the real codebase. Trigger: orchestrator launches
+  onboarding for the full SDD cycle.'
 disable-model-invocation: true
 user-invocable: false
 license: MIT
@@ -10,25 +12,33 @@ metadata:
   delegate_only: false
 ---
 
-> **ORCHESTRATOR NOTE**: This skill is designed to be executed INLINE by the
-> orchestrator. It is an interactive walkthrough — no sub-agent delegation
-> needed.
+> **ORCHESTRATOR NOTE**: This skill is designed to be executed INLINE by the orchestrator. It is an
+> interactive walkthrough — no sub-agent delegation needed.
 
 ## Executor Override
 
-If you ARE the `sdd-onboard` sub-agent (NOT the orchestrator), the gate above does NOT apply to you. Continue with the phase work below. Do NOT delegate. Do NOT call the Skill tool. You are the executor — execute.
+If you ARE the `sdd-onboard` sub-agent (NOT the orchestrator), the gate above does NOT apply to you.
+Continue with the phase work below. Do NOT delegate. Do NOT call the Skill tool. You are the
+executor — execute.
 
 ## Language Domain Contract
 
-Generated technical artifacts default to English. Do not inherit the user's conversational language or the active persona's regional voice for SDD artifacts unless the user explicitly requests that artifact language or the project convention requires it.
+Generated technical artifacts default to English. Do not inherit the user's conversational language
+or the active persona's regional voice for SDD artifacts unless the user explicitly requests that
+artifact language or the project convention requires it.
 
-If Spanish technical artifacts are explicitly requested, use neutral/professional Spanish unless the user explicitly asks for a regional variant.
+If Spanish technical artifacts are explicitly requested, use neutral/professional Spanish unless the
+user explicitly asks for a regional variant.
 
-Public/contextual comments follow the target context language by default. Explicit user language or tone overrides win; Spanish comments default to neutral/professional Spanish unless the user or target context clearly calls for regional tone.
+Public/contextual comments follow the target context language by default. Explicit user language or
+tone overrides win; Spanish comments default to neutral/professional Spanish unless the user or
+target context clearly calls for regional tone.
 
 ## Purpose
 
-You are a sub-agent responsible for ONBOARDING. You guide the user through a complete SDD cycle — from exploration to archive — using their actual codebase. This is a real change with real artifacts, not a toy example. The goal is to teach by doing.
+You are a sub-agent responsible for ONBOARDING. You guide the user through a complete SDD cycle —
+from exploration to archive — using their actual codebase. This is a real change with real
+artifacts, not a toy example. The goal is to teach by doing.
 
 ## What You Receive
 
@@ -78,7 +88,8 @@ Narrate as you explore:
  Let me look at the relevant code..."
 ```
 
-Run `sdd-explore` behavior inline — investigate the chosen area, understand current state, identify what needs to change. Explain your findings to the user in plain language.
+Run `sdd-explore` behavior inline — investigate the chosen area, understand current state, identify
+what needs to change. Explain your findings to the user in plain language.
 
 Conclude with:
 
@@ -100,7 +111,8 @@ Create the change folder and write `proposal.md` following `sdd-propose` format.
  this tells the next step exactly which spec files to create."
 ```
 
-Show the user the proposal and let them review it. Ask if they want to adjust anything before continuing.
+Show the user the proposal and let them review it. Ask if they want to adjust anything before
+continuing.
 
 ### Phase 4: Specs (narrated)
 
@@ -198,8 +210,7 @@ Close the session with a recap:
 
 Here's what we built together:
 
-**Change**: {change-name}
-**Artifacts created**:
+**Change**: {change-name} **Artifacts created**:
 
 - proposal.md — the WHY
 - specs/{capability}/spec.md — the WHAT
@@ -210,11 +221,10 @@ Here's what we built together:
 
 - {list of files}
 
-**The SDD cycle in one line**:
-explore → propose → spec → design → tasks → apply → verify → archive
+**The SDD cycle in one line**: explore → propose → spec → design → tasks → apply → verify → archive
 
-**When to use SDD**: Any change where you want to agree on WHAT before writing code.
-Small tweaks? Just code. Features, APIs, architecture decisions? SDD first.
+**When to use SDD**: Any change where you want to agree on WHAT before writing code. Small tweaks?
+Just code. Features, APIs, architecture decisions? SDD first.
 
 **Next steps**:
 
@@ -228,8 +238,11 @@ Small tweaks? Just code. Features, APIs, architecture decisions? SDD first.
 - This is a REAL change — not a demo. The artifacts and code must be production-quality.
 - Keep each phase narration SHORT — 1-3 sentences. Teach, don't lecture.
 - Always ask before continuing past Phase 3 (proposal) — let the user review and adjust.
-- If the user picks their own improvement, validate it fits the "small and safe" criteria before proceeding.
-- If anything blocks the cycle (tests fail, design is unclear, codebase is too complex), STOP and explain — don't push through.
+- If the user picks their own improvement, validate it fits the "small and safe" criteria before
+  proceeding.
+- If anything blocks the cycle (tests fail, design is unclear, codebase is too complex), STOP and
+  explain — don't push through.
 - Adapt the tone to the user — if they're experienced, skip basics; if they're new, explain more.
-- Follow all format rules from the individual skills (sdd-propose, sdd-spec, sdd-design, sdd-tasks, sdd-apply, sdd-verify, sdd-archive).
+- Follow all format rules from the individual skills (sdd-propose, sdd-spec, sdd-design, sdd-tasks,
+  sdd-apply, sdd-verify, sdd-archive).
 - Return envelope per **Section D** from `skills/_shared/sdd-phase-common.md`.

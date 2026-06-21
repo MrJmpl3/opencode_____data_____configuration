@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-models
-description: Domain model classes with automatic hydration, relations, and type casting. Use when creating models for API entities, defining relationships between models, casting properties to enums/dates, or creating value objects.
+description:
+  Domain model classes with automatic hydration, relations, and type casting. Use when creating
+  models for API entities, defining relationships between models, casting properties to enums/dates,
+  or creating value objects.
 ---
 
 # Nuxt Models

@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-nuxt-config
-description: Nuxt and app configuration files. Use when configuring nuxt.config.ts, app.config.ts, environment variables, runtime config, or understanding how configuration flows through the application.
+description:
+  Nuxt and app configuration files. Use when configuring nuxt.config.ts, app.config.ts, environment
+  variables, runtime config, or understanding how configuration flows through the application.
 ---
 
 # Nuxt Configuration
@@ -17,7 +19,11 @@ Application configuration via nuxt.config.ts and app.config.ts.
 export default defineNuxtConfig({
   ssr: false, // SPA mode
 
-  extends: ['../../../nuxt-layers/base', '../../../nuxt-layers/nuxt-ui', '../../../nuxt-layers/x-ui'],
+  extends: [
+    '../../../nuxt-layers/base',
+    '../../../nuxt-layers/nuxt-ui',
+    '../../../nuxt-layers/x-ui',
+  ],
 
   modules: ['nuxt-auth-sanctum', '@nuxt/ui'],
 

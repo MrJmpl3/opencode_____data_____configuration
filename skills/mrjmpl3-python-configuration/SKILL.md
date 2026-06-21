@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-configuration
-description: Python configuration management via environment variables and typed settings. Use when externalizing config, setting up pydantic-settings, managing secrets, or implementing environment-specific behavior.
+description:
+  Python configuration management via environment variables and typed settings. Use when
+  externalizing config, setting up pydantic-settings, managing secrets, or implementing
+  environment-specific behavior.
 ---
 
 # Python Configuration Management
 
-Externalize configuration from code using environment variables and typed settings. Well-managed configuration enables the same code to run in any environment without modification.
+Externalize configuration from code using environment variables and typed settings. Well-managed
+configuration enables the same code to run in any environment without modification.
 
 ## When to Use This Skill
 
@@ -20,7 +24,8 @@ Externalize configuration from code using environment variables and typed settin
 
 ### 1. Externalized Configuration
 
-All environment-specific values (URLs, secrets, feature flags) come from environment variables, not code.
+All environment-specific values (URLs, secrets, feature flags) come from environment variables, not
+code.
 
 ### 2. Typed Settings
 
@@ -28,11 +33,13 @@ Parse and validate configuration into typed objects at startup, not scattered th
 
 ### 3. Fail Fast
 
-Validate all required configuration at application boot. Missing config should crash immediately with a clear message.
+Validate all required configuration at application boot. Missing config should crash immediately
+with a clear message.
 
 ### 4. Sensible Defaults
 
-Provide reasonable defaults for local development while requiring explicit values for sensitive settings.
+Provide reasonable defaults for local development while requiring explicit values for sensitive
+settings.
 
 ## Quick Start
 

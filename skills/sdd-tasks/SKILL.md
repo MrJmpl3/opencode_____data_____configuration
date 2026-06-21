@@ -1,6 +1,8 @@
 ---
 name: sdd-tasks
-description: 'Break an SDD change into implementation tasks. Trigger: orchestrator launches task planning for a change.'
+description:
+  'Break an SDD change into implementation tasks. Trigger: orchestrator launches task planning for a
+  change.'
 disable-model-invocation: true
 user-invocable: false
 license: MIT
@@ -10,27 +12,34 @@ metadata:
   delegate_only: true
 ---
 
-> **ORCHESTRATOR GATE**: If you loaded this skill via the `skill()` tool, you are
-> the ORCHESTRATOR — STOP. Do NOT execute these instructions inline. Delegate to
-> the dedicated `sdd-tasks` sub-agent using your platform's delegation primitive
-> (e.g., `task(...)`, sub-agent invocation, etc.). This skill is for EXECUTORS
-> only.
+> **ORCHESTRATOR GATE**: If you loaded this skill via the `skill()` tool, you are the ORCHESTRATOR —
+> STOP. Do NOT execute these instructions inline. Delegate to the dedicated `sdd-tasks` sub-agent
+> using your platform's delegation primitive (e.g., `task(...)`, sub-agent invocation, etc.). This
+> skill is for EXECUTORS only.
 
 ## Executor Override
 
-If you ARE the `sdd-tasks` sub-agent (NOT the orchestrator), the gate above does NOT apply to you. Continue with the phase work below. Do NOT delegate. Do NOT call the Skill tool. You are the executor — execute.
+If you ARE the `sdd-tasks` sub-agent (NOT the orchestrator), the gate above does NOT apply to you.
+Continue with the phase work below. Do NOT delegate. Do NOT call the Skill tool. You are the
+executor — execute.
 
 ## Language Domain Contract
 
-Generated technical artifacts default to English. Do not inherit the user's conversational language or the active persona's regional voice for SDD artifacts unless the user explicitly requests that artifact language or the project convention requires it.
+Generated technical artifacts default to English. Do not inherit the user's conversational language
+or the active persona's regional voice for SDD artifacts unless the user explicitly requests that
+artifact language or the project convention requires it.
 
-If Spanish technical artifacts are explicitly requested, use neutral/professional Spanish unless the user explicitly asks for a regional variant.
+If Spanish technical artifacts are explicitly requested, use neutral/professional Spanish unless the
+user explicitly asks for a regional variant.
 
-Public/contextual comments follow the target context language by default. Explicit user language or tone overrides win; Spanish comments default to neutral/professional Spanish unless the user or target context clearly calls for regional tone.
+Public/contextual comments follow the target context language by default. Explicit user language or
+tone overrides win; Spanish comments default to neutral/professional Spanish unless the user or
+target context clearly calls for regional tone.
 
 ## Purpose
 
-You are a sub-agent responsible for creating the TASK BREAKDOWN. You take the proposal, specs, and design, then produce a `tasks.md` with concrete, actionable implementation steps organized by phase.
+You are a sub-agent responsible for creating the TASK BREAKDOWN. You take the proposal, specs, and
+design, then produce a `tasks.md` with concrete, actionable implementation steps organized by phase.
 
 ## What You Receive
 
@@ -42,11 +51,14 @@ From the orchestrator:
 
 ## Execution and Persistence Contract
 
-> Follow **Section B** (retrieval) and **Section C** (persistence) from `skills/_shared/sdd-phase-common.md`.
+> Follow **Section B** (retrieval) and **Section C** (persistence) from
+> `skills/_shared/sdd-phase-common.md`.
 
-- **engram**: Read `sdd/{change-name}/proposal` (required), `sdd/{change-name}/spec` (required), `sdd/{change-name}/design` (required). Save as `sdd/{change-name}/tasks`.
+- **engram**: Read `sdd/{change-name}/proposal` (required), `sdd/{change-name}/spec` (required),
+  `sdd/{change-name}/design` (required). Save as `sdd/{change-name}/tasks`.
 - **openspec**: Read and follow `skills/_shared/openspec-convention.md`.
-- **hybrid**: Follow BOTH conventions — persist to Engram AND write `tasks.md` to filesystem. Retrieve dependencies from Engram (primary) with filesystem fallback.
+- **hybrid**: Follow BOTH conventions — persist to Engram AND write `tasks.md` to filesystem.
+  Retrieve dependencies from Engram (primary) with filesystem fallback.
 - **none**: Return result only. Never create or modify project files.
 
 ## What to Do
@@ -75,7 +87,8 @@ openspec/changes/{change-name}/
 └── tasks.md               ← You create this
 ```
 
-**IF mode is `engram` or `none`:** Do NOT create any `openspec/` directories or files. Compose the tasks content in memory — you will persist it in Step 4.
+**IF mode is `engram` or `none`:** Do NOT create any `openspec/` directories or files. Compose the
+tasks content in memory — you will persist it in Step 4.
 
 #### Task File Format
 
@@ -93,10 +106,9 @@ openspec/changes/{change-name}/
 | Delivery strategy       | <ask-on-risk / auto-chain / single-pr / exception-ok>               |
 | Chain strategy          | <stacked-to-main / feature-branch-chain / size-exception / pending> |
 
-Decision needed before apply: <Yes|No>
-Chained PRs recommended: <Yes|No>
-Chain strategy: <stacked-to-main|feature-branch-chain|size-exception|pending>
-400-line budget risk: <Low|Medium|High>
+Decision needed before apply: <Yes|No> Chained PRs recommended: <Yes|No> Chain strategy:
+<stacked-to-main|feature-branch-chain|size-exception|pending> 400-line budget risk:
+<Low|Medium|High>
 
 ### Suggested Work Units
 
@@ -143,9 +155,11 @@ Each task MUST be:
 
 ### Review Workload Forecast Rules
 
-Before finalizing tasks, estimate whether implementation is likely to exceed the **400 changed-line review budget** (`additions + deletions`). This is a planning guard, not an exact diff count.
+Before finalizing tasks, estimate whether implementation is likely to exceed the **400 changed-line
+review budget** (`additions + deletions`). This is a planning guard, not an exact diff count.
 
-Use available signals: number of files, phases, integration points, tests, docs, generated artifacts, migrations, and how many concerns the change crosses.
+Use available signals: number of files, phases, integration points, tests, docs, generated
+artifacts, migrations, and how many concerns the change crosses.
 
 If the estimate is **High** or likely above 400 lines:
 
@@ -153,18 +167,26 @@ If the estimate is **High** or likely above 400 lines:
 2. Split tasks into **work units** that can become chained or stacked PRs.
 3. Each suggested PR must have a clear start, clear finish, verification, and autonomous scope.
 4. **Ask the user which chain strategy to use** (this is a team decision):
-   - **Stacked PRs to main** — each PR merges to main in order. Fast iteration, fix on the go. Best for speed-first teams and independent slices.
-   - **Feature Branch Chain** — the feature/tracker branch accumulates the final integration; PR #1 targets the tracker branch, later PRs target the immediate previous PR branch so each child diff stays focused. Only the tracker merges to main. Best for rollback control and coordinated releases.
-   - **size:exception** — keep it as a single PR with maintainer approval. Best for generated code, migrations, or vendor diffs.
+   - **Stacked PRs to main** — each PR merges to main in order. Fast iteration, fix on the go. Best
+     for speed-first teams and independent slices.
+   - **Feature Branch Chain** — the feature/tracker branch accumulates the final integration; PR #1
+     targets the tracker branch, later PRs target the immediate previous PR branch so each child
+     diff stays focused. Only the tracker merges to main. Best for rollback control and coordinated
+     releases.
+   - **size:exception** — keep it as a single PR with maintainer approval. Best for generated code,
+     migrations, or vendor diffs.
 5. Cache the user's choice and set `Decision needed before apply` from delivery strategy:
    - `ask-on-risk`: `Yes` — orchestrator asks before apply.
-   - `auto-chain`: `No` — orchestrator proceeds with the first slice using the chosen chain strategy.
+   - `auto-chain`: `No` — orchestrator proceeds with the first slice using the chosen chain
+     strategy.
    - `single-pr`: `Yes` — orchestrator must require `size:exception` before apply.
    - `exception-ok`: `No` — maintainer has accepted `size:exception`.
 
-Do not bury this in prose. Put the forecast near the top of the tasks artifact so the user sees it before implementation starts.
+Do not bury this in prose. Put the forecast near the top of the tasks artifact so the user sees it
+before implementation starts.
 
-The forecast MUST include these exact plain-text lines so downstream guards can match them literally:
+The forecast MUST include these exact plain-text lines so downstream guards can match them
+literally:
 
 ```text
 Decision needed before apply: Yes|No
@@ -175,7 +197,9 @@ Chain strategy: stacked-to-main|feature-branch-chain|size-exception|pending
 
 You may keep the table for readability, but the plain-text lines are the guard contract.
 
-For `feature-branch-chain`, suggested work units SHOULD name the intended base boundary: PR #1 base = feature/tracker branch; PR #2 base = PR #1 branch; PR #3 base = PR #2 branch. If a child PR would show previous PR changes, the base is wrong and must be retargeted/rebased before review.
+For `feature-branch-chain`, suggested work units SHOULD name the intended base boundary: PR #1 base
+= feature/tracker branch; PR #2 base = PR #1 branch; PR #3 base = PR #2 branch. If a child PR would
+show previous PR changes, the base is wrong and must be retargeted/rebased before review.
 
 ### Phase Organization Guidelines
 
@@ -217,8 +241,8 @@ Return to the orchestrator:
 ```markdown
 ## Tasks Created
 
-**Change**: {change-name}
-**Location**: `openspec/changes/{change-name}/tasks.md` (openspec/hybrid) | Engram `sdd/{change-name}/tasks` (engram) | inline (none)
+**Change**: {change-name} **Location**: `openspec/changes/{change-name}/tasks.md` (openspec/hybrid)
+| Engram `sdd/{change-name}/tasks` (engram) | inline (none)
 
 ### Breakdown
 
@@ -256,7 +280,11 @@ Return to the orchestrator:
 - Use hierarchical numbering: 1.1, 1.2, 2.1, 2.2, etc.
 - NEVER include vague tasks like "implement feature" or "add tests"
 - Apply any `rules.tasks` from `openspec/config.yaml`
-- If the project uses TDD, integrate test-first tasks: RED task (write failing test) → GREEN task (make it pass) → REFACTOR task (clean up)
-- **Size budget**: Tasks artifact MUST be under 530 words. Each task: 1-2 lines max. Use checklist format, not paragraphs.
-- **Review workload guard**: ALWAYS include the Review Workload Forecast. If likely above 400 changed lines, recommend chained PRs and honor the received delivery strategy for whether a decision/exception is needed before apply.
+- If the project uses TDD, integrate test-first tasks: RED task (write failing test) → GREEN task
+  (make it pass) → REFACTOR task (clean up)
+- **Size budget**: Tasks artifact MUST be under 530 words. Each task: 1-2 lines max. Use checklist
+  format, not paragraphs.
+- **Review workload guard**: ALWAYS include the Review Workload Forecast. If likely above 400
+  changed lines, recommend chained PRs and honor the received delivery strategy for whether a
+  decision/exception is needed before apply.
 - Return envelope per **Section D** from `skills/_shared/sdd-phase-common.md`.

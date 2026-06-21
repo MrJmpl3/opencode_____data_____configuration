@@ -2,7 +2,8 @@
 
 ## Always Eager Load Relationships
 
-Lazy loading causes N+1 query problems — one query per loop iteration. Always use `with()` to load relationships upfront.
+Lazy loading causes N+1 query problems — one query per loop iteration. Always use `with()` to load
+relationships upfront.
 
 Incorrect (N+1 — executes 1 + N queries):
 
@@ -64,7 +65,8 @@ $posts = Post::select('id', 'title', 'user_id', 'created_at')
     ->get();
 ```
 
-When selecting columns on eager-loaded relationships, always include the foreign key column or the relationship won't match.
+When selecting columns on eager-loaded relationships, always include the foreign key column or the
+relationship won't match.
 
 ## Chunk Large Datasets
 
@@ -89,7 +91,8 @@ User::where('subscribed', true)->chunk(200, function ($users) {
 });
 ```
 
-Use `chunkById()` when modifying records during iteration — standard `chunk()` uses OFFSET which shifts when rows change:
+Use `chunkById()` when modifying records during iteration — standard `chunk()` uses OFFSET which
+shifts when rows change:
 
 ```php
 User::where('active', false)->chunkById(200, function ($users) {
@@ -161,7 +164,8 @@ $posts = Post::withCount([
 
 ## Use `cursor()` for Memory-Efficient Iteration
 
-For read-only iteration over large result sets, `cursor()` loads one record at a time via a PHP generator.
+For read-only iteration over large result sets, `cursor()` loads one record at a time via a PHP
+generator.
 
 Incorrect:
 

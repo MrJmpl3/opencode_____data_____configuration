@@ -6,7 +6,8 @@ Consistent code style through Laravel Pint and declarative coding practices.
 
 - [type-safety.md](type-safety.md) - Type declarations
 - [quality.md](../SKILL.md) - Pint configuration and testing
-- [package-extraction.md](../../mrjmpl3-laravel-packages/references/package-extraction.md) - Code style for packages
+- [package-extraction.md](../../mrjmpl3-laravel-packages/references/package-extraction.md) - Code
+  style for packages
 
 ## Declarative Code Philosophy
 
@@ -222,7 +223,10 @@ Use Composer scripts for common tasks:
       "php artisan migrate:fresh --env=testing --quiet",
       "./vendor/bin/pest --compact"
     ],
-    "pest-dirty": ["Composer\\Config::disableProcessTimeout", "./vendor/bin/pest --dirty --compact"],
+    "pest-dirty": [
+      "Composer\\Config::disableProcessTimeout",
+      "./vendor/bin/pest --dirty --compact"
+    ],
     "pest-coverage": [
       "Composer\\Config::disableProcessTimeout",
       "php artisan migrate:fresh --env=testing --quiet",

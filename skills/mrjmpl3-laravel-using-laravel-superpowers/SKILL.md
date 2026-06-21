@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-using-laravel-superpowers
-description: Read first in Laravel repos; explains runner selection (Sail vs non-Sail), core workflows, and how to apply superpowers skills in Laravel projects without platform lock-in
+description:
+  Read first in Laravel repos; explains runner selection (Sail vs non-Sail), core workflows, and how
+  to apply superpowers skills in Laravel projects without platform lock-in
 ---
 
 # Using Superpowers in Laravel Projects
 
-This plugin adds Laravel-aware guidance while staying platform-agnostic. It works in any Laravel app with or without Sail.
+This plugin adds Laravel-aware guidance while staying platform-agnostic. It works in any Laravel app
+with or without Sail.
 
 ## Runner Selection (Sail or non-Sail)
 

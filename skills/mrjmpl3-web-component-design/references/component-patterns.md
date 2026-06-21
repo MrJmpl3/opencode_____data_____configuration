@@ -116,7 +116,13 @@ Tabs.Panel = function TabPanel({ value, children }: TabPanelProps) {
   if (activeTab !== value) return null;
 
   return (
-    <div role="tabpanel" id={`panel-${value}`} aria-labelledby={`tab-${value}`} tabIndex={0} className="py-4">
+    <div
+      role="tabpanel"
+      id={`panel-${value}`}
+      aria-labelledby={`tab-${value}`}
+      tabIndex={0}
+      className="py-4"
+    >
       {children}
     </div>
   );
@@ -386,7 +392,12 @@ const FancyInput = forwardRef<InputHandle, FancyInputProps>(({ label, placeholde
   return (
     <div>
       <label className="block text-sm font-medium mb-1">{label}</label>
-      <input ref={inputRef} type="text" placeholder={placeholder} className="w-full px-3 py-2 border rounded-md" />
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder={placeholder}
+        className="w-full px-3 py-2 border rounded-md"
+      />
     </div>
   );
 });

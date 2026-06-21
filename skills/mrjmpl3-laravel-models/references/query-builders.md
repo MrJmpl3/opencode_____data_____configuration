@@ -1,6 +1,7 @@
 # Custom Query Builders
 
-**Always use custom query builders instead of local scopes** for better type hints, IDE autocomplete, and composability.
+**Always use custom query builders instead of local scopes** for better type hints, IDE
+autocomplete, and composability.
 
 ## Why Custom Builders?
 

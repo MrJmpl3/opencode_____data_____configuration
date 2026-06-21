@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-daily-workflow
-description: Practical daily checklist for Laravel projects; bring services up, run migrations, queues, quality gates, and tests
+description:
+  Practical daily checklist for Laravel projects; bring services up, run migrations, queues, quality
+  gates, and tests
 ---
 
 # Daily Workflow (Laravel)

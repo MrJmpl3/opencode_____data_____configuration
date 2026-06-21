@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-iterating-on-code
-description: Refine AI-generated code through specific feedback—point out errors, identify gaps, show desired changes, reference style guides
+description:
+  Refine AI-generated code through specific feedback—point out errors, identify gaps, show desired
+  changes, reference style guides
 ---
 
 # Iterating on Code
 
-AI-generated code rarely perfect on first try. Effective iteration gets you from "close" to "exactly right."
+AI-generated code rarely perfect on first try. Effective iteration gets you from "close" to "exactly
+right."
 
 ## Incorrect Code
 
@@ -23,7 +26,8 @@ AI-generated code rarely perfect on first try. Effective iteration gets you from
 'email' => 'required|email|unique:users'
 ```
 
-**Problem:** This allows updating a user's email to another user's existing email. The unique rule needs to ignore the current user.
+**Problem:** This allows updating a user's email to another user's existing email. The unique rule
+needs to ignore the current user.
 
 **Fix:**
 
@@ -37,7 +41,8 @@ AI-generated code rarely perfect on first try. Effective iteration gets you from
 
 This allows the user to keep their own email but prevents duplicates with other users."
 
-**Why it works:** Identifies the specific problem, explains why it's wrong, shows the correct solution.
+**Why it works:** Identifies the specific problem, explains why it's wrong, shows the correct
+solution.
 
 ## Incomplete Code
 
@@ -159,7 +164,8 @@ public function getUserOrders(int $userId): Collection
 
 See our style guide: `docs/coding-standards.md`"
 
-**Why it works:** Points to specific style violations, shows corrections, references the style guide.
+**Why it works:** Points to specific style violations, shows corrections, references the style
+guide.
 
 ## Incremental Validation
 

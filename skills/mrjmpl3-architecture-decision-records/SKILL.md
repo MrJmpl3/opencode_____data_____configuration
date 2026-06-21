@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-architecture-decision-records
-description: Write and maintain Architecture Decision Records (ADRs) following best practices for technical decision documentation. Use when documenting significant technical decisions, reviewing past architectural choices, or establishing decision processes.
+description:
+  Write and maintain Architecture Decision Records (ADRs) following best practices for technical
+  decision documentation. Use when documenting significant technical decisions, reviewing past
+  architectural choices, or establishing decision processes.
 ---
 
 # Architecture Decision Records
 
-Comprehensive patterns for creating, maintaining, and managing Architecture Decision Records (ADRs) that capture the context and rationale behind significant technical decisions.
+Comprehensive patterns for creating, maintaining, and managing Architecture Decision Records (ADRs)
+that capture the context and rationale behind significant technical decisions.
 
 ## When to Use This Skill
 
@@ -57,8 +61,7 @@ Accepted
 
 ## Context
 
-We need to select a primary database for our new e-commerce platform. The system
-will handle:
+We need to select a primary database for our new e-commerce platform. The system will handle:
 
 - ~10,000 concurrent users
 - Complex product catalog with hierarchical categories
@@ -66,8 +69,8 @@ will handle:
 - Full-text search for products
 - Geospatial queries for store locator
 
-The team has experience with MySQL, PostgreSQL, and MongoDB. We need ACID
-compliance for financial transactions.
+The team has experience with MySQL, PostgreSQL, and MongoDB. We need ACID compliance for financial
+transactions.
 
 ## Decision Drivers
 
@@ -81,21 +84,21 @@ compliance for financial transactions.
 
 ### Option 1: PostgreSQL
 
-- **Pros**: ACID compliant, excellent JSON support (JSONB), built-in full-text
-  search, PostGIS for geospatial, team has experience
+- **Pros**: ACID compliant, excellent JSON support (JSONB), built-in full-text search, PostGIS for
+  geospatial, team has experience
 - **Cons**: Slightly more complex replication setup than MySQL
 
 ### Option 2: MySQL
 
 - **Pros**: Very familiar to team, simple replication, large community
-- **Cons**: Weaker JSON support, no built-in full-text search (need
-  Elasticsearch), no geospatial without extensions
+- **Cons**: Weaker JSON support, no built-in full-text search (need Elasticsearch), no geospatial
+  without extensions
 
 ### Option 3: MongoDB
 
 - **Pros**: Flexible schema, native JSON, horizontal scaling
-- **Cons**: No ACID for multi-document transactions (at decision time),
-  team has limited experience, requires schema design discipline
+- **Cons**: No ACID for multi-document transactions (at decision time), team has limited experience,
+  requires schema design discipline
 
 ## Decision
 
@@ -106,13 +109,12 @@ We will use **PostgreSQL 15** as our primary database.
 PostgreSQL provides the best balance of:
 
 1. **ACID compliance** essential for e-commerce transactions
-2. **Built-in capabilities** (full-text search, JSONB, PostGIS) reduce
-   infrastructure complexity
+2. **Built-in capabilities** (full-text search, JSONB, PostGIS) reduce infrastructure complexity
 3. **Team familiarity** with SQL databases reduces learning curve
 4. **Mature ecosystem** with excellent tooling and community support
 
-The slight complexity in replication is outweighed by the reduction in
-additional services (no separate Elasticsearch needed).
+The slight complexity in replication is outweighed by the reduction in additional services (no
+separate Elasticsearch needed).
 
 ## Consequences
 
@@ -158,15 +160,12 @@ additional services (no separate Elasticsearch needed).
 ```markdown
 # ADR-0012: Adopt TypeScript for Frontend Development
 
-**Status**: Accepted
-**Date**: 2024-01-15
-**Deciders**: @alice, @bob, @charlie
+**Status**: Accepted **Date**: 2024-01-15 **Deciders**: @alice, @bob, @charlie
 
 ## Context
 
-Our React codebase has grown to 50+ components with increasing bug reports
-related to prop type mismatches and undefined errors. PropTypes provide
-runtime-only checking.
+Our React codebase has grown to 50+ components with increasing bug reports related to prop type
+mismatches and undefined errors. PropTypes provide runtime-only checking.
 
 ## Decision
 
@@ -174,13 +173,11 @@ Adopt TypeScript for all new frontend code. Migrate existing code incrementally.
 
 ## Consequences
 
-**Good**: Catch type errors at compile time, better IDE support, self-documenting
-code.
+**Good**: Catch type errors at compile time, better IDE support, self-documenting code.
 
 **Bad**: Learning curve for team, initial slowdown, build complexity increase.
 
-**Mitigations**: TypeScript training sessions, allow gradual adoption with
-`allowJs: true`.
+**Mitigations**: TypeScript training sessions, allow gradual adoption with `allowJs: true`.
 ```
 
 ### Template 3: Y-Statement Format
@@ -188,12 +185,10 @@ code.
 ```markdown
 # ADR-0015: API Gateway Selection
 
-In the context of **building a microservices architecture**,
-facing **the need for centralized API management, authentication, and rate limiting**,
-we decided for **Kong Gateway**
-and against **AWS API Gateway and custom Nginx solution**,
-to achieve **vendor independence, plugin extensibility, and team familiarity with Lua**,
-accepting that **we need to manage Kong infrastructure ourselves**.
+In the context of **building a microservices architecture**, facing **the need for centralized API
+management, authentication, and rate limiting**, we decided for **Kong Gateway** and against **AWS
+API Gateway and custom Nginx solution**, to achieve **vendor independence, plugin extensibility, and
+team familiarity with Lua**, accepting that **we need to manage Kong infrastructure ourselves**.
 ```
 
 ### Template 4: ADR for Deprecation
@@ -207,8 +202,7 @@ Accepted (Supersedes ADR-0003)
 
 ## Context
 
-ADR-0003 (2021) chose MongoDB for user profile storage due to schema flexibility
-needs. Since then:
+ADR-0003 (2021) chose MongoDB for user profile storage due to schema flexibility needs. Since then:
 
 - MongoDB's multi-document transactions remain problematic for our use case
 - Our schema has stabilized and rarely changes
@@ -256,8 +250,8 @@ Document from ADR-0003 experience:
 
 ## Summary
 
-Propose adopting event sourcing pattern for the order management domain to
-improve auditability, enable temporal queries, and support business analytics.
+Propose adopting event sourcing pattern for the order management domain to improve auditability,
+enable temporal queries, and support business analytics.
 
 ## Motivation
 
@@ -273,11 +267,9 @@ Current challenges:
 ### Event Store
 ```
 
-OrderCreated { orderId, customerId, items[], timestamp }
-OrderItemAdded { orderId, item, timestamp }
-OrderItemRemoved { orderId, itemId, timestamp }
-PaymentReceived { orderId, amount, paymentId, timestamp }
-OrderShipped { orderId, trackingNumber, timestamp }
+OrderCreated { orderId, customerId, items[], timestamp } OrderItemAdded { orderId, item, timestamp }
+OrderItemRemoved { orderId, itemId, timestamp } PaymentReceived { orderId, amount, paymentId,
+timestamp } OrderShipped { orderId, trackingNumber, timestamp }
 
 ```
 

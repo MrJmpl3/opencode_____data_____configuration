@@ -1,6 +1,8 @@
 # UV Package Manager — Advanced Reference
 
-Advanced workflows including Docker integration, lockfile management, performance optimization, tool comparison, common workflows, tool integration, troubleshooting, best practices, migration guides, and command reference.
+Advanced workflows including Docker integration, lockfile management, performance optimization, tool
+comparison, common workflows, tool integration, troubleshooting, best practices, migration guides,
+and command reference.
 
 ## Advanced Workflows
 

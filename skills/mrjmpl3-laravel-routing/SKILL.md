@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-routing
-description: Route configuration, route model binding, and authorization. Use when defining routes, configuring model binding, or setting up route-level authorization.
+description:
+  Route configuration, route model binding, and authorization. Use when defining routes, configuring
+  model binding, or setting up route-level authorization.
 ---
 
 # Laravel Routing

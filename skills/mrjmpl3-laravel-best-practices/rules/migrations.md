@@ -30,7 +30,8 @@ $table->foreignId('author_id')->constrained('users');
 
 ## Never Modify Deployed Migrations
 
-Once a migration has run in production, treat it as immutable. Create a new migration to change the table.
+Once a migration has run in production, treat it as immutable. Create a new migration to change the
+table.
 
 Incorrect (editing a deployed migration):
 
@@ -50,7 +51,8 @@ Schema::table('posts', function (Blueprint $table) {
 
 ## Add Indexes in the Migration
 
-Add indexes when creating the table, not as an afterthought. Columns used in `WHERE`, `ORDER BY`, and `JOIN` clauses need indexes.
+Add indexes when creating the table, not as an afterthought. Columns used in `WHERE`, `ORDER BY`,
+and `JOIN` clauses need indexes.
 
 Incorrect:
 
@@ -77,7 +79,8 @@ Schema::create('orders', function (Blueprint $table) {
 
 ## Mirror Defaults in Model `$attributes`
 
-When a column has a database default, mirror it in the model so new instances have correct values before saving.
+When a column has a database default, mirror it in the model so new instances have correct values
+before saving.
 
 ```php
 // Migration
@@ -91,7 +94,8 @@ protected $attributes = [
 
 ## Write Reversible `down()` Methods by Default
 
-Implement `down()` for schema changes that can be safely reversed so `migrate:rollback` works in CI and failed deployments.
+Implement `down()` for schema changes that can be safely reversed so `migrate:rollback` works in CI
+and failed deployments.
 
 ```php
 public function down(): void
@@ -102,7 +106,8 @@ public function down(): void
 }
 ```
 
-For intentionally irreversible migrations (e.g., destructive data backfills), leave a clear comment and require a forward fix migration instead of pretending rollback is supported.
+For intentionally irreversible migrations (e.g., destructive data backfills), leave a clear comment
+and require a forward fix migration instead of pretending rollback is supported.
 
 ## Keep Migrations Focused
 

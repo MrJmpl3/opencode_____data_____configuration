@@ -2,7 +2,9 @@
 
 ## Overview
 
-Mobile accessibility ensures apps work for users with disabilities on iOS and Android devices. This includes support for screen readers (VoiceOver, TalkBack), motor impairments, and various visual disabilities.
+Mobile accessibility ensures apps work for users with disabilities on iOS and Android devices. This
+includes support for screen readers (VoiceOver, TalkBack), motor impairments, and various visual
+disabilities.
 
 ## Touch Target Sizing
 

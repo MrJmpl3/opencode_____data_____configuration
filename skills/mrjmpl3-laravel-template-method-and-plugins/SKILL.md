@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-template-method-and-plugins
-description: Stabilize workflows with Template Method or Strategy; extend by adding new classes instead of editing core logic
+description:
+  Stabilize workflows with Template Method or Strategy; extend by adding new classes instead of
+  editing core logic
 ---
 
 # Template Method and Pluggable Strategies

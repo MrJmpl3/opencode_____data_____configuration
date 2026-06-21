@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-react-native-design
-description: Master React Native styling, navigation, and Reanimated animations for cross-platform mobile development. Use when building React Native apps, implementing navigation patterns, or creating performant animations.
+description:
+  Master React Native styling, navigation, and Reanimated animations for cross-platform mobile
+  development. Use when building React Native apps, implementing navigation patterns, or creating
+  performant animations.
 ---
 
 # React Native Design
 
-Master React Native styling patterns, React Navigation, and Reanimated 3 to build performant, cross-platform mobile applications with native-quality user experiences.
+Master React Native styling patterns, React Navigation, and Reanimated 3 to build performant,
+cross-platform mobile applications with native-quality user experiences.
 
 ## When to Use This Skill
 

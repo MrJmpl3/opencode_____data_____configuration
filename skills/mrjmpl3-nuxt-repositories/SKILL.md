@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-repositories
-description: Repository pattern for API access with automatic model hydration. Use when creating repositories for API resources, configuring model hydration, adding custom API methods, or registering repositories in app config.
+description:
+  Repository pattern for API access with automatic model hydration. Use when creating repositories
+  for API resources, configuring model hydration, adding custom API methods, or registering
+  repositories in app config.
 ---
 
 # Nuxt Repositories
@@ -9,7 +12,8 @@ Data access layer with CRUD operations and automatic model hydration.
 
 ## Core Concepts
 
-**[repositories.md](references/repositories.md)** - Complete repository patterns, registration, custom methods
+**[repositories.md](references/repositories.md)** - Complete repository patterns, registration,
+custom methods
 
 ## Basic Repository
 

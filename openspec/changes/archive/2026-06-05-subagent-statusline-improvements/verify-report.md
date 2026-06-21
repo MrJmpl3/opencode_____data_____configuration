@@ -119,9 +119,10 @@ Coverage analysis skipped — no coverage tool detected.
 
 **WARNING**: Coverage tooling is unavailable because `@vitest/coverage-v8` is not installed.
 
-**SUGGESTION**: Add a coverage script later if changed-file coverage becomes part of the verification gate.
+**SUGGESTION**: Add a coverage script later if changed-file coverage becomes part of the
+verification gate.
 
 ### Verdict
 
-PASS WITH WARNINGS
-Implementation, tests, type-checking, and spec coverage are green; only optional coverage tooling is missing.
+PASS WITH WARNINGS Implementation, tests, type-checking, and spec coverage are green; only optional
+coverage tooling is missing.

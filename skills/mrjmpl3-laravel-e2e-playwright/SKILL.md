@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-e2e-playwright
-description: Generic E2E patterns with Playwright—state setup, seeds, test IDs, auth, environment, and Sail integration
+description:
+  Generic E2E patterns with Playwright—state setup, seeds, test IDs, auth, environment, and Sail
+  integration
 ---
 
 # E2E Playwright (Laravel)

@@ -1,6 +1,8 @@
 # LLM-first Skill Style Guide
 
-Use this guide when creating or refactoring skills in this repo. A skill is a **runtime instruction contract for an LLM**, not human-facing documentation: it tells the model when to activate, what rules are non-negotiable, how to decide, what to do, and what to return.
+Use this guide when creating or refactoring skills in this repo. A skill is a **runtime instruction
+contract for an LLM**, not human-facing documentation: it tells the model when to activate, what
+rules are non-negotiable, how to decide, what to do, and what to return.
 
 ## Required Structure
 
@@ -14,7 +16,8 @@ Every `SKILL.md` MUST use this order unless a section is truly irrelevant:
 6. **Output Contract** — required final format or artifacts.
 7. **References** — local files only; supporting detail lives outside the skill.
 
-`## Compact Rules` is not required. The skill registry indexes skill names, triggers, scopes, and paths; agents load the full `SKILL.md` as the source of truth.
+`## Compact Rules` is not required. The skill registry indexes skill names, triggers, scopes, and
+paths; agents load the full `SKILL.md` as the source of truth.
 
 ## Frontmatter Rules
 
@@ -28,7 +31,8 @@ Every `SKILL.md` MUST use this order unless a section is truly irrelevant:
 
 - Target **180–450 tokens** for the skill body.
 - Recommended maximum: **700 tokens**.
-- Hard maximum: **1000 tokens**. Move examples, schemas, and background into `assets/` or `references/`.
+- Hard maximum: **1000 tokens**. Move examples, schemas, and background into `assets/` or
+  `references/`.
 
 ## Writing Rules
 

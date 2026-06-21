@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-actions
-description: Action-oriented architecture for Laravel — invokable classes containing domain logic. Use when creating or modifying actions, business logic, or domain operations.
+description:
+  Action-oriented architecture for Laravel — invokable classes containing domain logic. Use when
+  creating or modifying actions, business logic, or domain operations.
 ---
 
 # Laravel Actions
@@ -214,7 +216,8 @@ class ProcessOrderAction
 - HTTP-specific concerns (belongs in middleware/controllers)
 - Formatting/presentation logic (use resources/transformers)
 
-**Critical Rule:** Controllers should contain **zero domain logic**. Even a simple `$user->update($data)` should be delegated to `UpdateUserAction`.
+**Critical Rule:** Controllers should contain **zero domain logic**. Even a simple
+`$user->update($data)` should be delegated to `UpdateUserAction`.
 
 ## Invocation Patterns
 

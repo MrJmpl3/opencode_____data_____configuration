@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-enums
-description: Backed enums with labels and business logic. Use when defining or modifying enums, status values, or fixed option sets.
+description:
+  Backed enums with labels and business logic. Use when defining or modifying enums, status values,
+  or fixed option sets.
 ---
 
 # Laravel Enums
@@ -36,7 +38,8 @@ enum OrderStatus: string
 
 ## Extending Enums
 
-Leverage methods and traits on enums to add functionality where required. Keep shared behavior in `app/Enums/Concerns/` traits.
+Leverage methods and traits on enums to add functionality where required. Keep shared behavior in
+`app/Enums/Concerns/` traits.
 
 ```php
 // Direct methods for one-off behavior

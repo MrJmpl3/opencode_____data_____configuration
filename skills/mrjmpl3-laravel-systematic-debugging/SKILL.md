@@ -1,13 +1,17 @@
 ---
 name: mrjmpl3-laravel-systematic-debugging
-description: Systematic debugging process for Laravel applications - ensures root cause investigation before attempting fixes. Use for any Laravel issue (test failures, bugs, unexpected behavior, performance problems).
+description:
+  Systematic debugging process for Laravel applications - ensures root cause investigation before
+  attempting fixes. Use for any Laravel issue (test failures, bugs, unexpected behavior, performance
+  problems).
 ---
 
 # Systematic Debugging for Laravel
 
 ## Overview
 
-Random fixes waste time and create new bugs in Laravel applications. Quick patches mask underlying issues.
+Random fixes waste time and create new bugs in Laravel applications. Quick patches mask underlying
+issues.
 
 **Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
 

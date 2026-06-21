@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-error-handling
-description: Python error handling patterns including input validation, exception hierarchies, and partial failure handling. Use when implementing validation logic, designing exception strategies, handling batch processing failures, or building robust APIs.
+description:
+  Python error handling patterns including input validation, exception hierarchies, and partial
+  failure handling. Use when implementing validation logic, designing exception strategies, handling
+  batch processing failures, or building robust APIs.
 ---
 
 # Python Error Handling
 
-Build robust Python applications with proper input validation, meaningful exceptions, and graceful failure handling. Good error handling makes debugging easier and systems more reliable.
+Build robust Python applications with proper input validation, meaningful exceptions, and graceful
+failure handling. Good error handling makes debugging easier and systems more reliable.
 
 ## When to Use This Skill
 
@@ -20,15 +24,18 @@ Build robust Python applications with proper input validation, meaningful except
 
 ### 1. Fail Fast
 
-Validate inputs early, before expensive operations. Report all validation errors at once when possible.
+Validate inputs early, before expensive operations. Report all validation errors at once when
+possible.
 
 ### 2. Meaningful Exceptions
 
-Use appropriate exception types with context. Messages should explain what failed, why, and how to fix it.
+Use appropriate exception types with context. Messages should explain what failed, why, and how to
+fix it.
 
 ### 3. Partial Failures
 
-In batch operations, don't let one failure abort everything. Track successes and failures separately.
+In batch operations, don't let one failure abort everything. Track successes and failures
+separately.
 
 ### 4. Preserve Context
 

@@ -5,9 +5,11 @@ Jobs and Listeners are **thin delegation layers** with zero domain logic.
 **Related guides:**
 
 - [Actions](../../mrjmpl3-laravel-actions/SKILL.md) - Actions contain the work
-- [dto-factories.md](../../mrjmpl3-laravel-dtos/references/test-factories.md) - Factories transform event/job data to DTOs
+- [dto-factories.md](../../mrjmpl3-laravel-dtos/references/test-factories.md) - Factories transform
+  event/job data to DTOs
 - [Enums](../../mrjmpl3-laravel-enums/SKILL.md) - Queue enums
-- [Testing](../../mrjmpl3-laravel-testing/SKILL.md) - Testing jobs and listeners (faking queues, testing delegation)
+- [Testing](../../mrjmpl3-laravel-testing/SKILL.md) - Testing jobs and listeners (faking queues,
+  testing delegation)
 
 ## Philosophy
 

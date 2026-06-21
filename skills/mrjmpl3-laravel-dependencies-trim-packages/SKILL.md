@@ -1,6 +1,7 @@
 ---
 name: mrjmpl3-laravel-dependencies-trim-packages
-description: Remove unneeded Composer packages and assets to improve boot time, memory, and security surface
+description:
+  Remove unneeded Composer packages and assets to improve boot time, memory, and security surface
 ---
 
 # Trim Dependencies

@@ -1,12 +1,19 @@
 ---
 name: mrjmpl3-laravel-specialist
-description: Build and configure Laravel 10+ applications, including creating Eloquent models and relationships, implementing Sanctum authentication, configuring Horizon queues, designing RESTful APIs with API resources, and building reactive interfaces with Livewire. Use when creating Laravel models, setting up queue workers, implementing Sanctum auth flows, building Livewire components, optimising Eloquent queries, or writing Pest/PHPUnit tests for Laravel features.
+description:
+  Build and configure Laravel 10+ applications, including creating Eloquent models and
+  relationships, implementing Sanctum authentication, configuring Horizon queues, designing RESTful
+  APIs with API resources, and building reactive interfaces with Livewire. Use when creating Laravel
+  models, setting up queue workers, implementing Sanctum auth flows, building Livewire components,
+  optimising Eloquent queries, or writing Pest/PHPUnit tests for Laravel features.
 license: MIT
 metadata:
   author: https://github.com/Jeffallan
   version: '1.1.0'
   domain: backend
-  triggers: Laravel, Eloquent, PHP framework, Laravel API, Artisan, Blade templates, Laravel queues, Livewire, Laravel testing, Sanctum, Horizon
+  triggers:
+    Laravel, Eloquent, PHP framework, Laravel API, Artisan, Blade templates, Laravel queues,
+    Livewire, Laravel testing, Sanctum, Horizon
   role: specialist
   scope: implementation
   output-format: code
@@ -15,15 +22,19 @@ metadata:
 
 # Laravel Specialist
 
-Senior Laravel specialist with deep expertise in Laravel 10+, Eloquent ORM, and modern PHP 8.2+ development.
+Senior Laravel specialist with deep expertise in Laravel 10+, Eloquent ORM, and modern PHP 8.2+
+development.
 
 ## Core Workflow
 
 1. **Analyse requirements** — Identify models, relationships, APIs, and queue needs
 2. **Design architecture** — Plan database schema, service layers, and job queues
-3. **Implement models** — Create Eloquent models with relationships, scopes, and casts; run `php artisan make:model` and verify with `php artisan migrate:status`
-4. **Build features** — Develop controllers, services, API resources, and jobs; run `php artisan route:list` to verify routing
-5. **Test thoroughly** — Write feature and unit tests; run `php artisan test` before considering any step complete (target >85% coverage)
+3. **Implement models** — Create Eloquent models with relationships, scopes, and casts; run
+   `php artisan make:model` and verify with `php artisan migrate:status`
+4. **Build features** — Develop controllers, services, API resources, and jobs; run
+   `php artisan route:list` to verify routing
+5. **Test thoroughly** — Write feature and unit tests; run `php artisan test` before considering any
+   step complete (target >85% coverage)
 
 ## Reference Guide
 
@@ -261,6 +272,7 @@ Run these at each workflow stage to confirm correctness before proceeding:
 
 ## Knowledge Reference
 
-Laravel 10+, Eloquent ORM, PHP 8.2+, API resources, Sanctum/Passport, queues, Horizon, Livewire, Inertia, Octane, Pest/PHPUnit, Redis, broadcasting, events/listeners, notifications, task scheduling
+Laravel 10+, Eloquent ORM, PHP 8.2+, API resources, Sanctum/Passport, queues, Horizon, Livewire,
+Inertia, Octane, Pest/PHPUnit, Redis, broadcasting, events/listeners, notifications, task scheduling
 
 [Documentation](https://jeffallan.github.io/claude-skills/skills/backend/laravel-specialist/)

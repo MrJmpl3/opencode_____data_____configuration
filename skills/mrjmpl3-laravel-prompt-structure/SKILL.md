@@ -1,17 +1,21 @@
 ---
 name: mrjmpl3-laravel-prompt-structure
-description: Structure prompts for clarity—separate concerns, prioritize requests, specify acceptance criteria, and break work into testable increments
+description:
+  Structure prompts for clarity—separate concerns, prioritize requests, specify acceptance criteria,
+  and break work into testable increments
 ---
 
 # Prompt Structure
 
-Well-structured prompts get complete, actionable responses. Poor structure leads to back-and-forth clarifications and incomplete solutions.
+Well-structured prompts get complete, actionable responses. Poor structure leads to back-and-forth
+clarifications and incomplete solutions.
 
 ## Separate Concerns
 
 ### Ineffective
 
-"Update the User model to add email verification and also create an API endpoint for password reset and add validation for the profile update form"
+"Update the User model to add email verification and also create an API endpoint for password reset
+and add validation for the profile update form"
 
 ### Effective
 

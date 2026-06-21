@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-python-performance-optimization
-description: Profile and optimize Python code using cProfile, memory profilers, and performance best practices. Use when debugging slow Python code, optimizing bottlenecks, or improving application performance.
+description:
+  Profile and optimize Python code using cProfile, memory profilers, and performance best practices.
+  Use when debugging slow Python code, optimizing bottlenecks, or improving application performance.
 ---
 
 # Python Performance Optimization
 
-Comprehensive guide to profiling, analyzing, and optimizing Python code for better performance, including CPU profiling, memory optimization, and implementation best practices.
+Comprehensive guide to profiling, analyzing, and optimizing Python code for better performance,
+including CPU profiling, memory optimization, and implementation best practices.
 
 ## When to Use This Skill
 
@@ -410,7 +413,9 @@ print(f"Inline: {inline_time:.4f}s")
 print(f"Function calls: {function_time:.4f}s")
 ```
 
-For advanced optimization techniques including NumPy vectorization, caching, memory management, parallelization, async I/O, database optimization, and benchmarking tools, see [references/advanced-patterns.md](references/advanced-patterns.md)
+For advanced optimization techniques including NumPy vectorization, caching, memory management,
+parallelization, async I/O, database optimization, and benchmarking tools, see
+[references/advanced-patterns.md](references/advanced-patterns.md)
 
 ## Best Practices
 

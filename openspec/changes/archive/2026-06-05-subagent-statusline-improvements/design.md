@@ -2,7 +2,10 @@
 
 ## Technical Approach
 
-Make state handling terminal-preserving by default, then layer recovery hydration on top of the existing refresh flow. The implementation stays selective: we refine `state.ts` and `reconcile.ts`, wire recovery into `refresh.ts`, and keep persistence format compatibility so stale rows can be pruned instead of rewritten.
+Make state handling terminal-preserving by default, then layer recovery hydration on top of the
+existing refresh flow. The implementation stays selective: we refine `state.ts` and `reconcile.ts`,
+wire recovery into `refresh.ts`, and keep persistence format compatibility so stale rows can be
+pruned instead of rewritten.
 
 ## Architecture Decisions
 
@@ -14,20 +17,15 @@ Make state handling terminal-preserving by default, then layer recovery hydratio
 
 ## Data Flow
 
-`events.ts` → `state.ts` (upsert/terminalize/count) → `reconcile.ts` (snapshot normalization) → `refresh.ts` (authoritative status hydration + log token recovery) → `persistence.ts` (save/load + pruning)
+`events.ts` → `state.ts` (upsert/terminalize/count) → `reconcile.ts` (snapshot normalization) →
+`refresh.ts` (authoritative status hydration + log token recovery) → `persistence.ts` (save/load +
+pruning)
 
     Event / snapshot
          ↓
 
-normalize + reconcile
-↓
-terminal-preserving merge
-↓
-recovery hydration (status + tokens)
-↓
-prune stale / orphaned rows
-↓
-persist snapshot
+normalize + reconcile ↓ terminal-preserving merge ↓ recovery hydration (status + tokens) ↓ prune
+stale / orphaned rows ↓ persist snapshot
 
 ## File Changes
 
@@ -48,7 +46,8 @@ type RecoverySource = {
 };
 ```
 
-Recovery sources are ordered, best-effort, and must be safe to skip. A future SQLite adapter can implement this interface without changing the TUI entrypoint.
+Recovery sources are ordered, best-effort, and must be safe to skip. A future SQLite adapter can
+implement this interface without changing the TUI entrypoint.
 
 ## Testing Strategy
 
@@ -61,8 +60,10 @@ Recovery sources are ordered, best-effort, and must be safe to skip. A future SQ
 
 ## Migration / Rollout
 
-No migration required. The on-disk state shape remains readable; old rows are reconciled or purged during load/refresh.
+No migration required. The on-disk state shape remains readable; old rows are reconciled or purged
+during load/refresh.
 
 ## Open Questions
 
-- [ ] Do we want a future SQLite recovery adapter, or is log-based hydration sufficient for this plugin long-term?
+- [ ] Do we want a future SQLite recovery adapter, or is log-based hydration sufficient for this
+      plugin long-term?

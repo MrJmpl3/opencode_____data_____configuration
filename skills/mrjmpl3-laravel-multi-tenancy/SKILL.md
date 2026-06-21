@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-multi-tenancy
-description: Multi-tenant application architecture patterns. Use when working with tenant isolation, tenant scoping, or multi-tenant systems.
+description:
+  Multi-tenant application architecture patterns. Use when working with tenant isolation, tenant
+  scoping, or multi-tenant systems.
 ---
 
 # Laravel Multi-Tenancy
 
-Multi-tenancy separates application logic into **central** (non-tenant) and **tenanted** (tenant-specific) contexts.
+Multi-tenancy separates application logic into **central** (non-tenant) and **tenanted**
+(tenant-specific) contexts.
 
 **Related guides:**
 
@@ -321,7 +324,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
 ## Models
 
-All models live in `app/Models/`. Central vs tenanted distinguished by traits/interfaces, not subdirectories.
+All models live in `app/Models/`. Central vs tenanted distinguished by traits/interfaces, not
+subdirectories.
 
 ### Central Model
 

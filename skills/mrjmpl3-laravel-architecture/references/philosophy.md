@@ -1,6 +1,7 @@
 # Core Philosophy
 
-This guide has strong opinions on clean, declarative Laravel architecture. These principles are non-negotiable and form the foundation of every architectural decision.
+This guide has strong opinions on clean, declarative Laravel architecture. These principles are
+non-negotiable and form the foundation of every architectural decision.
 
 ## The Big Three
 
@@ -8,7 +9,9 @@ This guide has strong opinions on clean, declarative Laravel architecture. These
 
 **Code should read like business intent, not implementation details.**
 
-The goal is short, well-named methods that are self-documenting. Extract imperative instructions behind methods with clear names. When you feel the urge to write a comment explaining what code does, that's your signal to extract it into a well-named method instead.
+The goal is short, well-named methods that are self-documenting. Extract imperative instructions
+behind methods with clear names. When you feel the urge to write a comment explaining what code
+does, that's your signal to extract it into a well-named method instead.
 
 **Bad - Imperative:**
 
@@ -42,7 +45,9 @@ private function ensureOrderCanBeCancelled(Order $order): void
 
 **Domain logic lives in ONE place: Actions.**
 
-Controllers, Jobs, Listeners, and Commands contain **zero domain logic**. They only validate input, delegate to actions, and return responses. Even a simple `$user->update($data)` should be delegated to an action.
+Controllers, Jobs, Listeners, and Commands contain **zero domain logic**. They only validate input,
+delegate to actions, and return responses. Even a simple `$user->update($data)` should be delegated
+to an action.
 
 **The HTTP layer is thin:**
 
@@ -71,7 +76,8 @@ Type safety isn't optional - it's the foundation of maintainable code.
 
 **Always use Form Requests for validation.**
 
-Form Requests are the single source of truth for what data is valid. They encapsulate validation logic and keep controllers clean.
+Form Requests are the single source of truth for what data is valid. They encapsulate validation
+logic and keep controllers clean.
 
 - All validation rules in Form Requests
 - Never validate in controllers
@@ -311,7 +317,8 @@ Models should NOT:
 
 **The code should explain itself without comments.**
 
-When you find yourself writing a comment to explain what code does, that's your signal to extract that code into a well-named method instead. The method name becomes the documentation.
+When you find yourself writing a comment to explain what code does, that's your signal to extract
+that code into a well-named method instead. The method name becomes the documentation.
 
 **Only use comments for:**
 
@@ -337,7 +344,8 @@ When you find yourself writing a comment to explain what code does, that's your 
 
 **Every method should do ONE thing well.**
 
-If a method is longer than 10 lines, look for opportunities to extract smaller methods. Each method name becomes documentation for what that section of code does.
+If a method is longer than 10 lines, look for opportunities to extract smaller methods. Each method
+name becomes documentation for what that section of code does.
 
 ### Explicit Over Implicit
 
@@ -516,4 +524,5 @@ This architecture is opinionated by design:
 9. **Only mock what you own** - Never mock external libraries
 10. **Architecture enforcement** - Tests verify compliance automatically
 
-These aren't suggestions - they're requirements. Following them creates maintainable, testable, readable Laravel applications that scale with your team and your business.
+These aren't suggestions - they're requirements. Following them creates maintainable, testable,
+readable Laravel applications that scale with your team and your business.

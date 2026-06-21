@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-docker-patterns
-description: Docker and Docker Compose patterns for local development, container security, networking, volume strategies, and multi-service orchestration.
+description:
+  Docker and Docker Compose patterns for local development, container security, networking, volume
+  strategies, and multi-service orchestration.
 origin: ECC
 ---
 

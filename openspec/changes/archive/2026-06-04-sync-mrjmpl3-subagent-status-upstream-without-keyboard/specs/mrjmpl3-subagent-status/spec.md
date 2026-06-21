@@ -2,13 +2,17 @@
 
 ## Purpose
 
-Provide a mouse-only subagent status panel that keeps child sessions in sync, enriches finished rows with token/context data when available, and renders clickable status rows without keyboard or focus controls.
+Provide a mouse-only subagent status panel that keeps child sessions in sync, enriches finished rows
+with token/context data when available, and renders clickable status rows without keyboard or focus
+controls.
 
 ## Requirements
 
 ### Requirement: Accurate child-session reconciliation
 
-The system MUST normalize incoming child snapshots into stable rows, count each execution once, and resolve fallback/session duplicates to a single execution. It MUST update stale running rows to their latest terminal status when newer child-session information indicates completion or failure.
+The system MUST normalize incoming child snapshots into stable rows, count each execution once, and
+resolve fallback/session duplicates to a single execution. It MUST update stale running rows to
+their latest terminal status when newer child-session information indicates completion or failure.
 
 #### Scenario: Duplicate fallback row is rekeyed once
 
@@ -19,7 +23,8 @@ The system MUST normalize incoming child snapshots into stable rows, count each 
 
 #### Scenario: Stale running row becomes terminal
 
-- GIVEN a row is still marked running but newer child-session information indicates idle, done, or error
+- GIVEN a row is still marked running but newer child-session information indicates idle, done, or
+  error
 - WHEN the plugin refreshes
 - THEN the row MUST update to the terminal status
 - AND its elapsed time MUST stop advancing
@@ -33,7 +38,8 @@ The system MUST normalize incoming child snapshots into stable rows, count each 
 
 ### Requirement: Token and context hydration
 
-The system MUST hydrate completed child rows with token totals or context percentage when recoverable. If no usable token data exists, the row MUST still render without token metadata.
+The system MUST hydrate completed child rows with token totals or context percentage when
+recoverable. If no usable token data exists, the row MUST still render without token metadata.
 
 #### Scenario: Completed row shows token metadata
 
@@ -51,7 +57,9 @@ The system MUST hydrate completed child rows with token totals or context percen
 
 ### Requirement: Mouse-only status rendering and navigation
 
-The system MUST render an expandable status area with per-status counts, total executed count, and per-row elapsed time. It MUST allow mouse navigation from clickable child rows only and MUST NOT expose keyboard shortcuts, focus restoration, or command-palette controls.
+The system MUST render an expandable status area with per-status counts, total executed count, and
+per-row elapsed time. It MUST allow mouse navigation from clickable child rows only and MUST NOT
+expose keyboard shortcuts, focus restoration, or command-palette controls.
 
 #### Scenario: Clickable session row navigates to child session
 

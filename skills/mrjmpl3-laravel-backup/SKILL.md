@@ -1,6 +1,10 @@
 ---
 name: mrjmpl3-laravel-backup
-description: 'Configure and extend spatie/laravel-backup for database and file backups, cleanup strategies, health monitoring, and notifications. Activates when working with backup configuration, scheduling backups, creating custom cleanup strategies or health checks, customizing notifications, or when the user mentions backups, backup monitoring, backup cleanup, or spatie/laravel-backup.'
+description:
+  'Configure and extend spatie/laravel-backup for database and file backups, cleanup strategies,
+  health monitoring, and notifications. Activates when working with backup configuration, scheduling
+  backups, creating custom cleanup strategies or health checks, customizing notifications, or when
+  the user mentions backups, backup monitoring, backup cleanup, or spatie/laravel-backup.'
 license: MIT
 metadata:
   author: spatie
@@ -66,7 +70,9 @@ Schedule::command('backup:monitor')->daily()->at('10:00');
 
 ## Configuration
 
-Published to `config/backup.php` with sections: `backup` (source files/databases, destination disks, encryption), `notifications` (mail, Slack, Discord), `monitor_backups` (health checks), and `cleanup` (retention strategy).
+Published to `config/backup.php` with sections: `backup` (source files/databases, destination disks,
+encryption), `notifications` (mail, Slack, Discord), `monitor_backups` (health checks), and
+`cleanup` (retention strategy).
 
 ### Database Dump Customization
 

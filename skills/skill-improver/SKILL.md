@@ -1,6 +1,8 @@
 ---
 name: skill-improver
-description: 'Trigger: improve skills, audit skills, refactor skills, skill quality. Audit and upgrade existing LLM-first skills.'
+description:
+  'Trigger: improve skills, audit skills, refactor skills, skill quality. Audit and upgrade existing
+  LLM-first skills.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -9,16 +11,21 @@ metadata:
 
 ## Activation Contract
 
-Use this skill when asked to audit, refactor, normalize, or improve existing `SKILL.md` files. Use `skill-creator` instead when creating a brand-new skill from a reusable pattern.
+Use this skill when asked to audit, refactor, normalize, or improve existing `SKILL.md` files. Use
+`skill-creator` instead when creating a brand-new skill from a reusable pattern.
 
 ## Hard Rules
 
 - Treat `docs/skill-style-guide.md` as the normative style contract when it exists.
-- For installed global skills, use `references/skill-style-guide.md` as the bundled local copy when `docs/skill-style-guide.md` is unavailable.
-- Treat `SKILL.md` as the source of truth; preserve author intent, critical rules, activation semantics, and output requirements.
-- Use `.atl/skill-registry.md` as an index of skill names, triggers, scopes, and exact paths; do not expect generated summaries.
+- For installed global skills, use `references/skill-style-guide.md` as the bundled local copy when
+  `docs/skill-style-guide.md` is unavailable.
+- Treat `SKILL.md` as the source of truth; preserve author intent, critical rules, activation
+  semantics, and output requirements.
+- Use `.atl/skill-registry.md` as an index of skill names, triggers, scopes, and exact paths; do not
+  expect generated summaries.
 - Default to audit-only. Modify files only when the user explicitly asks to apply improvements.
-- Never delete meaningful content silently; move long explanation, examples, templates, or schemas into local `references/` or `assets/`.
+- Never delete meaningful content silently; move long explanation, examples, templates, or schemas
+  into local `references/` or `assets/`.
 - Do not invent triggers, policies, or domain rules. Mark ambiguous cases for human review.
 
 ## Decision Gates
@@ -33,11 +40,16 @@ Use this skill when asked to audit, refactor, normalize, or improve existing `SK
 
 ## Execution Steps
 
-1. Read `docs/skill-style-guide.md`; if unavailable, read `references/skill-style-guide.md`; if neither exists, enforce the core LLM-first structure: frontmatter, Activation Contract, Hard Rules, Decision Gates, Execution Steps, Output Contract, References.
-2. Read `.atl/skill-registry.md`; use listed paths to select skills. If missing, scan known skill directories for `*/SKILL.md`.
-3. For each selected skill, audit metadata, trigger clarity, section order, body budget, actionability, decision gates, output contract, and local references.
+1. Read `docs/skill-style-guide.md`; if unavailable, read `references/skill-style-guide.md`; if
+   neither exists, enforce the core LLM-first structure: frontmatter, Activation Contract, Hard
+   Rules, Decision Gates, Execution Steps, Output Contract, References.
+2. Read `.atl/skill-registry.md`; use listed paths to select skills. If missing, scan known skill
+   directories for `*/SKILL.md`.
+3. For each selected skill, audit metadata, trigger clarity, section order, body budget,
+   actionability, decision gates, output contract, and local references.
 4. Return an audit report grouped by skill with severity and exact proposed changes.
-5. In apply mode, edit only safe issues, preserve content, create supporting files when needed, then rerun or request `gentle-ai skill-registry refresh`.
+5. In apply mode, edit only safe issues, preserve content, create supporting files when needed, then
+   rerun or request `gentle-ai skill-registry refresh`.
 
 ## Output Contract
 
@@ -52,4 +64,5 @@ Return:
 ## References
 
 - `docs/skill-style-guide.md` — normative LLM-first skill style guide for this repo.
-- `references/skill-style-guide.md` — bundled local copy for installed global skills when the repo doc is unavailable.
+- `references/skill-style-guide.md` — bundled local copy for installed global skills when the repo
+  doc is unavailable.

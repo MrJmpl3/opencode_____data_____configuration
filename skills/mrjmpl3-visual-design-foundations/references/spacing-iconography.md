@@ -72,8 +72,8 @@ function createSpacingScale(baseUnit: number = 4): Record<string, string> {
   };
 
   const multipliers = [
-    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64,
-    72, 80, 96,
+    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44,
+    48, 52, 56, 60, 64, 72, 80, 96,
   ];
 
   for (const m of multipliers) {
@@ -172,24 +172,26 @@ const sizeMap = {
   '2xl': 48,
 };
 
-export const Icon = forwardRef<SVGSVGElement, IconProps>(({ name, size = 'md', label, className, ...props }, ref) => {
-  const pixelSize = sizeMap[size];
+export const Icon = forwardRef<SVGSVGElement, IconProps>(
+  ({ name, size = 'md', label, className, ...props }, ref) => {
+    const pixelSize = sizeMap[size];
 
-  return (
-    <svg
-      ref={ref}
-      width={pixelSize}
-      height={pixelSize}
-      className={`inline-block flex-shrink-0 ${className}`}
-      aria-hidden={!label}
-      aria-label={label}
-      role={label ? 'img' : undefined}
-      {...props}
-    >
-      <use href={`/icons.svg#${name}`} />
-    </svg>
-  );
-});
+    return (
+      <svg
+        ref={ref}
+        width={pixelSize}
+        height={pixelSize}
+        className={`inline-block flex-shrink-0 ${className}`}
+        aria-hidden={!label}
+        aria-label={label}
+        role={label ? 'img' : undefined}
+        {...props}
+      >
+        <use href={`/icons.svg#${name}`} />
+      </svg>
+    );
+  },
+);
 
 Icon.displayName = 'Icon';
 ```
@@ -216,7 +218,14 @@ const iconSizes = {
   lg: 'lg' as const,
 };
 
-export function IconButton({ icon, label, size = 'md', variant = 'ghost', className, ...props }: IconButtonProps) {
+export function IconButton({
+  icon,
+  label,
+  size = 'md',
+  variant = 'ghost',
+  className,
+  ...props
+}: IconButtonProps) {
   return (
     <button
       className={`

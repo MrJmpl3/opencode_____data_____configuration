@@ -1,6 +1,7 @@
 # Docker Compose Examples
 
-A comprehensive collection of real-world Docker Compose examples covering various service patterns, application architectures, and deployment scenarios.
+A comprehensive collection of real-world Docker Compose examples covering various service patterns,
+application architectures, and deployment scenarios.
 
 ## Table of Contents
 
@@ -421,7 +422,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: django-celery-beat
-    command: celery -A myproject beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command:
+      celery -A myproject beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/code
     environment:
@@ -664,7 +666,9 @@ services:
   redis-node-1:
     image: redis:7-alpine
     container_name: redis-node-1
-    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    command:
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout
+      5000 --appendonly yes
     ports:
       - '7001:6379'
     volumes:
@@ -675,7 +679,9 @@ services:
   redis-node-2:
     image: redis:7-alpine
     container_name: redis-node-2
-    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    command:
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout
+      5000 --appendonly yes
     ports:
       - '7002:6379'
     volumes:
@@ -686,7 +692,9 @@ services:
   redis-node-3:
     image: redis:7-alpine
     container_name: redis-node-3
-    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    command:
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout
+      5000 --appendonly yes
     ports:
       - '7003:6379'
     volumes:
@@ -697,7 +705,9 @@ services:
   redis-node-4:
     image: redis:7-alpine
     container_name: redis-node-4
-    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    command:
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout
+      5000 --appendonly yes
     ports:
       - '7004:6379'
     volumes:
@@ -708,7 +718,9 @@ services:
   redis-node-5:
     image: redis:7-alpine
     container_name: redis-node-5
-    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    command:
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout
+      5000 --appendonly yes
     ports:
       - '7005:6379'
     volumes:
@@ -719,7 +731,9 @@ services:
   redis-node-6:
     image: redis:7-alpine
     container_name: redis-node-6
-    command: redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    command:
+      redis-server --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout
+      5000 --appendonly yes
     ports:
       - '7006:6379'
     volumes:
@@ -1284,7 +1298,8 @@ volumes:
   gitlab-redis-data:
 ```
 
-This comprehensive EXAMPLES.md provides 20+ production-ready Docker Compose examples covering all major use cases. Each example includes:
+This comprehensive EXAMPLES.md provides 20+ production-ready Docker Compose examples covering all
+major use cases. Each example includes:
 
 - Complete service definitions
 - Network configurations
@@ -1293,4 +1308,5 @@ This comprehensive EXAMPLES.md provides 20+ production-ready Docker Compose exam
 - Environment variables
 - Dependency management
 
-Would you like me to continue with the remaining sections (Content Management Systems, Data Processing, Security, Networking Examples, and Advanced Patterns)?
+Would you like me to continue with the remaining sections (Content Management Systems, Data
+Processing, Security, Networking Examples, and Advanced Patterns)?

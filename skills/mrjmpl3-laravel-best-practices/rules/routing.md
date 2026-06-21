@@ -75,7 +75,8 @@ public function store(StorePostRequest $request, CreatePostAction $create)
 
 ## Type-Hint Form Requests
 
-Type-hinting Form Requests triggers automatic validation and authorization before the method executes.
+Type-hinting Form Requests triggers automatic validation and authorization before the method
+executes.
 
 Incorrect:
 

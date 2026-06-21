@@ -1,11 +1,14 @@
 ---
 name: mrjmpl3-laravel-effective-context
-description: Provide comprehensive context in prompts—files, errors, Laravel version, dependencies, and monorepo details—for accurate AI responses
+description:
+  Provide comprehensive context in prompts—files, errors, Laravel version, dependencies, and
+  monorepo details—for accurate AI responses
 ---
 
 # Effective Context
 
-Give the AI assistant the right context to generate accurate, relevant code. Missing context leads to generic solutions that don't fit your project.
+Give the AI assistant the right context to generate accurate, relevant code. Missing context leads
+to generic solutions that don't fit your project.
 
 ## What to Include
 
@@ -13,7 +16,8 @@ Give the AI assistant the right context to generate accurate, relevant code. Mis
 
 - Reference specific files: `app/Models/User.php`, `routes/api.php`
 - Mention relevant directories: "working in `app/Services/Payment`"
-- Share project structure when it matters: "using repository pattern with interfaces in `app/Contracts`"
+- Share project structure when it matters: "using repository pattern with interfaces in
+  `app/Contracts`"
 
 ### Current State
 

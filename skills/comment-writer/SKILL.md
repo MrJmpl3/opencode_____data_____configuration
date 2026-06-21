@@ -1,6 +1,8 @@
 ---
 name: comment-writer
-description: 'Write warm, direct collaboration comments. Trigger: PR feedback, issue replies, reviews, Slack messages, or GitHub comments.'
+description:
+  'Write warm, direct collaboration comments. Trigger: PR feedback, issue replies, reviews, Slack
+  messages, or GitHub comments.'
 license: Apache-2.0
 metadata:
   author: gentleman-programming
@@ -45,7 +47,8 @@ Use it for:
 ### Request change
 
 ```markdown
-Good approach overall. I'd split this into a separate commit because it mixes validation logic with UI wiring.
+Good approach overall. I'd split this into a separate commit because it mixes validation logic with
+UI wiring.
 
 That keeps the reviewer's focus narrower and makes rollback cleaner if the integration fails.
 ```
@@ -63,7 +66,8 @@ For the next PR, add links to the previous and following PRs so the chain stays 
 ```markdown
 This PR exceeds the 400-line budget, so we need to split it or justify `size:exception`.
 
-Suggested order: foundation + tests first, then integration, then docs. That gives each review a clear start and end.
+Suggested order: foundation + tests first, then integration, then docs. That gives each review a
+clear start and end.
 ```
 
 ## Commands

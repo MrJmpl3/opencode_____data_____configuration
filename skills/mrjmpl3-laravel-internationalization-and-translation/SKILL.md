@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-laravel-internationalization-and-translation
-description: Build with i18n in mind from day one using Laravel translation helpers, JSON files, Blade integration, and locale management
+description:
+  Build with i18n in mind from day one using Laravel translation helpers, JSON files, Blade
+  integration, and locale management
 ---
 
 # Internationalization and Translation (i18n)
 
-Build your Laravel application with internationalization in mind from the start. Even if you're only supporting one language initially, wrapping strings in translation functions makes future localization much easier.
+Build your Laravel application with internationalization in mind from the start. Even if you're only
+supporting one language initially, wrapping strings in translation functions makes future
+localization much easier.
 
 ## Why Translate From the Start?
 
@@ -509,4 +513,5 @@ test('pluralization works correctly', function () {
    sail artisan lang:clear
    ```
 
-Remember: Start with translations from day one. It's much easier to maintain translations as you build than to retrofit them later!
+Remember: Start with translations from day one. It's much easier to maintain translations as you
+build than to retrofit them later!

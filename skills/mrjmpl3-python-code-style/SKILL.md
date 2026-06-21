@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-code-style
-description: Python code style, linting, formatting, naming conventions, and documentation standards. Use when writing new code, reviewing style, configuring linters, writing docstrings, or establishing project standards.
+description:
+  Python code style, linting, formatting, naming conventions, and documentation standards. Use when
+  writing new code, reviewing style, configuring linters, writing docstrings, or establishing
+  project standards.
 ---
 
 # Python Code Style & Documentation
 
-Consistent code style and clear documentation make codebases maintainable and collaborative. This skill covers modern Python tooling, naming conventions, and documentation standards.
+Consistent code style and clear documentation make codebases maintainable and collaborative. This
+skill covers modern Python tooling, naming conventions, and documentation standards.
 
 ## When to Use This Skill
 
@@ -53,7 +57,8 @@ strict = true
 
 ### Pattern 1: Modern Python Tooling
 
-Use `ruff` as an all-in-one linter and formatter. It replaces flake8, isort, and black with a single fast tool.
+Use `ruff` as an all-in-one linter and formatter. It replaces flake8, isort, and black with a single
+fast tool.
 
 ```toml
 # pyproject.toml
@@ -304,18 +309,13 @@ Brief description of what the project does.
 
 ## Installation
 
-\`\`\`bash
-pip install myproject
-\`\`\`
+\`\`\`bash pip install myproject \`\`\`
 
 ## Quick Start
 
-\`\`\`python
-from myproject import Client
+\`\`\`python from myproject import Client
 
-client = Client(api_key="...")
-result = client.process(data)
-\`\`\`
+client = Client(api_key="...") result = client.process(data) \`\`\`
 
 ## Configuration
 
@@ -323,10 +323,7 @@ Document environment variables and configuration options.
 
 ## Development
 
-\`\`\`bash
-pip install -e ".[dev]"
-pytest
-\`\`\`
+\`\`\`bash pip install -e ".[dev]" pytest \`\`\`
 ```
 
 **CHANGELOG Format (Keep a Changelog):**
@@ -360,4 +357,5 @@ pytest
 7. **Document public APIs** - Every public function needs a docstring
 8. **Keep docs updated** - Treat documentation as code
 9. **Automate in CI** - Run linters on every commit
-10. **Target Python 3.10+** - For new projects, Python 3.12+ is recommended for modern language features
+10. **Target Python 3.10+** - For new projects, Python 3.12+ is recommended for modern language
+    features

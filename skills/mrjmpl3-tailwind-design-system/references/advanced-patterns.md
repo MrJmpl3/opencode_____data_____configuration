@@ -1,6 +1,7 @@
 # Tailwind Design System: Advanced Patterns
 
-Advanced Tailwind CSS v4 patterns including animations, dark mode theming, custom utilities, theme modifiers, namespace overrides, and the v3-to-v4 migration checklist.
+Advanced Tailwind CSS v4 patterns including animations, dark mode theming, custom utilities, theme
+modifiers, namespace overrides, and the v3-to-v4 migration checklist.
 
 ## Pattern 5: Native CSS Animations (v4)
 

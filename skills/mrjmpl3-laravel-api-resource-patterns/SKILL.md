@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-api-resource-patterns
-description: Best practices for Laravel API Resources including resource transformation, collection handling, conditional attributes, and relationship loading.
+description:
+  Best practices for Laravel API Resources including resource transformation, collection handling,
+  conditional attributes, and relationship loading.
 ---
 
 # API Resource Patterns

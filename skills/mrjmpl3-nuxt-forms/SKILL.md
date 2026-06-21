@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-nuxt-forms
-description: Form handling with XForm component and useFormBuilder. Use when creating forms, handling validation errors, managing form state, or building form-based slideovers and modals.
+description:
+  Form handling with XForm component and useFormBuilder. Use when creating forms, handling
+  validation errors, managing form state, or building form-based slideovers and modals.
 ---
 
 # Nuxt Forms

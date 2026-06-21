@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-custom-helpers
-description: Create and register small, pure helper functions when they improve clarity; keep them organized and tested
+description:
+  Create and register small, pure helper functions when they improve clarity; keep them organized
+  and tested
 ---
 
 # Custom Helpers

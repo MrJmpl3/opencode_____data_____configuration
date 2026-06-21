@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-performance-eager-loading
-description: Prevent N+1 queries by eager loading; enable lazy-loading protection in non-production; choose selective fields
+description:
+  Prevent N+1 queries by eager loading; enable lazy-loading protection in non-production; choose
+  selective fields
 ---
 
 # Eager Loading and N+1 Prevention

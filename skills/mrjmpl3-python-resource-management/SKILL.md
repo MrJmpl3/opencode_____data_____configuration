@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-resource-management
-description: Python resource management with context managers, cleanup patterns, and streaming. Use when managing connections, file handles, implementing cleanup logic, or building streaming responses with accumulated state.
+description:
+  Python resource management with context managers, cleanup patterns, and streaming. Use when
+  managing connections, file handles, implementing cleanup logic, or building streaming responses
+  with accumulated state.
 ---
 
 # Python Resource Management
 
-Manage resources deterministically using context managers. Resources like database connections, file handles, and network sockets should be released reliably, even when exceptions occur.
+Manage resources deterministically using context managers. Resources like database connections, file
+handles, and network sockets should be released reliably, even when exceptions occur.
 
 ## When to Use This Skill
 

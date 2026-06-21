@@ -3,7 +3,8 @@ name: mrjmpl3-multi-stage-dockerfile
 description: 'Create optimized multi-stage Dockerfiles for any language or framework'
 ---
 
-Your goal is to help me create efficient multi-stage Dockerfiles that follow best practices, resulting in smaller, more secure container images.
+Your goal is to help me create efficient multi-stage Dockerfiles that follow best practices,
+resulting in smaller, more secure container images.
 
 ## Multi-Stage Structure
 
@@ -16,7 +17,8 @@ Your goal is to help me create efficient multi-stage Dockerfiles that follow bes
 ## Base Images
 
 - Start with official, minimal base images when possible
-- Specify exact version tags to ensure reproducible builds (e.g., `python:3.11-slim` not just `python`)
+- Specify exact version tags to ensure reproducible builds (e.g., `python:3.11-slim` not just
+  `python`)
 - Consider distroless images for runtime stages where appropriate
 - Use Alpine-based images for smaller footprints when compatible with your application
 - Ensure the runtime image has the minimal necessary dependencies
@@ -24,7 +26,8 @@ Your goal is to help me create efficient multi-stage Dockerfiles that follow bes
 ## Layer Optimization
 
 - Organize commands to maximize layer caching
-- Place commands that change frequently (like code changes) after commands that change less frequently (like dependency installation)
+- Place commands that change frequently (like code changes) after commands that change less
+  frequently (like dependency installation)
 - Use `.dockerignore` to prevent unnecessary files from being included in the build context
 - Combine related RUN commands with `&&` to reduce layer count
 - Consider using COPY --chown to set permissions in one step

@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-python-packaging
-description: Create distributable Python packages with proper project structure, setup.py/pyproject.toml, and publishing to PyPI. Use when packaging Python libraries, creating CLI tools, or distributing Python code.
+description:
+  Create distributable Python packages with proper project structure, setup.py/pyproject.toml, and
+  publishing to PyPI. Use when packaging Python libraries, creating CLI tools, or distributing
+  Python code.
 ---
 
 # Python Packaging
 
-Comprehensive guide to creating, structuring, and distributing Python packages using modern packaging tools, pyproject.toml, and publishing to PyPI.
+Comprehensive guide to creating, structuring, and distributing Python packages using modern
+packaging tools, pyproject.toml, and publishing to PyPI.
 
 ## When to Use This Skill
 
@@ -507,4 +511,6 @@ jobs:
         run: twine upload dist/*
 ```
 
-For advanced patterns including data files, namespace packages, C extensions, version management, testing installation, documentation templates, and distribution workflows, see [references/advanced-patterns.md](references/advanced-patterns.md)
+For advanced patterns including data files, namespace packages, C extensions, version management,
+testing installation, documentation templates, and distribution workflows, see
+[references/advanced-patterns.md](references/advanced-patterns.md)

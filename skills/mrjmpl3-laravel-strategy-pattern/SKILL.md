@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-strategy-pattern
-description: Use the Strategy pattern to select behavior at runtime; bind multiple implementations to a shared interface
+description:
+  Use the Strategy pattern to select behavior at runtime; bind multiple implementations to a shared
+  interface
 ---
 
 # Strategy Pattern

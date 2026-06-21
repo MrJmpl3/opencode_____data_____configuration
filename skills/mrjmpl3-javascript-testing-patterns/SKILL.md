@@ -1,11 +1,16 @@
 ---
 name: mrjmpl3-javascript-testing-patterns
-description: Implement comprehensive testing strategies using Jest, Vitest, and Testing Library for unit tests, integration tests, and end-to-end testing with mocking, fixtures, and test-driven development. Use when writing JavaScript/TypeScript tests, setting up test infrastructure, or implementing TDD/BDD workflows.
+description:
+  Implement comprehensive testing strategies using Jest, Vitest, and Testing Library for unit tests,
+  integration tests, and end-to-end testing with mocking, fixtures, and test-driven development. Use
+  when writing JavaScript/TypeScript tests, setting up test infrastructure, or implementing TDD/BDD
+  workflows.
 ---
 
 # JavaScript Testing Patterns
 
-Comprehensive guide for implementing robust testing strategies in JavaScript/TypeScript applications using modern testing frameworks and best practices.
+Comprehensive guide for implementing robust testing strategies in JavaScript/TypeScript applications
+using modern testing frameworks and best practices.
 
 ## When to Use This Skill
 
@@ -477,19 +482,25 @@ describe('OrderService', () => {
 
 ## Integration Testing
 
-Integration tests verify real database operations and HTTP endpoints using `supertest` and a test database instance. Always truncate tables in `beforeEach` and tear down in `afterAll`.
+Integration tests verify real database operations and HTTP endpoints using `supertest` and a test
+database instance. Always truncate tables in `beforeEach` and tear down in `afterAll`.
 
-For full API integration test examples (supertest + PostgreSQL) and database repository integration tests, see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
+For full API integration test examples (supertest + PostgreSQL) and database repository integration
+tests, see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
 
 ## Frontend Testing with Testing Library
 
-Test React components by rendering them and querying by role, placeholder, or test ID. Test hooks with `renderHook` + `act`. Prefer semantic queries (`getByRole`, `getByPlaceholderText`) over `data-testid`.
+Test React components by rendering them and querying by role, placeholder, or test ID. Test hooks
+with `renderHook` + `act`. Prefer semantic queries (`getByRole`, `getByPlaceholderText`) over
+`data-testid`.
 
-For complete React component test examples (UserForm, hooks with `renderHook`/`act`), see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
+For complete React component test examples (UserForm, hooks with `renderHook`/`act`), see
+[references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
 
 ## Test Fixtures and Factories
 
-Use `@faker-js/faker` to generate realistic test data factories. Factories accept optional `overrides` so tests can set only the fields they care about:
+Use `@faker-js/faker` to generate realistic test data factories. Factories accept optional
+`overrides` so tests can set only the fields they care about:
 
 ```typescript
 // tests/fixtures/user.fixture.ts
@@ -506,7 +517,8 @@ export function createUserFixture(overrides?: Partial<User>): User {
 }
 ```
 
-For snapshot testing, coverage configuration, test organization patterns, promise testing, and timer mocking, see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
+For snapshot testing, coverage configuration, test organization patterns, promise testing, and timer
+mocking, see [references/advanced-testing-patterns.md](references/advanced-testing-patterns.md).
 
 ## Best Practices
 

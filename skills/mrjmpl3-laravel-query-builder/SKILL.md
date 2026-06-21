@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-laravel-query-builder
-description: 'Build filtered, sorted, and included API endpoints using spatie/laravel-query-builder. Activates when working with QueryBuilder, AllowedFilter, AllowedSort, AllowedInclude, or when the user mentions query parameters, API filtering, sorting, includes, or spatie/laravel-query-builder.'
+description:
+  'Build filtered, sorted, and included API endpoints using spatie/laravel-query-builder. Activates
+  when working with QueryBuilder, AllowedFilter, AllowedSort, AllowedInclude, or when the user
+  mentions query parameters, API filtering, sorting, includes, or spatie/laravel-query-builder.'
 license: MIT
 metadata:
   author: spatie
@@ -242,7 +245,8 @@ return [
 
 ## Wildcard Allow-All
 
-Allow any requested filter, sort, or include without explicit listing. Restricted to `local` and `testing` environments:
+Allow any requested filter, sort, or include without explicit listing. Restricted to `local` and
+`testing` environments:
 
 ```php
 QueryBuilder::for(User::class)
@@ -304,8 +308,13 @@ QueryBuilder::for(User::class)
 
 ## Common Pitfalls
 
-- **N+1 queries**: Always use `allowedIncludes()` to eager load relationships instead of accessing them in views/resources without loading
-- **Forgetting to allow**: All filters, sorts, includes, and fields must be explicitly allowed. Unallowed parameters throw exceptions by default
-- **Filter value types**: Filter values come from query strings as strings. Use `AllowedFilter::exact()` for boolean/integer columns, or handle casting in custom filters
-- **Nested include counts**: Count and exists variants are only auto-generated for top-level includes, not for nested includes like `posts.comments`
-- **Field selection with includes**: When using `allowedFields()` with `allowedIncludes()`, make sure to include the foreign key columns needed for the relationships
+- **N+1 queries**: Always use `allowedIncludes()` to eager load relationships instead of accessing
+  them in views/resources without loading
+- **Forgetting to allow**: All filters, sorts, includes, and fields must be explicitly allowed.
+  Unallowed parameters throw exceptions by default
+- **Filter value types**: Filter values come from query strings as strings. Use
+  `AllowedFilter::exact()` for boolean/integer columns, or handle casting in custom filters
+- **Nested include counts**: Count and exists variants are only auto-generated for top-level
+  includes, not for nested includes like `posts.comments`
+- **Field selection with includes**: When using `allowedFields()` with `allowedIncludes()`, make
+  sure to include the foreign key columns needed for the relationships

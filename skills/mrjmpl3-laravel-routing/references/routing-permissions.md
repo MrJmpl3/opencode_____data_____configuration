@@ -6,8 +6,10 @@ Routes define the HTTP interface. Authorization happens at the route level using
 
 - [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) - Controllers handle routes
 - [Policies](../../mrjmpl3-laravel-policies/SKILL.md) - Policies define authorization logic
-- [structure.md](../../mrjmpl3-laravel-architecture/references/structure.md) - Web vs API routing structure
-- [bootstrap-booters.md](../../mrjmpl3-laravel-providers/references/bootstrap-booters.md) - Route configuration in bootstrap
+- [structure.md](../../mrjmpl3-laravel-architecture/references/structure.md) - Web vs API routing
+  structure
+- [bootstrap-booters.md](../../mrjmpl3-laravel-providers/references/bootstrap-booters.md) - Route
+  configuration in bootstrap
 
 ## Why Route-Level Authorization
 
@@ -15,7 +17,8 @@ Routes define the HTTP interface. Authorization happens at the route level using
 
 ### Benefits:
 
-1. **Correct HTTP status codes** - Authorization before model resolution ensures proper `403` instead of `404`
+1. **Correct HTTP status codes** - Authorization before model resolution ensures proper `403`
+   instead of `404`
 2. **No ambiguity** - Consistent authorization location for all routes
 3. **Clear separation** - Authorization separate from validation
 
@@ -149,7 +152,8 @@ Route::prefix('v1')->name('api.v1.')->group(base_path('routes/api/v1.php'));
 Route::prefix('v2')->name('api.v2.')->group(base_path('routes/api/v2.php'));
 ```
 
-See [bootstrap-booters.md](../../mrjmpl3-laravel-providers/references/bootstrap-booters.md) for bootstrap configuration.
+See [bootstrap-booters.md](../../mrjmpl3-laravel-providers/references/bootstrap-booters.md) for
+bootstrap configuration.
 
 ## Web vs API Differences
 

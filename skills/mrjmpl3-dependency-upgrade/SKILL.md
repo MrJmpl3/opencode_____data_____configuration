@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-dependency-upgrade
-description: Manage major dependency version upgrades with compatibility analysis, staged rollout, and comprehensive testing. Use when upgrading framework versions, updating major dependencies, or managing breaking changes in libraries.
+description:
+  Manage major dependency version upgrades with compatibility analysis, staged rollout, and
+  comprehensive testing. Use when upgrading framework versions, updating major dependencies, or
+  managing breaking changes in libraries.
 ---
 
 # Dependency Upgrade
 
-Master major dependency version upgrades, compatibility analysis, staged upgrade strategies, and comprehensive testing approaches.
+Master major dependency version upgrades, compatibility analysis, staged upgrade strategies, and
+comprehensive testing approaches.
 
 ## When to Use This Skill
 
@@ -196,7 +200,10 @@ glob('src/**/*.tsx', (err, files) => {
     content = content.replace(/componentWillMount/g, 'UNSAFE_componentWillMount');
 
     // Update imports
-    content = content.replace(/import { Component } from 'react'/g, "import React, { Component } from 'react'");
+    content = content.replace(
+      /import { Component } from 'react'/g,
+      "import React, { Component } from 'react'",
+    );
 
     fs.writeFileSync(file, content);
   });

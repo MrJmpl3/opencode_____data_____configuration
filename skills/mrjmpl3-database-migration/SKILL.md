@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-database-migration
-description: Execute database migrations across ORMs and platforms with zero-downtime strategies, data transformation, and rollback procedures. Use when migrating databases, changing schemas, performing data transformations, or implementing zero-downtime deployment strategies.
+description:
+  Execute database migrations across ORMs and platforms with zero-downtime strategies, data
+  transformation, and rollback procedures. Use when migrating databases, changing schemas,
+  performing data transformations, or implementing zero-downtime deployment strategies.
 ---
 
 # Database Migration
 
-Master database schema and data migrations across ORMs (Sequelize, TypeORM, Prisma), including rollback strategies and zero-downtime deployments.
+Master database schema and data migrations across ORMs (Sequelize, TypeORM, Prisma), including
+rollback strategies and zero-downtime deployments.
 
 ## When to Use This Skill
 
@@ -267,9 +271,12 @@ module.exports = {
         { transaction },
       );
 
-      await queryInterface.sequelize.query('UPDATE users SET verified = true WHERE email_verified_at IS NOT NULL', {
-        transaction,
-      });
+      await queryInterface.sequelize.query(
+        'UPDATE users SET verified = true WHERE email_verified_at IS NOT NULL',
+        {
+          transaction,
+        },
+      );
 
       await transaction.commit();
     } catch (error) {

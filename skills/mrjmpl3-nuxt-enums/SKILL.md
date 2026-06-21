@@ -1,6 +1,9 @@
 ---
 name: mrjmpl3-nuxt-enums
-description: TypeScript enum pattern with Castable interface for model integration. Use when creating enums with behavior methods (colors, labels), defining fixed value sets, or integrating enums with the model casting system.
+description:
+  TypeScript enum pattern with Castable interface for model integration. Use when creating enums
+  with behavior methods (colors, labels), defining fixed value sets, or integrating enums with the
+  model casting system.
 ---
 
 # Nuxt Enums

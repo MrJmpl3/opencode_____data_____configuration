@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-quality-checks
-description: Unified quality gates for Laravel projects; Pint, static analysis (PHPStan/Psalm), Insights (optional), and JS linters; Sail and non-Sail pairs provided
+description:
+  Unified quality gates for Laravel projects; Pint, static analysis (PHPStan/Psalm), Insights
+  (optional), and JS linters; Sail and non-Sail pairs provided
 ---
 
 # Quality Checks (Laravel)

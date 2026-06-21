@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-horizon-metrics-and-dashboards
-description: Operate Horizon with confidence—naming, tags, concurrency, failure handling, actionable metrics, and dashboards
+description:
+  Operate Horizon with confidence—naming, tags, concurrency, failure handling, actionable metrics,
+  and dashboards
 ---
 
 # Horizon: Metrics and Dashboards

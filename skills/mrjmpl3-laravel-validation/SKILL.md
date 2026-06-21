@@ -1,6 +1,8 @@
 ---
 name: mrjmpl3-laravel-validation
-description: Form request validation and comprehensive validation testing. Use when creating or modifying form requests, validation rules, or validation tests.
+description:
+  Form request validation and comprehensive validation testing. Use when creating or modifying form
+  requests, validation rules, or validation tests.
 ---
 
 # Laravel Validation

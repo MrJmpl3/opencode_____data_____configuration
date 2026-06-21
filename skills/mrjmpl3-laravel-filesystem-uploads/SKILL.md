@@ -1,6 +1,7 @@
 ---
 name: mrjmpl3-laravel-filesystem-uploads
-description: Store and serve files via Storage; set visibility, generate URLs, and handle streaming safely
+description:
+  Store and serve files via Storage; set visibility, generate URLs, and handle streaming safely
 ---
 
 # Filesystem Uploads and URLs

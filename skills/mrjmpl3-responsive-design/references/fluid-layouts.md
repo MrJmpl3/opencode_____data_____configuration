@@ -2,7 +2,9 @@
 
 ## Overview
 
-Fluid design creates smooth scaling experiences by using relative units and mathematical functions instead of fixed breakpoints. This approach reduces the need for media queries and creates more natural-feeling interfaces.
+Fluid design creates smooth scaling experiences by using relative units and mathematical functions
+instead of fixed breakpoints. This approach reduces the need for media queries and creates more
+natural-feeling interfaces.
 
 ## Fluid Typography
 
@@ -206,7 +208,10 @@ small {
 /* With maximum columns */
 .auto-grid-max-4 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, max(200px, calc((100% - 3 * var(--space-md)) / 4))), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, max(200px, calc((100% - 3 * var(--space-md)) / 4))), 1fr)
+  );
   gap: var(--space-md);
 }
 ```

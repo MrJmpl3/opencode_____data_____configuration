@@ -1,10 +1,12 @@
 # Validation Testing - Complete Guide
 
-**Comprehensive guide to testing form request validation** using the RequestDataProviderItem helper and Pest datasets for systematic validation coverage.
+**Comprehensive guide to testing form request validation** using the RequestDataProviderItem helper
+and Pest datasets for systematic validation coverage.
 
 **Related guides:**
 
-- [testing-conventions.md](../../mrjmpl3-laravel-testing/references/testing-conventions.md) - Test file structure and ordering conventions
+- [testing-conventions.md](../../mrjmpl3-laravel-testing/references/testing-conventions.md) - Test
+  file structure and ordering conventions
 - [form-requests.md](form-requests.md) - Form request validation rules
 - [Quality](../../mrjmpl3-laravel-quality/SKILL.md) - Testing standards and architecture tests
 - [Testing](../../mrjmpl3-laravel-testing/SKILL.md) - Complete testing guide
@@ -94,7 +96,9 @@ The validation testing system requires two components:
 - `tests/Concerns/RequestDataProviderItem.php` - Helper class
 - `app/Providers/MacroServiceProvider.php` - Macro registration
 
-**⚠️ Important:** The `assertValidationErrors` macro must be registered in `MacroServiceProvider` and added to `bootstrap/providers.php` (or `config/app.php` for Laravel 10). See the [macro setup guide](./macro-setup.md) for complete installation instructions.
+**⚠️ Important:** The `assertValidationErrors` macro must be registered in `MacroServiceProvider`
+and added to `bootstrap/providers.php` (or `config/app.php` for Laravel 10). See the
+[macro setup guide](./macro-setup.md) for complete installation instructions.
 
 ### The RequestDataProviderItem Class
 
@@ -1124,7 +1128,8 @@ describe('Order Creation Validation', function () {
 
 ## Real-World Comprehensive Example
 
-Here's a complete, production-ready example showing extensive validation testing for a complex form with nested arrays, multiple field types, and conditional validation:
+Here's a complete, production-ready example showing extensive validation testing for a complex form
+with nested arrays, multiple field types, and conditional validation:
 
 ```php
 <?php
@@ -1321,9 +1326,11 @@ dataset('application create', [
 **Key Techniques Demonstrated:**
 
 1. **Helper Method Usage**: `string()`, `email()`, `date()`, `array()` for clean value generation
-2. **Nested Array Testing**: Deep nested validation like `addresses.0.from_date` and `traces.0.documents.0.ulid`
+2. **Nested Array Testing**: Deep nested validation like `addresses.0.from_date` and
+   `traces.0.documents.0.ulid`
 3. **Conditional Validation**: Mutually exclusive fields using `with()` to provide context
-4. **Date Range Validation**: Testing relative date constraints with `with()` for related field values
+4. **Date Range Validation**: Testing relative date constraints with `with()` for related field
+   values
 5. **Custom Error Messages**: Matching exact custom messages from Form Request
 6. **Type Flexibility**: Testing union types (string or integer)
 7. **Format Validation**: Date format constraints and specialized formats (UUID, ULID, phone)
@@ -1341,11 +1348,13 @@ dataset('application create', [
 4. **Maintainable Tests** - Easy to update when validation rules change
 5. **Consistent Patterns** - Standard approach across all test files
 6. **Flexible Setup** - `with()`, `tap()`, closures for complex scenarios
-7. **Built-in Helpers** - `string()`, `email()`, `number()`, `date()`, `array()`, `boolean()` methods
+7. **Built-in Helpers** - `string()`, `email()`, `number()`, `date()`, `array()`, `boolean()`
+   methods
 
 **Key Methods:**
 
-- **Value helpers**: `string(length)`, `email(valid)`, `number()`, `date(format)`, `array(count, item)`, `boolean(value)`
+- **Value helpers**: `string(length)`, `email(valid)`, `number()`, `date(format)`,
+  `array(count, item)`, `boolean(value)`
 - **Assertions**: `assertError(message)`, `assertNotError(message)`
 - **Request building**: `with(data)`, `tap(callback)`, `buildRequest()`
 - **Static helpers**: `buildString(count, item)`, `buildArray(count, item)`

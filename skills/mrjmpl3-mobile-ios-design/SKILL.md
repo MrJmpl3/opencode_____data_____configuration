@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-mobile-ios-design
-description: Master iOS Human Interface Guidelines and SwiftUI patterns for building native iOS apps. Use when designing iOS interfaces, implementing SwiftUI views, or ensuring apps follow Apple's design principles.
+description:
+  Master iOS Human Interface Guidelines and SwiftUI patterns for building native iOS apps. Use when
+  designing iOS interfaces, implementing SwiftUI views, or ensuring apps follow Apple's design
+  principles.
 ---
 
 # iOS Mobile Design
 
-Master iOS Human Interface Guidelines (HIG) and SwiftUI patterns to build polished, native iOS applications that feel at home on Apple platforms.
+Master iOS Human Interface Guidelines (HIG) and SwiftUI patterns to build polished, native iOS
+applications that feel at home on Apple platforms.
 
 ## When to Use This Skill
 
@@ -22,9 +26,9 @@ Master iOS Human Interface Guidelines (HIG) and SwiftUI patterns to build polish
 
 ### 1. Human Interface Guidelines Principles
 
-**Clarity**: Content is legible, icons are precise, adornments are subtle
-**Deference**: UI helps users understand content without competing with it
-**Depth**: Visual layers and motion convey hierarchy and enable navigation
+**Clarity**: Content is legible, icons are precise, adornments are subtle **Deference**: UI helps
+users understand content without competing with it **Depth**: Visual layers and motion convey
+hierarchy and enable navigation
 
 **Platform Considerations:**
 
@@ -240,7 +244,8 @@ struct FeatureCard: View {
 
 ## Best Practices
 
-1. **Use Semantic Colors**: Always use `.primary`, `.secondary`, `.background` for automatic light/dark mode support
+1. **Use Semantic Colors**: Always use `.primary`, `.secondary`, `.background` for automatic
+   light/dark mode support
 2. **Embrace SF Symbols**: Use system symbols for consistency and automatic accessibility
 3. **Support Dynamic Type**: Use semantic fonts (`.body`, `.headline`) instead of fixed sizes
 4. **Add Accessibility**: Include `.accessibilityLabel()` and `.accessibilityHint()` modifiers

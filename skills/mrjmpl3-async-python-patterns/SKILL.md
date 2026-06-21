@@ -1,11 +1,15 @@
 ---
 name: mrjmpl3-async-python-patterns
-description: Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications requiring non-blocking operations.
+description:
+  Master Python asyncio, concurrent programming, and async/await patterns for high-performance
+  applications. Use when building async APIs, concurrent systems, or I/O-bound applications
+  requiring non-blocking operations.
 ---
 
 # Async Python Patterns
 
-Comprehensive guidance for implementing asynchronous Python applications using asyncio, concurrent programming patterns, and async/await for building high-performance, non-blocking systems.
+Comprehensive guidance for implementing asynchronous Python applications using asyncio, concurrent
+programming patterns, and async/await for building high-performance, non-blocking systems.
 
 ## When to Use This Skill
 
@@ -30,7 +34,8 @@ Before adopting async, consider whether it's the right choice for your use case.
 | Simple scripts, few connections  | Sync (simpler, easier to debug)             |
 | Web APIs with high concurrency   | Async frameworks (FastAPI, aiohttp)         |
 
-**Key Rule:** Stay fully sync or fully async within a call path. Mixing creates hidden blocking and complexity.
+**Key Rule:** Stay fully sync or fully async within a call path. Mixing creates hidden blocking and
+complexity.
 
 ## Core Concepts
 
@@ -597,7 +602,8 @@ async def process_item(item: str):
 
 ### 3. Avoid Blocking Operations
 
-Never block the event loop with synchronous operations. A single blocking call stalls all concurrent tasks.
+Never block the event loop with synchronous operations. A single blocking call stalls all concurrent
+tasks.
 
 ```python
 # BAD - blocks the entire event loop

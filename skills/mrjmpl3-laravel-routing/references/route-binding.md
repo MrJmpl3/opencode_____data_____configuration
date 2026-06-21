@@ -1,6 +1,7 @@
 # Route Model Binding - Complete Guide
 
-Laravel's route model binding automatically resolves model instances from route parameters. This guide covers both simple and advanced conditional binding strategies.
+Laravel's route model binding automatically resolves model instances from route parameters. This
+guide covers both simple and advanced conditional binding strategies.
 
 ## Philosophy
 
@@ -100,7 +101,8 @@ private function bootRouteModelBindings(): void
 
 ### ConditionalRouteBinder Class
 
-**Location:** `app/Support/ConditionalRouteBinder.php` or `packages/fabric/support/src/ConditionalRouteBinder.php`
+**Location:** `app/Support/ConditionalRouteBinder.php` or
+`packages/fabric/support/src/ConditionalRouteBinder.php`
 
 ```php
 <?php
@@ -409,5 +411,6 @@ it('throws 404 for soft-deleted order on public routes', function () {
 
 **See also:**
 
-- [service-providers.md](../../mrjmpl3-laravel-providers/references/service-providers.md) - AppServiceProvider setup
+- [service-providers.md](../../mrjmpl3-laravel-providers/references/service-providers.md) -
+  AppServiceProvider setup
 - [Controllers](../../mrjmpl3-laravel-controllers/SKILL.md) - Using bound models in controllers
