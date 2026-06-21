@@ -385,7 +385,7 @@ describe('renderQuotaLine window format', () => {
 
   it('renders a window line with 100% usage', () => {
     const line = windowLine('Mo', '100%', 3600, fetchedAtMs);
-    expect(renderQuotaLine(line, fetchedAtMs)).toBe('  Mo 100% · 1h0m');
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('  Mo 100% · 1h0m0s');
   });
 
   it('renders a window line with zero reset time', () => {

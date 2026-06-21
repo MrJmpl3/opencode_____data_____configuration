@@ -1094,7 +1094,7 @@ describe('quota tui plugin', () => {
   });
 
   it('formats durations including minutes and seconds', () => {
-    expect(fmtDuration(6 * 86400 + 23 * 3600 + 12 * 60 + 34)).toBe('6d23h12m');
+    expect(fmtDuration(6 * 86400 + 23 * 3600 + 12 * 60 + 34)).toBe('6d23h12m34s');
     expect(fmtDuration(75)).toBe('1m15s');
   });
 
