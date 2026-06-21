@@ -3,4 +3,5 @@ export const DASHBOARD_URL = (id: string) => `https://opencode.ai/workspace/${en
 export const GITHUB_API = 'https://api.github.com';
 export const OPENROUTER_CREDITS_URL = 'https://openrouter.ai/api/v1/credits';
 export const OPENAI_USAGE_URL = 'https://chatgpt.com/backend-api/wham/usage';
+export const OPENAI_RESET_CREDITS_URL = 'https://chatgpt.com/backend-api/wham/rate-limit-reset-credits';
 export const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Gecko/20100101 Firefox/148.0';

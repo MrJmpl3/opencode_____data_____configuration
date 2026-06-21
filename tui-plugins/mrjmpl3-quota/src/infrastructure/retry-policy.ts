@@ -30,7 +30,7 @@ const parseBackoffResetMs = (message: string, pattern: RegExp): number => {
 };
 
 export const isQuotaRateLimitError = (message: string): boolean => {
-  return /\b(429|403)\b|rate.?limit|too many requests|temporar(?:y|ily)|secondary rate/i.test(message);
+  return /\b429\b|rate.?limit|too many requests|temporar(?:y|ily)|secondary rate/i.test(message);
 };
 
 export const retryAfterMsFromMessage = (message: string): number => {

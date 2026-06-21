@@ -1261,7 +1261,6 @@
       "url": "https://nuxt.com/mcp"
     }
   },
-  "model": "openai/gpt-5.4",
   "permission": {
     "bash": {
       "*": "allow",
@@ -1301,6 +1300,5 @@
       }
     }
   },
-  "share": "disabled",
-  "small_model": "openai/gpt-5.4-mini"
+  "share": "disabled"
 }

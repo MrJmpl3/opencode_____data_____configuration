@@ -4,7 +4,8 @@
     [
       "/home/mrjmpl3/.config/opencode/tui-plugins/mrjmpl3-quota",
       {
-        "visibleProviders": ["openai", "opencode-go", "openrouter", "github-copilot"]
+        "visibleProviders": ["openai", "opencode-go", "openrouter", "github-copilot"],
+        "experimentalOpenAIResetCredits": true
       }
     ],
     "/home/mrjmpl3/.config/opencode/tui-plugins/gentle-logo.tsx"

@@ -1,11 +1,11 @@
 import { fmtDuration } from '../infrastructure/providers/format.ts';
-import { formatResponsibleUsagePace } from './format.ts';
-import type { PercentWindow } from './types.ts';
+import { formatPaceLineText } from './format.ts';
+import type { PercentWindow, QuotaLineTone } from './types.ts';
 
 export type QuotaLine =
   | { kind: 'heading'; text: string }
-  | { kind: 'detail'; text: string }
-  | { kind: 'window'; label: string; value: string; resetAtMs: number }
+  | { kind: 'detail'; text: string; tone?: QuotaLineTone }
+  | { kind: 'window'; label: string; value: string; resetAtMs: number; tone?: QuotaLineTone }
   | { kind: 'pace'; usedPct: number; resetAtMs: number; windowSeconds: number };
 
 const resetAtMsFromSeconds = (resetSec: number, capturedAtMs: number): number =>
@@ -13,17 +13,30 @@ const resetAtMsFromSeconds = (resetSec: number, capturedAtMs: number): number =>
 
 const indentQuotaLine = (text: string): string => `  ${text}`;
 
-const remainingSeconds = (resetAtMs: number, nowMs: number): number =>
+const indentPaceLine = (text: string): string => `    ${text}`;
+
+export const remainingSeconds = (resetAtMs: number, nowMs: number): number =>
   Math.max(0, Math.ceil((resetAtMs - nowMs) / 1000));
 
 export const headingLine = (text: string): QuotaLine => ({ kind: 'heading', text });
-export const detailTextLine = (text: string): QuotaLine => ({ kind: 'detail', text });
+export const detailTextLine = (text: string, tone: QuotaLineTone = 'neutral'): QuotaLine => ({
+  kind: 'detail',
+  text,
+  tone,
+});
 
-export const windowLine = (label: string, value: string, resetSec: number, capturedAtMs: number): QuotaLine => ({
+export const windowLine = (
+  label: string,
+  value: string,
+  resetSec: number,
+  capturedAtMs: number,
+  tone: QuotaLineTone = 'neutral',
+): QuotaLine => ({
   kind: 'window',
   label,
   value,
   resetAtMs: resetAtMsFromSeconds(resetSec, capturedAtMs),
+  tone,
 });
 
 export const paceLine = (window: PercentWindow, windowSeconds: number, capturedAtMs: number): QuotaLine => ({
@@ -36,22 +49,24 @@ export const paceLine = (window: PercentWindow, windowSeconds: number, capturedA
 export const renderQuotaLine = (line: QuotaLine, nowMs: number): string => {
   switch (line.kind) {
     case 'heading':
-      return line.text;
+      return `▸ ${line.text}`;
     case 'detail':
       return indentQuotaLine(line.text);
-    case 'window':
-      return indentQuotaLine(
-        `${line.label} · ${line.value} · ${fmtDuration(remainingSeconds(line.resetAtMs, nowMs))} left`,
+    case 'window': {
+      const resetSec = remainingSeconds(line.resetAtMs, nowMs);
+      return indentQuotaLine(`${line.label} ${line.value} · ${fmtDuration(resetSec)}`);
+    }
+    case 'pace': {
+      const resetSec = remainingSeconds(line.resetAtMs, nowMs);
+      const { paceText, recoverySeconds } = formatPaceLineText(
+        {
+          usedPct: line.usedPct,
+          resetSec,
+        },
+        line.windowSeconds,
       );
-    case 'pace':
-      return indentQuotaLine(
-        `Usage pace · ${formatResponsibleUsagePace(
-          {
-            usedPct: line.usedPct,
-            resetSec: remainingSeconds(line.resetAtMs, nowMs),
-          },
-          line.windowSeconds,
-        )}`,
-      );
+      const projection = recoverySeconds !== undefined ? ` · ~${fmtDuration(recoverySeconds)}` : '';
+      return indentPaceLine(`${paceText}${projection}`);
+    }
   }
 };

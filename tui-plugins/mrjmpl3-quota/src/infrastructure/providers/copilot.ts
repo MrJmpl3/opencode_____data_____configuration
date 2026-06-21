@@ -106,19 +106,14 @@ export const formatCopilotLines = (
   const lines: QuotaLine[] = [];
 
   if (data.resetSec) {
-    lines.push(windowLine('Monthly', value, data.resetSec, fetchedAtMs));
+    lines.push(windowLine('Mo', value, data.resetSec, fetchedAtMs));
 
     if (data.pctRemaining !== undefined) {
-      lines.push(
-        paceLine(
-          { usedPct: Math.max(0, 100 - data.pctRemaining), resetSec: data.resetSec },
-          MONTH_SECONDS,
-          fetchedAtMs,
-        ),
-      );
+      const usedPct = Math.max(0, 100 - data.pctRemaining);
+      lines.push(paceLine({ usedPct, resetSec: data.resetSec }, MONTH_SECONDS, fetchedAtMs));
     }
   } else {
-    lines.push(detailTextLine(`Monthly · ${value}`));
+    lines.push(detailTextLine(`Monthly ${value}`));
   }
 
   return lines;

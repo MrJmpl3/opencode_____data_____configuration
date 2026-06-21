@@ -1,6 +1,7 @@
 interface RefreshSchedulerConfig {
   subscribe: (eventName: string, handler: (payload?: unknown) => void) => () => void;
   onRefresh: (source?: string) => void;
+  onEligibleEvent?: (source?: string) => void;
   immediateEvents: RefreshEventConfig[];
   completionEvents: RefreshEventConfig[];
   pollIntervalMs?: number;
@@ -29,6 +30,7 @@ interface RefreshScheduler {
 export const createRefreshScheduler = ({
   subscribe,
   onRefresh,
+  onEligibleEvent,
   immediateEvents,
   completionEvents,
   pollIntervalMs = DEFAULT_POLL_INTERVAL_MS,
@@ -79,6 +81,7 @@ export const createRefreshScheduler = ({
           return;
         }
 
+        onEligibleEvent?.(event.name);
         scheduleRefresh(extraDelays, event.name);
       });
     });

@@ -56,11 +56,13 @@ const parseGoWindow = (html: string, key: string): GoWindow | null => {
 export const formatGoLines = (data: GoDashboard, displayMode: QuotaDisplayMode, fetchedAtMs: number): QuotaLine[] => {
   const lines: QuotaLine[] = [];
 
-  for (const [name, key] of [
-    ['5h window', 'rolling'],
-    ['Weekly', 'weekly'],
-    ['Monthly', 'monthly'],
-  ] as const) {
+  const windows: readonly (readonly [string, keyof GoDashboard, number | undefined])[] = [
+    ['5h', 'rolling', undefined],
+    ['Wk', 'weekly', undefined],
+    ['Mo', 'monthly', MONTH_SECONDS],
+  ];
+
+  for (const [name, key, paceWindowSeconds] of windows) {
     const window = data[key];
     if (!window) continue;
 
@@ -68,8 +70,8 @@ export const formatGoLines = (data: GoDashboard, displayMode: QuotaDisplayMode, 
       windowLine(name, formatPercentQuota(window.used, window.remaining, displayMode), window.resetInSec, fetchedAtMs),
     );
 
-    if (key === 'monthly') {
-      lines.push(paceLine({ usedPct: window.used, resetSec: window.resetInSec }, MONTH_SECONDS, fetchedAtMs));
+    if (paceWindowSeconds !== undefined) {
+      lines.push(paceLine({ usedPct: window.used, resetSec: window.resetInSec }, paceWindowSeconds, fetchedAtMs));
     }
   }
 

@@ -14,16 +14,22 @@ import plugin, {
 } from '../index.tsx';
 import { inspectQuotaPluginOptions } from '../src/runtime/options.ts';
 import { createRefreshScheduler } from '../src/runtime/refresh-scheduler.ts';
+import { detailTextLine, headingLine } from '../src/domain/lines.ts';
 import {
   isQuotaTerminalSessionEvent,
   isQuotaTerminalTaskEvent,
   registerQuotaTui,
   refreshQuotaProviders,
+  shouldKeepDeferredRefreshTimer,
 } from '../src/runtime/runtime.tsx';
 import { fetchCopilotQuota, normalizeCopilotResetAtMs } from '../src/infrastructure/providers/copilot.ts';
 import { fmtDuration } from '../src/infrastructure/providers/format.ts';
 import { fetchWithTimeout } from '../src/infrastructure/providers/http.ts';
-import { fetchOpenAIQuota, parseAdditionalRateLimits } from '../src/infrastructure/providers/openai.ts';
+import {
+  fetchOpenAIQuota,
+  parseAdditionalRateLimits,
+  parseResetCreditsPayload,
+} from '../src/infrastructure/providers/openai.ts';
 import { fetchOpenRouterQuota as fetchOpenRouterQuotaFromOpenRouter } from '../src/infrastructure/providers/openrouter.ts';
 import { fetchOpenAIQuota as fetchOpenAIQuotaFromOpenAI } from '../src/infrastructure/providers/openai.ts';
 import { fetchOpenRouterQuota } from '../src/infrastructure/providers/openrouter.ts';
@@ -96,6 +102,7 @@ describe('quota tui plugin', () => {
       minRefreshIntervalMs: 120_000,
       providerCacheTtlMs: 300_000,
       providerErrorBackoffMs: 900_000,
+      experimentalOpenAIResetCredits: false,
     });
   });
 
@@ -167,6 +174,7 @@ describe('quota tui plugin', () => {
       minRefreshIntervalMs: 60_000,
       providerCacheTtlMs: 60_000,
       providerErrorBackoffMs: 900_000,
+      experimentalOpenAIResetCredits: false,
     });
   });
 
@@ -421,6 +429,7 @@ describe('quota tui plugin', () => {
     const { registerQuotaTui } = await import('../src/runtime/runtime.tsx');
     const events = new Map<string, (payload?: unknown) => void>();
     const disposers: Array<() => void> = [];
+    const slotRegistrations: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }[] = [];
 
     const api = {
       event: {
@@ -433,7 +442,9 @@ describe('quota tui plugin', () => {
         onDispose: (handler: () => void) => disposers.push(handler),
       },
       slots: {
-        register: vi.fn(),
+        register: (registration: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }) => {
+          slotRegistrations.push(registration);
+        },
       },
       theme: { current: { text: 'white', textMuted: 'gray' } },
     } as unknown as TuiPluginApi;
@@ -502,6 +513,388 @@ describe('quota tui plugin', () => {
     vi.resetModules();
   });
 
+  it('clears visible stale provider results when an invalidating refresh request lands mid-flight, even if the stale fetch resolves before the deferred refresh starts', async () => {
+    vi.resetModules();
+
+    const resolvers: Array<(value: unknown) => void> = [];
+    const fetchProviderLines = vi.fn(
+      () =>
+        new Promise<unknown>((resolve) => {
+          resolvers.push(resolve);
+        }),
+    );
+    const signals: Array<{ get: () => unknown; set: (value: unknown) => void }> = [];
+
+    vi.doMock('solid-js', () => ({
+      createSignal: <T>(initial: T) => {
+        let value = initial;
+        const get = () => value;
+        const set = (next: unknown) => {
+          value = next as T;
+        };
+
+        signals.push({ get, set });
+        return [get, set] as const;
+      },
+      Show: (props: { when: boolean; fallback?: unknown; children?: unknown }) =>
+        props.when ? props.children : props.fallback,
+    }));
+    vi.doMock('@opentui/solid', () => ({
+      Fragment: (props: { children?: unknown }) => props.children,
+      jsx: () => null,
+      jsxs: () => null,
+      jsxDEV: () => null,
+    }));
+    vi.doMock('@opentui/solid/jsx-runtime', () => ({
+      Fragment: (props: { children?: unknown }) => props.children,
+      jsx: () => null,
+      jsxs: () => null,
+      jsxDEV: () => null,
+    }));
+    vi.doMock('@opentui/solid/jsx-dev-runtime', () => ({
+      Fragment: (props: { children?: unknown }) => props.children,
+      jsx: () => null,
+      jsxs: () => null,
+      jsxDEV: () => null,
+    }));
+    vi.doMock('../src/domain/provider-results.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/domain/provider-results.ts')>(
+        '../src/domain/provider-results.ts',
+      );
+
+      return {
+        ...actual,
+        fetchProviderLines,
+      };
+    });
+
+    const { registerQuotaTui } = await import('../src/runtime/runtime.tsx');
+    const events = new Map<string, (payload?: unknown) => void>();
+    const disposers: Array<() => void> = [];
+    const slotRegistrations: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }[] = [];
+
+    const api = {
+      event: {
+        on: (eventName: string, handler: (payload?: unknown) => void) => {
+          events.set(eventName, handler);
+          return () => events.delete(eventName);
+        },
+      },
+      lifecycle: {
+        onDispose: (handler: () => void) => disposers.push(handler),
+      },
+      slots: {
+        register: (registration: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }) => {
+          slotRegistrations.push(registration);
+        },
+      },
+      theme: { current: { text: 'white', textMuted: 'gray' } },
+    } as unknown as TuiPluginApi;
+
+    await registerQuotaTui(api, {
+      minRefreshIntervalMs: 60_000,
+      pollIntervalMs: 0,
+      providerCacheTtlMs: 60_000,
+      visibleProviders: ['openrouter'],
+    });
+
+    await flushAsyncTasks();
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(1);
+    resolvers[0]?.('stale-data');
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('stale-data', 'error')]);
+
+    vi.advanceTimersByTime(60_000);
+    events.get('tui.session.select')?.({});
+    vi.advanceTimersByTime(300);
+    await flushAsyncTasks();
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(2);
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('stale-data', 'error')]);
+
+    events.get('session.status')?.({
+      properties: {
+        state: {
+          status: 'completed',
+        },
+      },
+    });
+
+    resolvers[1]?.('ignored-data');
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(2);
+    expect(
+      (signals[0]?.get() as Array<{ kind: string; text?: string }> | undefined)?.some(
+        (line) => line.kind === 'detail' && line.text === 'stale-data',
+      ),
+    ).toBe(false);
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+
+    vi.advanceTimersByTime(550);
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(3);
+
+    resolvers[2]?.('fresh-data');
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('fresh-data', 'error')]);
+
+    disposers.forEach((dispose) => dispose());
+    vi.doUnmock('../src/domain/provider-results.ts');
+    vi.doUnmock('solid-js');
+    vi.resetModules();
+  });
+
+  it('keeps stale data visible with a refreshing marker when an invalidating event is throttled without an active refresh', async () => {
+    vi.resetModules();
+
+    const resolvers: Array<(value: unknown) => void> = [];
+    const fetchProviderLines = vi.fn(
+      () =>
+        new Promise<unknown>((resolve) => {
+          resolvers.push(resolve);
+        }),
+    );
+    const signals: Array<{ get: () => unknown; set: (value: unknown) => void }> = [];
+
+    vi.doMock('solid-js', () => ({
+      createSignal: <T>(initial: T) => {
+        let value = initial;
+        const get = () => value;
+        const set = (next: unknown) => {
+          value = next as T;
+        };
+
+        signals.push({ get, set });
+        return [get, set] as const;
+      },
+      Show: (props: { when: boolean; fallback?: unknown; children?: unknown }) =>
+        props.when ? props.children : props.fallback,
+    }));
+    vi.doMock('../src/domain/provider-results.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/domain/provider-results.ts')>(
+        '../src/domain/provider-results.ts',
+      );
+
+      return {
+        ...actual,
+        fetchProviderLines,
+      };
+    });
+
+    const { registerQuotaTui } = await import('../src/runtime/runtime.tsx');
+    const events = new Map<string, (payload?: unknown) => void>();
+    const disposers: Array<() => void> = [];
+    const slotRegistrations: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }[] = [];
+
+    const api = {
+      event: {
+        on: (eventName: string, handler: (payload?: unknown) => void) => {
+          events.set(eventName, handler);
+          return () => events.delete(eventName);
+        },
+      },
+      lifecycle: {
+        onDispose: (handler: () => void) => disposers.push(handler),
+      },
+      slots: {
+        register: (registration: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }) => {
+          slotRegistrations.push(registration);
+        },
+      },
+      theme: { current: { text: 'white', textMuted: 'gray' } },
+    } as unknown as TuiPluginApi;
+
+    await registerQuotaTui(api, {
+      minRefreshIntervalMs: 1_000,
+      pollIntervalMs: 0,
+      providerCacheTtlMs: 60_000,
+      visibleProviders: ['openrouter'],
+    });
+
+    await flushAsyncTasks();
+
+    expect(slotRegistrations).toHaveLength(1);
+    expect(fetchProviderLines).toHaveBeenCalledTimes(1);
+
+    resolvers[0]?.([detailTextLine('initial-data')]);
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('initial-data')]);
+
+    vi.advanceTimersByTime(100);
+    events.get('session.status')?.({
+      properties: {
+        state: {
+          status: 'completed',
+        },
+      },
+    });
+
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+    expect(fetchProviderLines).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(300);
+    await flushAsyncTasks();
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(1);
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+
+    vi.advanceTimersByTime(250);
+    await flushAsyncTasks();
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(2);
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+
+    resolvers[1]?.([detailTextLine('fresh-data')]);
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('fresh-data')]);
+
+    disposers.forEach((dispose) => dispose());
+    vi.doUnmock('../src/domain/provider-results.ts');
+    vi.doUnmock('solid-js');
+    vi.resetModules();
+  });
+
+  it('prefers the earlier deferred refresh boundary over a later one', () => {
+    expect(shouldKeepDeferredRefreshTimer(2_000, 1_500)).toBe(false);
+    expect(shouldKeepDeferredRefreshTimer(1_500, 2_000)).toBe(true);
+  });
+
+  it('does not clear visible data for non-terminal updates while a refresh is in flight', async () => {
+    vi.resetModules();
+
+    const resolvers: Array<(value: unknown) => void> = [];
+    const fetchProviderLines = vi.fn(
+      () =>
+        new Promise<unknown>((resolve) => {
+          resolvers.push(resolve);
+        }),
+    );
+    const signals: Array<{ get: () => unknown; set: (value: unknown) => void }> = [];
+
+    vi.doMock('solid-js', () => ({
+      createSignal: <T>(initial: T) => {
+        let value = initial;
+        const get = () => value;
+        const set = (next: unknown) => {
+          value = next as T;
+        };
+
+        signals.push({ get, set });
+        return [get, set] as const;
+      },
+      Show: (props: { when: boolean; fallback?: unknown; children?: unknown }) =>
+        props.when ? props.children : props.fallback,
+    }));
+    vi.doMock('../src/domain/provider-results.ts', async () => {
+      const actual = await vi.importActual<typeof import('../src/domain/provider-results.ts')>(
+        '../src/domain/provider-results.ts',
+      );
+
+      return {
+        ...actual,
+        fetchProviderLines,
+      };
+    });
+
+    const { registerQuotaTui } = await import('../src/runtime/runtime.tsx');
+    const events = new Map<string, (payload?: unknown) => void>();
+    const disposers: Array<() => void> = [];
+    const slotRegistrations: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }[] = [];
+
+    const api = {
+      event: {
+        on: (eventName: string, handler: (payload?: unknown) => void) => {
+          events.set(eventName, handler);
+          return () => events.delete(eventName);
+        },
+      },
+      lifecycle: {
+        onDispose: (handler: () => void) => disposers.push(handler),
+      },
+      slots: {
+        register: (registration: { slots: { sidebar_content: (ctx: unknown, slotInput: unknown) => unknown } }) => {
+          slotRegistrations.push(registration);
+        },
+      },
+      theme: { current: { text: 'white', textMuted: 'gray' } },
+    } as unknown as TuiPluginApi;
+
+    await registerQuotaTui(api, {
+      minRefreshIntervalMs: 0,
+      pollIntervalMs: 0,
+      providerCacheTtlMs: 60_000,
+      visibleProviders: ['openrouter'],
+    });
+
+    await flushAsyncTasks();
+
+    expect(slotRegistrations).toHaveLength(1);
+    expect(fetchProviderLines).toHaveBeenCalledTimes(1);
+
+    resolvers[0]?.([detailTextLine('initial-data')]);
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('initial-data')]);
+
+    events.get('session.status')?.({
+      properties: {
+        state: {
+          status: 'completed',
+        },
+      },
+    });
+    vi.advanceTimersByTime(550);
+    await flushAsyncTasks();
+
+    expect(fetchProviderLines).toHaveBeenCalledTimes(2);
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+
+    events.get('message.part.updated')?.({
+      properties: {
+        part: {
+          type: 'tool',
+          tool: 'task',
+          state: {
+            status: 'running',
+          },
+        },
+      },
+    });
+
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('Refreshing…')]);
+
+    resolvers[1]?.([detailTextLine('fresh-data')]);
+    await flushAsyncTasks();
+    await flushAsyncTasks();
+
+    expect(signals[0]?.get()).toEqual([headingLine('OpenRouter'), detailTextLine('fresh-data')]);
+
+    disposers.forEach((dispose) => dispose());
+    vi.doUnmock('../src/domain/provider-results.ts');
+    vi.doUnmock('solid-js');
+    vi.resetModules();
+  });
+
   it('starts provider refreshes in parallel and applies each result as it settles', async () => {
     const started: string[] = [];
     const resolvers: Record<string, (value: string) => void> = {};
@@ -549,6 +942,18 @@ describe('quota tui plugin', () => {
     expect(isQuotaRateLimitError('Request failed with status code 429: Too Many Requests')).toBe(true);
     expect(isQuotaRateLimitError('Rate limit exceeded while processing request')).toBe(true);
     expect(isQuotaRateLimitError('Cannot parse response: unexpected token in JSON at position 1')).toBe(false);
+  });
+
+  it('does not classify generic 403 auth/forbidden errors as rate-limit errors', () => {
+    expect(isQuotaRateLimitError('Request failed with status code 403: Forbidden')).toBe(false);
+    expect(isQuotaRateLimitError('HTTP 403 Unauthorized')).toBe(false);
+    expect(isQuotaRateLimitError('Access denied with status 403')).toBe(false);
+  });
+
+  it('classifies 403 as rate-limit only when accompanied by rate-limit keywords', () => {
+    expect(isQuotaRateLimitError('HTTP 403 temporarily blocked for abuse')).toBe(true);
+    expect(isQuotaRateLimitError('403 secondary rate limit detected')).toBe(true);
+    expect(isQuotaRateLimitError('status 403: rate limit exceeded')).toBe(true);
   });
 
   it('honors retry-after details even when an error body follows', () => {
@@ -618,8 +1023,9 @@ describe('quota tui plugin', () => {
     }
 
     fetchMock.mockResolvedValueOnce(new Response('\u001b[31mnot json\nline2', { status: 200 }));
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ available_count: 0, credits: [] }), { status: 200 }));
 
-    const openai = await fetchOpenAIQuota();
+    const openai = await fetchOpenAIQuota({ experimentalResetCredits: true });
     expect(openai).not.toBeNull();
     expect(openai && 'error' in openai).toBe(true);
     if (openai && 'error' in openai) {
@@ -663,33 +1069,33 @@ describe('quota tui plugin', () => {
         usedPct: 4,
         resetSec: 6 * 24 * 60 * 60 + 18 * 60 * 60,
       }),
-    ).toBe('⚠ high · 0.43% over');
+    ).toBe('⚠ 0.43% over');
 
     expect(
       formatResponsibleWeeklyUsage({
         usedPct: 50,
         resetSec: 4 * 24 * 60 * 60,
       }),
-    ).toBe('⚠ high · 7.14% over');
+    ).toBe('⚠ 7.14% over');
 
     expect(
       formatResponsibleWeeklyUsage({
         usedPct: 60,
         resetSec: 4 * 24 * 60 * 60,
       }),
-    ).toBe('⚠ high · 17.14% over');
+    ).toBe('⚠ 17.14% over');
 
     expect(
       formatResponsibleWeeklyUsage({
         usedPct: 20,
         resetSec: 6 * 24 * 60 * 60,
       }),
-    ).toBe('⚠ high · 5.71% over');
+    ).toBe('⚠ 5.71% over');
   });
 
   it('formats durations including minutes and seconds', () => {
-    expect(fmtDuration(6 * 86400 + 23 * 3600 + 12 * 60 + 34)).toBe('6d 23h 12m 34s');
-    expect(fmtDuration(75)).toBe('1m 15s');
+    expect(fmtDuration(6 * 86400 + 23 * 3600 + 12 * 60 + 34)).toBe('6d23h12m');
+    expect(fmtDuration(75)).toBe('1m15s');
   });
 
   it('parses Codex Spark additional rate limit', () => {
@@ -732,5 +1138,396 @@ describe('quota tui plugin', () => {
         limitWindowSec: 604800,
       },
     });
+  });
+
+  it('parses a well-formed reset-credits payload with one available credit', () => {
+    const nowMs = Date.parse('2026-06-20T12:00:00Z');
+    const result = parseResetCreditsPayload(
+      {
+        available_count: 1,
+        credits: [
+          {
+            granted_at: '2026-06-17T17:38:38Z',
+            expires_at: '2026-07-17T17:38:38Z',
+            status: 'available',
+          },
+        ],
+      },
+      nowMs,
+    );
+
+    expect(result.state).toBe('available');
+    expect(result.availableCount).toBe(1);
+    expect(result.credits).toHaveLength(1);
+    expect(result.credits[0]).toEqual({
+      grantedAtIso: '2026-06-17T17:38:38Z',
+      expiresAtIso: '2026-07-17T17:38:38Z',
+      status: 'available',
+    });
+    expect(result.nextExpiresAtMs).toBe(Date.parse('2026-07-17T17:38:38Z'));
+  });
+
+  it('treats a 200 response with zero credits as none-available rather than an error', () => {
+    const result = parseResetCreditsPayload({ available_count: 0, credits: [] });
+
+    expect(result.state).toBe('none-available');
+    expect(result.availableCount).toBe(0);
+    expect(result.credits).toEqual([]);
+    expect(result.nextExpiresAtMs).toBeUndefined();
+  });
+
+  it('returns unavailable state for a malformed payload', () => {
+    const result = parseResetCreditsPayload('not an object');
+
+    expect(result.state).toBe('unavailable');
+    expect(result.availableCount).toBe(0);
+    expect(result.errorMessage).toBe('Invalid reset-credits payload');
+  });
+
+  it('returns unavailable state for a null payload', () => {
+    const result = parseResetCreditsPayload(null);
+
+    expect(result.state).toBe('unavailable');
+    expect(result.availableCount).toBe(0);
+  });
+
+  it('filters out expired credits when computing nextExpiresAtMs', () => {
+    const nowMs = Date.parse('2026-06-20T12:00:00Z');
+    const result = parseResetCreditsPayload(
+      {
+        available_count: 2,
+        credits: [
+          {
+            granted_at: '2026-05-01T00:00:00Z',
+            expires_at: '2026-06-01T00:00:00Z',
+            status: 'expired',
+          },
+          {
+            granted_at: '2026-06-17T17:38:38Z',
+            expires_at: '2026-07-17T17:38:38Z',
+            status: 'available',
+          },
+        ],
+      },
+      nowMs,
+    );
+
+    expect(result.state).toBe('available');
+    expect(result.availableCount).toBe(2);
+    expect(result.nextExpiresAtMs).toBe(Date.parse('2026-07-17T17:38:38Z'));
+  });
+
+  it('handles camelCase field names in reset-credits payload', () => {
+    const nowMs = Date.parse('2026-06-20T12:00:00Z');
+    const result = parseResetCreditsPayload(
+      {
+        availableCount: 1,
+        credits: [
+          {
+            grantedAt: '2026-06-17T17:38:38Z',
+            expiresAt: '2026-07-17T17:38:38Z',
+          },
+        ],
+      },
+      nowMs,
+    );
+
+    expect(result.state).toBe('available');
+    expect(result.availableCount).toBe(1);
+    expect(result.credits[0]?.grantedAtIso).toBe('2026-06-17T17:38:38Z');
+    expect(result.credits[0]?.expiresAtIso).toBe('2026-07-17T17:38:38Z');
+  });
+
+  it('fetches usage and reset credits in parallel and merges the results', async () => {
+    vi.stubEnv(
+      'XDG_DATA_HOME',
+      createAuthFixture({
+        openai: { type: 'oauth', access: 'openai-token', account_id: 'acct-123' },
+      }),
+    );
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          rate_limit: {
+            primary_window: { used_percent: 20, reset_after_seconds: 300 },
+            secondary_window: { used_percent: 30, reset_after_seconds: 600 },
+          },
+          credits: { has_credits: true, balance: 5.0 },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          available_count: 1,
+          credits: [
+            {
+              granted_at: '2026-06-17T17:38:38Z',
+              expires_at: '2026-07-17T17:38:38Z',
+              status: 'available',
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await fetchOpenAIQuota({ experimentalResetCredits: true });
+    expect(result).not.toBeNull();
+    expect(result && 'error' in result).toBe(false);
+
+    if (result && !('error' in result)) {
+      expect(result.hourly?.usedPct).toBe(20);
+      expect(result.weekly?.usedPct).toBe(30);
+      expect(result.credits).toBe('$5.00');
+      expect(result.resetCredits?.state).toBe('available');
+      expect(result.resetCredits?.availableCount).toBe(1);
+      expect(result.resetCredits?.credits).toHaveLength(1);
+    }
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not break OpenAI usage display when reset-credits fetch fails', async () => {
+    vi.stubEnv(
+      'XDG_DATA_HOME',
+      createAuthFixture({
+        openai: { type: 'oauth', access: 'openai-token', account_id: 'acct-123' },
+      }),
+    );
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          rate_limit: {
+            primary_window: { used_percent: 20, reset_after_seconds: 300 },
+            secondary_window: { used_percent: 30, reset_after_seconds: 600 },
+          },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    fetchMock.mockResolvedValueOnce(new Response('Forbidden', { status: 403 }));
+
+    const result = await fetchOpenAIQuota({ experimentalResetCredits: true });
+    expect(result).not.toBeNull();
+    expect(result && 'error' in result).toBe(false);
+
+    if (result && !('error' in result)) {
+      expect(result.hourly?.usedPct).toBe(20);
+      expect(result.weekly?.usedPct).toBe(30);
+      expect(result.resetCredits?.state).toBe('unavailable');
+      expect(result.resetCredits?.availableCount).toBe(0);
+    }
+  });
+
+  it('returns error when usage fetch fails even if reset credits would succeed', async () => {
+    vi.stubEnv(
+      'XDG_DATA_HOME',
+      createAuthFixture({
+        openai: { type: 'oauth', access: 'openai-token', account_id: 'acct-123' },
+      }),
+    );
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+
+    fetchMock.mockResolvedValueOnce(new Response('Unauthorized', { status: 401 }));
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ available_count: 1, credits: [] }), { status: 200 }));
+
+    const result = await fetchOpenAIQuota({ experimentalResetCredits: true });
+    expect(result).not.toBeNull();
+    expect(result && 'error' in result).toBe(true);
+    if (result && 'error' in result) {
+      expect(result.error).toContain('OpenAI HTTP 401');
+    }
+  });
+
+  it('does not fetch reset credits by default and omits resetCredits from the result', async () => {
+    vi.stubEnv(
+      'XDG_DATA_HOME',
+      createAuthFixture({
+        openai: { type: 'oauth', access: 'openai-token', account_id: 'acct-123' },
+      }),
+    );
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          rate_limit: {
+            primary_window: { used_percent: 20, reset_after_seconds: 300 },
+            secondary_window: { used_percent: 30, reset_after_seconds: 600 },
+          },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await fetchOpenAIQuota();
+    expect(result).not.toBeNull();
+    expect(result && 'error' in result).toBe(false);
+
+    if (result && !('error' in result)) {
+      expect(result.hourly?.usedPct).toBe(20);
+      expect(result.weekly?.usedPct).toBe(30);
+      expect(result.resetCredits).toBeUndefined();
+    }
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fetch reset credits when experimentalOpenAIResetCredits is explicitly false', async () => {
+    vi.stubEnv(
+      'XDG_DATA_HOME',
+      createAuthFixture({
+        openai: { type: 'oauth', access: 'openai-token', account_id: 'acct-123' },
+      }),
+    );
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          rate_limit: {
+            primary_window: { used_percent: 10, reset_after_seconds: 300 },
+            secondary_window: { used_percent: 15, reset_after_seconds: 600 },
+          },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await fetchOpenAIQuota({ experimentalResetCredits: false });
+    expect(result).not.toBeNull();
+    expect(result && 'error' in result).toBe(false);
+
+    if (result && !('error' in result)) {
+      expect(result.resetCredits).toBeUndefined();
+    }
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('resolves experimentalOpenAIResetCredits to true only when explicitly set', () => {
+    expect(resolveQuotaPluginOptions({ experimentalOpenAIResetCredits: true }).experimentalOpenAIResetCredits).toBe(
+      true,
+    );
+    expect(resolveQuotaPluginOptions({ experimentalOpenAIResetCredits: false }).experimentalOpenAIResetCredits).toBe(
+      false,
+    );
+    expect(resolveQuotaPluginOptions({ experimentalOpenAIResetCredits: 'yes' }).experimentalOpenAIResetCredits).toBe(
+      false,
+    );
+    expect(resolveQuotaPluginOptions({ experimentalOpenAIResetCredits: 1 }).experimentalOpenAIResetCredits).toBe(false);
+    expect(resolveQuotaPluginOptions(undefined).experimentalOpenAIResetCredits).toBe(false);
+  });
+
+  it('preserves rate-limit backoff state when invalidating visible data cache', async () => {
+    const { createQuotaProviderCache } = await import('../src/infrastructure/cache.ts');
+    const fetchProviderLines = vi.fn();
+
+    const { providerCache, getCachedProviderLines, invalidateVisibleData } = createQuotaProviderCache({
+      providerCacheTtlMilliseconds: 60_000,
+      providerErrorBackoffMilliseconds: 900_000,
+      fetchProviderLines,
+    });
+
+    fetchProviderLines.mockRejectedValueOnce(new Error('HTTP 429: rate limit'));
+    await getCachedProviderLines('openrouter', null);
+
+    const entry = providerCache.get('openrouter');
+    expect(entry).toBeDefined();
+    expect(entry?.cooldownUntilMilliseconds).toBeDefined();
+    expect(entry?.consecutiveErrors).toBe(1);
+    const preservedCooldown = entry?.cooldownUntilMilliseconds;
+    const preservedErrors = entry?.consecutiveErrors;
+
+    invalidateVisibleData();
+
+    const afterInvalidation = providerCache.get('openrouter');
+    expect(afterInvalidation).toBeDefined();
+    expect(afterInvalidation?.value).toBeUndefined();
+    expect(afterInvalidation?.fetchedAtMilliseconds).toBe(0);
+    expect(afterInvalidation?.cooldownUntilMilliseconds).toBe(preservedCooldown);
+    expect(afterInvalidation?.consecutiveErrors).toBe(preservedErrors);
+  });
+
+  it('clears inFlight promises on invalidation so the next call triggers a fresh fetch', async () => {
+    const { createQuotaProviderCache } = await import('../src/infrastructure/cache.ts');
+    let fetchCallCount = 0;
+    const resolvers: Array<(value: string) => void> = [];
+    const fetchProviderLines = vi.fn(() => {
+      fetchCallCount++;
+      return new Promise<string>((resolve) => {
+        resolvers.push(resolve);
+      });
+    });
+
+    const { providerCache, getCachedProviderLines, invalidateVisibleData } = createQuotaProviderCache({
+      providerCacheTtlMilliseconds: 60_000,
+      providerErrorBackoffMilliseconds: 900_000,
+      fetchProviderLines,
+    });
+
+    const firstCall = getCachedProviderLines('openrouter', null);
+    expect(fetchCallCount).toBe(1);
+
+    const entry = providerCache.get('openrouter');
+    expect(entry?.inFlight).toBeDefined();
+
+    invalidateVisibleData();
+
+    const afterInvalidation = providerCache.get('openrouter');
+    expect(afterInvalidation?.inFlight).toBeUndefined();
+
+    const secondCall = getCachedProviderLines('openrouter', null);
+    expect(fetchCallCount).toBe(2);
+
+    const secondEntry = providerCache.get('openrouter');
+    expect(secondEntry?.inFlight).toBeDefined();
+    expect(secondEntry?.inFlight).not.toBe(firstCall);
+
+    resolvers[0]?.('first-data');
+    resolvers[1]?.('second-data');
+    await Promise.all([firstCall, secondCall]);
+  });
+
+  it('does not let a stale pre-invalidation response overwrite newer cached data', async () => {
+    const { createQuotaProviderCache } = await import('../src/infrastructure/cache.ts');
+    const resolvers: Array<(value: string) => void> = [];
+    const fetchProviderLines = vi.fn(
+      () =>
+        new Promise<string>((resolve) => {
+          resolvers.push(resolve);
+        }),
+    );
+
+    const { providerCache, getCachedProviderLines, invalidateVisibleData } = createQuotaProviderCache({
+      providerCacheTtlMilliseconds: 60_000,
+      providerErrorBackoffMilliseconds: 900_000,
+      fetchProviderLines,
+    });
+
+    const firstCall = getCachedProviderLines('openrouter', null);
+    invalidateVisibleData();
+    const secondCall = getCachedProviderLines('openrouter', null);
+
+    resolvers[1]?.('fresh-data');
+    await secondCall;
+    expect(providerCache.get('openrouter')?.value).toBe('fresh-data');
+
+    resolvers[0]?.('stale-data');
+    await firstCall;
+    expect(providerCache.get('openrouter')?.value).toBe('fresh-data');
   });
 });

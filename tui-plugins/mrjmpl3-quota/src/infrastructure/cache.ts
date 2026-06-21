@@ -6,6 +6,7 @@ import type { QuotaProviderId } from '../domain/types.ts';
 const MAX_PROVIDER_BACKOFF_MILLISECONDS = 60 * 60_000;
 
 interface ProviderCacheEntry {
+  generation: number;
   value?: ProviderFetchResult;
   fetchedAtMilliseconds: number;
   cooldownUntilMilliseconds?: number;
@@ -26,6 +27,7 @@ export const createQuotaProviderCache = ({
 }: QuotaProviderCacheConfig): {
   providerCache: Map<QuotaProviderId, ProviderCacheEntry>;
   getCachedProviderLines: (providerId: QuotaProviderId, goConfig: GoConfig) => Promise<ProviderFetchResult>;
+  invalidateVisibleData: () => void;
 } => {
   const providerCache = new Map<QuotaProviderId, ProviderCacheEntry>();
 
@@ -36,16 +38,26 @@ export const createQuotaProviderCache = ({
     return Math.max(retryAfterMs, Math.min(multipliedMs, MAX_PROVIDER_BACKOFF_MILLISECONDS));
   };
 
-  const cacheProviderResult = (providerId: QuotaProviderId, value: ProviderFetchResult): ProviderFetchResult => {
+  const cacheProviderResult = (
+    providerId: QuotaProviderId,
+    value: ProviderFetchResult,
+    requestGeneration: number,
+  ): ProviderFetchResult => {
+    const currentEntry = providerCache.get(providerId);
+    if (currentEntry && currentEntry.generation !== requestGeneration) {
+      return value;
+    }
+
     if (value === undefined) {
       providerCache.delete(providerId);
       return undefined;
     }
 
     const now = Date.now();
-    const previous = providerCache.get(providerId);
+    const previous = currentEntry;
     const consecutiveErrors = typeof value === 'string' ? (previous?.consecutiveErrors ?? 0) + 1 : 0;
     providerCache.set(providerId, {
+      generation: requestGeneration,
       value,
       fetchedAtMilliseconds: now,
       consecutiveErrors,
@@ -72,14 +84,17 @@ export const createQuotaProviderCache = ({
       return entry.value;
     }
 
+    const requestGeneration = entry?.generation ?? 0;
+
     const request = fetchProviderLines(providerId, goConfig)
-      .then((value) => cacheProviderResult(providerId, value))
+      .then((value) => cacheProviderResult(providerId, value, requestGeneration))
       .catch((error: unknown) => {
         const message = `Error: ${error instanceof Error ? error.message : String(error)}`;
-        return cacheProviderResult(providerId, message);
+        return cacheProviderResult(providerId, message, requestGeneration);
       });
 
     providerCache.set(providerId, {
+      generation: requestGeneration,
       value: entry?.value,
       fetchedAtMilliseconds: entry?.fetchedAtMilliseconds ?? 0,
       cooldownUntilMilliseconds: entry?.cooldownUntilMilliseconds,
@@ -90,5 +105,14 @@ export const createQuotaProviderCache = ({
     return request;
   };
 
-  return { providerCache, getCachedProviderLines };
+  const invalidateVisibleData = () => {
+    for (const entry of providerCache.values()) {
+      entry.generation += 1;
+      entry.value = undefined;
+      entry.fetchedAtMilliseconds = 0;
+      entry.inFlight = undefined;
+    }
+  };
+
+  return { providerCache, getCachedProviderLines, invalidateVisibleData };
 };

@@ -1,5 +1,6 @@
 export type QuotaProviderId = 'opencode-go' | 'github-copilot' | 'openrouter' | 'openai';
 export type QuotaDisplayMode = 'remaining' | 'used';
+export type QuotaLineTone = 'neutral' | 'success' | 'warning' | 'error';
 
 export interface QuotaPluginOptions {
   displayMode?: QuotaDisplayMode;
@@ -8,6 +9,13 @@ export interface QuotaPluginOptions {
   minRefreshIntervalMs?: number;
   providerCacheTtlMs?: number;
   providerErrorBackoffMs?: number;
+  /**
+   * EXPERIMENTAL — OFF by default.
+   * Enables fetching OpenAI reset-credits from an undocumented private ChatGPT endpoint.
+   * This endpoint is unsupported, may break without notice, and uses client-impersonation headers.
+   * Only enable if you accept those risks.
+   */
+  experimentalOpenAIResetCredits?: boolean;
 }
 
 export interface ProviderSpec {
@@ -57,6 +65,24 @@ export interface OpenAIAdditionalRateLimit {
   secondary?: OpenAIWindow;
 }
 
+export type OpenAIResetCreditStatus = 'available' | 'redeemed' | 'expired' | 'redeeming';
+
+export interface OpenAIResetCredit {
+  grantedAtIso?: string;
+  expiresAtIso?: string;
+  status?: OpenAIResetCreditStatus;
+}
+
+export type OpenAIResetCreditsState = 'available' | 'none-available' | 'unavailable';
+
+export interface OpenAIResetCreditsResult {
+  state: OpenAIResetCreditsState;
+  availableCount: number;
+  credits: readonly OpenAIResetCredit[];
+  nextExpiresAtMs?: number;
+  errorMessage?: string;
+}
+
 export interface OpenAIResult {
   planType?: string;
   hourly?: OpenAIWindow;
@@ -64,4 +90,5 @@ export interface OpenAIResult {
   codeReview?: OpenAIWindow;
   credits?: string;
   additionalRateLimits?: OpenAIAdditionalRateLimit[];
+  resetCredits?: OpenAIResetCreditsResult;
 }

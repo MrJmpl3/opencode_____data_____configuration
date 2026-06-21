@@ -31,7 +31,7 @@ const readOpenRouterKey = (): string | null => {
 };
 
 export const formatOpenRouterLines = (data: OpenRouterResult, displayMode: QuotaDisplayMode): QuotaLine[] => {
-  return [detailTextLine(`Credits · ${formatCreditQuota(data, displayMode)}`)];
+  return [detailTextLine(`Credits ${formatCreditQuota(data, displayMode)}`)];
 };
 
 export const fetchOpenRouterQuota = async (): Promise<OpenRouterResult | null | { error: string }> => {

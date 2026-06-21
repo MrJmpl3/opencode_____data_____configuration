@@ -1,13 +1,24 @@
 import type { QuotaLine } from '../../domain/lines.ts';
-import type { OpenAIAdditionalRateLimit, OpenAIResult, OpenAIWindow, QuotaDisplayMode } from '../../domain/types.ts';
+import type {
+  OpenAIAdditionalRateLimit,
+  OpenAIResetCredit,
+  OpenAIResetCreditStatus,
+  OpenAIResetCreditsResult,
+  OpenAIResetCreditsState,
+  OpenAIResult,
+  OpenAIWindow,
+  QuotaDisplayMode,
+  QuotaLineTone,
+} from '../../domain/types.ts';
 import {
-  formatOpenAIRateLimitStatus,
+  formatOpenAIAdditionalRateLimitLabel,
+  formatOpenAIRateLimitTone,
   formatUsedPercentQuota,
   isOpenAISparkRateLimit,
   WEEK_SECONDS,
 } from '../../domain/format.ts';
 import { detailTextLine, headingLine, paceLine, windowLine } from '../../domain/lines.ts';
-import { OPENAI_USAGE_URL } from './constants.ts';
+import { OPENAI_RESET_CREDITS_URL, OPENAI_USAGE_URL } from './constants.ts';
 import { readOauthAccessToken, readOpenAIAccountId } from './auth.ts';
 import { fetchWithTimeout, httpErrorMessage, readJsonResponse } from './http.ts';
 import { firstDefined, isRecord, readBooleanField, readNumericField, readStringField } from './shared.ts';
@@ -199,6 +210,158 @@ export const parseAdditionalRateLimits = (value: unknown): OpenAIAdditionalRateL
     .filter((entry): entry is OpenAIAdditionalRateLimit => Boolean(entry));
 };
 
+const RESET_CREDIT_STATUS_VALUES: readonly OpenAIResetCreditStatus[] = [
+  'available',
+  'redeemed',
+  'expired',
+  'redeeming',
+];
+
+const parseResetCreditStatus = (value: unknown): OpenAIResetCreditStatus | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  return RESET_CREDIT_STATUS_VALUES.includes(normalized as OpenAIResetCreditStatus)
+    ? (normalized as OpenAIResetCreditStatus)
+    : undefined;
+};
+
+const parseResetCreditEntry = (item: unknown): OpenAIResetCredit | null => {
+  if (!isRecord(item)) return null;
+
+  const grantedAtIso = readStringField(item, 'granted_at') ?? readStringField(item, 'grantedAt');
+  const expiresAtIso = readStringField(item, 'expires_at') ?? readStringField(item, 'expiresAt');
+  const status = parseResetCreditStatus(readStringField(item, 'status') ?? readStringField(item, 'state'));
+
+  if (!grantedAtIso && !expiresAtIso && !status) return null;
+
+  return { grantedAtIso, expiresAtIso, status };
+};
+
+export const parseResetCreditsPayload = (body: unknown, nowMs: number = Date.now()): OpenAIResetCreditsResult => {
+  if (!isRecord(body)) {
+    return {
+      state: 'unavailable',
+      availableCount: 0,
+      credits: [],
+      errorMessage: 'Invalid reset-credits payload',
+    };
+  }
+
+  const availableCountRaw = readNumericField(body, 'available_count') ?? readNumericField(body, 'availableCount');
+  const availableCount = typeof availableCountRaw === 'number' ? Math.max(0, Math.floor(availableCountRaw)) : 0;
+
+  const creditsRaw = body.credits;
+  const credits: OpenAIResetCredit[] = [];
+
+  if (Array.isArray(creditsRaw)) {
+    for (const item of creditsRaw) {
+      const credit = parseResetCreditEntry(item);
+      if (credit) credits.push(credit);
+    }
+  }
+
+  const futureExpiryTimestamps = credits
+    .map((credit) => (credit.expiresAtIso ? Date.parse(credit.expiresAtIso) : Number.NaN))
+    .filter((ms) => !Number.isNaN(ms) && ms > nowMs)
+    .sort((a, b) => a - b);
+
+  const nextExpiresAtMs = futureExpiryTimestamps.length > 0 ? futureExpiryTimestamps[0] : undefined;
+
+  const state: OpenAIResetCreditsState = availableCount > 0 ? 'available' : 'none-available';
+
+  return { state, availableCount, credits, nextExpiresAtMs };
+};
+
+const buildOpenAIHeaders = (token: string): Record<string, string> => {
+  const accountId = readOpenAIAccountId(token);
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    Authorization: `Bearer ${token}`,
+    'User-Agent': 'OpenCode-Quota-Toast/1.0',
+  };
+  if (accountId) headers['ChatGPT-Account-Id'] = accountId;
+  return headers;
+};
+
+const fetchOpenAIResetCredits = async (headers: Record<string, string>): Promise<OpenAIResetCreditsResult> => {
+  try {
+    const resetHeaders: Record<string, string> = {
+      ...headers,
+      'OpenAI-Beta': 'codex-1',
+      originator: 'Codex Desktop',
+    };
+
+    const response = await fetchWithTimeout(OPENAI_RESET_CREDITS_URL, { headers: resetHeaders });
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      return {
+        state: 'unavailable',
+        availableCount: 0,
+        credits: [],
+        errorMessage: httpErrorMessage('OpenAI reset credits', response, text),
+      };
+    }
+
+    const bodyResult = await readJsonResponse('OpenAI reset credits', response);
+    if ('error' in bodyResult) {
+      return {
+        state: 'unavailable',
+        availableCount: 0,
+        credits: [],
+        errorMessage: bodyResult.error,
+      };
+    }
+
+    return parseResetCreditsPayload(bodyResult.data);
+  } catch (error: unknown) {
+    return {
+      state: 'unavailable',
+      availableCount: 0,
+      credits: [],
+      errorMessage: error instanceof Error ? error.message : String(error),
+    };
+  }
+};
+
+const formatCompactResetDate = (dateMs: number): string => {
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(dateMs));
+};
+
+const formatResetCreditsLines = (resetCredits: OpenAIResetCreditsResult): QuotaLine[] => {
+  switch (resetCredits.state) {
+    case 'available': {
+      const countLabel = resetCredits.availableCount === 1 ? '1 available' : `${resetCredits.availableCount} available`;
+      const expiryLabel = resetCredits.nextExpiresAtMs
+        ? ` · ${formatCompactResetDate(resetCredits.nextExpiresAtMs)}`
+        : '';
+      const lines: QuotaLine[] = [detailTextLine(`Reset · ${countLabel}${expiryLabel}`)];
+
+      if (resetCredits.nextExpiresAtMs) {
+        const nextCredit = resetCredits.credits.find((credit) => {
+          if (!credit.expiresAtIso) return false;
+          const ms = Date.parse(credit.expiresAtIso);
+          return !Number.isNaN(ms) && ms === resetCredits.nextExpiresAtMs;
+        });
+        if (nextCredit?.grantedAtIso) {
+          const grantedMs = Date.parse(nextCredit.grantedAtIso);
+          if (!Number.isNaN(grantedMs)) {
+            lines.push(detailTextLine(`Granted ${formatCompactResetDate(grantedMs)}`));
+          }
+        }
+      }
+
+      return lines;
+    }
+    case 'none-available':
+      return [detailTextLine('Reset · none')];
+    case 'unavailable':
+      return [detailTextLine('Reset · unavailable', 'error')];
+  }
+};
+
 export const formatOpenAILines = (
   data: OpenAIResult,
   displayMode: QuotaDisplayMode,
@@ -212,11 +375,12 @@ export const formatOpenAILines = (
     label: string,
     window: OpenAIWindow | undefined,
     paceWindowSeconds?: number,
+    tone?: QuotaLineTone,
   ) => {
     if (!window) return;
 
     targetLines.push(
-      windowLine(label, formatUsedPercentQuota(window.usedPct, displayMode), window.resetSec, fetchedAtMs),
+      windowLine(label, formatUsedPercentQuota(window.usedPct, displayMode), window.resetSec, fetchedAtMs, tone),
     );
 
     if (paceWindowSeconds) {
@@ -225,25 +389,28 @@ export const formatOpenAILines = (
   };
 
   addWindow(openAILines, '5h', data.hourly);
-  addWindow(openAILines, 'Weekly', data.weekly, WEEK_SECONDS);
-  addWindow(openAILines, 'Code Review', data.codeReview);
+  addWindow(openAILines, 'Wk', data.weekly, WEEK_SECONDS);
+  addWindow(openAILines, 'Code', data.codeReview);
 
   for (const limit of data.additionalRateLimits ?? []) {
-    const status = formatOpenAIRateLimitStatus(limit);
+    const tone = formatOpenAIRateLimitTone(limit);
 
     if (isOpenAISparkRateLimit(limit)) {
-      addWindow(sparkLines, '5h', limit.primary);
-      addWindow(sparkLines, 'Weekly', limit.secondary, limit.secondary?.limitWindowSec || WEEK_SECONDS);
+      addWindow(sparkLines, '5h', limit.primary, undefined, tone);
+      addWindow(sparkLines, 'Wk', limit.secondary, limit.secondary?.limitWindowSec || WEEK_SECONDS, tone);
       continue;
     }
 
-    const primaryLabel = status ? `${limit.label} · ${status}` : limit.label;
-    addWindow(openAILines, primaryLabel, limit.primary);
-    addWindow(openAILines, limit.primary ? `${limit.label} Secondary` : `${primaryLabel} Secondary`, limit.secondary);
+    addWindow(openAILines, formatOpenAIAdditionalRateLimitLabel(limit), limit.primary, undefined, tone);
+    addWindow(openAILines, formatOpenAIAdditionalRateLimitLabel(limit, '2nd'), limit.secondary, undefined, tone);
   }
 
   if (data.credits) {
-    openAILines.push(detailTextLine(`Credits · ${data.credits}`));
+    openAILines.push(detailTextLine(`Credits ${data.credits}`));
+  }
+
+  if (data.resetCredits) {
+    openAILines.push(...formatResetCreditsLines(data.resetCredits));
   }
 
   const lines: QuotaLine[] = [];
@@ -253,24 +420,13 @@ export const formatOpenAILines = (
   }
 
   if (sparkLines.length) {
-    lines.push(headingLine('OpenAI Spark'), ...sparkLines);
+    lines.push(headingLine('Spark'), ...sparkLines);
   }
 
   return lines.length ? lines : [detailTextLine('No windows')];
 };
 
-export const fetchOpenAIQuota = async (): Promise<OpenAIResult | null | { error: string }> => {
-  const token = readOpenAIToken();
-  if (!token) return null;
-
-  const accountId = readOpenAIAccountId(token);
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    Authorization: `Bearer ${token}`,
-    'User-Agent': 'OpenCode-Quota-Toast/1.0',
-  };
-  if (accountId) headers['ChatGPT-Account-Id'] = accountId;
-
+const fetchOpenAIUsagePayload = async (headers: Record<string, string>): Promise<OpenAIResult | { error: string }> => {
   const response = await fetchWithTimeout(OPENAI_USAGE_URL, { headers });
   if (!response.ok) {
     const text = await response.text().catch((error: unknown) => {
@@ -322,6 +478,44 @@ export const fetchOpenAIQuota = async (): Promise<OpenAIResult | null | { error:
     !(result.additionalRateLimits && result.additionalRateLimits.length > 0)
   ) {
     return { error: 'OpenAI did not return expected quota data' };
+  }
+
+  return result;
+};
+
+export interface FetchOpenAIQuotaOptions {
+  experimentalResetCredits?: boolean;
+}
+
+export const fetchOpenAIQuota = async (
+  options: FetchOpenAIQuotaOptions = {},
+): Promise<OpenAIResult | null | { error: string }> => {
+  const token = readOpenAIToken();
+  if (!token) return null;
+
+  const headers = buildOpenAIHeaders(token);
+
+  const usagePromise = fetchOpenAIUsagePayload(headers).catch((error: unknown) => ({
+    error: error instanceof Error ? error.message : String(error),
+  }));
+
+  const resetCreditsPromise = options.experimentalResetCredits
+    ? fetchOpenAIResetCredits(headers)
+    : Promise.resolve<OpenAIResetCreditsResult>({
+        state: 'unavailable',
+        availableCount: 0,
+        credits: [],
+        errorMessage:
+          'Reset credits fetching is disabled by default (experimental). Set experimentalOpenAIResetCredits: true to enable.',
+      });
+
+  const [usageResult, resetCreditsResult] = await Promise.all([usagePromise, resetCreditsPromise]);
+
+  if ('error' in usageResult) return usageResult;
+
+  const result: OpenAIResult = usageResult;
+  if (options.experimentalResetCredits) {
+    result.resetCredits = resetCreditsResult;
   }
 
   return result;

@@ -103,6 +103,10 @@ const hasExpiredQuotaLine = (items: readonly QuotaLine[], nowMs: number): boolea
 
 const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
+export const shouldKeepDeferredRefreshTimer = (existingDueAtMs: number, nextDueAtMs: number): boolean => {
+  return existingDueAtMs > 0 && existingDueAtMs <= nextDueAtMs;
+};
+
 const buildInvalidVisibleProvidersWarning = ({
   invalidVisibleProviderEntries,
   fellBackToDefaultVisibleProviders,
@@ -164,6 +168,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
   const [nowMs, setNowMs] = createSignal(Date.now());
   let currentSessionId = '';
   let inFlightVersion = 0;
+  let refreshGeneration = 0;
   let disposed = false;
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -180,17 +185,21 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     minRefreshIntervalMs,
     providerCacheTtlMs: providerCacheTtlMilliseconds,
     providerErrorBackoffMs: providerErrorBackoffMilliseconds,
+    experimentalOpenAIResetCredits,
   } = resolvedOptions;
   const expiryRefreshIntervalMs = Math.max(minRefreshIntervalMs, providerCacheTtlMilliseconds);
-  const { providerCache, getCachedProviderLines } = createQuotaProviderCache({
+  const { providerCache, getCachedProviderLines, invalidateVisibleData } = createQuotaProviderCache({
     providerCacheTtlMilliseconds,
     providerErrorBackoffMilliseconds,
-    fetchProviderLines: (providerId, goConfig) => fetchProviderLines(providerId, goConfig, displayMode, setNowMs),
+    fetchProviderLines: (providerId, goConfig) =>
+      fetchProviderLines({ providerId, goConfig, displayMode, setNowMs, experimentalOpenAIResetCredits }),
   });
   let refreshPromise: Promise<void> | undefined;
   let pendingRefreshSource: string | undefined;
   let pendingCacheInvalidation = false;
+  let pendingForce = false;
   let deferredRefreshTimer: ReturnType<typeof setTimeout> | undefined;
+  let deferredRefreshDueAtMs = 0;
   let lastRefreshStartedAtMs = 0;
   let lastInvalidatingRefreshStartedAtMs = 0;
   let lastExpiryRefreshAtMs = 0;
@@ -199,9 +208,18 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     return source ? PROVIDER_CACHE_INVALIDATION_SOURCES.has(source) : false;
   };
 
-  const queuePendingRefresh = (source?: string, invalidateProviderCache = false) => {
+  const queuePendingRefresh = (source?: string, invalidateProviderCache = false, force = false) => {
     pendingRefreshSource = pendingRefreshSource ?? source;
     pendingCacheInvalidation = pendingCacheInvalidation || invalidateProviderCache;
+    pendingForce = pendingForce || force;
+  };
+
+  const clearDeferredRefreshTimer = () => {
+    if (deferredRefreshTimer) {
+      clearTimeout(deferredRefreshTimer);
+    }
+    deferredRefreshTimer = undefined;
+    deferredRefreshDueAtMs = 0;
   };
 
   const buildLines = (results: Map<QuotaProviderId, ProviderResult>): QuotaLine[] => {
@@ -214,7 +232,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
         items.push(detailTextLine('Refreshing…'));
       } else if (typeof result === 'string') {
         items.push(headingLine(provider.label));
-        items.push(detailTextLine(`Unavailable · ${result}`));
+        items.push(detailTextLine(result, 'error'));
       } else {
         if (result[0]?.kind !== 'heading') items.push(headingLine(provider.label));
         items.push(...result);
@@ -223,14 +241,33 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     return items;
   };
 
+  const buildRefreshingLines = (): QuotaLine[] => {
+    const refreshingResults = new Map<QuotaProviderId, ProviderResult>();
+
+    for (const provider of visibleProviders) {
+      refreshingResults.set(provider.id, null);
+    }
+
+    return buildLines(refreshingResults);
+  };
+
+  const markVisibleDataStale = () => {
+    refreshGeneration += 1;
+    invalidateVisibleData();
+    setLines(buildRefreshingLines());
+  };
+
   const requestRefresh = (
     source?: string,
     force = false,
     invalidateProviderCache = shouldInvalidateProviderCache(source),
   ) => {
     if (disposed) return;
+    if (invalidateProviderCache) {
+      markVisibleDataStale();
+    }
     if (refreshPromise) {
-      queuePendingRefresh(source, invalidateProviderCache);
+      queuePendingRefresh(source, invalidateProviderCache, force);
       return;
     }
 
@@ -240,14 +277,14 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
       : lastRefreshStartedAtMs;
     const elapsedMs = lastRelevantRefreshStartedAtMs > 0 ? now - lastRelevantRefreshStartedAtMs : Infinity;
     if (!force && elapsedMs < minRefreshIntervalMs) {
-      scheduleDeferredRefresh(source, minRefreshIntervalMs - elapsedMs, invalidateProviderCache);
+      scheduleDeferredRefresh(source, minRefreshIntervalMs - elapsedMs, invalidateProviderCache, force);
       return;
     }
 
+    clearDeferredRefreshTimer();
     lastRefreshStartedAtMs = now;
     if (invalidateProviderCache) {
       lastInvalidatingRefreshStartedAtMs = now;
-      providerCache.clear();
     }
 
     const promise = refresh(source);
@@ -255,12 +292,14 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     promise
       .finally(() => {
         refreshPromise = undefined;
-        if (disposed || (!pendingRefreshSource && !pendingCacheInvalidation)) return;
+        if (disposed || (!pendingRefreshSource && !pendingCacheInvalidation && !pendingForce)) return;
         const queuedSource = pendingRefreshSource;
         const queuedCacheInvalidation = pendingCacheInvalidation;
+        const queuedForce = pendingForce;
         pendingRefreshSource = undefined;
         pendingCacheInvalidation = false;
-        requestRefresh(queuedSource, false, queuedCacheInvalidation);
+        pendingForce = false;
+        requestRefresh(queuedSource, queuedForce, queuedCacheInvalidation);
       })
       .catch((error: unknown) => {
         console.warn(`[quota] unexpected refresh failure: ${errorMessage(error)}`);
@@ -284,6 +323,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
   const refresh = async (_source?: string) => {
     if (disposed) return;
     const currentVersion = ++inFlightVersion;
+    const currentGeneration = refreshGeneration;
     const results = new Map<QuotaProviderId, ProviderResult>();
     const goConfig = readGoConfig();
 
@@ -300,7 +340,7 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
       results,
       goConfig,
       getCachedProviderLines,
-      shouldContinue: () => !disposed && currentVersion === inFlightVersion,
+      shouldContinue: () => !disposed && currentVersion === inFlightVersion && currentGeneration === refreshGeneration,
       onUpdate: () => setLines(buildLines(results)),
     });
   };
@@ -309,16 +349,24 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     source?: string,
     delayMs: number = minRefreshIntervalMs,
     invalidateProviderCache = shouldInvalidateProviderCache(source),
+    force = false,
   ) => {
-    queuePendingRefresh(source, invalidateProviderCache);
-    if (deferredRefreshTimer) return;
+    queuePendingRefresh(source, invalidateProviderCache, force);
+    const dueAtMs = Date.now() + delayMs;
+
+    if (deferredRefreshTimer && shouldKeepDeferredRefreshTimer(deferredRefreshDueAtMs, dueAtMs)) return;
+
+    clearDeferredRefreshTimer();
+    deferredRefreshDueAtMs = dueAtMs;
     deferredRefreshTimer = setTimeout(() => {
-      deferredRefreshTimer = undefined;
+      clearDeferredRefreshTimer();
       const queuedSource = pendingRefreshSource;
       const queuedCacheInvalidation = pendingCacheInvalidation;
+      const queuedForce = pendingForce;
       pendingRefreshSource = undefined;
       pendingCacheInvalidation = false;
-      requestRefresh(queuedSource, false, queuedCacheInvalidation);
+      pendingForce = false;
+      requestRefresh(queuedSource, queuedForce, queuedCacheInvalidation);
     }, delayMs);
   };
 
@@ -335,6 +383,11 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
       return () => {};
     },
     onRefresh: requestRefresh,
+    onEligibleEvent: (source) => {
+      if (shouldInvalidateProviderCache(source)) {
+        markVisibleDataStale();
+      }
+    },
     immediateEvents: IMMEDIATE_REFRESH_EVENTS,
     completionEvents: COMPLETION_REFRESH_EVENTS,
     pollIntervalMs,

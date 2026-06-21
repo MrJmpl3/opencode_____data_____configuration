@@ -11,6 +11,7 @@ export interface ResolvedQuotaPluginOptions {
   minRefreshIntervalMs: number;
   providerCacheTtlMs: number;
   providerErrorBackoffMs: number;
+  experimentalOpenAIResetCredits: boolean;
 }
 
 interface ResolvedQuotaPluginOptionsDiagnostics {
@@ -127,6 +128,11 @@ const getNumberOption = (
   return Math.max(minimum, value);
 };
 
+const getBooleanOption = (options: unknown, key: keyof QuotaPluginOptions): boolean => {
+  if (!isRecord(options)) return false;
+  return options[key] === true;
+};
+
 export const inspectQuotaPluginOptions = (options: unknown): InspectedQuotaPluginOptions => {
   const visibleProviders = inspectVisibleProviders(options);
 
@@ -159,6 +165,7 @@ export const inspectQuotaPluginOptions = (options: unknown): InspectedQuotaPlugi
         DEFAULT_PROVIDER_ERROR_BACKOFF_MS,
         MIN_SAFE_CACHE_TTL_MS,
       ),
+      experimentalOpenAIResetCredits: getBooleanOption(options, 'experimentalOpenAIResetCredits'),
     },
     diagnostics: {
       invalidVisibleProviderEntries: visibleProviders.invalidVisibleProviderEntries,

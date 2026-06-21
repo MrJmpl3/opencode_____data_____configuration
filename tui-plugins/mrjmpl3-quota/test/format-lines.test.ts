@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { MONTH_SECONDS, WEEK_SECONDS } from '../src/domain/format.ts';
-import { detailTextLine, headingLine, paceLine, windowLine } from '../src/domain/lines.ts';
+import { detailTextLine, headingLine, paceLine, renderQuotaLine, windowLine } from '../src/domain/lines.ts';
+import type { OpenAIResetCreditsResult } from '../src/domain/types.ts';
 import { formatCopilotLines } from '../src/infrastructure/providers/copilot.ts';
 import { formatGoLines } from '../src/infrastructure/providers/go.ts';
 import { formatOpenAILines } from '../src/infrastructure/providers/openai.ts';
@@ -36,9 +37,9 @@ describe('formatGoLines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      windowLine('5h window', '0%', 300, fetchedAtMs),
-      windowLine('Weekly', '0%', 600, fetchedAtMs),
-      windowLine('Monthly', '0%', 900, fetchedAtMs),
+      windowLine('5h', '0%', 300, fetchedAtMs),
+      windowLine('Wk', '0%', 600, fetchedAtMs),
+      windowLine('Mo', '0%', 900, fetchedAtMs),
       paceLine({ usedPct: 0, resetSec: 900 }, MONTH_SECONDS, fetchedAtMs),
     ]);
   });
@@ -55,7 +56,7 @@ describe('formatGoLines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      windowLine('Monthly', '75%', 3600, fetchedAtMs),
+      windowLine('Mo', '75%', 3600, fetchedAtMs),
       paceLine({ usedPct: 25, resetSec: 3600 }, MONTH_SECONDS, fetchedAtMs),
     ]);
   });
@@ -77,7 +78,7 @@ describe('formatCopilotLines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      windowLine('Monthly', '70 pts', 3600, fetchedAtMs),
+      windowLine('Mo', '70 pts', 3600, fetchedAtMs),
       paceLine({ usedPct: 30, resetSec: 3600 }, MONTH_SECONDS, fetchedAtMs),
     ]);
   });
@@ -94,7 +95,7 @@ describe('formatCopilotLines', () => {
         'remaining',
         fetchedAtMs,
       ),
-    ).toEqual([windowLine('Monthly', '15 pts', 7200, fetchedAtMs)]);
+    ).toEqual([windowLine('Mo', '15 pts', 7200, fetchedAtMs)]);
   });
 
   it('falls back to a detail line when reset data is missing', () => {
@@ -108,7 +109,7 @@ describe('formatCopilotLines', () => {
         'remaining',
         fetchedAtMs,
       ),
-    ).toEqual([detailTextLine('Monthly · 5 pts')]);
+    ).toEqual([detailTextLine('Monthly 5 pts')]);
   });
 
   it('preserves unlimited text when no numeric quota is available', () => {
@@ -121,7 +122,7 @@ describe('formatCopilotLines', () => {
         'used',
         fetchedAtMs,
       ),
-    ).toEqual([detailTextLine('Monthly · Unlimited')]);
+    ).toEqual([detailTextLine('Monthly Unlimited')]);
   });
 });
 
@@ -137,7 +138,7 @@ describe('formatOpenRouterLines', () => {
         },
         'remaining',
       ),
-    ).toEqual([detailTextLine('Credits · $7.50')]);
+    ).toEqual([detailTextLine('Credits $7.50')]);
   });
 
   it('formats used credits when the total is known', () => {
@@ -151,7 +152,7 @@ describe('formatOpenRouterLines', () => {
         },
         'used',
       ),
-    ).toEqual([detailTextLine('Credits · $2.50/$10.00')]);
+    ).toEqual([detailTextLine('Credits $2.50/$10.00')]);
   });
 
   it('falls back to the raw provider text when there is no total', () => {
@@ -163,7 +164,7 @@ describe('formatOpenRouterLines', () => {
         },
         'used',
       ),
-    ).toEqual([detailTextLine('Credits · $1.2345 used (no limit)')]);
+    ).toEqual([detailTextLine('Credits $1.2345 used (no limit)')]);
   });
 });
 
@@ -187,10 +188,10 @@ describe('formatOpenAILines', () => {
     ).toEqual([
       headingLine('OpenAI'),
       windowLine('5h', '20%', 300, fetchedAtMs),
-      windowLine('Weekly', '30%', 600, fetchedAtMs),
+      windowLine('Wk', '30%', 600, fetchedAtMs),
       paceLine({ usedPct: 30, resetSec: 600 }, WEEK_SECONDS, fetchedAtMs),
-      windowLine('Code Review', '40%', 900, fetchedAtMs),
-      detailTextLine('Credits · $5.00'),
+      windowLine('Code', '40%', 900, fetchedAtMs),
+      detailTextLine('Credits $5.00'),
     ]);
   });
 
@@ -211,10 +212,10 @@ describe('formatOpenAILines', () => {
         fetchedAtMs,
       ),
     ).toEqual([
-      headingLine('OpenAI Spark'),
+      headingLine('Spark'),
       windowLine('5h', '90%', 100, fetchedAtMs),
-      windowLine('Weekly', '80%', 200, fetchedAtMs),
-      paceLine({ usedPct: 20, resetSec: 200, limitWindowSec: 1234 }, 1234, fetchedAtMs),
+      windowLine('Wk', '80%', 200, fetchedAtMs),
+      paceLine({ usedPct: 20, resetSec: 200 }, 1234, fetchedAtMs),
     ]);
   });
 
@@ -241,9 +242,180 @@ describe('formatOpenAILines', () => {
       ),
     ).toEqual([
       headingLine('OpenAI'),
-      windowLine('Vision · blocked', '55%', 111, fetchedAtMs),
-      windowLine('Vision Secondary', '66%', 222, fetchedAtMs),
-      windowLine('Audio · limit reached Secondary', '70%', 333, fetchedAtMs),
+      windowLine('blocked · Vision', '55%', 111, fetchedAtMs, 'error'),
+      windowLine('blocked · Vision 2nd', '66%', 222, fetchedAtMs, 'error'),
+      windowLine('limit reached · Audio 2nd', '70%', 333, fetchedAtMs, 'error'),
     ]);
+  });
+
+  it('compacts long additional OpenAI labels before rendering them in the sidebar', () => {
+    const lines = formatOpenAILines(
+      {
+        additionalRateLimits: [
+          {
+            label: 'Extraordinarily Long Additional Rate Limit Name',
+            allowed: false,
+            primary: { usedPct: 55, resetSec: 111 },
+          },
+        ],
+      },
+      'used',
+      fetchedAtMs,
+    );
+
+    expect(lines).toEqual([
+      headingLine('OpenAI'),
+      windowLine('blocked · Extraordina…', '55%', 111, fetchedAtMs, 'error'),
+    ]);
+  });
+
+  it('appends reset credits lines after the credits line when available', () => {
+    const dateTimeFormatSpy = vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function () {
+      return {
+        format: (date: Date) => {
+          return date.getUTCMonth() === 6 ? 'Jul 17' : 'Jun 17';
+        },
+      } as Intl.DateTimeFormat;
+    } as typeof Intl.DateTimeFormat);
+
+    const resetCredits: OpenAIResetCreditsResult = {
+      state: 'available',
+      availableCount: 1,
+      credits: [
+        {
+          grantedAtIso: '2026-06-17T17:38:38Z',
+          expiresAtIso: '2026-07-17T17:38:38Z',
+          status: 'available',
+        },
+      ],
+      nextExpiresAtMs: Date.parse('2026-07-17T17:38:38Z'),
+    };
+
+    const lines = formatOpenAILines(
+      {
+        weekly: { usedPct: 30, resetSec: 600 },
+        credits: '$5.00',
+        resetCredits,
+      },
+      'remaining',
+      fetchedAtMs,
+    );
+
+    expect(dateTimeFormatSpy).toHaveBeenCalled();
+    expect(lines).toEqual([
+      headingLine('OpenAI'),
+      windowLine('Wk', '70%', 600, fetchedAtMs),
+      paceLine({ usedPct: 30, resetSec: 600 }, WEEK_SECONDS, fetchedAtMs),
+      detailTextLine('Credits $5.00'),
+      detailTextLine('Reset · 1 available · Jul 17'),
+      detailTextLine('Granted Jun 17'),
+    ]);
+  });
+
+  it('shows none available state for reset credits with zero count', () => {
+    const resetCredits: OpenAIResetCreditsResult = {
+      state: 'none-available',
+      availableCount: 0,
+      credits: [],
+    };
+
+    const lines = formatOpenAILines(
+      {
+        weekly: { usedPct: 30, resetSec: 600 },
+        resetCredits,
+      },
+      'remaining',
+      fetchedAtMs,
+    );
+
+    expect(lines).toContainEqual(detailTextLine('Reset · none'));
+  });
+
+  it('shows unavailable state for reset credits that failed to load', () => {
+    const resetCredits: OpenAIResetCreditsResult = {
+      state: 'unavailable',
+      availableCount: 0,
+      credits: [],
+      errorMessage: 'OpenAI reset credits HTTP 403',
+    };
+
+    const lines = formatOpenAILines(
+      {
+        weekly: { usedPct: 30, resetSec: 600 },
+        resetCredits,
+      },
+      'remaining',
+      fetchedAtMs,
+    );
+
+    expect(lines).toContainEqual(detailTextLine('Reset · unavailable', 'error'));
+    expect(lines.some((line) => line.kind === 'detail' && line.text.includes('HTTP 403'))).toBe(false);
+  });
+
+  it('uses plural form for multiple reset credits', () => {
+    const resetCredits: OpenAIResetCreditsResult = {
+      state: 'available',
+      availableCount: 3,
+      credits: [],
+    };
+
+    const lines = formatOpenAILines(
+      {
+        weekly: { usedPct: 30, resetSec: 600 },
+        resetCredits,
+      },
+      'remaining',
+      fetchedAtMs,
+    );
+
+    expect(lines).toContainEqual(detailTextLine('Reset · 3 available'));
+  });
+});
+
+describe('renderQuotaLine window format', () => {
+  it('renders a window line with label, value, and reset duration', () => {
+    const line = windowLine('Wk', '5%', 90, fetchedAtMs);
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('  Wk 5% · 1m30s');
+  });
+
+  it('renders a window line with a long label without padding', () => {
+    const line = windowLine('Vision', '55%', 111, fetchedAtMs, 'error');
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('  Vision 55% · 1m51s');
+  });
+
+  it('renders a window line with 100% usage', () => {
+    const line = windowLine('Mo', '100%', 3600, fetchedAtMs);
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('  Mo 100% · 1h0m');
+  });
+
+  it('renders a window line with zero reset time', () => {
+    const line = windowLine('5h', '95%', 0, fetchedAtMs);
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('  5h 95% · 0s');
+  });
+});
+
+describe('renderQuotaLine pace format', () => {
+  it('renders under-pace info with checkmark', () => {
+    const line = paceLine({ usedPct: 5, resetSec: 90 }, 100, fetchedAtMs);
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('    ✓ 5% under');
+  });
+
+  it('renders over-pace info with warning and recovery projection', () => {
+    const line = paceLine({ usedPct: 15, resetSec: 90 }, 100, fetchedAtMs);
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('    ⚠ 5% over · ~5s');
+  });
+
+  it('renders over-pace with recovery for a weekly window', () => {
+    const resetSec = 4 * 24 * 60 * 60;
+    const line = paceLine({ usedPct: 50, resetSec }, WEEK_SECONDS, fetchedAtMs);
+    const rendered = renderQuotaLine(line, fetchedAtMs);
+    expect(rendered).toContain('⚠');
+    expect(rendered).toContain('7.14%');
+    expect(rendered).toContain('~12h');
+  });
+
+  it('renders at-pace as below with zero delta', () => {
+    const line = paceLine({ usedPct: 10, resetSec: 90 }, 100, fetchedAtMs);
+    expect(renderQuotaLine(line, fetchedAtMs)).toBe('    ✓ 0% under');
   });
 });

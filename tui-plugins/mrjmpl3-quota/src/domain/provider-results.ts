@@ -10,12 +10,17 @@ type CachedProviderValue = QuotaLine[] | string;
 export type ProviderFetchResult = CachedProviderValue | undefined;
 export type ProviderResult = QuotaLine[] | string | null;
 
-export const fetchProviderLines = async (
-  providerId: QuotaProviderId,
-  goConfig: GoConfig,
-  displayMode: QuotaDisplayMode,
-  setNowMs: (nowMs: number) => void,
-): Promise<ProviderFetchResult> => {
+export interface FetchProviderLinesArgs {
+  providerId: QuotaProviderId;
+  goConfig: GoConfig;
+  displayMode: QuotaDisplayMode;
+  setNowMs: (nowMs: number) => void;
+  experimentalOpenAIResetCredits?: boolean;
+}
+
+export const fetchProviderLines = async (args: FetchProviderLinesArgs): Promise<ProviderFetchResult> => {
+  const { providerId, goConfig, displayMode, setNowMs, experimentalOpenAIResetCredits } = args;
+
   switch (providerId) {
     case 'opencode-go': {
       if (!goConfig) return undefined;
@@ -46,7 +51,9 @@ export const fetchProviderLines = async (
     }
 
     case 'openai': {
-      const openAIResult = await fetchOpenAIQuota();
+      const openAIResult = await fetchOpenAIQuota({
+        experimentalResetCredits: experimentalOpenAIResetCredits === true,
+      });
       if (openAIResult === null) return undefined;
       if ('error' in openAIResult) return openAIResult.error;
 
