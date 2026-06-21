@@ -57,7 +57,7 @@ export const paceLine = (window: PercentWindow, windowSeconds: number, capturedA
 export const renderQuotaLine = (line: QuotaLine, nowMs: number): string => {
   switch (line.kind) {
     case 'heading':
-      return `▸ ${line.text}`;
+      return `● ${line.text}`;
     case 'detail':
       return indentQuotaLine(line.text);
     case 'window': {
