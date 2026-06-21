@@ -5,7 +5,7 @@ import type { PercentWindow, QuotaLineTone } from './types.ts';
 export type QuotaLine =
   | { kind: 'heading'; text: string }
   | { kind: 'detail'; text: string; tone?: QuotaLineTone }
-  | { kind: 'window'; label: string; value: string; resetAtMs: number; tone?: QuotaLineTone }
+  | { kind: 'window'; label: string; value: string; resetAtMs: number; usedPct?: number; tone?: QuotaLineTone }
   | { kind: 'pace'; usedPct: number; resetAtMs: number; windowSeconds: number };
 
 const resetAtMsFromSeconds = (resetSec: number, capturedAtMs: number): number =>
@@ -14,6 +14,12 @@ const resetAtMsFromSeconds = (resetSec: number, capturedAtMs: number): number =>
 const indentQuotaLine = (text: string): string => `  ${text}`;
 
 const indentPaceLine = (text: string): string => `    ${text}`;
+
+export const usageColor = (usedPct: number): string => {
+  if (usedPct <= 50) return 'green';
+  if (usedPct <= 80) return 'yellow';
+  return 'red';
+};
 
 export const remainingSeconds = (resetAtMs: number, nowMs: number): number =>
   Math.max(0, Math.ceil((resetAtMs - nowMs) / 1000));
@@ -31,12 +37,14 @@ export const windowLine = (
   resetSec: number,
   capturedAtMs: number,
   tone: QuotaLineTone = 'neutral',
+  usedPct?: number,
 ): QuotaLine => ({
   kind: 'window',
   label,
   value,
   resetAtMs: resetAtMsFromSeconds(resetSec, capturedAtMs),
   tone,
+  usedPct: usedPct !== undefined && Number.isFinite(usedPct) ? usedPct : undefined,
 });
 
 export const paceLine = (window: PercentWindow, windowSeconds: number, capturedAtMs: number): QuotaLine => ({

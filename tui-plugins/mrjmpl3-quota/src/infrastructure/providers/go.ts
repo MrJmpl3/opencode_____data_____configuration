@@ -67,7 +67,14 @@ export const formatGoLines = (data: GoDashboard, displayMode: QuotaDisplayMode, 
     if (!window) continue;
 
     lines.push(
-      windowLine(name, formatPercentQuota(window.used, window.remaining, displayMode), window.resetInSec, fetchedAtMs),
+      windowLine(
+        name,
+        formatPercentQuota(window.used, window.remaining, displayMode),
+        window.resetInSec,
+        fetchedAtMs,
+        'neutral',
+        window.used,
+      ),
     );
 
     if (paceWindowSeconds !== undefined) {
