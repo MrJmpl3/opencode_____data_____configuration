@@ -1,5 +1,5 @@
 ---
-name: 0183-vueuse-functions
+name: 0185-vueuse-functions
 description:
   Apply VueUse composables where appropriate to build concise, maintainable Vue.js / Nuxt features.
 license: MIT
