@@ -1,0 +1,179 @@
+# Dependabot configuration
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Root npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Buenos_Aires"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      opencode-ecosystem:
+        patterns:
+          - "@opencode-ai/*"
+          - "@opentui/*"
+        update-types:
+          - "minor"
+          - "patch"
+      solid-ecosystem:
+        patterns:
+          - "solid-js"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # TUI plugin: mrjmpl3-subagent-status
+  - package-ecosystem: "npm"
+    directory: "/tui-plugins/mrjmpl3-subagent-status"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Buenos_Aires"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      opencode-ecosystem:
+        patterns:
+          - "@opencode-ai/*"
+          - "@opentui/*"
+        update-types:
+          - "minor"
+          - "patch"
+      solid-ecosystem:
+        patterns:
+          - "solid-js"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # TUI plugin: mrjmpl3-cache
+  - package-ecosystem: "npm"
+    directory: "/tui-plugins/mrjmpl3-cache"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Buenos_Aires"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      opencode-ecosystem:
+        patterns:
+          - "@opencode-ai/*"
+          - "@opentui/*"
+        update-types:
+          - "minor"
+          - "patch"
+      solid-ecosystem:
+        patterns:
+          - "solid-js"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # TUI plugin: mrjmpl3-limits
+  - package-ecosystem: "npm"
+    directory: "/tui-plugins/mrjmpl3-limits"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Buenos_Aires"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      opencode-ecosystem:
+        patterns:
+          - "@opencode-ai/*"
+          - "@opentui/*"
+        update-types:
+          - "minor"
+          - "patch"
+      solid-ecosystem:
+        patterns:
+          - "solid-js"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # TUI plugin: mrjmpl3-quota
+  - package-ecosystem: "npm"
+    directory: "/tui-plugins/mrjmpl3-quota"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Argentina/Buenos_Aires"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      opencode-ecosystem:
+        patterns:
+          - "@opencode-ai/*"
+          - "@opentui/*"
+        update-types:
+          - "minor"
+          - "patch"
+      solid-ecosystem:
+        patterns:
+          - "solid-js"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
