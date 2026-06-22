@@ -8,7 +8,9 @@
         "experimentalOpenAIResetCredits": true
       }
     ],
-    "/home/mrjmpl3/.config/opencode/tui-plugins/gentle-logo.tsx"
+    "/home/mrjmpl3/.config/opencode/tui-plugins/mrjmpl3-subagent-status",
+    "/home/mrjmpl3/.config/opencode/tui-plugins/gentle-logo.tsx",
+    "opencode-sdd-engram-manage"
   ],
   "theme": "opencode"
 }
