@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.15.13",
-    "@opentui/solid": "^0.2.15",
+    "@opencode-ai/plugin": "1.17.9",
+    "@opentui/solid": "^0.4.1",
     "solid-js": "^1.9.12"
   },
   "devDependencies": {
