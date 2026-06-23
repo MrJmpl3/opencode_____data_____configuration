@@ -267,6 +267,50 @@ describe('reconcile', () => {
     });
   });
 
+  it('preserves same-terminal reconciliation timing while merging recovered details', () => {
+    const initial = createEmptyState();
+    initial.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_child',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    const result = reconcileChildrenState(initial, {
+      data: [
+        {
+          id: 'ses_child',
+          parentID: 'ses_parent',
+          title: 'Recovered child',
+          source: 'session',
+          targetSessionID: 'ses_child',
+          status: 'error',
+          agentName: 'sdd-apply',
+          summary: 'Recovered failure summary',
+          startedAt: '2026-06-04T11:55:00.000Z',
+          updatedAt: '2026-06-04T12:05:00.000Z',
+          endedAt: '2026-06-04T12:05:00.000Z',
+          tokens: { input: 1, output: 2, total: 3 },
+        },
+      ],
+    });
+
+    expect(result.nextState.children.ses_child).toMatchObject({
+      status: 'error',
+      agentName: 'sdd-apply',
+      summary: 'Recovered failure summary',
+      tokens: { input: 1, output: 2, total: 3 },
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
   it('does not create a running session alias targeting a terminal recovered child', () => {
     const initial = createEmptyState();
     initial.children.ses_child = {

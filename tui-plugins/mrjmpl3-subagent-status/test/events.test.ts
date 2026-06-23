@@ -452,4 +452,50 @@ describe('events', () => {
       endedAt: ERROR_AT,
     });
   });
+
+  it('preserves failed subtask recency when a later matching task message arrives', () => {
+    const state = createEmptyState();
+    state.children['subtask:part_1'] = {
+      id: 'subtask:part_1',
+      title: 'Execute failing slice',
+      parentID: 'ses_parent',
+      messageID: 'msg_1',
+      source: 'subtask',
+      targetSessionID: 'ses_child',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-05T10:00:00.000Z',
+      updatedAt: '2026-06-05T10:03:00.000Z',
+      endedAt: '2026-06-05T10:03:00.000Z',
+    };
+
+    expect(
+      applySubagentEvent(state, {
+        type: 'message.part.updated',
+        properties: {
+          sessionID: 'ses_parent',
+          part: {
+            type: 'tool',
+            tool: 'task',
+            id: 'tool_1',
+            sessionID: 'ses_parent',
+            messageID: 'msg_1',
+            state: {
+              status: 'error',
+              input: { description: 'Execute failing slice' },
+              metadata: { sessionId: 'ses_child' },
+              time: { end: '2026-06-05T10:10:00.000Z' },
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+
+    expect(state.children['subtask:part_1']).toMatchObject({
+      status: 'error',
+      targetSessionID: 'ses_child',
+      updatedAt: '2026-06-05T10:03:00.000Z',
+      endedAt: '2026-06-05T10:03:00.000Z',
+    });
+  });
 });

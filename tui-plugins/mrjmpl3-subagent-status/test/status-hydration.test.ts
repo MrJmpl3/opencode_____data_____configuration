@@ -236,6 +236,43 @@ describe('status hydration', () => {
     });
   });
 
+  it('preserves failed recency when client hydration repeats the same terminal status', async () => {
+    const state = createEmptyState();
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Recovered child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_child',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    const changed = await hydrateChildStatusesFromClient(
+      createApi({
+        clientStatus: {
+          ses_child: {
+            type: 'error',
+            time: { ended: '2026-06-04T12:05:00.000Z' },
+          },
+        },
+        clientMessages: [{ time: { updated: '2026-06-04T12:05:00.000Z' } }],
+      }),
+      state,
+      ['ses_child'],
+    );
+
+    expect(changed).toBe(false);
+    expect(state.children.ses_child).toMatchObject({
+      status: 'error',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
   it('reads client message history once for multiple rows targeting the same running session', async () => {
     const state = createEmptyState();
     state.children.ses_child = {

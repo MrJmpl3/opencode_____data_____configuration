@@ -47,6 +47,13 @@ const reconcileSubtaskTargetCount = (
   return rekeyCountedExecution(state, child.id, child.targetSessionID);
 };
 
+const shouldPreserveSameTerminalTiming = (
+  existing: SubagentChild | undefined,
+  nextStatus: SubagentChild['status'],
+): boolean => {
+  return Boolean(existing && isTerminalStatus(existing.status) && existing.status === nextStatus);
+};
+
 export const upsertRunningChild = (
   state: SubagentState,
   input: Pick<SubagentChild, 'id' | 'title' | 'parentID'> &
@@ -62,6 +69,7 @@ export const upsertRunningChild = (
         | 'updatedAt'
         | 'status'
         | 'endedAt'
+        | 'tokens'
       >
     >,
   options: { allowPurgedSessionRestore?: boolean; allowTerminalReopen?: boolean } = {},
@@ -98,9 +106,12 @@ export const upsertRunningChild = (
     options.allowTerminalReopen === true &&
     incomingEvidenceMs > existingEvidenceMs,
   );
+  const preserveSameTerminalTiming = shouldPreserveSameTerminalTiming(existing, incomingStatus);
   const preserveExistingTiming = Boolean(
     existing &&
-    (staleEvidence || (isTerminalStatus(existing.status) && incomingStatus === 'running' && !reopenTerminal)),
+    (preserveSameTerminalTiming ||
+      staleEvidence ||
+      (isTerminalStatus(existing.status) && incomingStatus === 'running' && !reopenTerminal)),
   );
   const status = preserveExistingTiming ? existing!.status : incomingStatus;
   const nextUpdatedAt = preserveExistingTiming ? existing!.updatedAt : observedUpdatedAt;
@@ -136,7 +147,7 @@ export const upsertRunningChild = (
     endedAt: nextEndedAt,
     color: existing?.color,
     elapsedMs: existing?.elapsedMs,
-    tokens: existing?.tokens,
+    tokens: mergeTokens(existing?.tokens, input.tokens),
   });
 
   if (
@@ -159,7 +170,7 @@ export const upsertRunningChild = (
 
   state.children[input.id] = next;
   reconcileSubtaskTargetCount(state, next);
-  state.updatedAt = next.updatedAt;
+  state.updatedAt = preserveSameTerminalTiming ? observedUpdatedAt : next.updatedAt;
   return true;
 };
 
@@ -214,8 +225,12 @@ export const upsertChildDetails = (
     existing.id.startsWith('ses_') ? existing.id : undefined,
   );
   const candidateUpdatedAt = safeTimestamp(input.updatedAt, existing.updatedAt ?? new Date().toISOString());
-  const nextUpdatedAt =
-    timestampMs(candidateUpdatedAt) >= childEvidenceTimestampMs(existing) ? candidateUpdatedAt : existing.updatedAt;
+  const preserveTerminalTiming = isTerminalStatus(existing.status);
+  const nextUpdatedAt = preserveTerminalTiming
+    ? existing.updatedAt
+    : timestampMs(candidateUpdatedAt) >= childEvidenceTimestampMs(existing)
+      ? candidateUpdatedAt
+      : existing.updatedAt;
 
   if (
     nextTitle === existing.title &&
@@ -240,7 +255,7 @@ export const upsertChildDetails = (
     Date.parse(nextUpdatedAt),
   );
   reconcileSubtaskTargetCount(state, state.children[childID]);
-  state.updatedAt = nextUpdatedAt;
+  state.updatedAt = candidateUpdatedAt;
   return true;
 };
 

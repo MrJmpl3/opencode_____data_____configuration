@@ -155,6 +155,52 @@ describe('sqlite recovery source', () => {
     });
   });
 
+  it('preserves same-terminal recovered child timing while merging recovered metadata', () => {
+    const state = createEmptyState();
+    state.children.ses_failed = {
+      id: 'ses_failed',
+      title: 'Failed child',
+      parentID: 'ses_parent',
+      source: 'session',
+      targetSessionID: 'ses_failed',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T05:15:00.000Z',
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
+    };
+
+    const result = applyRecoveredChildren(
+      state,
+      [
+        {
+          id: 'ses_failed',
+          title: 'Failed child',
+          parentID: 'ses_parent',
+          source: 'session',
+          targetSessionID: 'ses_failed',
+          status: 'error',
+          agentName: 'sdd-apply',
+          startedAt: '2026-06-04T05:15:00.000Z',
+          updatedAt: '2026-06-04T05:30:00.000Z',
+          endedAt: '2026-06-04T05:30:00.000Z',
+          tokens: { input: 12, output: 8, total: 20 },
+        },
+      ],
+      ['ses_failed'],
+      'ses_parent',
+    );
+
+    expect(result.changed).toBe(true);
+    expect(state.children.ses_failed).toMatchObject({
+      status: 'error',
+      agentName: 'sdd-apply',
+      tokens: { input: 12, output: 8, total: 20 },
+      updatedAt: '2026-06-04T05:20:00.000Z',
+      endedAt: '2026-06-04T05:20:00.000Z',
+    });
+  });
+
   it('uses large step-finish-only recovery as done evidence while preserving token evidence', async () => {
     const largePayload = 'x'.repeat(256 * 1024);
     const largeParts = [

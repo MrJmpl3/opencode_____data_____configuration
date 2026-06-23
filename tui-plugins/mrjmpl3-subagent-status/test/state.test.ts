@@ -686,6 +686,82 @@ describe('state', () => {
     });
   });
 
+  it('preserves same-terminal upsert timing while merging non-timing child fields', () => {
+    const state = createEmptyState();
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Failed child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    };
+
+    expect(
+      upsertRunningChild(state, {
+        id: 'ses_child',
+        title: 'Failed child',
+        parentID: 'ses_parent',
+        source: 'session',
+        status: 'error',
+        summary: 'Recovered failure summary',
+        agentName: 'sdd-apply',
+        targetSessionID: 'ses_child',
+        startedAt: '2026-06-04T11:55:00.000Z',
+        updatedAt: '2026-06-04T12:05:00.000Z',
+        endedAt: '2026-06-04T12:05:00.000Z',
+      }),
+    ).toBe(true);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'error',
+      summary: 'Recovered failure summary',
+      agentName: 'sdd-apply',
+      targetSessionID: 'ses_child',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+  });
+
+  it('preserves terminal detail timing while still merging tokens and summary', () => {
+    const state = createEmptyState();
+    state.updatedAt = '2026-06-04T12:00:00.000Z';
+
+    state.children.ses_child = {
+      id: 'ses_child',
+      title: 'Failed child',
+      parentID: 'ses_parent',
+      source: 'session',
+      status: 'error',
+      color: 'red',
+      startedAt: '2026-06-04T11:55:00.000Z',
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+      tokens: { input: 2, output: 3, total: 5 },
+    };
+
+    expect(
+      upsertChildDetails(state, 'ses_child', {
+        summary: 'Failure details were recovered',
+        tokens: { input: 4, output: 6, total: 10 },
+        updatedAt: '2026-06-04T12:05:00.000Z',
+      }),
+    ).toBe(true);
+
+    expect(state.children.ses_child).toMatchObject({
+      status: 'error',
+      summary: 'Failure details were recovered',
+      tokens: { input: 4, output: 6, total: 10 },
+      updatedAt: '2026-06-04T12:00:00.000Z',
+      endedAt: '2026-06-04T12:00:00.000Z',
+    });
+    expect(state.updatedAt).toBe('2026-06-04T12:05:00.000Z');
+  });
+
   it('allows changing from one terminal status to a different terminal status', () => {
     const state = createEmptyState();
 
