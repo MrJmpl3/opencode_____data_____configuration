@@ -1,4 +1,4 @@
-import { isRecord } from '../shared/coercion.ts';
+import { isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 import {
   DEFAULT_DONE_RETENTION_MS,
   DEFAULT_STALE_RETENTION_MS,

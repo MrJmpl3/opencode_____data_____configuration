@@ -1,6 +1,6 @@
 /** @jsxImportSource @opentui/solid */
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
-import { createSignal } from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 
 import type { QuotaLine } from '../domain/lines.ts';
 import { detailTextLine, headingLine } from '../domain/lines.ts';
@@ -13,7 +13,7 @@ import { View } from '../ui/view.tsx';
 import { createRefreshScheduler } from './refresh-scheduler.ts';
 import { ALLOWED_VISIBLE_PROVIDER_IDS, DEFAULT_VISIBLE_PROVIDERS, inspectQuotaPluginOptions } from './options.ts';
 import type { ProviderSpec } from '../domain/types.ts';
-import { slotSessionId } from './session.ts';
+import { isRecord, slotSessionId } from '@mrjmpl3/tui-kit';
 
 const TERMINAL_SESSION_STATUSES = new Set([
   'aborted',
@@ -38,7 +38,6 @@ const PROVIDER_CACHE_INVALIDATION_SOURCES = new Set([
   'session.status',
 ]);
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 const asString = (value: unknown): string | undefined =>
   typeof value === 'string' && value.trim() ? value : undefined;
 const normalizedStatus = (value: unknown): string | undefined => asString(value)?.trim().toLowerCase();
@@ -130,14 +129,12 @@ export const refreshQuotaProviders = async ({
   goConfig,
   getCachedProviderLines,
   shouldContinue,
-  onUpdate,
 }: {
   visibleProviders: readonly ProviderSpec[];
   results: Map<QuotaProviderId, ProviderResult>;
   goConfig: GoConfig;
   getCachedProviderLines: (providerId: QuotaProviderId, goConfig: GoConfig) => Promise<ProviderFetchResult>;
   shouldContinue: () => boolean;
-  onUpdate: () => void;
 }): Promise<void> => {
   await Promise.allSettled(
     visibleProviders
@@ -156,8 +153,6 @@ export const refreshQuotaProviders = async ({
         } else {
           results.set(provider.id, result);
         }
-
-        onUpdate();
       }),
   );
 };
@@ -171,6 +166,11 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
   let refreshGeneration = 0;
   let disposed = false;
   let clockTimer: ReturnType<typeof setTimeout> | undefined;
+  // Slot-visibility gate: the 1Hz clock only advances `nowMs` while the
+  // sidebar slot is mounted and has visible lines. Pausing the clock when the
+  // slot is hidden/empty eliminates idle full-view re-renders. Set true inside
+  // the `sidebar_content` closure; reset to false via `onCleanup` on unmount.
+  let slotActive = false;
 
   const { options: resolvedOptions, diagnostics } = inspectQuotaPluginOptions(options);
 
@@ -314,6 +314,13 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     const delayMs = 1000 - (Date.now() % 1000);
     clockTimer = setTimeout(() => {
       if (disposed) return;
+      // Skip the clock update while the slot is hidden or has no visible
+      // content, but keep rescheduling so the clock resumes within ~1s once
+      // visibility/content returns.
+      if (!slotActive || lines().length === 0) {
+        scheduleClockTick();
+        return;
+      }
       const tickNowMs = Date.now();
       setNowMs(tickNowMs);
       if (hasExpiredQuotaLine(lines(), tickNowMs) && tickNowMs - lastExpiryRefreshAtMs >= expiryRefreshIntervalMs) {
@@ -344,8 +351,13 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
       goConfig,
       getCachedProviderLines,
       shouldContinue: () => !disposed && currentVersion === inFlightVersion && currentGeneration === refreshGeneration,
-      onUpdate: () => setLines(buildLines(results)),
     });
+    // Apply all provider results in a single setLines update after the refresh
+    // settles, instead of one setLines per provider, so the view re-renders
+    // once per cycle rather than N times.
+    if (!disposed && currentVersion === inFlightVersion && currentGeneration === refreshGeneration) {
+      setLines(buildLines(results));
+    }
   };
 
   const scheduleDeferredRefresh = (
@@ -413,6 +425,14 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
           currentSessionId = sessionId;
           requestRefresh(`session:${sessionId}`);
         }
+        // Mark the slot as active and resume the clock immediately so elapsed
+        // times stay fresh (<=1s staleness). onCleanup resets the gate when the
+        // host unmounts the slot (e.g. sidebar collapsed via <Show>).
+        slotActive = true;
+        onCleanup(() => {
+          slotActive = false;
+        });
+        setNowMs(Date.now());
         return <View getLines={lines} getNowMs={nowMs} api={api} />;
       },
     },

@@ -1,6 +1,6 @@
 /** @jsxImportSource @opentui/solid */
 import type { TuiPluginApi, TuiSlotContext } from '@opencode-ai/plugin/tui';
-import { createEffect, createMemo, createRoot, createSignal } from 'solid-js';
+import { createEffect, createMemo, createRoot, createSignal, onCleanup } from 'solid-js';
 
 import { createPromptFocusController } from './focus.ts';
 import {
@@ -39,6 +39,8 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unkn
         getSessionId: sessionId,
         setSessionId,
         setNowMs,
+        // The clock's content gate: only tick while visible children exist.
+        hasVisibleContent: () => snapshot().visibleChildren.length > 0,
       },
       resolvedOptions,
     );
@@ -71,6 +73,10 @@ export const registerSubagentStatusTui = async (api: TuiPluginApi, options: unkn
         },
         sidebar_content: (_ctx: unknown, slotInput: unknown) => {
           runtime.refreshFromSlot(slotInput);
+          // Mark the slot visible so the 1Hz clock resumes; onCleanup resets the
+          // gate when the host unmounts the slot (e.g. sidebar collapsed).
+          runtime.setSlotVisible(true);
+          onCleanup(() => runtime.setSlotVisible(false));
 
           return (
             <SidebarView

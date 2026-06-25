@@ -46,8 +46,11 @@ const createAuthFixture = (entries: Record<string, unknown>): string => {
 };
 
 const flushAsyncTasks = async (): Promise<void> => {
-  await Promise.resolve();
-  await Promise.resolve();
+  // The batched setLines write happens after Promise.allSettled resolves and
+  // the awaited refreshQuotaProviders returns — a few microtasks deeper than
+  // the former per-provider onUpdate. Flush enough microtasks to let the
+  // post-settlement write land deterministically.
+  for (let i = 0; i < 6; i += 1) await Promise.resolve();
 };
 
 const pluginMeta: TuiPluginMeta = {
@@ -895,14 +898,13 @@ describe('quota tui plugin', () => {
     vi.resetModules();
   });
 
-  it('starts provider refreshes in parallel and applies each result as it settles', async () => {
+  it('starts provider refreshes in parallel and collects results without per-provider updates', async () => {
     const started: string[] = [];
     const resolvers: Record<string, (value: string) => void> = {};
     const results = new Map([
       ['github-copilot' as const, null],
       ['openrouter' as const, null],
     ]);
-    const onUpdate = vi.fn();
 
     const refreshPromise = refreshQuotaProviders({
       visibleProviders: [
@@ -919,7 +921,6 @@ describe('quota tui plugin', () => {
         });
       },
       shouldContinue: () => true,
-      onUpdate,
     });
 
     expect(started).toEqual(['github-copilot', 'openrouter']);
@@ -929,13 +930,11 @@ describe('quota tui plugin', () => {
 
     expect(results.get('openrouter')).toBe('openrouter-ready');
     expect(results.get('github-copilot')).toBeNull();
-    expect(onUpdate).toHaveBeenCalledTimes(1);
 
     resolvers['github-copilot']?.('copilot-ready');
     await refreshPromise;
 
     expect(results.get('github-copilot')).toBe('copilot-ready');
-    expect(onUpdate).toHaveBeenCalledTimes(2);
   });
 
   it('recognizes rate-limit errors and ignores plain parse errors', () => {

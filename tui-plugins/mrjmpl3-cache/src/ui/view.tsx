@@ -1,7 +1,7 @@
 import { Show } from 'solid-js';
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { detailLine, formatCompactNumber, formatPercentRatio } from '../runtime/tui.ts';
+import { detailLine, formatCompactNumber, formatPercentRatio } from '@mrjmpl3/tui-kit';
 
 export type CacheViewProps = {
   hasData: () => boolean;

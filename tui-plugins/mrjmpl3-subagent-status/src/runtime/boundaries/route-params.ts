@@ -1,6 +1,6 @@
 import type { TuiRouteCurrent } from '@opencode-ai/plugin/tui';
 
-import { asString, isRecord } from '../../shared/coercion.ts';
+import { asString, isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 
 export type NormalizedSessionRouteParams = {
   sessionID?: string;

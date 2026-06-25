@@ -11,7 +11,7 @@ export {
   formatCompactNumber,
   formatPercentRatio,
   slotSessionId,
-} from './src/runtime/tui.ts';
+} from '@mrjmpl3/tui-kit';
 
 const plugin: TuiPluginModule & { id: string } = {
   id: 'cache',

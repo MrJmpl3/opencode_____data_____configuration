@@ -1,7 +1,7 @@
 import type { SubagentChild, SubagentTokens } from '../types.ts';
 
 import { mergeSubagentTokens, normalizeSubagentTokens, sameSubagentTokens } from '../tokens.ts';
-import { safeTimestamp, timestampMs, toFiniteNumber, toNonNegativeInteger } from '../../shared/coercion.ts';
+import { safeTimestamp, timestampMs, toFiniteNumber, toNonNegativeInteger } from '@mrjmpl3/tui-kit';
 
 export const isTerminalStatus = (
   status: SubagentChild['status'],

@@ -1,23 +1,23 @@
 {
-  "name": "mrjmpl3-limits",
+  "name": "@mrjmpl3/tui-kit",
   "private": true,
   "type": "module",
-  "exports": "./index.tsx",
+  "exports": {
+    ".": "./src/index.ts",
+    "./test": "./src/test/render-harness.tsx"
+  },
   "scripts": {
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {
-    "@mrjmpl3/tui-kit": "file:../kit",
+  "devDependencies": {
     "@opencode-ai/plugin": "1.17.9",
     "@opentui/solid": "^0.4.1",
-    "solid-js": "^1.9.13"
-  },
-  "devDependencies": {
     "@types/node": "^25.9.1",
     "prettier": "^3.6.2",
+    "solid-js": "^1.9.13",
     "typescript": "^5.9.3",
     "vitest": "^4.1.7"
   }

@@ -1,6 +1,6 @@
 import type { SubagentTokens } from './types.ts';
 
-import { isRecord, toFiniteNumber } from '../shared/coercion.ts';
+import { isPlainObject as isRecord, toFiniteNumber } from '@mrjmpl3/tui-kit';
 
 const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 

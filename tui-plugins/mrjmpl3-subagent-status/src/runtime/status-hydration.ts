@@ -6,7 +6,7 @@ import type { SubagentChild, SubagentState } from '../domain/types.ts';
 import { hasCompleteUsageMetrics } from '../domain/tokens.ts';
 import { hydrateDoneChildTokens } from '../infrastructure/logs.ts';
 import { debugLog } from '../shared/debug.ts';
-import { isRecord, normalizedString, timestampFromUnknown } from '../shared/coercion.ts';
+import { isPlainObject as isRecord, normalizedString, timestampFromUnknown } from '@mrjmpl3/tui-kit';
 
 import { createSessionClientBoundary } from './boundaries/session-client.ts';
 import { isRealSessionRow, resolveSessionRowSessionId } from './session-row.ts';

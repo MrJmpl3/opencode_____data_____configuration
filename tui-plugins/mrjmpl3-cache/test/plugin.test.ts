@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import plugin from '../index.tsx';
 import { summarizeCacheMessages } from '../src/domain/summary.ts';
-import { slotSessionId } from '../src/runtime/tui.ts';
+import { slotSessionId } from '@mrjmpl3/tui-kit';
 
 const pluginMeta: TuiPluginMeta = {
   id: 'cache',

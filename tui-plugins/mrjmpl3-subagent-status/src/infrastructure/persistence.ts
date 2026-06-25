@@ -23,7 +23,7 @@ import {
   resolveExecutionCountIdentity,
   syncExecutionState,
 } from '../domain/state.ts';
-import { isRecord, toFiniteNumber, toNonNegativeInteger } from '../shared/coercion.ts';
+import { isPlainObject as isRecord, toFiniteNumber, toNonNegativeInteger } from '@mrjmpl3/tui-kit';
 
 const STATUS_DIRNAME = 'mrjmpl3-subagent-status';
 const STATUS_FILENAME = 'state.json';

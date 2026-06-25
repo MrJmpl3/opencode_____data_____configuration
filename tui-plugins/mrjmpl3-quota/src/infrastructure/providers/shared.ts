@@ -1,5 +1,6 @@
-export const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
+import { isRecord } from '@mrjmpl3/tui-kit';
+
+export { isRecord };
 
 const getNested = (obj: unknown, path: readonly string[]): unknown => {
   let value: unknown = obj;

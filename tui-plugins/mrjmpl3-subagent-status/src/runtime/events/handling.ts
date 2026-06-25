@@ -12,7 +12,7 @@ import {
   mapTaskToolToSubtaskID,
   resolveSyntheticTargetSessionID,
 } from './parsing.ts';
-import { asString } from '../../shared/coercion.ts';
+import { asString } from '@mrjmpl3/tui-kit';
 import { normalizeEventPayload, type EventLike } from '../boundaries/event-payload.ts';
 
 const handleSessionCreated = (state: SubagentState, event: EventLike): boolean => {

@@ -2,7 +2,7 @@ import type { SubagentState } from '../../domain/types.ts';
 
 import { deriveOpenCodeSessionStatus } from '../../domain/session-status.ts';
 import { conciseText, sameDisplayText } from '../../shared/display.ts';
-import { asString, isRecord, timestampFromUnknown } from '../../shared/coercion.ts';
+import { asString, isPlainObject as isRecord, timestampFromUnknown } from '@mrjmpl3/tui-kit';
 import type { EventLike } from '../boundaries/event-payload.ts';
 
 export type SyntheticChild = {

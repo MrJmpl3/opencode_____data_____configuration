@@ -18,11 +18,13 @@ import {
 import { createRecoverySources } from '../infrastructure/recovery-sources.ts';
 import { formatPersistedSnapshot, type PersistSnapshotMeta } from './persisted-snapshot.ts';
 import { createTuiRuntimeRefresh } from './tui-runtime-refresh.ts';
-import { isRecord } from '../shared/coercion.ts';
+import { isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 
 export type TuiRuntime = {
   bootstrap: () => Promise<void>;
   refreshFromSlot: (slotInput: unknown) => void;
+  /** Mark the sidebar slot as visible/hidden so the 1Hz clock can be gated. */
+  setSlotVisible: (visible: boolean) => void;
   dispose: () => void;
 };
 
@@ -34,6 +36,12 @@ export const createTuiRuntime = (
     getSessionId: () => string;
     setSessionId: (sessionId: string) => void;
     setNowMs: (nowMs: number) => void;
+    /**
+     * Whether the sidebar has visible content (active/recent children). When
+     * false (or omitted), the clock still respects the slot-visibility gate.
+     * Defaults to `() => true` so callers that don't track content are unaffected.
+     */
+    hasVisibleContent?: () => boolean;
   },
   options: ResolvedSubagentStatusPluginOptions = normalizeSubagentStatusPluginOptions(undefined),
 ): TuiRuntime => {
@@ -61,6 +69,14 @@ export const createTuiRuntime = (
   let tickTimer: ReturnType<typeof setInterval> | undefined;
   let reconcileTimer: ReturnType<typeof setInterval> | undefined;
   let lastEventType: string | undefined;
+  // Slot-visibility gate: the 1Hz clock only advances `nowMs` while the sidebar
+  // slot is mounted and has visible children. Pausing the clock when hidden or
+  // empty eliminates idle full-view re-renders.
+  let slotActive = false;
+  const hasVisibleContent = input.hasVisibleContent ?? (() => true);
+  const setSlotVisible = (visible: boolean): void => {
+    slotActive = visible;
+  };
 
   const createPersistMeta = (source: PersistSnapshotMeta['source']): PersistSnapshotMeta => ({
     source,
@@ -142,7 +158,7 @@ export const createTuiRuntime = (
   });
 
   tickTimer = setInterval(() => {
-    if (!disposed) input.setNowMs(Date.now());
+    if (!disposed && slotActive && hasVisibleContent()) input.setNowMs(Date.now());
   }, 1000);
 
   reconcileTimer = setInterval(() => {
@@ -194,6 +210,7 @@ export const createTuiRuntime = (
   return {
     bootstrap,
     refreshFromSlot,
+    setSlotVisible,
     dispose,
   };
 };

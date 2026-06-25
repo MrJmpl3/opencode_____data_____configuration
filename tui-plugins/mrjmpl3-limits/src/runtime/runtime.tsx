@@ -4,7 +4,7 @@ import type { TuiPlugin } from '@opencode-ai/plugin/tui';
 import { getModelFromMessages, readModelRecord, readString, resolveModel } from '../domain/model.ts';
 import type { ProviderRecord } from '../domain/model.ts';
 import { LimitsView } from '../ui/view.tsx';
-import { eventProperties, eventSessionId, isRecord, slotSessionId } from './tui.ts';
+import { eventProperties, eventSessionId, isRecord, slotSessionId } from '@mrjmpl3/tui-kit';
 
 const REFRESH_EVENTS = ['tui.session.select', 'session.idle'] as const;
 

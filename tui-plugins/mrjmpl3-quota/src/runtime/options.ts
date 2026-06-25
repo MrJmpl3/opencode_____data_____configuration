@@ -1,4 +1,5 @@
 import type { ProviderSpec, QuotaDisplayMode, QuotaPluginOptions, QuotaProviderId } from '../domain/types.ts';
+import { isPlainObject } from '@mrjmpl3/tui-kit';
 
 export type { QuotaPluginOptions } from '../domain/types.ts';
 
@@ -40,10 +41,6 @@ const DEFAULT_PROVIDER_ERROR_BACKOFF_MS = 15 * 60_000;
 const MIN_SAFE_REFRESH_INTERVAL_MS = 60_000;
 const MIN_SAFE_CACHE_TTL_MS = 60_000;
 
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
 const defaultVisibleProviderSpecs = (): readonly ProviderSpec[] => {
   return PROVIDER_SPECS.filter((spec) => DEFAULT_VISIBLE_PROVIDERS.includes(spec.id));
 };
@@ -63,7 +60,7 @@ const inspectVisibleProviders = (
   invalidVisibleProviderEntries: readonly string[];
   fellBackToDefaultVisibleProviders: boolean;
 } => {
-  const configured = isRecord(options) ? options.visibleProviders : undefined;
+  const configured = isPlainObject(options) ? options.visibleProviders : undefined;
   if (!Array.isArray(configured) || configured.length === 0) {
     return {
       visibleProviders: defaultVisibleProviderSpecs(),
@@ -110,7 +107,7 @@ const inspectVisibleProviders = (
 };
 
 const getDisplayModeSetting = (options: unknown): QuotaDisplayMode => {
-  if (!isRecord(options)) return 'remaining';
+  if (!isPlainObject(options)) return 'remaining';
   return options.displayMode === 'used' ? 'used' : 'remaining';
 };
 
@@ -121,7 +118,7 @@ const getNumberOption = (
   minimum: number,
   allowZero = false,
 ): number => {
-  if (!isRecord(options)) return fallback;
+  if (!isPlainObject(options)) return fallback;
   const value = options[key];
   if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
   if (allowZero && value === 0) return 0;
@@ -129,7 +126,7 @@ const getNumberOption = (
 };
 
 const getBooleanOption = (options: unknown, key: keyof QuotaPluginOptions): boolean => {
-  if (!isRecord(options)) return false;
+  if (!isPlainObject(options)) return false;
   return options[key] === true;
 };
 

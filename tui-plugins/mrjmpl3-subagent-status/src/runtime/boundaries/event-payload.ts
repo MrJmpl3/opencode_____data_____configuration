@@ -1,4 +1,4 @@
-import { isRecord } from '../../shared/coercion.ts';
+import { isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 
 export type EventLike = {
   type?: unknown;

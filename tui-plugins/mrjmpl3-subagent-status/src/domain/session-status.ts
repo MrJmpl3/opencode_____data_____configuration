@@ -1,6 +1,6 @@
 import type { SubagentStatus } from './types.ts';
 
-import { isRecord, normalizedString } from '../shared/coercion.ts';
+import { isPlainObject as isRecord, normalizedString } from '@mrjmpl3/tui-kit';
 
 export type TerminalSubagentStatus = Exclude<SubagentStatus, 'running'>;
 

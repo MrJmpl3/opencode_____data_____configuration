@@ -7,7 +7,7 @@ import type { SubagentChild, SubagentState, SubagentTokens } from '../../domain/
 import { mergeSubagentTokens, normalizeSubagentTokens } from '../../domain/tokens.ts';
 import { deriveTerminalSessionStatus } from '../../domain/session-status.ts';
 import { debugLog } from '../../shared/debug.ts';
-import { asString, isRecord, normalizedString, timestampFromUnknown, toFiniteNumber } from '../../shared/coercion.ts';
+import { asString, isPlainObject as isRecord, normalizedString, timestampFromUnknown, toFiniteNumber } from '@mrjmpl3/tui-kit';
 import { DEFAULT_STALE_RUNNING_PROBE_POLICY } from '../../runtime/options.ts';
 
 import { applyRecoveredChildren } from '../recovery.ts';

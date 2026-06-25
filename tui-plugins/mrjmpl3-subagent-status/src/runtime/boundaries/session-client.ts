@@ -1,6 +1,6 @@
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { isRecord } from '../../shared/coercion.ts';
+import { isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 
 type SessionStatusMap = Record<string, unknown>;
 

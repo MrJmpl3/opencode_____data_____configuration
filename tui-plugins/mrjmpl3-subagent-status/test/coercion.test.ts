@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isRecord } from '../src/shared/coercion.ts';
+import { isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 
 describe('coercion', () => {
   it('rejects arrays when checking isRecord', () => {

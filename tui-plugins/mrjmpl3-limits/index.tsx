@@ -12,7 +12,7 @@ export {
   formatCompactNumber,
   isRecord,
   slotSessionId,
-} from './src/runtime/tui.ts';
+} from '@mrjmpl3/tui-kit';
 
 const plugin: TuiPluginModule & { id: string } = {
   id: 'limits',

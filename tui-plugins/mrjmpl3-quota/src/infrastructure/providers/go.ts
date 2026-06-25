@@ -1,5 +1,7 @@
 import { readFileSync } from 'fs';
 
+import { isPlainObject } from '@mrjmpl3/tui-kit';
+
 import type { QuotaLine } from '../../domain/lines.ts';
 import type { GoWindow, OpenCodeGoWorkspaceConfig, QuotaDisplayMode } from '../../domain/types.ts';
 import { formatPercentQuota, MONTH_SECONDS } from '../../domain/format.ts';
@@ -34,10 +36,6 @@ export const formatGoWorkspaceHeading = (workspaceLabel: string): string => {
   return `${GO_DEFAULT_WORKSPACE_LABEL} (${workspaceLabel})`;
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-};
-
 const hasEnvironmentVariable = (name: string): boolean => {
   return Object.prototype.hasOwnProperty.call(process.env, name);
 };
@@ -48,7 +46,7 @@ const normalizeWorkspaceEntries = (value: unknown): readonly OpenCodeGoWorkspace
   const workspaces: OpenCodeGoWorkspaceConfig[] = [];
 
   for (const rawWorkspace of value) {
-    if (!isRecord(rawWorkspace)) continue;
+    if (!isPlainObject(rawWorkspace)) continue;
 
     const workspaceId = typeof rawWorkspace.workspaceId === 'string' ? rawWorkspace.workspaceId.trim() : '';
     const label = typeof rawWorkspace.label === 'string' ? rawWorkspace.label.trim() : '';

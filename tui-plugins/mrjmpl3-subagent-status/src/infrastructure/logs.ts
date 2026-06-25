@@ -4,7 +4,7 @@ import os from 'node:os';
 
 import { hasCompleteUsageMetrics, mergeSubagentTokens } from '../domain/tokens.ts';
 import type { SubagentTokens } from '../domain/types.ts';
-import { isRecord, toFiniteNumber } from '../shared/coercion.ts';
+import { isPlainObject as isRecord, toFiniteNumber } from '@mrjmpl3/tui-kit';
 
 const MAX_SYNC_LOG_READ_BYTES = 1024 * 1024;
 const DONE_TOKEN_REHYDRATE_THROTTLE_MS = 2000;

@@ -1,4 +1,4 @@
-import { asString, isRecord } from '../../shared/coercion.ts';
+import { asString, isPlainObject as isRecord } from '@mrjmpl3/tui-kit';
 
 export type NormalizedSessionSlotPayload = {
   sessionID?: string;

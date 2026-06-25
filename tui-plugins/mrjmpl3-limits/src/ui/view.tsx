@@ -1,7 +1,7 @@
 import { Show } from 'solid-js';
 import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 
-import { detailLine, formatCompactNumber } from '../runtime/tui.ts';
+import { detailLine, formatCompactNumber } from '@mrjmpl3/tui-kit';
 
 export type LimitsViewProps = {
   modelLabel: () => string;

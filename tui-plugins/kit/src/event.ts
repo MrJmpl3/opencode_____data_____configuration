@@ -1,23 +1,17 @@
-export type UnknownRecord = Record<string, unknown>;
+import { isRecord, type UnknownRecord } from './coercion.js';
 
-export const isRecord = (value: unknown): value is UnknownRecord => typeof value === 'object' && value !== null;
+/** E4: delegates to Object.prototype.hasOwnProperty.call */
+export const hasOwn = (value: UnknownRecord, key: string): boolean =>
+  isRecord(value) ? Object.prototype.hasOwnProperty.call(value, key) : false;
 
-export const formatCompactNumber = (n: number): string => {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 10_000) return `${Math.round(n / 1_000)}K`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-
-  return String(n);
-};
-
-export const detailLine = (text: string): string => `  ${text}`;
-
+/** E1: returns event.properties if record, else event, else {} */
 export const eventProperties = (event: unknown): UnknownRecord => {
   if (!isRecord(event)) return {};
 
   return isRecord(event.properties) ? event.properties : event;
 };
 
+/** E2: reads properties.sessionID (capital D) */
 export const eventSessionId = (event: unknown, fallback = ''): string => {
   const properties = eventProperties(event);
   const sessionId = properties.sessionID;
@@ -25,6 +19,7 @@ export const eventSessionId = (event: unknown, fallback = ''): string => {
   return typeof sessionId === 'string' ? sessionId : fallback;
 };
 
+/** E3: reads slotInput.session_id */
 export const slotSessionId = (slotInput: unknown, fallback = ''): string => {
   if (!isRecord(slotInput)) return fallback;
 

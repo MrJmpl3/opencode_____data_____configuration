@@ -3,7 +3,7 @@ import type { TuiPlugin } from '@opencode-ai/plugin/tui';
 
 import { summarizeCacheMessages } from '../domain/summary.ts';
 import { CacheView } from '../ui/view.tsx';
-import { eventSessionId, slotSessionId } from './tui.ts';
+import { eventSessionId, slotSessionId } from '@mrjmpl3/tui-kit';
 
 const IMMEDIATE_REFRESH_EVENTS = ['tui.session.select'] as const;
 const COMPLETION_REFRESH_EVENTS = ['session.idle'] as const;
