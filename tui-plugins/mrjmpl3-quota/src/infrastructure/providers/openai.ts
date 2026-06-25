@@ -283,7 +283,7 @@ const buildOpenAIHeaders = (token: string): Record<string, string> => {
   return headers;
 };
 
-const fetchOpenAIResetCredits = async (headers: Record<string, string>): Promise<OpenAIResetCreditsResult> => {
+const fetchOpenAIResetCredits = async (headers: Record<string, string>, signal?: AbortSignal): Promise<OpenAIResetCreditsResult> => {
   try {
     const resetHeaders: Record<string, string> = {
       ...headers,
@@ -291,7 +291,7 @@ const fetchOpenAIResetCredits = async (headers: Record<string, string>): Promise
       originator: 'Codex Desktop',
     };
 
-    const response = await fetchWithTimeout(OPENAI_RESET_CREDITS_URL, { headers: resetHeaders });
+    const response = await fetchWithTimeout(OPENAI_RESET_CREDITS_URL, { headers: resetHeaders }, undefined, signal);
     if (!response.ok) {
       const text = await response.text().catch(() => '');
       return {
@@ -433,8 +433,8 @@ export const formatOpenAILines = (
   return lines.length ? lines : [detailTextLine('No windows')];
 };
 
-const fetchOpenAIUsagePayload = async (headers: Record<string, string>): Promise<OpenAIResult | { error: string }> => {
-  const response = await fetchWithTimeout(OPENAI_USAGE_URL, { headers });
+const fetchOpenAIUsagePayload = async (headers: Record<string, string>, signal?: AbortSignal): Promise<OpenAIResult | { error: string }> => {
+  const response = await fetchWithTimeout(OPENAI_USAGE_URL, { headers }, undefined, signal);
   if (!response.ok) {
     const text = await response.text().catch((error: unknown) => {
       if (error instanceof Error) return error.message;
@@ -496,18 +496,19 @@ export interface FetchOpenAIQuotaOptions {
 
 export const fetchOpenAIQuota = async (
   options: FetchOpenAIQuotaOptions = {},
+  signal?: AbortSignal,
 ): Promise<OpenAIResult | null | { error: string }> => {
   const token = readOpenAIToken();
   if (!token) return null;
 
   const headers = buildOpenAIHeaders(token);
 
-  const usagePromise = fetchOpenAIUsagePayload(headers).catch((error: unknown) => ({
+  const usagePromise = fetchOpenAIUsagePayload(headers, signal).catch((error: unknown) => ({
     error: error instanceof Error ? error.message : String(error),
   }));
 
   const resetCreditsPromise = options.experimentalResetCredits
-    ? fetchOpenAIResetCredits(headers)
+    ? fetchOpenAIResetCredits(headers, signal)
     : Promise.resolve<OpenAIResetCreditsResult>({
         state: 'unavailable',
         availableCount: 0,

@@ -125,7 +125,7 @@ export const formatCopilotLines = (
   return lines;
 };
 
-export const fetchCopilotQuota = async (): Promise<CopilotResult | null | { error: string }> => {
+export const fetchCopilotQuota = async (signal?: AbortSignal): Promise<CopilotResult | null | { error: string }> => {
   const token = readCopilotToken();
   if (!token) return null;
 
@@ -136,7 +136,7 @@ export const fetchCopilotQuota = async (): Promise<CopilotResult | null | { erro
       'X-GitHub-Api-Version': '2022-11-28',
       'User-Agent': USER_AGENT,
     },
-  });
+  }, undefined, signal);
   if (!response.ok) return { error: httpErrorMessage('Copilot API', response) };
 
   const dataResult = await readJsonResponse('Copilot API', response);

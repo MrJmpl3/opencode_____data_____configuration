@@ -184,6 +184,7 @@ export const formatGoWorkspaceLines = (
 export const fetchGoDashboard = async (
   workspaceId: string,
   authCookie: string,
+  signal?: AbortSignal,
 ): Promise<
   | {
       data: {
@@ -200,7 +201,7 @@ export const fetchGoDashboard = async (
       Accept: 'text/html',
       Cookie: `auth=${authCookie}`,
     },
-  });
+  }, undefined, signal);
   if (!response.ok) return { error: httpErrorMessage('OpenCode Go', response) };
 
   const html = await response.text();

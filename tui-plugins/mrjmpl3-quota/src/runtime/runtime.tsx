@@ -3,6 +3,7 @@ import type { TuiPluginApi } from '@opencode-ai/plugin/tui';
 import { createSignal } from 'solid-js';
 
 import { useSlotVisibility, useClockTicker } from '@mrjmpl3/tui-kit/runtime';
+import { usePolling } from '@mrjmpl3/tui-kit/data';
 
 import type { QuotaLine } from '../domain/lines.ts';
 import { detailTextLine, headingLine } from '../domain/lines.ts';
@@ -12,7 +13,6 @@ import type { QuotaProviderId } from '../domain/types.ts';
 import { createQuotaProviderCache } from '../infrastructure/cache.ts';
 import { readGoConfig } from '../infrastructure/providers/go.ts';
 import { View } from '../ui/view.tsx';
-import { createRefreshScheduler } from './refresh-scheduler.ts';
 import { ALLOWED_VISIBLE_PROVIDER_IDS, DEFAULT_VISIBLE_PROVIDERS, inspectQuotaPluginOptions } from './options.ts';
 import type { ProviderSpec } from '../domain/types.ts';
 import { isRecord, slotSessionId } from '@mrjmpl3/tui-kit';
@@ -376,31 +376,79 @@ export const registerQuotaTui = async (api: TuiPluginApi, options: unknown): Pro
     }, delayMs);
   };
 
-  const scheduler = createRefreshScheduler({
-    subscribe: (eventName, handler) => {
-      if (eventName === 'tui.session.select') return evt.on('tui.session.select', handler);
-      if (eventName === 'session.idle') return evt.on('session.idle', handler);
-      if (eventName === 'session.error') return evt.on('session.error', handler);
-      if (eventName === 'session.status') return evt.on('session.status', handler);
-      if (eventName === 'message.part.updated') return evt.on('message.part.updated', handler);
+  // ── Polling via usePolling (replaces refresh-scheduler.ts poll interval) ────
 
-      return () => {};
-    },
-    onRefresh: requestRefresh,
-    onEligibleEvent: (source) => {
-      if (shouldInvalidateProviderCache(source)) {
+  const pollResource = {
+    refetch: () => requestRefresh('poll'),
+    dispose: () => {},
+    data: () => undefined as QuotaLine[] | undefined,
+    loading: () => false,
+    error: () => undefined,
+  };
+
+  const pollDispose =
+    pollIntervalMs > 0
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? usePolling({ resource: pollResource as any, intervalMs: pollIntervalMs, active: slotActive }).dispose
+      : () => {};
+
+  // ── Event subscriptions (replaces refresh-scheduler.ts event binding) ─────────
+
+  const subscribeEvent = (
+    event: { name: string; shouldRefresh?: (payload: unknown) => boolean },
+    extraDelayMs: number,
+  ): (() => void) => {
+    const handler = (payload: unknown) => {
+      if (event.shouldRefresh && !event.shouldRefresh(payload)) return;
+
+      if (shouldInvalidateProviderCache(event.name)) {
         markVisibleDataStale();
       }
-    },
-    immediateEvents: IMMEDIATE_REFRESH_EVENTS,
-    completionEvents: COMPLETION_REFRESH_EVENTS,
-    pollIntervalMs,
-  });
+
+      // Default refresh delay is 300ms + extra delay from the scheduler.
+      const totalDelayMs = 300 + extraDelayMs;
+      scheduleDeferredRefresh(event.name, totalDelayMs, shouldInvalidateProviderCache(event.name));
+    };
+
+    switch (event.name) {
+      case 'tui.session.select':
+        return evt.on('tui.session.select', handler);
+      case 'session.idle':
+        return evt.on('session.idle', handler);
+      case 'session.error':
+        return evt.on('session.error', handler);
+      case 'session.status':
+        return evt.on('session.status', handler);
+      case 'message.part.updated':
+        return evt.on('message.part.updated', handler);
+      default:
+        return () => {};
+    }
+  };
+
+  const normalizeEventSpec = (config: string | { name: string; shouldRefresh?: (payload: unknown) => boolean }) =>
+    typeof config === 'string' ? { name: config } : config;
+
+  const eventUnsubscribers: (() => void)[] = [];
+
+  for (const eventConfig of IMMEDIATE_REFRESH_EVENTS) {
+    const event = normalizeEventSpec(eventConfig);
+    const unsubscribe = subscribeEvent(event, 0);
+    eventUnsubscribers.push(unsubscribe);
+  }
+
+  for (const eventConfig of COMPLETION_REFRESH_EVENTS) {
+    const event = normalizeEventSpec(eventConfig);
+    const unsubscribe = subscribeEvent(event, 250);
+    eventUnsubscribers.push(unsubscribe);
+  }
+
   lifecycle.onDispose(() => {
     disposed = true;
     clockTickerDispose();
     if (deferredRefreshTimer) clearTimeout(deferredRefreshTimer);
-    scheduler.dispose();
+    pollDispose();
+    for (const unsubscribe of eventUnsubscribers) unsubscribe();
   });
 
   requestRefresh('initial', true);

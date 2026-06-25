@@ -34,13 +34,13 @@ export const formatOpenRouterLines = (data: OpenRouterResult, displayMode: Quota
   return [detailTextLine(`Credits ${formatCreditQuota(data, displayMode)}`)];
 };
 
-export const fetchOpenRouterQuota = async (): Promise<OpenRouterResult | null | { error: string }> => {
+export const fetchOpenRouterQuota = async (signal?: AbortSignal): Promise<OpenRouterResult | null | { error: string }> => {
   const key = readOpenRouterKey();
   if (!key) return null;
 
   const response = await fetchWithTimeout(OPENROUTER_CREDITS_URL, {
     headers: { Authorization: `Bearer ${key}`, Accept: 'application/json' },
-  });
+  }, undefined, signal);
   if (!response.ok) {
     const text = await response.text().catch(() => '');
     return { error: httpErrorMessage('OpenRouter', response, text) };

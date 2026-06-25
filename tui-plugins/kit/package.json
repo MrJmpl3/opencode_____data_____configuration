@@ -5,6 +5,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./runtime": "./src/runtime/index.ts",
+    "./data": "./src/data/index.ts",
     "./test": "./src/test/render-harness.tsx"
   },
   "scripts": {

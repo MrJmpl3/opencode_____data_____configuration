@@ -4,12 +4,14 @@ export const fetchWithTimeout = async (
   url: string,
   requestOptions: RequestInit,
   ms: number = FETCH_TIMEOUT_MS,
+  signal?: AbortSignal,
 ): Promise<Response> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
+  const mergedSignal = signal ? AbortSignal.any([controller.signal, signal]) : controller.signal;
 
   try {
-    return await fetch(url, { ...requestOptions, signal: controller.signal });
+    return await fetch(url, { ...requestOptions, signal: mergedSignal });
   } catch (error: unknown) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error(`Request to ${url} timed out after ${ms}ms`);
