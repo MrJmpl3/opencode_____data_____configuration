@@ -62,9 +62,7 @@ describe('cloneState equivalence with structuredClone (full SubagentState types)
 
   it('produces same JSON as structuredClone for a state with purged sessions', () => {
     const state = {
-      ...createState([
-        createChild({ id: 'a', title: 'A', parentID: 'p', status: 'done' }),
-      ]),
+      ...createState([createChild({ id: 'a', title: 'A', parentID: 'p', status: 'done' })]),
       purgedSessionIDs: { ses_old1: true as const, ses_old2: true as const },
       totalExecuted: 5,
     };

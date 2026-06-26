@@ -35,10 +35,7 @@ const makeState = (overrides: Partial<TestSubagentState> = {}): TestSubagentStat
   ...overrides,
 });
 
-const makeChild = (
-  id: string,
-  overrides: Record<string, unknown> = {},
-): TestSubagentChild => ({
+const makeChild = (id: string, overrides: Record<string, unknown> = {}): TestSubagentChild => ({
   id,
   title: `Child ${id}`,
   parentID: 'parent-ses',
@@ -269,10 +266,7 @@ describe('cloneState — multi-child round-trip', () => {
       const id = `child-${i}`;
       children[id] = makeChild(id, {
         status: statuses[i % 4],
-        tokens:
-          i % 3 === 0
-            ? undefined
-            : { input: i * 100, output: i * 50, total: i * 150 },
+        tokens: i % 3 === 0 ? undefined : { input: i * 100, output: i * 50, total: i * 150 },
       });
     }
 
@@ -296,7 +290,7 @@ describe('cloneState — multi-child round-trip', () => {
 
   it('purgedSessionIDs field is preserved via spread (structural sharing — safe)', () => {
     const original = makeState({
-      purgedSessionIDs: { 'ses_dead': true as const, 'ses_gone': true as const },
+      purgedSessionIDs: { ses_dead: true as const, ses_gone: true as const },
     });
 
     const cloned = cloneState(original);
